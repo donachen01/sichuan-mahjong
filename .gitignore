@@ -1,0 +1,35 @@
+.DS_Store
+
+# Godot generated/editor state
+.godot/
+*.import
+export_presets.cfg
+
+# Build/export outputs
+build/
+exports/
+dist/
+bin/
+obj/
+*.apk
+*.aab
+*.dmg
+*.zip
+
+# Local APK diff artifacts. The release packaging script can recreate the
+# needed Mono Android native library from the verified v1.0.42 release APK.
+evidence/1.0.42_to_1.0.44_github_diff/extracted/**
+
+# Local/generated scratch assets
+.tmp_tts/
+测试数据统计/**
+!测试数据统计/
+!测试数据统计/.gdignore
+
+# Signing and local secrets
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
+.env
+.env.*

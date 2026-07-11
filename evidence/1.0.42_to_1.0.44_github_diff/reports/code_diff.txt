@@ -1,0 +1,83 @@
+## commit log acf1a50..0f33f38
+0f33f38 (tag: v1.0.44) Show app version on splash screen
+80c8e9b (tag: v1.0.43) Add evidence runner uid
+408b905 Release 1.0.43 bao jiao fourth tile evidence
+
+## diff stat acf1a50..0f33f38
+ project.godot                                      |    2 +-
+ scenes/boot/SplashScreen.tscn                      |   19 +
+ scripts/boot/SplashScreen.gd                       |    9 +
+ .../NeijiangBaoJiaoFourthTileEvidenceRunner.gd     |  185 ++
+ .../NeijiangBaoJiaoFourthTileEvidenceRunner.gd.uid |    1 +
+ tests/current/NeijiangCurrentSmokeRunner.gd        |   97 +
+ tests/current/SplashScreenRegressionRunner.gd      |   46 +
+ tests/current/SplashScreenRegressionRunner.gd.uid  |    1 +
+ .../README.md"                                     |   52 +
+ .../SHA256SUMS.txt"                                |   12 +
+ .../bao_gang_regression_output.txt"                |   24 +
+ .../case_replay_readable.json"                     |  294 +++
+ .../case_replay_results.json"                      |  312 +++
+ .../code_rule_snippets.txt"                        |  136 ++
+ .../current_smoke_output.txt"                      |   31 +
+ .../evidence_runner_output.txt"                    |    6 +
+ .../evidence_runner_output_2.txt"                  |    7 +
+ .../real_log_bao_jiao_draw_scan.jsonl"             | 2223 ++++++++++++++++++++
+ .../real_log_scan_summary.json"                    |  156 ++
+ .../test_case_snippets.txt"                        |  156 ++
+ 20 files changed, 3768 insertions(+), 1 deletion(-)
+
+## diff names acf1a50..0f33f38
+M	project.godot
+M	scenes/boot/SplashScreen.tscn
+M	scripts/boot/SplashScreen.gd
+A	tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd
+A	tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd.uid
+M	tests/current/NeijiangCurrentSmokeRunner.gd
+A	tests/current/SplashScreenRegressionRunner.gd
+A	tests/current/SplashScreenRegressionRunner.gd.uid
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/README.md"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/SHA256SUMS.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/bao_gang_regression_output.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/case_replay_readable.json"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/case_replay_results.json"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/code_rule_snippets.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/current_smoke_output.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/evidence_runner_output.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/evidence_runner_output_2.txt"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/real_log_bao_jiao_draw_scan.jsonl"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/real_log_scan_summary.json"
+A	"\346\265\213\350\257\225\346\225\260\346\215\256\347\273\237\350\256\241/\345\233\236\345\275\222\350\257\201\346\215\256_20260520_\346\234\252\346\212\245\346\235\240\346\221\270\347\254\254\345\233\233\345\274\240/test_case_snippets.txt"
+
+## runtime-sensitive diff names
+project.godot
+scenes/boot/SplashScreen.tscn
+tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd
+tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd.uid
+tests/current/NeijiangCurrentSmokeRunner.gd
+tests/current/SplashScreenRegressionRunner.gd
+tests/current/SplashScreenRegressionRunner.gd.uid
+
+## runtime-sensitive commit stats only
+commit 0f33f38b6d20a895873494c2c41ddc24b1318336
+Author:     dona <182332225@qq.com>
+AuthorDate: Wed May 20 13:53:06 2026 +0800
+Commit:     dona <182332225@qq.com>
+CommitDate: Wed May 20 13:53:06 2026 +0800
+
+    Show app version on splash screen
+
+ project.godot                 |  2 +-
+ scenes/boot/SplashScreen.tscn | 19 +++++++++++++++++++
+ scripts/boot/SplashScreen.gd  |  9 +++++++++
+ 3 files changed, 29 insertions(+), 1 deletion(-)
+
+commit 408b9058961486d75efd6cd423669787c1e976c9
+Author:     dona <182332225@qq.com>
+AuthorDate: Wed May 20 12:59:26 2026 +0800
+Commit:     dona <182332225@qq.com>
+CommitDate: Wed May 20 12:59:26 2026 +0800
+
+    Release 1.0.43 bao jiao fourth tile evidence
+
+ project.godot | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)

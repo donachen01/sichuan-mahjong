@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/PlayerUI.gd" id="1_vc0ks"]
+[ext_resource type="Resource" path="res://res/ui/default_ui_style.tres" id="2_3e4g1"]
+
+[node name="PlayerUI" type="Control"]
+custom_minimum_size = Vector2(280, 220)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_vc0ks")
+style_config = ExtResource("2_3e4g1")
+
+[node name="RootPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="RootPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="VBox" type="VBoxContainer" parent="RootPanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="RootPanel/Margin/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Player"
+
+[node name="MetaLabel" type="Label" parent="RootPanel/Margin/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 2
+text = "1000分  手牌13"
+
+[node name="TagRow" type="HBoxContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StateTag" type="Label" parent="RootPanel/Margin/VBox/TagRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "庄家"
+
+[node name="TagSpacer" type="Control" parent="RootPanel/Margin/VBox/TagRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DingQueTag" type="Label" parent="RootPanel/Margin/VBox/TagRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="OpponentBand" type="HBoxContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="HandLane" type="GridContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 12
+theme_override_constants/separation = 4
+
+[node name="MeldLane" type="HBoxContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DiscardLane" type="GridContainer" parent="RootPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 6
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6

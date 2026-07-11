@@ -1,0 +1,182 @@
+[gd_scene load_steps=3 format=3 uid="uid://sichuan_mahjong_splash_scene"]
+
+[ext_resource type="Script" path="res://scripts/boot/SplashScreen.gd" id="1_splash_script"]
+[ext_resource type="Texture2D" path="res://res/art/splash/sichuan_mahjong_splash.png" id="2_splash_texture"]
+
+[node name="SplashScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_splash_script")
+
+[node name="SplashImage" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_splash_texture")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Shade" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.04, 0.025, 0.18)
+
+[node name="TitleLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -120.0
+offset_right = 380.0
+offset_bottom = -34.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.46, 1)
+theme_override_colors/font_outline_color = Color(0.12, 0.05, 0.01, 0.86)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 64
+text = "四川麻将"
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+
+[node name="LoadingLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -110.0
+offset_right = 190.0
+offset_bottom = -56.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.95, 0.90, 0.76, 0.95)
+theme_override_colors/font_outline_color = Color(0.04, 0.05, 0.03, 0.86)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 28
+text = "正在进入四川牌局"
+horizontal_alignment = 1
+vertical_alignment = 1
+visible = false
+
+[node name="VersionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_left = 34.0
+offset_top = 30.0
+offset_right = 274.0
+offset_bottom = 70.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.94, 0.76, 0.96)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.02, 0.86)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+text = "版本 v0.0.0"
+vertical_alignment = 1
+
+[node name="DiceLayer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -130.0
+offset_top = -8.0
+offset_right = 130.0
+offset_bottom = 92.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DiceLeft" type="Label" parent="DiceLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -108.0
+offset_top = -18.0
+offset_right = -12.0
+offset_bottom = 78.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.98, 0.97, 0.92, 0.96)
+theme_override_colors/font_outline_color = Color(0.08, 0.10, 0.08, 0.72)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 78
+text = "⚄"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DiceRight" type="Label" parent="DiceLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 12.0
+offset_top = -6.0
+offset_right = 108.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.98, 0.97, 0.92, 0.96)
+theme_override_colors/font_outline_color = Color(0.08, 0.10, 0.08, 0.72)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 78
+text = "⚁"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CreditLabel" type="Label" parent="."]
+visible = false
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -426.0
+offset_top = -54.0
+offset_right = -28.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.92, 0.89, 0.79, 0.72)
+theme_override_colors/font_outline_color = Color(0.03, 0.05, 0.03, 0.5)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 18
+text = "AI 制作・独立开发・仅供娱乐・cd・陈旭专用版"
+horizontal_alignment = 2
+vertical_alignment = 1

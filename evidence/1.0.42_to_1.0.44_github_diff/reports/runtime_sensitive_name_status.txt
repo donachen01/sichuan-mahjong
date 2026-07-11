@@ -1,0 +1,8 @@
+M	project.godot
+M	scenes/boot/SplashScreen.tscn
+M	scripts/boot/SplashScreen.gd
+A	tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd
+A	tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd.uid
+M	tests/current/NeijiangCurrentSmokeRunner.gd
+A	tests/current/SplashScreenRegressionRunner.gd
+A	tests/current/SplashScreenRegressionRunner.gd.uid

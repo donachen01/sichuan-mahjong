@@ -1,0 +1,1099 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/MainSceneV2.gd" id="1_q1t8j"]
+[ext_resource type="Script" path="res://scripts/game/GameManager.gd" id="2_dxt7q"]
+[ext_resource type="Resource" path="res://res/ui/default_ui_style.tres" id="3_6mkjg"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PlayerHandViewport.tscn" id="4_j1h1j"]
+
+[node name="MainScene" type="Node2D"]
+script = ExtResource("1_q1t8j")
+
+[node name="GameManager" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_dxt7q")
+
+[node name="GameScene" type="Node2D" parent="."]
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="RootUI" type="Control" parent="UILayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="UILayer/RootUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0588235, 0.372549, 0.219608, 1)
+
+[node name="SafeArea" type="MarginContainer" parent="UILayer/RootUI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 28
+
+[node name="MainVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TopBar" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 86)
+
+[node name="TopBarMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 4
+
+[node name="TopBarRow" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RoomCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RoomCardMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow/RoomCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 9
+
+[node name="RoomLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow/RoomCard/RoomCardMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+vertical_alignment = 1
+text = "房号 / 局数"
+
+[node name="InfoCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InfoCardMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow/InfoCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 9
+
+[node name="CenterInfo" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow/InfoCard/InfoCardMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+vertical_alignment = 1
+text = "牌局状态"
+
+[node name="TopBarButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(132, 0)
+text = "AI 难度"
+
+[node name="TopAITuningButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(132, 0)
+text = "AI 调参"
+
+[node name="TopAIHelperButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(132, 0)
+text = "AI辅助：开"
+
+[node name="TopOpponentHandButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(148, 0)
+text = "明牌模式：关"
+
+[node name="TopBarSpacer" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TopSettlementInfoButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(132, 0)
+text = "结算信息"
+
+[node name="TopNextRoundButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(132, 0)
+disabled = true
+text = "下一局"
+
+[node name="TopExitButton" type="Button" parent="UILayer/RootUI/SafeArea/MainVBox/TopBar/TopBarMargin/TopBarRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(96, 0)
+text = "退出"
+
+[node name="TableRow" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="LeftRail" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(304, 0)
+size_flags_vertical = 3
+z_index = 8
+
+[node name="LeftRailMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/LeftRail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="LeftRailAlign" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/LeftRail/LeftRailMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 2
+
+[node name="PlayerLeftHost" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/LeftRail/LeftRailMargin/LeftRailAlign"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(304, 0)
+size_flags_vertical = 3
+z_index = 10
+
+[node name="CenterColumn" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="TopRail" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 224)
+z_index = 14
+
+[node name="TopRailMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/TopRail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 10
+
+[node name="PlayerTopHost" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/TopRail/TopRailMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 204)
+z_index = 18
+
+[node name="CenterCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CenterMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="CenterVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="CenterStatus" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+text = "请选择一张手牌打出"
+
+[node name="CenterStatsCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 66)
+
+[node name="CenterStatsMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="CenterStats" type="GridContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard/CenterStatsMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 10
+
+[node name="CenterDealerLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard/CenterStatsMargin/CenterStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "庄家：-"
+
+[node name="CenterWallLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard/CenterStatsMargin/CenterStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "牌墙：-"
+
+[node name="CenterTurnLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard/CenterStatsMargin/CenterStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "当前回合：-"
+
+[node name="CenterReactionLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterStatsCard/CenterStatsMargin/CenterStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "响应：-"
+
+[node name="CenterHintCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 82)
+
+[node name="CenterHintMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterHintCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="CenterHintBox" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterHintCard/CenterHintMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "中间操作区"
+
+[node name="BoardArea" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 552)
+
+[node name="BoardCenter" type="CenterContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="BoardAspect" type="AspectRatioContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+ratio = 1.0
+stretch_mode = 2
+
+[node name="BoardSquare" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="BoardMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="BoardVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="BoardTopLane" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="BoardMiddle" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="BoardLeftLane" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(76, 0)
+size_flags_horizontal = 4
+size_flags_vertical = 3
+alignment = 2
+theme_override_constants/separation = 2
+
+[node name="BoardCore" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(108, 108)
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="BoardCoreMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle/BoardCore"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="BoardCoreCenter" type="CenterContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle/BoardCore/BoardCoreMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BoardCoreLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle/BoardCore/BoardCoreMargin/BoardCoreCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "骰子区"
+
+[node name="BoardRightLane" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox/BoardMiddle"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(84, 0)
+size_flags_horizontal = 4
+size_flags_vertical = 3
+alignment = 0
+theme_override_constants/separation = 2
+
+[node name="BoardBottomLane" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/BoardArea/BoardCenter/BoardAspect/BoardSquare/BoardMargin/BoardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="CenterSummaryRow" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_constants/separation = 8
+
+[node name="CenterMeldCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="CenterMeldMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="CenterMeldVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MeldSectionTitle" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin/CenterMeldVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "副露概览"
+
+[node name="SelfMeldSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin/CenterMeldVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "本家副露：-"
+
+[node name="LeftMeldSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin/CenterMeldVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "上家副露：-"
+
+[node name="TopMeldSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin/CenterMeldVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "对家副露：-"
+
+[node name="RightMeldSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterMeldCard/CenterMeldMargin/CenterMeldVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "下家副露：-"
+
+[node name="CenterDiscardCard" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 2
+
+[node name="CenterDiscardMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="CenterDiscardVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DiscardSectionTitle" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin/CenterDiscardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "出牌统计"
+
+[node name="SelfDiscardSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin/CenterDiscardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "本家出牌：-"
+
+[node name="LeftDiscardSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin/CenterDiscardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "上家出牌：-"
+
+[node name="TopDiscardSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin/CenterDiscardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "对家出牌：-"
+
+[node name="RightDiscardSummary" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/CenterCard/CenterMargin/CenterVBox/CenterSummaryRow/CenterDiscardCard/CenterDiscardMargin/CenterDiscardVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "下家出牌：-"
+
+[node name="SelfSection" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 356)
+
+[node name="SelfSectionMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 18
+
+[node name="SelfSectionVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SelfTopRow" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 118)
+theme_override_constants/separation = 14
+
+[node name="SelfInfoHost" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox/SelfTopRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 102)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActionPanel" type="Panel" parent="UILayer/RootUI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(212, 212)
+
+[node name="ActionMargin" type="MarginContainer" parent="UILayer/RootUI/ActionPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="ActionVBox" type="VBoxContainer" parent="UILayer/RootUI/ActionPanel/ActionMargin"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ActionStatusLabel" type="Label" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+text = "当前可执行操作"
+
+[node name="ActionButtons" type="GridContainer" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+
+[node name="HuButton" type="Button" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胡"
+
+[node name="GangButton" type="Button" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "杠"
+
+[node name="PengButton" type="Button" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "碰"
+
+[node name="PassButton" type="Button" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "过"
+
+[node name="SelfStatus" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+text = "当前不是你的回合。"
+
+[node name="SelfInfoBar" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="SelfDingQueLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox/SelfInfoBar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "缺万"
+
+[node name="SelfScoreLabel" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox/SelfInfoBar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "1000分"
+
+[node name="SelfWonStamp" type="Label" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox/SelfInfoBar"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "已胡"
+
+[node name="SelfSpacer" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 0)
+
+[node name="SelfHandHost" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/CenterColumn/SelfSection/SelfSectionMargin/SelfSectionVBox" instance=ExtResource("4_j1h1j")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 292)
+
+[node name="RightRail" type="Panel" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(304, 0)
+size_flags_vertical = 3
+z_index = 8
+
+[node name="RightRailMargin" type="MarginContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/RightRail"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="RightRailAlign" type="HBoxContainer" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/RightRail/RightRailMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 0
+
+[node name="PlayerRightHost" type="Control" parent="UILayer/RootUI/SafeArea/MainVBox/TableRow/RightRail/RightRailMargin/RightRailAlign"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(320, 0)
+size_flags_vertical = 3
+z_index = 10
+
+[node name="DingQueOverlay" type="Control" parent="UILayer/RootUI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="DingQueShade" type="ColorRect" parent="UILayer/RootUI/DingQueOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.38)
+
+[node name="DingQueCenter" type="CenterContainer" parent="UILayer/RootUI/DingQueOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="DingQuePanel" type="Panel" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(820, 348)
+
+[node name="DingQueMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 28
+
+[node name="DingQueVBox" type="VBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="DingQueTopSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DingQueTitleBlock" type="VBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DingQueStatusLabel" type="Label" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueTitleBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "请选择缺门"
+
+[node name="DingQueHintLabel" type="Label" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueTitleBlock"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "缺一门才能胡牌"
+
+[node name="DingQueMiddleSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 12)
+
+[node name="DingQueButtonCard" type="Panel" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(0, 110)
+
+[node name="DingQueButtonCardMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 18
+
+[node name="DingQueButtons" type="HBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 22
+
+[node name="DingQueTiaoButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 64)
+text = "缺条"
+
+[node name="DingQueTongButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 64)
+text = "缺筒"
+
+[node name="DingQueWanButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(160, 64)
+text = "缺万"
+
+[node name="DingQueBottomSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="SettlementOverlay" type="Control" parent="UILayer/RootUI"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="SettlementShade" type="ColorRect" parent="UILayer/RootUI/SettlementOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.46)
+
+[node name="SettlementCenter" type="CenterContainer" parent="UILayer/RootUI/SettlementOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SettlementPanel" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(1800, 1000)
+
+[node name="SettlementMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 18
+
+[node name="SettlementVBox" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="SettlementTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "本局结算"
+
+[node name="SettlementCloseButton" type="Button" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 10
+custom_minimum_size = Vector2(92, 40)
+text = "关闭"
+
+[node name="SettlementRoundLabel" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+text = "第 1 局 · 庄家本家"
+
+[node name="SettlementContent" type="HBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="SettlementPlayerListCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(292, 0)
+
+[node name="SettlementPlayerListMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="SettlementPlayerListVBox" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SettlementPlayerListTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin/SettlementPlayerListVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "玩家结算"
+
+[node name="SettlementPlayerList" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin/SettlementPlayerListVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="SettlementDetailCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SettlementDetailMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 12
+
+[node name="SettlementDetailVBox" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SettlementHeroCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 148)
+
+[node name="SettlementHeroMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="SettlementHeroRow" type="HBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="SettlementHeroInfo" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="SettlementHeroBadge" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "本局最佳"
+
+[node name="SettlementHeroName" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "本家"
+
+[node name="SettlementHeroResult" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胡牌大胜"
+
+[node name="SettlementHeroSummary" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroInfo"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="SettlementHeroStats" type="HBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow"]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="SettlementHeroHu" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "1胡"
+
+[node name="SettlementHeroFan" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "3番 / 8分"
+
+[node name="SettlementHeroScore" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHeroCard/SettlementHeroMargin/SettlementHeroRow/SettlementHeroStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+12"
+
+[node name="SettlementHandCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 190)
+
+[node name="SettlementHandMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHandCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="SettlementHandRow" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHandCard/SettlementHandMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SettlementBreakdownCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 360)
+size_flags_vertical = 3
+
+[node name="SettlementBreakdownMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementBreakdownCard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="SettlementBreakdownVBox" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementBreakdownCard/SettlementBreakdownMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SettlementBreakdownTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementBreakdownCard/SettlementBreakdownMargin/SettlementBreakdownVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "本局分数来源"
+
+[node name="SettlementBreakdownScroll" type="ScrollContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementBreakdownCard/SettlementBreakdownMargin/SettlementBreakdownVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SettlementBreakdownList" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementBreakdownCard/SettlementBreakdownMargin/SettlementBreakdownVBox/SettlementBreakdownScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="NextRoundButton" type="Button" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(280, 82)
+text = "下一局"

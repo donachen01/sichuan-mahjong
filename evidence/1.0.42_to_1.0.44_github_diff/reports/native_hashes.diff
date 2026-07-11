@@ -1,0 +1,11 @@
+--- evidence/1.0.42_to_1.0.44_github_diff/reports/native_hashes_1.0.42.txt	2026-05-20 18:00:58
++++ evidence/1.0.42_to_1.0.44_github_diff/reports/native_hashes_1.0.44.txt	2026-05-20 18:00:58
+@@ -3,7 +3,7 @@
+ 45a3055bc2f6688bd8f7e4eb0ddc96680e5bf8b4fac31dc18002a123d22de3bc  lib/arm64-v8a/libSystem.Native.so
+ 1619ade819f6348124642140c7c1171d2d68b2fb0c6f448390e67d7eb81d498d  lib/arm64-v8a/libSystem.Security.Cryptography.Native.Android.so
+ ad74bf43eb1fd576518168f664ad16a74e00eeda9595875c33dd87f6dd197869  lib/arm64-v8a/libc++_shared.so
+-9da745177c364666278250a8912d43869166998a277ab8eebfb9f7322a064b6a  lib/arm64-v8a/libgodot_android.so
++3871a52c9435ffbe8881f93a0c9693f32b7fad11ff771971fa7140c37e38d4a6  lib/arm64-v8a/libgodot_android.so
+ 26b67fca8bf13b9a21af7c506d42346f22c8aaba73590103cd670690f5617040  lib/arm64-v8a/libmono-component-debugger.so
+ 380d3c1f2551db0a08f058c4980214352bf4dcd4f19298c8291605fec3cc7b8e  lib/arm64-v8a/libmono-component-diagnostics_tracing.so
+ 2a768b64c911fde59ef97f578822e7af5bd264a62fc06cb727b3b91b9e3e9f01  lib/arm64-v8a/libmono-component-hot_reload.so

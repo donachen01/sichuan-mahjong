@@ -1,0 +1,64 @@
+1.0.48 package verification
+Date: 2026-05-20
+
+Final APK:
+  /Users/chendong/Documents/内江麻将工程_20260502_103823_v2/build/android/NeijiangMahjong-1.0.48-release.apk
+
+APK file:
+  size: 113M
+  bytes: 118885090
+  sha256: c746f6d7ad8434bb30eced28cfa16242c4230c44a2cbf64cdd65daca7ad529f4
+
+Android native Godot library inside APK:
+  path: lib/arm64-v8a/libgodot_android.so
+  length: 69458400
+  zip method: Stored
+  compression: 0%
+  sha256: 9da745177c364666278250a8912d43869166998a277ab8eebfb9f7322a064b6a
+
+Mono library recovery path:
+  verified by temporarily moving the local extracted lib away and rebuilding
+  source APK sha256: 68493b048df30efad322fa565c56c1e88c976fc3e832fe2d34278697b3641f9a
+  extracted lib sha256: 9da745177c364666278250a8912d43869166998a277ab8eebfb9f7322a064b6a
+  result: release script recovered the lib and rebuilt a signed APK
+
+Mono runtime string evidence from libgodot_android.so:
+  initialize_coreclr_and_godot_plugins
+  modules/mono/mono_gd/gd_mono_cache.cpp
+  modules/mono/mono_gd/gd_mono.cpp
+  4.6.2.stable.mono.official
+  Godot Engine v4.6.2.stable.mono.official
+  modules/mono/csharp_script.cpp
+
+APK signature verification:
+  Verified using v1 scheme (JAR signing): false
+  Verified using v2 scheme (APK Signature Scheme v2): true
+  Verified using v3 scheme (APK Signature Scheme v3): true
+  Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+  Verified using v4 scheme (APK Signature Scheme v4): false
+  Number of signers: 1
+
+Build verification:
+  command: dotnet build NeijiangMahjong.Godot.csproj --no-restore
+  result: 0 warnings, 0 errors
+
+Regression verification:
+  command: /Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path . --script res://tests/current/NeijiangCurrentSmokeRunner.gd
+  result: NEIJIANG CURRENT SMOKE OK
+
+  command: /Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path . --script res://tests/current/NeijiangCSharpContractRunner.gd
+  result: NEIJIANG CSHARP CONTRACT OK
+
+  command: /Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path . --script res://tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd
+  result: wrote /Users/chendong/Documents/内江麻将工程_20260502_103823_v2/测试数据统计/回归证据_20260520_未报杠摸第四张/case_replay_results.json
+
+Fourth-tile rule evidence:
+  case 1: 真实规则复盘：未报 9筒杠，摸第 4 张 9筒
+    input ids: 601/602/603 already in hand, last_draw_tile id 604
+    result: no gang options, no self action, backend recommends and executes discard id 604
+    backend paths: csharp_native_async passed=true, csharp_native_sync_delivery passed=true
+
+  case 2: 同类型回归：未报 7条杠，摸第 4 张 7条
+    input ids: 701/702/703 already in hand, last_draw_tile id 704
+    result: no gang options, no self action, backend recommends and executes discard id 704
+    backend paths: csharp_native_async passed=true, csharp_native_sync_delivery passed=true

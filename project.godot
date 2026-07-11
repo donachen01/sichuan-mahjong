@@ -1,0 +1,40 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="四川麻将新版"
+config/version="2.0.0"
+run/main_scene="res://scenes/boot/SplashScreen.tscn"
+config/features=PackedStringArray("4.6", "C#")
+config/icon="res://res/art/app_icon/app_icon_1024.png"
+
+[autoload]
+
+SichuanCSharpRuntime="*res://scripts/ai/SichuanCSharpRuntime.cs"
+GameState="*res://autoload/GameState.gd"
+
+[display]
+
+window/size/viewport_width=2560
+window/size/viewport_height=1440
+window/stretch/mode="canvas_items"
+
+[dotnet]
+
+project/assembly_name="SichuanMahjong.Godot"
+
+[rendering]
+
+renderer/rendering_method.mobile="gl_compatibility"

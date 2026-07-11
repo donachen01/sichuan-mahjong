@@ -1,0 +1,1557 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/MainTable.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PlayerHandViewport.tscn" id="2"]
+
+[node name="MainTable" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0862745, 0.34902, 0.247059, 1)
+
+[node name="TopBar" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 2536.0
+offset_bottom = 112.0
+
+[node name="MenuBadge" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 96.0
+offset_bottom = 74.0
+
+[node name="MenuIcon" type="Label" parent="TopBar/MenuBadge"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 8.0
+offset_right = 70.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "≡"
+
+[node name="RoomInfoPanel" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 10.0
+offset_right = 440.0
+offset_bottom = 74.0
+
+[node name="RoomInfoValue" type="Label" parent="TopBar/RoomInfoPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 18.0
+offset_top = 10.0
+offset_right = 264.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 24
+text = "房号 488603\n第3/8局"
+
+[node name="ClockPanel" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 454.0
+offset_top = 10.0
+offset_right = 574.0
+offset_bottom = 74.0
+
+[node name="ClockValue" type="Label" parent="TopBar/ClockPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 100.0
+offset_bottom = 48.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "19:28"
+
+[node name="RuleBadge" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 588.0
+offset_top = 10.0
+offset_right = 688.0
+offset_bottom = 74.0
+
+[node name="RuleValue" type="Label" parent="TopBar/RuleBadge"]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 16.0
+offset_right = 84.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+text = "玩法"
+
+[node name="TableTitle" type="Label" parent="TopBar"]
+visible = false
+layout_mode = 0
+offset_left = 724.0
+offset_top = 18.0
+offset_right = 1236.0
+offset_bottom = 62.0
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+text = "四川麻将"
+
+[node name="TopWallBar" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 650.0
+offset_top = 10.0
+offset_right = 1618.0
+offset_bottom = 84.0
+
+[node name="TopWallValue" type="Label" parent="TopBar/TopWallBar"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = 742.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text = "牌墙剩余 55"
+
+[node name="TopRightSeat" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 1842.0
+offset_top = 8.0
+offset_right = 2252.0
+offset_bottom = 82.0
+
+[node name="TopRightAvatar" type="ColorRect" parent="TopBar/TopRightSeat"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 88.0
+offset_bottom = 72.0
+color = Color(0.823529, 0.709804, 0.564706, 1)
+
+[node name="TopRightAvatarFrame" type="Panel" parent="TopBar/TopRightSeat/TopRightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopRightAvatarGlow" type="ColorRect" parent="TopBar/TopRightSeat/TopRightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.854902, 0.509804, 0.14)
+
+[node name="TopRightAvatarInitial" type="Label" parent="TopBar/TopRightSeat/TopRightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "T"
+
+[node name="TopRightInfo" type="Label" parent="TopBar/TopRightSeat"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 106.0
+offset_top = 10.0
+offset_right = 274.0
+offset_bottom = 66.0
+theme_override_font_sizes/font_size = 24
+text = "AI Top\n分数 0"
+
+[node name="TopRightTags" type="HBoxContainer" parent="TopBar/TopRightSeat"]
+layout_mode = 0
+offset_left = 272.0
+offset_top = 24.0
+offset_right = 406.0
+offset_bottom = 58.0
+theme_override_constants/separation = 8
+
+[node name="TopRightDealerTag" type="Label" parent="TopBar/TopRightSeat/TopRightTags"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.870588, 0.356863, 1)
+theme_override_font_sizes/font_size = 20
+text = "庄"
+
+[node name="TopRightDingQueTag" type="Label" parent="TopBar/TopRightSeat/TopRightTags"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.658824, 0.909804, 1, 1)
+theme_override_font_sizes/font_size = 24
+custom_minimum_size = Vector2(82, 34)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="TopRightActions" type="Panel" parent="TopBar"]
+layout_mode = 0
+offset_left = 2324.0
+offset_top = 10.0
+offset_right = 2498.0
+offset_bottom = 82.0
+
+[node name="TopAILevelButton" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1640.0
+offset_top = 18.0
+offset_right = 1810.0
+offset_bottom = 72.0
+text = "AI 中级"
+
+[node name="TopRightDots" type="Label" parent="TopBar/TopRightActions"]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 14.0
+offset_right = 88.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+text = "..."
+
+[node name="TopRightGear" type="Label" parent="TopBar/TopRightActions"]
+layout_mode = 0
+offset_left = 122.0
+offset_top = 14.0
+offset_right = 182.0
+offset_bottom = 46.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+text = "◎"
+
+[node name="CenterTable" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 306.0
+offset_top = 158.0
+offset_right = 2254.0
+offset_bottom = 1112.0
+
+[node name="CenterLabel" type="Label" parent="CenterTable"]
+layout_mode = 0
+offset_left = 582.0
+offset_top = 468.0
+offset_right = 1432.0
+offset_bottom = 540.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+modulate = Color(1, 1, 1, 0.18)
+text = "四川玩法"
+
+[node name="CenterHud" type="Panel" parent="CenterTable"]
+layout_mode = 0
+offset_left = 918.0
+offset_top = 424.0
+offset_right = 1078.0
+offset_bottom = 594.0
+
+[node name="CenterWallTopRail" type="Panel" parent="CenterTable"]
+layout_mode = 0
+offset_left = 382.0
+offset_top = 8.0
+offset_right = 1566.0
+offset_bottom = 86.0
+
+[node name="CenterWallTop" type="HBoxContainer" parent="CenterTable"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 418.0
+offset_top = 12.0
+offset_right = 1530.0
+offset_bottom = 82.0
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="CenterWallLeftRail" type="Panel" parent="CenterTable"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 62.0
+offset_right = 112.0
+offset_bottom = 790.0
+
+[node name="CenterWallLeft" type="VBoxContainer" parent="CenterTable"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 32.0
+offset_top = 76.0
+offset_right = 98.0
+offset_bottom = 776.0
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="CenterWallRightRail" type="Panel" parent="CenterTable"]
+layout_mode = 0
+offset_left = 1900.0
+offset_top = 62.0
+offset_right = 1994.0
+offset_bottom = 790.0
+
+[node name="CenterWallRight" type="VBoxContainer" parent="CenterTable"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1914.0
+offset_top = 76.0
+offset_right = 1980.0
+offset_bottom = 776.0
+theme_override_constants/separation = 3
+alignment = 1
+
+[node name="CenterWallBottom" type="HBoxContainer" parent="CenterTable"]
+unique_name_in_owner = true
+layout_mode = 0
+visible = false
+offset_left = 612.0
+offset_top = 824.0
+offset_right = 1404.0
+offset_bottom = 888.0
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="CenterRoundMark" type="Label" parent="CenterTable/CenterHud"]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 12.0
+offset_right = 126.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+text = "北"
+
+[node name="CenterWallCount" type="Label" parent="CenterTable/CenterHud"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 20.0
+offset_top = 52.0
+offset_right = 134.0
+offset_bottom = 88.0
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+text = "55 张"
+
+[node name="CenterHint" type="Label" parent="CenterTable/CenterHud"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -474.0
+offset_top = -246.0
+offset_right = 624.0
+offset_bottom = -162.0
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "等待出牌"
+
+[node name="SettlementOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="SettlementShade" type="ColorRect" parent="SettlementOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.42)
+
+[node name="SettlementPanel" type="Panel" parent="SettlementOverlay"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 650.0
+offset_top = 228.0
+offset_right = 1910.0
+offset_bottom = 1016.0
+
+[node name="SettlementTitle" type="Label" parent="SettlementOverlay/SettlementPanel"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 26.0
+offset_right = 320.0
+offset_bottom = 74.0
+theme_override_font_sizes/font_size = 32
+text = "本局结算"
+
+[node name="SettlementValue" type="Label" parent="SettlementOverlay/SettlementPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 34.0
+offset_top = 90.0
+offset_right = 1186.0
+offset_bottom = 598.0
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 26
+text = "本局结算信息加载中。"
+
+[node name="NextRoundButton" type="Button" parent="SettlementOverlay/SettlementPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 968.0
+offset_top = 690.0
+offset_right = 1166.0
+offset_bottom = 752.0
+text = "下一局"
+
+[node name="PlayerArea" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 1248.0
+offset_right = 2542.0
+offset_bottom = 1434.0
+
+[node name="PlayerAreaLabel" type="Label" parent="PlayerArea"]
+visible = false
+layout_mode = 0
+offset_left = 26.0
+offset_top = 14.0
+offset_right = 284.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 24
+text = "本家"
+
+[node name="PlayerAvatar" type="ColorRect" parent="PlayerArea"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 28.0
+offset_top = 22.0
+offset_right = 96.0
+offset_bottom = 90.0
+color = Color(0.788235, 0.662745, 0.529412, 1)
+
+[node name="PlayerInfoTitle" type="Label" parent="PlayerArea"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 260.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 22
+text = "Player"
+
+[node name="PlayerScoreValue" type="Label" parent="PlayerArea"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 52.0
+offset_right = 248.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 20
+text = "分数 0"
+
+[node name="PlayerTags" type="HBoxContainer" parent="PlayerArea"]
+visible = false
+layout_mode = 0
+offset_left = 276.0
+offset_top = 28.0
+offset_right = 516.0
+offset_bottom = 62.0
+theme_override_constants/separation = 10
+
+[node name="PlayerDealerTag" type="Label" parent="PlayerArea/PlayerTags"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.870588, 0.356863, 1)
+theme_override_font_sizes/font_size = 20
+text = "庄"
+
+[node name="PlayerDingQueTag" type="Label" parent="PlayerArea/PlayerTags"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.658824, 0.909804, 1, 1)
+theme_override_font_sizes/font_size = 24
+custom_minimum_size = Vector2(82, 34)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="PlayerWonBadge" type="Label" parent="PlayerArea"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 2046.0
+offset_top = 10.0
+offset_right = 2146.0
+offset_bottom = 44.0
+theme_override_colors/font_color = Color(1, 0.913725, 0.309804, 1)
+theme_override_font_sizes/font_size = 24
+text = "已和"
+
+[node name="PlayerMeldsTitle" type="Label" parent="PlayerArea"]
+visible = false
+layout_mode = 0
+offset_left = 2128.0
+offset_top = 28.0
+offset_right = 2208.0
+offset_bottom = 58.0
+theme_override_font_sizes/font_size = 20
+text = "副露"
+
+[node name="PlayerMeldsValue" type="Label" parent="PlayerArea"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 2088.0
+offset_top = 60.0
+offset_right = 2502.0
+offset_bottom = 106.0
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = "暂无副露"
+
+[node name="PlayerMeldsContainer" type="HBoxContainer" parent="PlayerArea"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1888.0
+offset_top = 84.0
+offset_right = 2512.0
+offset_bottom = 176.0
+theme_override_constants/separation = 12
+
+[node name="HandStatusValue" type="Label" parent="PlayerArea"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 710.0
+offset_top = 0.0
+offset_right = 1814.0
+offset_bottom = 34.0
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text = "当前不是你的出牌回合。"
+
+[node name="HandTilesContainer" parent="PlayerArea" instance=ExtResource("2")]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 354.0
+offset_top = 20.0
+offset_right = 2188.0
+offset_bottom = 184.0
+
+[node name="PlayerDiscardTitle" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1048.0
+offset_top = 1028.0
+offset_right = 1174.0
+offset_bottom = 1060.0
+theme_override_font_sizes/font_size = 18
+text = "本家弃牌"
+
+[node name="PlayerDiscardValue" type="Label" parent="."]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 864.0
+offset_top = 1058.0
+offset_right = 1704.0
+offset_bottom = 1124.0
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "暂无弃牌"
+
+[node name="PlayerDiscardGrid" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 978.0
+offset_top = 674.0
+offset_right = 1596.0
+offset_bottom = 898.0
+columns = 6
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="PlayerDiscardTray" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 934.0
+offset_top = 640.0
+offset_right = 1640.0
+offset_bottom = 936.0
+
+[node name="LeftOpponent" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 360.0
+offset_right = 196.0
+offset_bottom = 1088.0
+
+[node name="LeftLabel" type="Label" parent="LeftOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 22.0
+offset_right = 210.0
+offset_bottom = 66.0
+theme_override_font_sizes/font_size = 26
+text = "AI Left"
+
+[node name="LeftAvatar" type="ColorRect" parent="LeftOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 18.0
+offset_top = 260.0
+offset_right = 106.0
+offset_bottom = 348.0
+color = Color(0.709804, 0.623529, 0.505882, 1)
+
+[node name="LeftAvatarFrame" type="Panel" parent="LeftOpponent/LeftAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LeftAvatarGlow" type="ColorRect" parent="LeftOpponent/LeftAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.854902, 0.509804, 0.12)
+
+[node name="LeftAvatarInitial" type="Label" parent="LeftOpponent/LeftAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "L"
+
+[node name="LeftInfoValue" type="Label" parent="LeftOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 356.0
+offset_right = 162.0
+offset_bottom = 448.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "AI Left\n分数 0"
+
+[node name="LeftTagBox" type="VBoxContainer" parent="LeftOpponent"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 452.0
+offset_right = 150.0
+offset_bottom = 546.0
+theme_override_constants/separation = 4
+
+[node name="LeftDealerTag" type="Label" parent="LeftOpponent/LeftTagBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.870588, 0.356863, 1)
+theme_override_font_sizes/font_size = 18
+text = "庄家"
+
+[node name="LeftDingQueTag" type="Label" parent="LeftOpponent/LeftTagBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.658824, 0.909804, 1, 1)
+theme_override_font_sizes/font_size = 24
+custom_minimum_size = Vector2(82, 38)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="LeftHandContainer" type="VBoxContainer" parent="LeftOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 118.0
+offset_top = 84.0
+offset_right = 176.0
+offset_bottom = 586.0
+theme_override_constants/separation = 2
+
+[node name="LeftHandRail" type="Panel" parent="LeftOpponent"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 68.0
+offset_right = 182.0
+offset_bottom = 600.0
+
+[node name="LeftWonBadge" type="Label" parent="LeftOpponent"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 16.0
+offset_top = 208.0
+offset_right = 128.0
+offset_bottom = 244.0
+theme_override_colors/font_color = Color(1, 0.913725, 0.309804, 1)
+theme_override_font_sizes/font_size = 22
+text = "已和"
+
+[node name="LeftMeldsTitle" type="Label" parent="LeftOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 82.0
+offset_right = 140.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 22
+text = "副露"
+
+[node name="LeftMeldsValue" type="Label" parent="LeftOpponent"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 124.0
+offset_right = 232.0
+offset_bottom = 610.0
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "暂无副露"
+
+[node name="LeftMeldsContainer" type="VBoxContainer" parent="LeftOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 198.0
+offset_top = 130.0
+offset_right = 348.0
+offset_bottom = 842.0
+theme_override_constants/separation = 10
+
+[node name="LeftDiscardTitle" type="Label" parent="LeftOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 632.0
+offset_right = 144.0
+offset_bottom = 666.0
+theme_override_font_sizes/font_size = 20
+text = "弃牌"
+
+[node name="LeftDiscardValue" type="Label" parent="LeftOpponent"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 668.0
+offset_right = 232.0
+offset_bottom = 822.0
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 16
+text = "暂无弃牌"
+
+[node name="LeftDiscardGrid" type="GridContainer" parent="LeftOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 248.0
+offset_top = 154.0
+offset_right = 392.0
+offset_bottom = 820.0
+columns = 1
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 6
+
+[node name="LeftDiscardTray" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 522.0
+offset_top = 386.0
+offset_right = 700.0
+offset_bottom = 888.0
+
+[node name="TopOpponent" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 742.0
+offset_top = 230.0
+offset_right = 1818.0
+offset_bottom = 304.0
+
+[node name="TopLabel" type="Label" parent="TopOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 34.0
+offset_top = 28.0
+offset_right = 236.0
+offset_bottom = 74.0
+theme_override_font_sizes/font_size = 26
+text = "AI Top"
+
+[node name="TopSeatDingQueTag" type="Label" parent="TopOpponent"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 22.0
+offset_top = 10.0
+offset_right = 178.0
+offset_bottom = 62.0
+theme_override_colors/font_color = Color(0.658824, 0.909804, 1, 1)
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="TopWonBadge" type="Label" parent="TopOpponent"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1128.0
+offset_top = 24.0
+offset_right = 1214.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(1, 0.913725, 0.309804, 1)
+theme_override_font_sizes/font_size = 22
+text = "已和"
+
+[node name="TopMeldsTitle" type="Label" parent="TopOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 280.0
+offset_top = 28.0
+offset_right = 386.0
+offset_bottom = 66.0
+theme_override_font_sizes/font_size = 22
+text = "副露"
+
+[node name="TopMeldsValue" type="Label" parent="TopOpponent"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 344.0
+offset_top = 28.0
+offset_right = 790.0
+offset_bottom = 84.0
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 20
+text = "暂无副露"
+
+[node name="TopMeldsContainer" type="HBoxContainer" parent="TopOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 290.0
+offset_top = 2.0
+offset_right = 864.0
+offset_bottom = 74.0
+theme_override_constants/separation = 12
+
+[node name="TopHandRail" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 906.0
+offset_top = 40.0
+offset_right = 1664.0
+offset_bottom = 120.0
+
+[node name="TopHandContainer" type="HBoxContainer" parent="TopOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 420.0
+offset_top = -154.0
+offset_right = 1188.0
+offset_bottom = -64.0
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="TopDiscardTitle" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1144.0
+offset_top = 228.0
+offset_right = 1264.0
+offset_bottom = 262.0
+theme_override_font_sizes/font_size = 22
+text = "上家弃牌"
+
+[node name="TopDiscardValue" type="Label" parent="."]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 918.0
+offset_top = 262.0
+offset_right = 1658.0
+offset_bottom = 334.0
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+text = "暂无弃牌"
+
+[node name="TopDiscardGrid" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 966.0
+offset_top = 348.0
+offset_right = 1608.0
+offset_bottom = 520.0
+columns = 6
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="TopDiscardTray" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 924.0
+offset_top = 312.0
+offset_right = 1650.0
+offset_bottom = 554.0
+
+[node name="RightOpponent" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 2360.0
+offset_top = 360.0
+offset_right = 2538.0
+offset_bottom = 1088.0
+
+[node name="RightLabel" type="Label" parent="RightOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 22.0
+offset_right = 214.0
+offset_bottom = 66.0
+theme_override_font_sizes/font_size = 26
+text = "AI Right"
+
+[node name="RightAvatar" type="ColorRect" parent="RightOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 70.0
+offset_top = 260.0
+offset_right = 158.0
+offset_bottom = 348.0
+color = Color(0.709804, 0.623529, 0.505882, 1)
+
+[node name="RightAvatarFrame" type="Panel" parent="RightOpponent/RightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="RightAvatarGlow" type="ColorRect" parent="RightOpponent/RightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.854902, 0.509804, 0.12)
+
+[node name="RightAvatarInitial" type="Label" parent="RightOpponent/RightAvatar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 28
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "R"
+
+[node name="RightInfoValue" type="Label" parent="RightOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 14.0
+offset_top = 356.0
+offset_right = 166.0
+offset_bottom = 448.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text = "AI Right\n分数 0"
+
+[node name="RightTagBox" type="VBoxContainer" parent="RightOpponent"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = 452.0
+offset_right = 166.0
+offset_bottom = 546.0
+theme_override_constants/separation = 4
+
+[node name="RightDealerTag" type="Label" parent="RightOpponent/RightTagBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.870588, 0.356863, 1)
+theme_override_font_sizes/font_size = 18
+text = "庄家"
+
+[node name="RightDingQueTag" type="Label" parent="RightOpponent/RightTagBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.658824, 0.909804, 1, 1)
+theme_override_font_sizes/font_size = 24
+custom_minimum_size = Vector2(82, 38)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="RightHandContainer" type="VBoxContainer" parent="RightOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 4.0
+offset_top = 84.0
+offset_right = 62.0
+offset_bottom = 586.0
+theme_override_constants/separation = 2
+
+[node name="RightHandRail" type="Panel" parent="RightOpponent"]
+layout_mode = 0
+offset_left = -2.0
+offset_top = 68.0
+offset_right = 70.0
+offset_bottom = 600.0
+
+[node name="RightWonBadge" type="Label" parent="RightOpponent"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 48.0
+offset_top = 208.0
+offset_right = 160.0
+offset_bottom = 244.0
+theme_override_colors/font_color = Color(1, 0.913725, 0.309804, 1)
+theme_override_font_sizes/font_size = 22
+text = "已和"
+
+[node name="RightMeldsTitle" type="Label" parent="RightOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 82.0
+offset_right = 140.0
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 22
+text = "副露"
+
+[node name="RightMeldsValue" type="Label" parent="RightOpponent"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 124.0
+offset_right = 232.0
+offset_bottom = 610.0
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "暂无副露"
+
+[node name="RightMeldsContainer" type="VBoxContainer" parent="RightOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -146.0
+offset_top = 130.0
+offset_right = 4.0
+offset_bottom = 842.0
+theme_override_constants/separation = 10
+
+[node name="RightDiscardTitle" type="Label" parent="RightOpponent"]
+visible = false
+layout_mode = 0
+offset_left = 30.0
+offset_top = 632.0
+offset_right = 144.0
+offset_bottom = 666.0
+theme_override_font_sizes/font_size = 20
+text = "弃牌"
+
+[node name="RightDiscardValue" type="Label" parent="RightOpponent"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 668.0
+offset_right = 232.0
+offset_bottom = 822.0
+autowrap_mode = 0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+text = "暂无弃牌"
+
+[node name="RightDiscardGrid" type="GridContainer" parent="RightOpponent"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = -198.0
+offset_top = 154.0
+offset_right = -54.0
+offset_bottom = 820.0
+columns = 1
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 6
+
+[node name="RightDiscardTray" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 1838.0
+offset_top = 386.0
+offset_right = 2016.0
+offset_bottom = 888.0
+
+[node name="DebugPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 40.0
+offset_top = 52.0
+offset_right = 560.0
+offset_bottom = 420.0
+
+[node name="DebugVBox" type="VBoxContainer" parent="DebugPanel"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 22.0
+offset_right = 488.0
+offset_bottom = 336.0
+
+[node name="PhaseRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="PhaseLabel" type="Label" parent="DebugPanel/DebugVBox/PhaseRow"]
+layout_mode = 2
+text = "Phase:"
+
+[node name="PhaseValue" type="Label" parent="DebugPanel/DebugVBox/PhaseRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RoundRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="RoundLabel" type="Label" parent="DebugPanel/DebugVBox/RoundRow"]
+layout_mode = 2
+text = "Round:"
+
+[node name="RoundValue" type="Label" parent="DebugPanel/DebugVBox/RoundRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="DealerRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="DealerLabel" type="Label" parent="DebugPanel/DebugVBox/DealerRow"]
+layout_mode = 2
+text = "Dealer:"
+
+[node name="DealerValue" type="Label" parent="DebugPanel/DebugVBox/DealerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="TurnRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="TurnLabel" type="Label" parent="DebugPanel/DebugVBox/TurnRow"]
+layout_mode = 2
+text = "Turn:"
+
+[node name="TurnValue" type="Label" parent="DebugPanel/DebugVBox/TurnRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="WallRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="WallLabel" type="Label" parent="DebugPanel/DebugVBox/WallRow"]
+layout_mode = 2
+text = "Wall:"
+
+[node name="WallValue" type="Label" parent="DebugPanel/DebugVBox/WallRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="DiscardRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="DiscardLabel" type="Label" parent="DebugPanel/DebugVBox/DiscardRow"]
+layout_mode = 2
+text = "Discards:"
+
+[node name="DiscardValue" type="Label" parent="DebugPanel/DebugVBox/DiscardRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RecentDrawRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="RecentDrawLabel" type="Label" parent="DebugPanel/DebugVBox/RecentDrawRow"]
+layout_mode = 2
+text = "Draw:"
+
+[node name="RecentDrawValue" type="Label" parent="DebugPanel/DebugVBox/RecentDrawRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="RecentDiscardRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="RecentDiscardLabel" type="Label" parent="DebugPanel/DebugVBox/RecentDiscardRow"]
+layout_mode = 2
+text = "Recent:"
+
+[node name="RecentDiscardValue" type="Label" parent="DebugPanel/DebugVBox/RecentDiscardRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "-"
+
+[node name="ReactionRow" type="HBoxContainer" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+
+[node name="ReactionLabel" type="Label" parent="DebugPanel/DebugVBox/ReactionRow"]
+layout_mode = 2
+text = "React:"
+
+[node name="ReactionValue" type="Label" parent="DebugPanel/DebugVBox/ReactionRow"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="DebugMessageLabel" type="Label" parent="DebugPanel/DebugVBox"]
+layout_mode = 2
+text = "Debug:"
+
+[node name="DebugValue" type="Label" parent="DebugPanel/DebugVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="AILevelPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 34.0
+offset_top = 126.0
+offset_right = 332.0
+offset_bottom = 194.0
+
+[node name="AILevelTitle" type="Label" parent="AILevelPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = 128.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 22
+text = "AI 难度"
+
+[node name="AILevelOption" type="OptionButton" parent="AILevelPanel"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 114.0
+offset_top = 12.0
+offset_right = 278.0
+offset_bottom = 50.0
+
+[node name="TrainerPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 34.0
+offset_top = 1036.0
+offset_right = 518.0
+offset_bottom = 1194.0
+
+[node name="AILevelOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="AILevelShade" type="ColorRect" parent="AILevelOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0, 0.0, 0.0, 0.48)
+
+[node name="AILevelModal" type="Panel" parent="AILevelOverlay"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 720.0
+offset_top = 332.0
+offset_right = 1840.0
+offset_bottom = 1088.0
+
+[node name="AILevelModalVBox" type="VBoxContainer" parent="AILevelOverlay/AILevelModal"]
+layout_mode = 0
+offset_left = 74.0
+offset_top = 66.0
+offset_right = 1046.0
+offset_bottom = 676.0
+theme_override_constants/separation = 26
+
+[node name="AILevelModalTitle" type="Label" parent="AILevelOverlay/AILevelModal/AILevelModalVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 54
+horizontal_alignment = 1
+text = "选择 AI 难度"
+
+[node name="AILevelModalHint" type="Label" parent="AILevelOverlay/AILevelModal/AILevelModalVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.968627, 0.941176, 0.85098, 0.94)
+horizontal_alignment = 1
+text = "首次进入牌局请先确定 AI 强度。结算后可在顶栏重新设定下一局难度。"
+
+[node name="AILevelButtons" type="GridContainer" parent="AILevelOverlay/AILevelModal/AILevelModalVBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 24
+
+[node name="AILevelBeginnerButton" type="Button" parent="AILevelOverlay/AILevelModal/AILevelModalVBox/AILevelButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 140)
+layout_mode = 2
+text = "初级\n偏随机，适合入门练习"
+
+[node name="AILevelIntermediateButton" type="Button" parent="AILevelOverlay/AILevelModal/AILevelModalVBox/AILevelButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 140)
+layout_mode = 2
+text = "中级\n兼顾成牌效率与基础防守"
+
+[node name="AILevelAdvancedButton" type="Button" parent="AILevelOverlay/AILevelModal/AILevelModalVBox/AILevelButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 140)
+layout_mode = 2
+text = "高级\n更重视向听、进张与番型"
+
+[node name="AILevelCheatButton" type="Button" parent="AILevelOverlay/AILevelModal/AILevelModalVBox/AILevelButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 140)
+layout_mode = 2
+text = "作弊级\n透视危险张，适合高压训练"
+
+[node name="TrainerVBox" type="VBoxContainer" parent="TrainerPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 14.0
+offset_right = 458.0
+offset_bottom = 142.0
+theme_override_constants/separation = 6
+
+[node name="TrainerTitle" type="Label" parent="TrainerPanel/TrainerVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "AI 训练助手"
+
+[node name="TrainerSummaryValue" type="Label" parent="TrainerPanel/TrainerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 18
+text = "等待进入你的回合后显示建议。"
+
+[node name="TrainerDangerValue" type="Label" parent="TrainerPanel/TrainerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = "危险张：暂无"
+
+[node name="TrainerFanValue" type="Label" parent="TrainerPanel/TrainerVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 16
+text = "番型路线：暂无"
+
+[node name="PlayerInfoPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 40.0
+offset_top = 1020.0
+offset_right = 430.0
+offset_bottom = 1350.0
+
+[node name="PlayerInfoVBox" type="VBoxContainer" parent="PlayerInfoPanel"]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = 360.0
+offset_bottom = 290.0
+
+[node name="PlayerInfoLabel" type="Label" parent="PlayerInfoPanel/PlayerInfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Seats"
+
+[node name="PlayerInfoValue" type="Label" parent="PlayerInfoPanel/PlayerInfoVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "-"
+
+[node name="ActionPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1830.0
+offset_top = 906.0
+offset_right = 2498.0
+offset_bottom = 1074.0
+
+[node name="ActionVBox" type="VBoxContainer" parent="ActionPanel"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 500.0
+offset_bottom = 168.0
+
+[node name="ActionTitle" type="Label" parent="ActionPanel/ActionVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "响应操作"
+
+[node name="ActionStatusValue" type="Label" parent="ActionPanel/ActionVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "当前可对弃牌进行响应。"
+
+[node name="ActionButtons" type="HBoxContainer" parent="ActionPanel/ActionVBox"]
+layout_mode = 2
+
+[node name="HuButton" type="Button" parent="ActionPanel/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "胡"
+
+[node name="GangButton" type="Button" parent="ActionPanel/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "杠"
+
+[node name="PengButton" type="Button" parent="ActionPanel/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "碰"
+
+[node name="PassButton" type="Button" parent="ActionPanel/ActionVBox/ActionButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "过"
+
+[node name="DingQuePanel" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 760.0
+offset_top = 706.0
+offset_right = 1800.0
+offset_bottom = 1090.0
+
+[node name="DingQueVBox" type="VBoxContainer" parent="DingQuePanel"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 40.0
+offset_right = 950.0
+offset_bottom = 300.0
+theme_override_constants/separation = 18
+
+[node name="DingQueTitle" type="Label" parent="DingQuePanel/DingQueVBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+horizontal_alignment = 1
+text = "花色选择"
+
+[node name="DingQueStatusValue" type="Label" parent="DingQuePanel/DingQueVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
+text = "当前玩法不使用定缺"
+
+[node name="DingQueButtons" type="HBoxContainer" parent="DingQuePanel/DingQueVBox"]
+layout_mode = 2
+theme_override_constants/separation = 48
+alignment = 1
+
+[node name="DingQueButtonHint" type="Label" parent="DingQuePanel/DingQueVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.980392, 0.929412, 0.760784, 0.94)
+horizontal_alignment = 1
+text = "当前为四川麻将定缺规则"
+
+[node name="DingQueTiaoButton" type="Button" parent="DingQuePanel/DingQueVBox/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="DingQueTongButton" type="Button" parent="DingQuePanel/DingQueVBox/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="DingQueWanButton" type="Button" parent="DingQuePanel/DingQueVBox/DingQueButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+
+[node name="AITurnTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.8
+one_shot = true
+
+[node name="AIReactionTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.7
+one_shot = true

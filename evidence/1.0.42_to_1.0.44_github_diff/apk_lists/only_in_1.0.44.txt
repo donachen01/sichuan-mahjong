@@ -1,0 +1,4 @@
+assets/tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gd.remap
+assets/tests/current/NeijiangBaoJiaoFourthTileEvidenceRunner.gdc
+assets/tests/current/SplashScreenRegressionRunner.gd.remap
+assets/tests/current/SplashScreenRegressionRunner.gdc

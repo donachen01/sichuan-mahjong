@@ -1,0 +1,21 @@
+ project.godot                                      |    2 +-
+ scenes/boot/SplashScreen.tscn                      |   19 +
+ scripts/boot/SplashScreen.gd                       |    9 +
+ .../NeijiangBaoJiaoFourthTileEvidenceRunner.gd     |  185 ++
+ .../NeijiangBaoJiaoFourthTileEvidenceRunner.gd.uid |    1 +
+ tests/current/NeijiangCurrentSmokeRunner.gd        |   97 +
+ tests/current/SplashScreenRegressionRunner.gd      |   46 +
+ tests/current/SplashScreenRegressionRunner.gd.uid  |    1 +
+ .../README.md"                                     |   52 +
+ .../SHA256SUMS.txt"                                |   12 +
+ .../bao_gang_regression_output.txt"                |   24 +
+ .../case_replay_readable.json"                     |  294 +++
+ .../case_replay_results.json"                      |  312 +++
+ .../code_rule_snippets.txt"                        |  136 ++
+ .../current_smoke_output.txt"                      |   31 +
+ .../evidence_runner_output.txt"                    |    6 +
+ .../evidence_runner_output_2.txt"                  |    7 +
+ .../real_log_bao_jiao_draw_scan.jsonl"             | 2223 ++++++++++++++++++++
+ .../real_log_scan_summary.json"                    |  156 ++
+ .../test_case_snippets.txt"                        |  156 ++
+ 20 files changed, 3768 insertions(+), 1 deletion(-)

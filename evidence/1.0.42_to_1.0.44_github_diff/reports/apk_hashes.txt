@@ -1,0 +1,7 @@
+## Existing APK hashes
+16ca522f51b86ab828bc977e84fd7ef86a6940ac04a44a229b80eb4772753f8b  build/android/NeijiangMahjong-1.0.44-release.apk
+f9117a8c6f4722605997fea7c5ef9b0d9476beacc55e7ddc37994fb6f0a6d5ab  build/android/NeijiangMahjong-1.0.47-release.apk
+
+## Existing APK sizes
+-rw-r--r--@ 1 chendong  staff   113M May 20 13:50 build/android/NeijiangMahjong-1.0.44-release.apk
+-rw-r--r--@ 1 chendong  staff   113M May 20 16:43 build/android/NeijiangMahjong-1.0.47-release.apk

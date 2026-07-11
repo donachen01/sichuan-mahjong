@@ -1,0 +1,24 @@
+--- evidence/1.0.42_to_1.0.44_github_diff/reports/mono_publish_hashes_1.0.42.txt	2026-05-20 18:02:40
++++ evidence/1.0.42_to_1.0.44_github_diff/reports/mono_publish_hashes_1.0.44.txt	2026-05-20 18:02:43
+@@ -1,16 +1,16 @@
+-4872a1d5c434e91147ae5160ef66eefc2bf09ed8478d44cd69f43cff6f17fef0  assets/.godot/mono/publish/arm64/.dotnet-publish-manifest
++c762f40558426f6f47e1c8d7eb9c62033ea8cf2dcf243df7c7c2b3560bda6c13  assets/.godot/mono/publish/arm64/.dotnet-publish-manifest
+ 0460408e066a95ad8d3fd2e43106a8931e559225f4c2ffbd665317f9d4324531  assets/.godot/mono/publish/arm64/GodotSharp.dll
+ abf365dca948ace3643bb4e44e4c115a629cfdaac2759d10a6fe97282a351a95  assets/.godot/mono/publish/arm64/Microsoft.CSharp.dll
+ 6aaaa0725caabdae59f9523c1a6f19b2cb3ddb4d9c8ceef2d2a8f42b26759ced  assets/.godot/mono/publish/arm64/Microsoft.VisualBasic.Core.dll
+ d58e6879b2926497bf41864a7ad2bc55ad11f852584349f09715b5161188427f  assets/.godot/mono/publish/arm64/Microsoft.VisualBasic.dll
+ 4e3c3296714cdd14819cc9363895e696db35120f9f49aceb967c1c9ca7a6e9a7  assets/.godot/mono/publish/arm64/Microsoft.Win32.Primitives.dll
+ eb6b3da4d69981414fb60d8a61b58d334df358f19ddbb087b02c44e52f5383b4  assets/.godot/mono/publish/arm64/Microsoft.Win32.Registry.dll
+-6904d538acea84b5344866750d461ba3e309a37d1cc9545f842cf677d549aef8  assets/.godot/mono/publish/arm64/NeijiangMahjong.AI.Core.dll
+-474d690c8fccff4c17dd594670e31e285332f6a1f365de153260f3bcf7ab8e5c  assets/.godot/mono/publish/arm64/NeijiangMahjong.AI.Core.pdb
++c0ae5f4dd3e385c4e7e33803b66831c74d8e22a77439248c90907852f0ca4a9b  assets/.godot/mono/publish/arm64/NeijiangMahjong.AI.Core.dll
++72abb629be848594ac96425b20bc3760dda2a00973b50b83c8a425981af41575  assets/.godot/mono/publish/arm64/NeijiangMahjong.AI.Core.pdb
+ 4d23e2d4fd0cbf1d3aa407164afcf7f0061ba946b8e72ffb876cc22f40248d89  assets/.godot/mono/publish/arm64/NeijiangMahjong.AI.Core.xml
+ 1dcd60f795b23cabcda504babfbb5db88a4d7396976b6f7513deb8bb1b8deded  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.deps.json
+-a167e0974af84961ac592de0803c5fd137ed70663c180b74fc908a175b7ade8c  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.dll
+-86b9271bf3669622097b2fdd7f22dbae793b22eda78ce4dfb331f306f5db7203  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.pdb
++0c575308fe47c2aae8acdeec80f398e7cabd73e4a261375c05d4252ea52d4e72  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.dll
++f4d618371beebde99e758abfbd338732732958b001a6d4d1d4f47df20239f786  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.pdb
+ ec84a14558d5b09427cc08247e875ab86da3fb226dc8c0b5d86103bd07d9c607  assets/.godot/mono/publish/arm64/NeijiangMahjong.Godot.runtimeconfig.json
+ 058907483cec18d3df874a6c8ecdd4d2d6671e4264a32dfe05009d7d0d8e4a86  assets/.godot/mono/publish/arm64/System.AppContext.dll
+ 1418e5f22ad480e882fce1421e843e9f82fb5f7f1582e1ce0be4c450b10e3b45  assets/.godot/mono/publish/arm64/System.Buffers.dll

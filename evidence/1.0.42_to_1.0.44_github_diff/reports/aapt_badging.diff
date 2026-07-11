@@ -1,0 +1,8 @@
+--- evidence/1.0.42_to_1.0.44_github_diff/reports/aapt_badging_1.0.42.txt	2026-05-20 18:02:36
++++ evidence/1.0.42_to_1.0.44_github_diff/reports/aapt_badging_1.0.44.txt	2026-05-20 18:02:36
+@@ -1,4 +1,4 @@
+-package: name='com.chendong.neijiangmahjong' versionCode='42' versionName='1.0.42' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
++package: name='com.chendong.neijiangmahjong' versionCode='44' versionName='1.0.44' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
+ install-location:'auto'
+ sdkVersion:'24'
+ targetSdkVersion:'35'
