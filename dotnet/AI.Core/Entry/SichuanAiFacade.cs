@@ -49,20 +49,6 @@ public sealed class SichuanAiFacade
         IReadOnlyList<int>? mandatoryGangTileTypes = null)
         => _selfActionDecisionEngine.DecideSelfAction(state, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes);
 
-    public SichuanBaoJiaoDecisionResult DecideBaoJiaoDeclaration(
-        SichuanStateView state,
-        IReadOnlyList<int> tingTileTypes,
-        IReadOnlyList<SichuanBaoGangCandidate> baoGangCandidates,
-        int planScore)
-        => new()
-        {
-            Declare = false,
-            SelectedBaoGangKeys = Array.Empty<string>(),
-            Score = 0,
-            Reasons = new[] { "四川规则不启用报叫/报杠" },
-            CandidateScores = new Dictionary<string, int> { ["disabled"] = 0 }
-        };
-
     public SichuanDingQueDecisionResult DecideDingQue(
         IReadOnlyDictionary<string, int> suitCounts,
         IReadOnlyList<string> activeSuits)

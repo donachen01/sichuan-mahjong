@@ -60,9 +60,13 @@ public sealed class SichuanDecisionEngine
         var bestLive = 0;
         var bestSearchBonus = 0.0;
         var reasons = new List<string>();
+        var forcedDingQueSuit = state.OwnDingQueSuit;
+        var mustClearDingQue = forcedDingQueSuit is >= 0 and < 3
+            && Enumerable.Range(forcedDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0);
         for (var tileType = 0; tileType < 27; tileType++)
         {
             if (state.Hand18[tileType] <= 0) continue;
+            if (mustClearDingQue && tileType / 9 != forcedDingQueSuit) continue;
             var shanten = _shanten.CalcShantenAfterDiscard(state.Hand18, tileType, meldCount);
             var (ukeire, liveUkeire, improvingTiles) = _ukeire.CalcUkeire(state.Hand18, state.Remaining18, tileType, meldCount);
             var remainingHand = RemoveOne(state.Hand18, tileType);

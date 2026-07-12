@@ -51,7 +51,7 @@ public sealed class SichuanHellChallengeEngine
             var feedsHumanGang = CanHumanGang(state, allHands18, tileType);
             var feedsHumanPeng = !feedsHumanGang && CanHumanPeng(state, allHands18, tileType);
             var shanten = _shanten.CalcShantenAfterDiscard(hand, tileType, meldCount);
-            var (_, liveUkeire, improvingTiles) = _ukeire.CalcUkeire(hand, exactWall18.ToArray(), tileType, meldCount);
+            var (_, _, improvingTiles) = _ukeire.CalcUkeire(hand, exactWall18.ToArray(), tileType, meldCount);
             var exactReadyTiles = GetExactReadyTiles(remainingHand, meldCount);
             var waitCount = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : (shanten <= 0 ? improvingTiles.Count : 0);
             var exactWallRemaining = exactReadyTiles.Count > 0
@@ -103,8 +103,7 @@ public sealed class SichuanHellChallengeEngine
             var tierAdjustment = ResolveHellTierAdjustment(tier);
             var score = 0
                 - shanten * 1700
-                + liveUkeire * 62
-                + exactWallRemaining * 82
+                + exactWallRemaining * 70
                 + waitCount * 360
                 + (keepsReady ? 1100 : 0)
                 + (keepsReady && exactWallRemaining > 0 ? exactWallRemaining * 220 : 0)

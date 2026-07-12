@@ -56,8 +56,11 @@ if ! zipinfo -1 "$IOS_TEMPLATE" >/dev/null 2>&1; then
   exit 1
 fi
 
-EXPORT_DIR="$PROJECT_DIR/build/ios/SichuanMahjong-${APP_VERSION}-ios-xcode"
-rm -rf "$EXPORT_DIR"
+IOS_BUILD_ROOT="$PROJECT_DIR/build/ios"
+EXPORT_DIR="$IOS_BUILD_ROOT/SichuanMahjong-${APP_VERSION}-ios-xcode"
+# Keep generated Xcode/DerivedData files out of the next Godot resource scan.
+# The whole iOS build root is reproducible and contains no signing secrets.
+rm -rf "$IOS_BUILD_ROOT"
 mkdir -p "$EXPORT_DIR"
 export GODOT_IOS_OUTPUT="$EXPORT_DIR/SichuanMahjongIOS"
 

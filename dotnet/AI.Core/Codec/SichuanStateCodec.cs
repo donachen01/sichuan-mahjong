@@ -23,7 +23,8 @@ public static class SichuanStateCodec
         int remainingRounds = 0,
         int visibleVersion = 0,
         int handVersion = 0,
-        int strategyContextVersion = 0)
+        int strategyContextVersion = 0,
+        IEnumerable<int>? dingQueSuits = null)
     {
         var hand = hand18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
         var visible = visible18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
@@ -40,6 +41,8 @@ public static class SichuanStateCodec
             Visible18 = visible,
             Remaining18 = remaining,
             Scores = scores?.Take(4).Concat(Enumerable.Repeat(0, 4)).Take(4).ToArray() ?? new int[4],
+            DingQueSuits = dingQueSuits?.Take(4).Concat(Enumerable.Repeat(-1, 4)).Take(4).ToArray()
+                ?? Enumerable.Repeat(-1, 4).ToArray(),
             RoundIndex = roundIndex,
             TotalRounds = totalRounds,
             RemainingRounds = remainingRounds,

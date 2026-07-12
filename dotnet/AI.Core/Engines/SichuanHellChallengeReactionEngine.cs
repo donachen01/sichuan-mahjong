@@ -35,8 +35,6 @@ public sealed class SichuanHellChallengeReactionEngine
             reactionType,
             forceLightweight: true,
             mandatoryGang);
-        if (state.IsBaoJiao)
-            return fair;
         if (mandatoryGang && fair.Action.ActionType == SichuanActionType.Gang)
             return fair;
         var scores = new Dictionary<string, int>(fair.ActionScores);
@@ -312,12 +310,12 @@ public sealed class SichuanHellChallengeReactionEngine
             Hand18 = handAfterPeng,
             Visible18 = state.Visible18,
             Remaining18 = state.Remaining18,
+            DingQueSuits = (int[])state.DingQueSuits.Clone(),
             Discards18 = CloneLists(state.Discards18),
             Melds18 = CloneLists(state.Melds18),
             IsCalled = (bool[])state.IsCalled.Clone(),
             IsReady = (bool[])state.IsReady.Clone(),
             HasHu = (bool[])state.HasHu.Clone(),
-            IsBaoJiao = state.IsBaoJiao,
             LastDrawTileType = state.LastDrawTileType,
             PassedHu18 = CloneMatrix(state.PassedHu18),
             PassedPeng18 = CloneMatrix(state.PassedPeng18),

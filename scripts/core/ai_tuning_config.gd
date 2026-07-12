@@ -28,7 +28,7 @@ var hell_record_oracle: bool = false
 var hell_execute_oracle_action: bool = false
 var hell_log_marked_cases: bool = false
 var diagnostics_recording_enabled: bool = false
-var preset_name: String = PRESET_BONE_ASH
+var preset_name: String = PRESET_HELL
 var learning_adjustment: Dictionary = {}
 
 

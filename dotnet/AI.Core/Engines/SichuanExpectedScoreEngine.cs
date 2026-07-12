@@ -99,7 +99,7 @@ public sealed class SichuanExpectedScoreEngine
         if (shanten <= 0 && waitCount >= 2) fan += 0.18;
         if (shanten <= 1 && liveUkeire >= 8) fan += 0.10;
         if (roundStage >= 2 && shanten > 0) fan -= 0.35;
-        return Math.Clamp(fan, 1.0, 5.0);
+        return Math.Clamp(fan, 1.0, 3.0);
     }
 
     private static int CountGuiPotential(int[] handAfterDiscard18)
@@ -117,9 +117,7 @@ public sealed class SichuanExpectedScoreEngine
     {
         if (fan < 1.75) return 1;
         if (fan < 2.75) return 2;
-        if (fan < 3.75) return 4;
-        if (fan < 4.75) return 8;
-        return 16;
+        return 4;
     }
 
     private static double EstimateSelfDrawShare(double selfDrawProbability, double winProbability, double wallDrawPosterior, int waitCount)
@@ -134,7 +132,7 @@ public sealed class SichuanExpectedScoreEngine
         var fan = 1.25 + maxReadyPosterior * 1.35 + Math.Clamp(topThreatScore / 100.0, 0.0, 1.0) * 1.10;
         if (roundStage >= 2) fan += 0.45;
         if (wallCount <= 5) fan += 0.25;
-        return Math.Clamp(fan, 1.0, 5.0);
+        return Math.Clamp(fan, 1.0, 3.0);
     }
 
     private static double EstimateDrawProbability(int wallCount, int roundStage)

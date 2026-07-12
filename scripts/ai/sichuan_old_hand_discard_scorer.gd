@@ -9,20 +9,18 @@ func score_analysis(analysis: Dictionary, actual_tile_type: int, seat: int = -1,
 		return {}
 	var sorted_options := options.duplicate(true)
 	sorted_options.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		if int(a.get("score", 0)) != int(b.get("score", 0)):
-			return int(a.get("score", 0)) > int(b.get("score", 0))
-		if int(a.get("shanten", 8)) != int(b.get("shanten", 8)):
-			return int(a.get("shanten", 8)) < int(b.get("shanten", 8))
-		if int(a.get("risk", 0)) != int(b.get("risk", 0)):
-			return int(a.get("risk", 0)) < int(b.get("risk", 0))
+		var judge_a := _independent_judge_score(a)
+		var judge_b := _independent_judge_score(b)
+		if judge_a != judge_b:
+			return judge_a > judge_b
 		return int(a.get("csharp_tile_type", -1)) < int(b.get("csharp_tile_type", -1))
 	)
 	var actual := _find_candidate(sorted_options, actual_tile_type)
 	if actual.is_empty():
 		return {}
 	var best: Dictionary = sorted_options[0]
-	var actual_score := int(actual.get("score", 0))
-	var best_score := int(best.get("score", actual_score))
+	var actual_score := _independent_judge_score(actual)
+	var best_score := _independent_judge_score(best)
 	var score_gap := best_score - actual_score
 	var actual_rank := _candidate_rank(sorted_options, actual_tile_type)
 	var actual_shanten := int(actual.get("shanten", 8))
@@ -54,6 +52,7 @@ func score_analysis(analysis: Dictionary, actual_tile_type: int, seat: int = -1,
 		"score_gap_to_best": score_gap,
 		"actual_score": actual_score,
 		"best_score": best_score,
+		"score_source": "independent_rule_judge_v2",
 		"actual_shanten": actual_shanten,
 		"best_shanten": best_shanten,
 		"actual_live_ukeire": actual_live,
@@ -65,7 +64,77 @@ func score_analysis(analysis: Dictionary, actual_tile_type: int, seat: int = -1,
 		"backend_mode": str(analysis.get("backend_mode", "")),
 		"strategy_mode": str(actual.get("strategy_mode", actual.get("csharp_strategy_mode", ""))),
 		"reason": _build_reason(actual, best, actual_rank, score_gap),
+		"judge_reasons": _independent_judge_reasons(actual),
 	}
+
+
+func _independent_judge_score(option: Dictionary) -> int:
+	var shanten := int(option.get("shanten", option.get("csharp_shanten", 8)))
+	var live := int(option.get("live_ukeire", option.get("csharp_live_ukeire", 0)))
+	var wait_count := int(option.get("wait_count", option.get("csharp_wait_count", 0)))
+	var risk := int(option.get("risk", option.get("csharp_risk", 50)))
+	var expected_net := float(option.get("expected_net_score", option.get("csharp_expected_net_score", 0.0)))
+	var expected_deal_in_loss := float(option.get("expected_deal_in_loss", option.get("csharp_expected_deal_in_loss", 0.0)))
+	var good_shape := int(option.get("good_shape_count", option.get("csharp_good_shape_count", 0)))
+	var bad_shape := int(option.get("bad_shape_count", option.get("csharp_bad_shape_count", 0)))
+	var score := 12000
+	score -= maxi(0, shanten) * 2600
+	if shanten <= 0:
+		score += 3200 + wait_count * 520 + mini(18, live) * 75
+	elif shanten == 1:
+		score += mini(28, live) * 105
+	else:
+		score += mini(36, live) * 45
+	score += int(round(expected_net * 180.0))
+	score -= int(round(expected_deal_in_loss * 240.0))
+	score += good_shape * 55
+	score -= bad_shape * 45
+	if bool(option.get("breaks_triplet", option.get("csharp_breaks_triplet", false))):
+		score -= 900
+	if bool(option.get("breaks_pair", option.get("csharp_breaks_pair", false))) and shanten > 0:
+		score -= 260
+	var exact_deal_in := bool(option.get("exact_deal_in", option.get("csharp_exact_deal_in", false)))
+	var feeds_human_hu := bool(option.get("feeds_human_hu", option.get("csharp_feeds_human_hu", false)))
+	var feeds_human_gang := bool(option.get("feeds_human_gang", option.get("csharp_feeds_human_gang", false)))
+	var feeds_human_peng := bool(option.get("feeds_human_peng", option.get("csharp_feeds_human_peng", false)))
+	var human_peng_threat := int(option.get("human_peng_threat", option.get("csharp_human_peng_threat", 0)))
+	if exact_deal_in or feeds_human_hu:
+		score -= 50000
+	elif feeds_human_gang:
+		score -= 14000
+	elif feeds_human_peng:
+		score -= human_peng_threat * 900
+	var risk_weight := 12
+	if shanten <= 0:
+		risk_weight = 20
+	elif shanten >= 2:
+		risk_weight = 8
+	score -= risk * risk_weight
+	return score
+
+
+func _independent_judge_reasons(option: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var shanten := int(option.get("shanten", option.get("csharp_shanten", 8)))
+	var live := int(option.get("live_ukeire", option.get("csharp_live_ukeire", 0)))
+	var wait_count := int(option.get("wait_count", option.get("csharp_wait_count", 0)))
+	var risk := int(option.get("risk", option.get("csharp_risk", 50)))
+	result.append("向听%d" % shanten)
+	result.append("活张%d" % live)
+	if shanten <= 0:
+		result.append("听口%d门" % wait_count)
+	result.append("风险%d" % risk)
+	if bool(option.get("breaks_triplet", option.get("csharp_breaks_triplet", false))):
+		result.append("拆刻子")
+	if bool(option.get("breaks_pair", option.get("csharp_breaks_pair", false))):
+		result.append("拆对子")
+	if bool(option.get("exact_deal_in", option.get("csharp_exact_deal_in", false))):
+		result.append("透视点炮")
+	elif bool(option.get("feeds_human_gang", option.get("csharp_feeds_human_gang", false))):
+		result.append("喂明杠")
+	elif bool(option.get("feeds_human_peng", option.get("csharp_feeds_human_peng", false))):
+		result.append("喂碰威胁%d" % int(option.get("human_peng_threat", option.get("csharp_human_peng_threat", 0))))
+	return result
 
 
 func _candidate_options_for_current_rule_context(analysis: Dictionary) -> Array:

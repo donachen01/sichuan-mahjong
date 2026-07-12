@@ -8,32 +8,32 @@ const BODY_FONT_PATH := "res://res/fonts/NotoSansCJKsc-Regular.otf"
 static var _cached_nameplate_font: Font
 static var _cached_body_font: Font
 
-@export var table_bg: Color = Color("1B7049")
-@export var panel_bg: Color = Color(0.12, 0.38, 0.27, 0.88)
-@export var panel_bg_emphasized: Color = Color(0.16, 0.48, 0.33, 0.94)
-@export var panel_border: Color = Color(0.88, 0.74, 0.40, 0.42)
-@export var panel_highlight_border: Color = Color(0.96, 0.82, 0.46, 0.78)
-@export var cream_panel_bg: Color = Color(0.25, 0.66, 0.40, 0.96)
-@export var cream_panel_border: Color = Color(0.78, 0.94, 0.58, 0.38)
-@export var warm_panel_bg: Color = Color(0.94, 0.61, 0.35, 0.96)
-@export var warm_panel_border: Color = Color(1.00, 0.82, 0.50, 0.72)
-@export var primary_button_bg: Color = Color(0.30, 0.54, 0.36, 0.96)
-@export var primary_button_bg_2: Color = Color(0.43, 0.64, 0.46, 0.96)
+@export var table_bg: Color = Color("0D5039")
+@export var panel_bg: Color = Color(0.04, 0.20, 0.16, 0.90)
+@export var panel_bg_emphasized: Color = Color(0.05, 0.25, 0.19, 0.96)
+@export var panel_border: Color = Color(0.78, 0.70, 0.49, 0.30)
+@export var panel_highlight_border: Color = Color(0.86, 0.75, 0.48, 0.62)
+@export var cream_panel_bg: Color = Color(0.08, 0.30, 0.23, 0.96)
+@export var cream_panel_border: Color = Color(0.78, 0.70, 0.49, 0.30)
+@export var warm_panel_bg: Color = Color(0.42, 0.13, 0.11, 0.96)
+@export var warm_panel_border: Color = Color(0.86, 0.70, 0.42, 0.60)
+@export var primary_button_bg: Color = Color(0.43, 0.12, 0.10, 0.98)
+@export var primary_button_bg_2: Color = Color(0.52, 0.15, 0.12, 0.98)
 @export var primary_button_text: Color = Color(0.97, 0.97, 0.90, 1.0)
-@export var secondary_button_bg: Color = Color(0.20, 0.42, 0.32, 0.88)
+@export var secondary_button_bg: Color = Color(0.07, 0.27, 0.21, 0.94)
 @export var secondary_button_text: Color = Color(0.99, 0.97, 0.91, 1.0)
-@export var highlight_fill: Color = Color(0.96, 0.74, 0.22, 0.98)
-@export var highlight_stroke: Color = Color(0.60, 0.34, 0.12, 1.0)
+@export var highlight_fill: Color = Color(0.78, 0.62, 0.29, 0.98)
+@export var highlight_stroke: Color = Color(0.34, 0.19, 0.08, 1.0)
 @export var text_primary: Color = Color(0.99, 0.97, 0.91, 1.0)
 @export var text_secondary: Color = Color(0.96, 0.92, 0.80, 1.0)
 @export var text_muted: Color = Color(0.88, 0.93, 0.86, 0.94)
 @export var text_outline: Color = Color(0.19, 0.11, 0.04, 0.94)
 @export var danger: Color = Color("FF3333")
-@export var font_title_size: int = 28
-@export var font_body_size: int = 19
-@export var font_aux_size: int = 15
-@export var corner_radius: int = 22
-@export var tile_corner_radius: int = 12
+@export var font_title_size: int = 26
+@export var font_body_size: int = 18
+@export var font_aux_size: int = 14
+@export var corner_radius: int = 6
+@export var tile_corner_radius: int = 6
 
 
 func apply_panel(panel: Panel, emphasized: bool = false) -> void:
@@ -47,9 +47,9 @@ func apply_panel(panel: Panel, emphasized: bool = false) -> void:
 	style.corner_radius_top_right = corner_radius
 	style.corner_radius_bottom_left = corner_radius
 	style.corner_radius_bottom_right = corner_radius
-	style.shadow_color = Color(0.05, 0.18, 0.11, 0.16)
-	style.shadow_size = 13 if emphasized else 8
-	style.shadow_offset = Vector2(0, 4)
+	style.shadow_color = Color(0.0, 0.05, 0.03, 0.20)
+	style.shadow_size = 5 if emphasized else 3
+	style.shadow_offset = Vector2(0, 2)
 	style.content_margin_left = 4
 	style.content_margin_right = 4
 	style.content_margin_top = 4
@@ -65,17 +65,17 @@ func apply_plate_panel(panel: Panel, warm: bool = false, strong: bool = false) -
 	style.bg_color = warm_panel_bg if warm else cream_panel_bg
 	style.border_color = warm_panel_border if warm else cream_panel_border
 	style.set_border_width_all(2 if strong else 1)
-	style.corner_radius_top_left = 22
-	style.corner_radius_top_right = 22
-	style.corner_radius_bottom_left = 22
-	style.corner_radius_bottom_right = 22
+	style.corner_radius_top_left = corner_radius
+	style.corner_radius_top_right = corner_radius
+	style.corner_radius_bottom_left = corner_radius
+	style.corner_radius_bottom_right = corner_radius
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 7
 	style.content_margin_bottom = 9
 	style.shadow_color = Color(0.05, 0.20, 0.11, 0.18)
-	style.shadow_size = 16 if strong else 10
-	style.shadow_offset = Vector2(0, 5)
+	style.shadow_size = 5 if strong else 3
+	style.shadow_offset = Vector2(0, 2)
 	panel.add_theme_stylebox_override("panel", style)
 	panel.self_modulate = Color(1.0, 1.0, 1.0, 0.99)
 
@@ -172,8 +172,8 @@ func apply_button(button: Button, primary: bool = false) -> void:
 	normal.content_margin_top = 11
 	normal.content_margin_bottom = 11
 	normal.shadow_color = Color(0.05, 0.16, 0.10, 0.18)
-	normal.shadow_size = 9 if primary else 6
-	normal.shadow_offset = Vector2(0, 4)
+	normal.shadow_size = 4 if primary else 2
+	normal.shadow_offset = Vector2(0, 2)
 
 	var hover := normal.duplicate()
 	hover.bg_color = Color(primary_button_bg if primary else secondary_button_bg.lightened(0.08), normal.bg_color.a)

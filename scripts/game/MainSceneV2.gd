@@ -72,15 +72,15 @@ const SETTLEMENT_PANEL_MIN_SIZE := Vector2(1320.0, 760.0)
 const SETTLEMENT_TILE_SCALE := 0.47
 const SETTLEMENT_MELD_TILE_SCALE := 0.39
 const SETTLEMENT_WIN_TILE_SCALE := 0.50
-const MATTE_FELT_BG := Color("155D3F")
-const MATTE_FELT_BASE := Color("2F9860")
-const MATTE_FELT_PANEL := Color("3AA162")
-const MATTE_FELT_DEEP := Color(0.08, 0.34, 0.24, 0.96)
-const WOOD_DARK := Color("6B3F25")
-const WOOD_MID := Color("98603A")
-const WOOD_EDGE := Color("D49A57")
-const GOLD_SOFT := Color("F0C56D")
-const IVORY_SOFT := Color("FFF6E3")
+const MATTE_FELT_BG := Color("0D5039")
+const MATTE_FELT_BASE := Color("176447")
+const MATTE_FELT_PANEL := Color("1E7251")
+const MATTE_FELT_DEEP := Color(0.03, 0.22, 0.16, 0.97)
+const WOOD_DARK := Color("3B2921")
+const WOOD_MID := Color("604434")
+const WOOD_EDGE := Color("9C7954")
+const GOLD_SOFT := Color("D2B36E")
+const IVORY_SOFT := Color("F4F0E6")
 const ACTION_PRIMARY_CENTER := Color("FFF176")
 const ACTION_PRIMARY_EDGE := Color("FF8F00")
 const ACTION_PRIMARY_OUTLINE := Color("FFD54F")
@@ -1588,10 +1588,11 @@ func _apply_felt_panel(panel: Panel, bg: Color, border: Color, radius: int, bord
 	style.bg_color = bg
 	style.border_color = border
 	style.set_border_width_all(border_width)
-	style.corner_radius_top_left = radius
-	style.corner_radius_top_right = radius
-	style.corner_radius_bottom_left = radius
-	style.corner_radius_bottom_right = radius
+	var restrained_radius := mini(radius, 8)
+	style.corner_radius_top_left = restrained_radius
+	style.corner_radius_top_right = restrained_radius
+	style.corner_radius_bottom_left = restrained_radius
+	style.corner_radius_bottom_right = restrained_radius
 	style.shadow_color = Color(0.05, 0.18, 0.10, 0.16)
 	style.shadow_size = mini(shadow_size, 8)
 	style.shadow_offset = Vector2(0, maxf(2.0, float(style.shadow_size) * 0.32))
@@ -1605,10 +1606,11 @@ func _apply_wood_frame_panel(panel: Panel, bg: Color, border: Color, radius: int
 	style.bg_color = bg
 	style.border_color = border
 	style.set_border_width_all(border_width)
-	style.corner_radius_top_left = radius
-	style.corner_radius_top_right = radius
-	style.corner_radius_bottom_left = radius
-	style.corner_radius_bottom_right = radius
+	var restrained_radius := mini(radius, 8)
+	style.corner_radius_top_left = restrained_radius
+	style.corner_radius_top_right = restrained_radius
+	style.corner_radius_bottom_left = restrained_radius
+	style.corner_radius_bottom_right = restrained_radius
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32)
 	style.shadow_size = shadow_size
 	style.shadow_offset = Vector2(0, 5)
@@ -3044,16 +3046,15 @@ func _update_v17_player_info_panels(snapshot: Dictionary) -> void:
 		var nickname := str(player.get("nickname", _seat_name(seat)))
 		var score := int(player.get("score", 0))
 		name_label.text = nickname
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if seat == 2 else HORIZONTAL_ALIGNMENT_CENTER
 		if dealer_badge != null:
 			dealer_badge.visible = seat == current_dealer_seat
 		if ding_que_badge != null:
 			ding_que_badge.text = _ding_que_display(ding_que) if ding_que != "" else ""
 			ding_que_badge.visible = ding_que != ""
-			_apply_v17_ding_que_badge_style(ding_que_badge, ding_que)
+			_apply_v17_ding_que_badge_style(ding_que_badge, ding_que, seat)
 
 		var status_parts: Array[String] = []
-		if bool(player.get("bao_jiao", false)):
-			status_parts.append("报叫")
 		status_parts.append("%d分" % score)
 		status_label.text = " ".join(status_parts)
 		status_label.visible = not status_label.text.is_empty()
@@ -7223,7 +7224,7 @@ func _ding_que_badge_fill(suit: String) -> Color:
 			return Color(0.30, 0.29, 0.25, 1.0)
 
 
-func _apply_v17_ding_que_badge_style(label: Label, suit: String) -> void:
+func _apply_v17_ding_que_badge_style(label: Label, suit: String, seat: int = -1) -> void:
 	if label == null:
 		return
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -7232,21 +7233,28 @@ func _apply_v17_ding_que_badge_style(label: Label, suit: String) -> void:
 	label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86, 1.0))
 	label.add_theme_color_override("font_outline_color", Color(0.08, 0.05, 0.03, 0.94))
 	label.add_theme_constant_override("outline_size", 4)
-	label.custom_minimum_size = Vector2(176, 64)
-	label.offset_left = 36.0
-	label.offset_top = 8.0
-	label.offset_right = 212.0
-	label.offset_bottom = 72.0
+	if seat == 2:
+		label.custom_minimum_size = Vector2(108, 64)
+		label.offset_left = 8.0
+		label.offset_top = 8.0
+		label.offset_right = 116.0
+		label.offset_bottom = 72.0
+	else:
+		label.custom_minimum_size = Vector2(176, 64)
+		label.offset_left = 36.0
+		label.offset_top = 8.0
+		label.offset_right = 212.0
+		label.offset_bottom = 72.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = _ding_que_badge_fill(suit)
 	style.border_color = Color(1.0, 0.86, 0.54, 0.86)
-	style.set_border_width_all(4)
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_left = 14
-	style.corner_radius_bottom_right = 14
+	style.set_border_width_all(2)
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
-	style.shadow_size = 8
+	style.shadow_size = 3
 	style.content_margin_left = 18
 	style.content_margin_right = 18
 	style.content_margin_top = 10

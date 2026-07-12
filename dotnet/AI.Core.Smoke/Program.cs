@@ -63,16 +63,16 @@ if (!SmokeReasonableAnGang(facade))
     return 5;
 }
 
-if (!SmokeSichuanDisablesBaoJiaoRoutes(facade))
-{
-    Console.Error.WriteLine("sichuan_disable_bao_jiao_routes_smoke_failed");
-    return 51;
-}
-
 if (!SmokeWanSuitIncludedInCoreLogic(facade))
 {
     Console.Error.WriteLine("wan_suit_core_logic_smoke_failed");
     return 52;
+}
+
+if (!SmokeCSharpForcesOwnDingQueSuit(facade))
+{
+    Console.Error.WriteLine("csharp_ding_que_priority_smoke_failed");
+    return 53;
 }
 
 if (!SmokeRiskCalibration())
@@ -616,43 +616,6 @@ static bool SmokeReasonableAnGang(SichuanAiFacade facade)
     var result = facade.DecideSelfAction(state, false, new[] { gangTile }, Array.Empty<int>());
     Console.WriteLine($"an_gang_smoke_action={result.Action.ActionType} score={result.Action.Score} pass={result.ActionScores.GetValueOrDefault("pass")}");
     return result.Action.ActionType == SichuanActionType.Gang;
-}
-
-static bool SmokeSichuanDisablesBaoJiaoRoutes(SichuanAiFacade facade)
-{
-	var tile = SichuanTileCodec.EncodeTileType(1, 2);
-	var hand = new[]
-	{
-        tile,
-        tile,
-        SichuanTileCodec.EncodeTileType(0, 1),
-        SichuanTileCodec.EncodeTileType(0, 2),
-        SichuanTileCodec.EncodeTileType(0, 3),
-        SichuanTileCodec.EncodeTileType(1, 4),
-        SichuanTileCodec.EncodeTileType(1, 5),
-	};
-	var state = SichuanStateCodec.FromRaw(2, 0, 0, 8, SichuanTileCodec.BuildCount18(hand), new int[27]);
-	state.IsBaoJiao = true;
-	state.IsReady[2] = true;
-	state.BaoGangTileTypes = new HashSet<int> { tile };
-
-	var result = facade.DecideReaction(
-		state,
-		tile,
-		canHu: false,
-		canPeng: true,
-		canGang: true,
-		sourceSeat: 0,
-		reactionType: "discard",
-		forceLightweight: false,
-		mandatoryGang: true);
-	var declaration = facade.DecideBaoJiaoDeclaration(state, new[] { tile }, Array.Empty<SichuanBaoGangCandidate>(), 9999);
-	var hasBaoJiaoReason = result.Reasons.Any(reason => reason.Contains("报叫", StringComparison.Ordinal) || reason.Contains("报杠", StringComparison.Ordinal));
-	Console.WriteLine($"sichuan_disable_bao_jiao_reaction_action={result.Action.ActionType} declare={declaration.Declare} reasons={string.Join("|", result.Reasons)}");
-	return result.Action.ActionType != SichuanActionType.Gang
-		&& !declaration.Declare
-		&& declaration.SelectedBaoGangKeys.Count == 0
-		&& !hasBaoJiaoReason;
 }
 
 static bool SmokeBeliefReuseWithinReaction(SichuanAiFacade facade)
@@ -2669,4 +2632,27 @@ static bool SmokeWanSuitIncludedInCoreLogic(SichuanAiFacade facade)
     var hasWanCandidate = decision.Candidates.Any(candidate => candidate.TileType is >= 18 and <= 26);
     Console.WriteLine($"wan_suit_smoke one={oneWan} five={fiveWan} nine={nineWan} shanten={shanten} action={decision.Action.TileType} has_wan_candidate={hasWanCandidate}");
     return hasWanCandidate;
+}
+
+static bool SmokeCSharpForcesOwnDingQueSuit(SichuanAiFacade facade)
+{
+    var hand = SichuanTileCodec.BuildCount18(new[]
+    {
+        0, 1, 2, 3, 4,
+        9, 10, 11, 12, 13,
+        18, 20, 22, 24,
+    });
+    var state = SichuanStateCodec.FromRaw(
+        2,
+        0,
+        2,
+        38,
+        hand,
+        new int[27],
+        dingQueSuits: new[] { 0, 1, 2, 0 });
+    var decision = facade.DecideDiscard(state);
+    var onlyWanCandidates = decision.Candidates.Count > 0
+        && decision.Candidates.All(candidate => candidate.TileType is >= 18 and <= 26);
+    Console.WriteLine($"ding_que_priority action={decision.Action.TileType} candidates={string.Join(',', decision.Candidates.Select(candidate => candidate.TileType))}");
+    return decision.Action.TileType is >= 18 and <= 26 && onlyWanCandidates;
 }

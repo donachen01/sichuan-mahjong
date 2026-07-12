@@ -143,7 +143,6 @@ func _apply_orientation() -> void:
 	match seat_dock:
 		SeatDock.SELF:
 			custom_minimum_size = Vector2(0, SELF_ROW_TILE_VISUAL_HEIGHT)
-			size = custom_minimum_size
 			root_panel.custom_minimum_size = Vector2(0, SELF_ROW_TILE_VISUAL_HEIGHT)
 			opponent_band.visible = false
 			header.visible = false
@@ -171,7 +170,6 @@ func _apply_orientation() -> void:
 		SeatDock.TOP:
 			root_panel.custom_minimum_size = Vector2(0, 204)
 			custom_minimum_size = Vector2(1482, 210)
-			size = custom_minimum_size
 			opponent_band.visible = true
 			opponent_band.clip_contents = true
 			header.visible = false
@@ -194,11 +192,10 @@ func _apply_orientation() -> void:
 			opponent_band.add_theme_constant_override("separation", 2)
 			opponent_band.alignment = BoxContainer.ALIGNMENT_BEGIN
 			_apply_shell_style(Color(0.0, 0.0, 0.0, 0.0), Color(1.0, 1.0, 1.0, 0.0), 0, 0)
-			_place_identity_overlay(Vector2(0.5, 0.0), Vector2(-68, -2), HORIZONTAL_ALIGNMENT_CENTER, Vector2(136, 78))
+			_place_identity_overlay(Vector2(0.5, 0.0), Vector2(-88, -2), HORIZONTAL_ALIGNMENT_CENTER, Vector2(176, 156))
 		SeatDock.LEFT, SeatDock.RIGHT:
 			root_panel.custom_minimum_size = Vector2(248, 0)
 			custom_minimum_size = Vector2(340, 660)
-			size = custom_minimum_size
 			opponent_band.visible = true
 			opponent_band.clip_contents = true
 			header.visible = false
@@ -1686,16 +1683,17 @@ func _build_identity_plate_style(bg: Color, border: Color, radius: int, shadow_s
 	style.bg_color = bg.lightened(0.05)
 	style.border_color = border.lightened(0.18)
 	style.set_border_width_all(1)
-	style.corner_radius_top_left = radius
-	style.corner_radius_top_right = radius
-	style.corner_radius_bottom_left = radius
-	style.corner_radius_bottom_right = radius
+	var restrained_radius := mini(radius, 8)
+	style.corner_radius_top_left = restrained_radius
+	style.corner_radius_top_right = restrained_radius
+	style.corner_radius_bottom_left = restrained_radius
+	style.corner_radius_bottom_right = restrained_radius
 	style.content_margin_left = 16
 	style.content_margin_right = 16
 	style.content_margin_top = 9
 	style.content_margin_bottom = 9
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.20)
-	style.shadow_size = shadow_size
+	style.shadow_size = mini(shadow_size, 4)
 	style.shadow_offset = Vector2(0, 3)
 	style.anti_aliasing = true
 	style.anti_aliasing_size = 1.3

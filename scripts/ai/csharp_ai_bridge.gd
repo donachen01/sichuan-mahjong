@@ -107,23 +107,6 @@ func build_self_action_transport_payload(player_state: Dictionary, table_state: 
 	return payload
 
 
-func build_bao_jiao_transport_payload(player_state: Dictionary, table_state: Dictionary, rules_config, plan: Dictionary) -> Dictionary:
-	var payload := _build_payload(player_state, table_state, rules_config)
-	var active_suits: Array = tile_codec.resolve_active_suits(rules_config)
-	payload["tingTileTypes"] = _encode_tile_list(plan.get("ting_tiles", []), active_suits)
-	var candidates: Array = []
-	for option_item in plan.get("bao_gang_options", []):
-		var option: Dictionary = option_item
-		candidates.append({
-			"key": str(option.get("key", "")),
-			"tileType": tile_codec.tile_type(option.get("tile", {}), active_suits),
-			"subtype": str(option.get("subtype", "")),
-		})
-	payload["baoGangCandidates"] = candidates
-	payload["planScore"] = int(plan.get("plan_score", 0))
-	return payload
-
-
 func build_ding_que_transport_payload(hand_tiles: Array, active_suits: Array) -> Dictionary:
 	var counts := {}
 	for suit_value in active_suits:
@@ -136,35 +119,6 @@ func build_ding_que_transport_payload(hand_tiles: Array, active_suits: Array) ->
 		"suitCounts": counts,
 		"activeSuits": active_suits.duplicate(true),
 	}
-
-
-func analyze_bao_jiao(player_state: Dictionary, table_state: Dictionary, rules_config, plan: Dictionary, request_tag: String = "") -> Dictionary:
-	if not is_available():
-		last_transport_mode = "unavailable"
-		last_host_error = "cli_missing"
-		return {}
-	var payload := build_bao_jiao_transport_payload(player_state, table_state, rules_config, plan)
-	if _ensure_host_connection():
-		var host_result := _analyze_bao_jiao_via_host(payload)
-		if not host_result.is_empty():
-			last_transport_mode = "host"
-			return host_result
-	var file_path := _write_payload(payload, "bao_jiao_%s" % request_tag)
-	if file_path.is_empty():
-		last_transport_mode = "cli_failed"
-		last_host_error = "payload_write_failed"
-		return {}
-	var output: Array = []
-	var exit_code := OS.execute(DOTNET_BIN, [ProjectSettings.globalize_path(CLI_DLL_PATH), "bao-jiao-json", file_path], output, true, true)
-	if exit_code != 0 or output.is_empty():
-		last_transport_mode = "cli_failed"
-		last_host_error = "cli_exit_%d" % exit_code
-		return {}
-	var raw: String = "\n".join(output)
-	var parsed = JSON.parse_string(raw)
-	last_transport_mode = "cli_after_host_miss" if host_mode_enabled else "cli"
-	last_host_error = ""
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 
 
 func analyze_ding_que(hand_tiles: Array, active_suits: Array, request_tag: String = "") -> Dictionary:
@@ -257,16 +211,10 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	var players: Array = table_state.get("players", [])
 	var self_seat := int(player_state.get("seat", -1))
 	var hand_tiles: Array = player_state.get("hand_tiles", [])
-	var self_player: Dictionary = players[self_seat] if self_seat >= 0 and self_seat < players.size() else {}
 	var last_draw_tile_type := -1
 	var last_draw: Dictionary = table_state.get("last_draw_tile", {})
 	if int(last_draw.get("seat", -1)) == self_seat:
 		last_draw_tile_type = tile_codec.tile_type(last_draw.get("tile", {}), active_suits)
-	var bao_gang_tile_types: Array[int] = []
-	for key_value in Array(self_player.get("bao_gang_tiles", [])):
-		var tile_type := _tile_type_from_key(str(key_value), active_suits)
-		if tile_type >= 0 and not bao_gang_tile_types.has(tile_type):
-			bao_gang_tile_types.append(tile_type)
 	var hand18: PackedInt32Array = tile_codec.build_count_array(hand_tiles, active_suits)
 	var visible18: PackedInt32Array = tile_codec.build_visible_count_array(players, hand_tiles, active_suits, self_seat)
 	var remaining18: PackedInt32Array = tile_codec.build_remaining_count_array(hand_tiles, players, active_suits, self_seat)
@@ -282,6 +230,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	var has_hu := PackedByteArray()
 	has_hu.resize(4)
 	var scores: Array[int] = []
+	var ding_que_suits: Array[int] = []
 	var discard_total := 0
 	var meld_total := 0
 	for index in range(mini(4, players.size())):
@@ -293,8 +242,9 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		discard_total += encoded_discards.size()
 		meld_total += encoded_melds.size()
 		scores.append(int(player.get("score", 0)))
-		is_called[index] = 1 if bool(player.get("bao_jiao", false)) else 0
-		is_ready[index] = 1 if bool(player.get("bao_jiao", false)) else 0
+		ding_que_suits.append(active_suits.find(str(player.get("ding_que", ""))))
+		is_called[index] = 1 if not Array(player.get("melds", [])).is_empty() else 0
+		is_ready[index] = 1 if bool(player.get("is_ting", false)) else 0
 		has_hu[index] = 1 if bool(player.get("has_won", false)) else 0
 	while discards18.size() < 4:
 		discards18.append([])
@@ -302,6 +252,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		melds18.append([])
 	while scores.size() < 4:
 		scores.append(0)
+	while ding_que_suits.size() < 4:
+		ding_que_suits.append(-1)
 	var visible_version := int(table_state.get("wall_count", 0)) \
 		+ discard_total * 31 \
 		+ meld_total * 47 \
@@ -319,6 +271,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"handVersion": hand_version,
 		"strategyContextVersion": visible_version + hand_version,
 		"scores": scores,
+		"dingQueSuits": ding_que_suits,
 		"mobileSpeedMode": OS.has_feature("android") or OS.has_feature("ios"),
 		"compactResult": OS.has_feature("android") or OS.has_feature("ios"),
 		"hand18": hand18,
@@ -332,9 +285,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"isCalled": _byte_array_to_bool_array(is_called),
 		"isReady": _byte_array_to_bool_array(is_ready),
 		"hasHu": _byte_array_to_bool_array(has_hu),
-		"isBaoJiao": bool(self_player.get("bao_jiao", false)),
 		"lastDrawTileType": last_draw_tile_type,
-		"baoGangTileTypes": bao_gang_tile_types,
 	}
 
 
@@ -517,36 +468,6 @@ func _analyze_self_action_via_host(payload: Dictionary) -> Dictionary:
 	var request: Dictionary = {
 		"action": "self_action",
 		"selfActionPayload": payload,
-	}
-	var request_line: String = JSON.stringify(request) + "\n"
-	var send_err: int = host_client.put_data(request_line.to_utf8_buffer())
-	if send_err != OK:
-		last_host_error = "send_err_%d" % send_err
-		_disconnect_host()
-		return {}
-	var response_line: String = _read_host_line(HOST_READ_TIMEOUT_MS)
-	if response_line == "":
-		if last_host_error == "":
-			last_host_error = "host_empty_response"
-		_disconnect_host()
-		return {}
-	var parsed = JSON.parse_string(response_line)
-	if typeof(parsed) != TYPE_DICTIONARY:
-		last_host_error = "host_invalid_json"
-		return {}
-	var response: Dictionary = parsed
-	if not bool(response.get("ok", false)):
-		last_host_error = str(response.get("error", "host_error"))
-		return {}
-	var result = response.get("result", {})
-	last_host_error = ""
-	return result if typeof(result) == TYPE_DICTIONARY else {}
-
-
-func _analyze_bao_jiao_via_host(payload: Dictionary) -> Dictionary:
-	var request: Dictionary = {
-		"action": "bao_jiao",
-		"baoJiaoPayload": payload,
 	}
 	var request_line: String = JSON.stringify(request) + "\n"
 	var send_err: int = host_client.put_data(request_line.to_utf8_buffer())

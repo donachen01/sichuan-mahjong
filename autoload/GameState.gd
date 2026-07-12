@@ -51,7 +51,7 @@ const HELL_TRAINING_DIR := "res://测试数据统计/hell_training"
 const HELL_MARKED_CASE_DIR := "res://测试数据统计/hell_marked_cases"
 const HELL_REPLAY_DIR := "res://测试数据统计/hell_replay"
 const AI_ANALYSIS_RECORDING_ENABLED := false
-const DEBUG_TRAINING_RECORDING_ENABLED := true
+const DEBUG_TRAINING_RECORDING_ENABLED := false
 const AI_LEARNING_RECORDING_ENABLED := false
 const AI_CHAIN_DEBUG_ENABLED := false
 const DIAGNOSTIC_EXPORT_ENABLED := false
@@ -1084,8 +1084,8 @@ func run_ai_turn() -> bool:
 	if decision.is_empty():
 		decision = _build_ai_turn_decision(true)
 		if decision.is_empty():
-			decision = _build_fallback_ai_turn_decision()
-		if decision.is_empty():
+			debug_last_message = "C# AI 暂未返回有效决策，本回合保持等待。"
+			_emit_state_changed()
 			return false
 	pending_ai_turn_decision.clear()
 	_clear_pending_ai_turn_request()
@@ -1094,10 +1094,7 @@ func run_ai_turn() -> bool:
 	decision = _build_ai_turn_decision(true)
 	if not decision.is_empty() and _execute_ai_turn_decision(decision):
 		return true
-	decision = _build_fallback_ai_turn_decision()
-	if not decision.is_empty() and _execute_ai_turn_decision(decision):
-		return true
-	debug_last_message = "AI seat %d could not complete a prepared turn decision; decision was refreshed but still invalid." % current_turn_seat
+	debug_last_message = "C# AI seat %d 返回了不可执行决策，已拒绝本地替代出牌。" % current_turn_seat
 	_emit_state_changed()
 	return false
 
@@ -1329,42 +1326,6 @@ func _build_ai_turn_decision(force_lightweight: bool = false) -> Dictionary:
 		"table_state": table_state.duplicate(true),
 	})
 	return base
-
-
-func _build_fallback_ai_turn_decision() -> Dictionary:
-	if not is_ai_turn_ready():
-		return {}
-	var seat: int = current_turn_seat
-	var tile_id := _choose_fallback_ai_discard_tile_id(seat)
-	if tile_id == -1:
-		return {}
-	var hand_tile := _tile_by_id_in_hand(seat, tile_id)
-	return {
-		"round_index": round_index,
-		"seat": seat,
-		"phase": int(current_phase),
-		"wall_count": wall_count,
-		"hand_count": int(players[seat].get("hand_count", 0)),
-		"state_signature": _ai_turn_state_signature(seat),
-		"action": "discard",
-		"tile_id": tile_id,
-		"tile": hand_tile.duplicate(true),
-		"source": "local_fallback",
-		"reason": "AI 后端未返回可执行出牌时，按四川缺门优先原则保底出牌。",
-	}
-
-
-func _choose_fallback_ai_discard_tile_id(seat: int) -> int:
-	if seat < 0 or seat >= players.size():
-		return -1
-	var hand_tiles: Array = players[seat].get("hand_tiles", [])
-	if hand_tiles.is_empty():
-		return -1
-	var forced_suit := _get_forced_discard_suit(players[seat])
-	for tile in hand_tiles:
-		if forced_suit == "" or str(tile.get("suit", "")) == forced_suit:
-			return int(tile.get("id", -1))
-	return int(hand_tiles[0].get("id", -1))
 
 
 func _build_ai_turn_gang_decision_from_analysis(base: Dictionary, seat: int, analysis: Dictionary) -> Dictionary:
@@ -6234,7 +6195,7 @@ func _write_ai_analysis_summary() -> void:
 
 
 func _is_debug_decision_trace_enabled() -> bool:
-	return OS.is_debug_build()
+	return _is_ai_analysis_recording_enabled()
 
 
 func _ensure_debug_decision_trace_session() -> void:

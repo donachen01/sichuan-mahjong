@@ -79,10 +79,9 @@ func _force_playable_snapshot() -> void:
 		if str(player.get("ding_que", "")) == "":
 			if index == 0:
 				player["ding_que"] = AUTO_DING_QUE_SUIT
-			else:
-				player["ding_que"] = str(game_state.call("_choose_ai_ding_que", player.get("hand_tiles", [])))
 			players[index] = player
 	game_state.set("players", players)
+	game_state.call("_auto_select_ai_ding_que")
 	if bool(game_state.get("opening_roll_pending_completion")):
 		game_state.call("complete_opening_roll")
 	else:

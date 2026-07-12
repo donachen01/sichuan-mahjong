@@ -55,7 +55,6 @@ public sealed class SichuanRoutePlanEngine
         var weights = new Dictionary<string, int>
         {
             ["平胡"] = ScorePingHu(features),
-            ["卡二条平胡"] = ScoreKaErTiao(features),
             ["大对子"] = ScoreDaDuiZi(features),
             ["清一色"] = ScoreQingYiSe(features)
         };
@@ -100,15 +99,6 @@ public sealed class SichuanRoutePlanEngine
             score += 8;
         if (features.PairLikeCount >= 5 && features.MeldCount == 0)
             score -= 16;
-        return score;
-    }
-
-    private static int ScoreKaErTiao(RouteFeatures features)
-    {
-        var hasOneTwoThreeTiao = features.Hand18[0] > 0 && features.Hand18[1] > 0 && features.Hand18[2] > 0;
-        var score = ScorePingHu(features) - 12;
-        if (hasOneTwoThreeTiao)
-            score += 22;
         return score;
     }
 
@@ -215,7 +205,7 @@ public sealed class SichuanRoutePlanEngine
             constraints.Add($"target_suit:{features.TargetSuit}");
         if (IsPungRoute(primary))
             constraints.Add("prefer_triplets");
-        if (primary is "平胡" or "卡二条平胡")
+        if (primary == "平胡")
             constraints.Add("prefer_fast_ready");
         return constraints;
     }
@@ -285,9 +275,12 @@ public sealed class SichuanRoutePlanEngine
             }
         }
 
-        var targetSuit = suitCounts[1] > suitCounts[0] ? 1 : 0;
+        var targetSuit = Enumerable.Range(0, 3)
+            .OrderByDescending(suit => suitCounts[suit])
+            .ThenBy(suit => suit)
+            .First();
         var targetSuitCount = suitCounts[targetSuit];
-        var offSuitCount = suitCounts[1 - targetSuit];
+        var offSuitCount = suitCounts.Sum() - targetSuitCount;
         return new RouteFeatures(
             hand18,
             meldCount,
@@ -301,7 +294,7 @@ public sealed class SichuanRoutePlanEngine
             _shanten.CalcStandardShanten(hand18, meldCount),
             meldCount == 0 ? _shanten.CalcSevenPairsShanten(hand18) : 8,
             targetSuit,
-            targetSuit == 0 ? "条" : "筒",
+            targetSuit switch { 0 => "条", 1 => "筒", _ => "万" },
             targetSuitCount,
             offSuitCount);
     }
@@ -311,8 +304,7 @@ public sealed class SichuanRoutePlanEngine
         "清一色" => 0,
         "清对" => 1,
         "平胡" => 2,
-        "卡二条平胡" => 3,
-        "大对子" => 4,
+        "大对子" => 3,
         "青龙七对" => 5,
         "清七对" => 6,
         "龙七对" => 7,

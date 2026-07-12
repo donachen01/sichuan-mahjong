@@ -90,7 +90,8 @@ public sealed class SichuanHandEvaluator
             IsolatedCount = isolatedCount,
             UkeireCount = bestUkeire,
             LiveUkeireCount = bestLiveUkeire,
-            DingQueClear = true,
+            DingQueClear = state.OwnDingQueSuit is not (>= 0 and < 3)
+                || !Enumerable.Range(state.OwnDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0),
             BigHandPotential = bigHandPotential,
             HighRiskWasteCount = highRiskWasteCount,
             HandQuality = quality,
@@ -123,7 +124,7 @@ public sealed class SichuanHandEvaluator
     private static int CountTaatsu(int[] hand18)
     {
         var count = 0;
-        for (var start = 0; start <= 9; start += 9)
+        for (var start = 0; start <= 18; start += 9)
         {
             for (var rank = 0; rank < 8; rank++)
             {
@@ -307,12 +308,15 @@ public sealed class SichuanOpponentDangerEvaluator
 
     private static int ResolveLikelyMissingSuit(SichuanStateView state, int seat)
     {
+        if (seat is >= 0 and < 4 && state.DingQueSuits[seat] is >= 0 and < 3)
+            return state.DingQueSuits[seat];
         var discardSuitCounts = new[] { 0, 0, 0 };
         foreach (var tile in state.Discards18[seat])
             discardSuitCounts[tile / 9]++;
-        if (discardSuitCounts[0] >= discardSuitCounts[1] + 3) return 0;
-        if (discardSuitCounts[1] >= discardSuitCounts[0] + 3) return 1;
-        return -1;
+        var ordered = Enumerable.Range(0, 3)
+            .OrderByDescending(suit => discardSuitCounts[suit])
+            .ToArray();
+        return discardSuitCounts[ordered[0]] >= discardSuitCounts[ordered[1]] + 3 ? ordered[0] : -1;
     }
 }
 

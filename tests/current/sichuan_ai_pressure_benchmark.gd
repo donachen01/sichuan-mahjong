@@ -18,6 +18,7 @@ func _run() -> void:
 	var max_steps_per_round := _read_int_arg("--max-steps=", DEFAULT_MAX_STEPS_PER_ROUND)
 	var preset_name := _read_string_arg("--preset=", "bone_ash")
 	var compare_preset_name := _read_string_arg("--compare-preset=", "")
+	var seed_base := _read_int_arg("--seed-base=", 20260712)
 	var record_discard_audit := _read_bool_arg("--record-discard-audit=", false)
 	var output_path := _read_string_arg("--output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "json"))
 	var csv_output_path := _read_string_arg("--csv-output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "csv"))
@@ -26,11 +27,12 @@ func _run() -> void:
 	var game_state: Node = GAME_STATE_SCRIPT.new()
 	get_root().add_child(game_state)
 	await process_frame
+	game_state.call("set_test_seed", seed_base)
 
 	var discard_audit_records: Array = []
 	var report: Dictionary
 	if compare_preset_name != "":
-		report = await _run_ab_benchmark(game_state, preset_name, compare_preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
+		report = await _run_ab_benchmark(game_state, preset_name, compare_preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records, seed_base)
 	else:
 		report = await _run_single_preset_benchmark(game_state, preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
 	if record_discard_audit:
@@ -68,16 +70,22 @@ func _run_single_preset_benchmark(game_state: Node, preset_name: String, total_r
 	return stats
 
 
-func _run_ab_benchmark(game_state: Node, preset_a: String, preset_b: String, total_rounds: int, max_steps_per_round: int, record_discard_audit: bool = false, discard_audit_records: Array = []) -> Dictionary:
+func _run_ab_benchmark(game_state: Node, preset_a: String, preset_b: String, total_rounds: int, max_steps_per_round: int, record_discard_audit: bool = false, discard_audit_records: Array = [], seed_base: int = 20260712) -> Dictionary:
 	var combined := {
 		"benchmark_mode": "ab_compare",
 		"preset_a": preset_a,
 		"preset_b": preset_b,
+		"seed_base": seed_base,
+		"paired_seed_rounds": total_rounds,
 	}
 	var stats_a := await _run_single_preset_benchmark(game_state, preset_a, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
-	game_state.call("start_new_round")
+	game_state.queue_free()
 	await process_frame
-	var stats_b := await _run_single_preset_benchmark(game_state, preset_b, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
+	var baseline_state: Node = GAME_STATE_SCRIPT.new()
+	get_root().add_child(baseline_state)
+	await process_frame
+	baseline_state.call("set_test_seed", seed_base)
+	var stats_b := await _run_single_preset_benchmark(baseline_state, preset_b, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
 	combined["report_a"] = stats_a
 	combined["report_b"] = stats_b
 	combined["comparison"] = _build_comparison(stats_a, stats_b)

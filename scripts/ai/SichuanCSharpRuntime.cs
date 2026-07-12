@@ -77,11 +77,6 @@ public partial class SichuanCSharpRuntime : Node
         return StartAsyncRequest(() => AnalyzeSelfActionJson(payloadJson));
     }
 
-    public int StartAnalyzeBaoJiaoJson(string payloadJson)
-    {
-        return StartAsyncRequest(() => AnalyzeBaoJiaoJson(payloadJson));
-    }
-
     public int StartAnalyzeDingQueJson(string payloadJson)
     {
         return StartAsyncRequest(() => AnalyzeDingQueJson(payloadJson));
@@ -192,23 +187,6 @@ public partial class SichuanCSharpRuntime : Node
                 return "{\"ok\":false,\"error\":\"invalid_self_action_payload\"}";
 
             var output = BuildSelfActionObject(payload);
-            return JsonSerializer.Serialize(output, JsonOptions);
-        }
-        catch (Exception ex)
-        {
-            return JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions);
-        }
-    }
-
-    public string AnalyzeBaoJiaoJson(string payloadJson)
-    {
-        try
-        {
-            var payload = JsonSerializer.Deserialize<BaoJiaoPayload>(payloadJson, JsonOptions);
-            if (payload is null)
-                return "{\"ok\":false,\"error\":\"invalid_bao_jiao_payload\"}";
-
-            var output = BuildBaoJiaoObject(payload);
             return JsonSerializer.Serialize(output, JsonOptions);
         }
         catch (Exception ex)
@@ -622,34 +600,6 @@ public partial class SichuanCSharpRuntime : Node
         };
     }
 
-    private object BuildBaoJiaoObject(BaoJiaoPayload payload)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        var state = BuildState(payload);
-        var candidates = payload.BaoGangCandidates
-            .Select(item => new SichuanBaoGangCandidate(item.Key, item.TileType, item.Subtype))
-            .ToArray();
-        var result = _facade.DecideBaoJiaoDeclaration(
-            state,
-            payload.TingTileTypes,
-            candidates,
-            payload.PlanScore);
-        stopwatch.Stop();
-
-        return new
-        {
-            ok = true,
-            action = result.Declare ? "bao_jiao" : "pass",
-            declare = result.Declare,
-            selectedBaoGangKeys = result.SelectedBaoGangKeys,
-            score = result.Score,
-            reasons = result.Reasons,
-            candidateScores = result.CandidateScores,
-            elapsedMs = stopwatch.ElapsedMilliseconds,
-            backendMode = "csharp_native_bao_jiao"
-        };
-    }
-
     private object BuildDingQueObject(DingQuePayload payload)
     {
         var result = _facade.DecideDingQue(payload.SuitCounts, payload.ActiveSuits);
@@ -978,14 +928,13 @@ public partial class SichuanCSharpRuntime : Node
             payload.RemainingRounds,
             payload.VisibleVersion,
             payload.HandVersion,
-            payload.StrategyContextVersion);
+            payload.StrategyContextVersion,
+            payload.DingQueSuits);
 
         if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
         if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
         if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
-        state.IsBaoJiao = false;
         state.LastDrawTileType = payload.LastDrawTileType;
-        state.BaoGangTileTypes = new HashSet<int>();
         return state;
     }
 
@@ -1197,6 +1146,7 @@ public partial class SichuanCSharpRuntime : Node
         public int HandVersion { get; set; }
         public int StrategyContextVersion { get; set; }
         public List<int> Scores { get; set; } = new();
+        public List<int> DingQueSuits { get; set; } = new();
         public int[] Hand18 { get; set; } = Array.Empty<int>();
         public int[] Visible18 { get; set; } = Array.Empty<int>();
         public int[] Remaining18 { get; set; } = Array.Empty<int>();
@@ -1208,9 +1158,7 @@ public partial class SichuanCSharpRuntime : Node
         public bool[] IsCalled { get; set; } = Array.Empty<bool>();
         public bool[] IsReady { get; set; } = Array.Empty<bool>();
         public bool[] HasHu { get; set; } = Array.Empty<bool>();
-        public bool IsBaoJiao { get; set; }
         public int LastDrawTileType { get; set; } = -1;
-        public List<int> BaoGangTileTypes { get; set; } = new();
         public bool ForceLightweight { get; set; }
         public bool MobileSpeedMode { get; set; }
         public bool CompactResult { get; set; }
@@ -1245,20 +1193,6 @@ public partial class SichuanCSharpRuntime : Node
         public List<int> AddGangTileTypes { get; set; } = new();
         public Dictionary<int, int> AddGangQiangGangCounts { get; set; } = new();
         public List<int> MandatoryGangTileTypes { get; set; } = new();
-    }
-
-    private sealed class BaoJiaoPayload : DiscardPayload
-    {
-        public List<int> TingTileTypes { get; set; } = new();
-        public List<BaoGangCandidatePayload> BaoGangCandidates { get; set; } = new();
-        public int PlanScore { get; set; }
-    }
-
-    private sealed class BaoGangCandidatePayload
-    {
-        public string Key { get; set; } = "";
-        public int TileType { get; set; } = -1;
-        public string Subtype { get; set; } = "";
     }
 
     private sealed class DingQuePayload

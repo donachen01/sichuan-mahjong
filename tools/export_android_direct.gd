@@ -104,7 +104,7 @@ func _export_android() -> void:
 	preset.set("custom_features", "C#")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/**,tests/**,tools/**,build/**,evidence/**,backups/**,测试数据统计/**,.tmp_tts/**,.venv_tts/**,.git/**,.godot/**")
+	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,dotnet/*,backups/*,测试数据统计/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
 	preset.set("gradle_build/use_gradle_build", true)
 	var gradle_build_dir := OS.get_environment("GODOT_ANDROID_GRADLE_BUILD_DIR")
@@ -198,5 +198,5 @@ func _app_version_name() -> String:
 func _app_version_code(version_name: String) -> int:
 	var parts := version_name.split(".")
 	if parts.size() >= 3:
-		return maxi(1, int(parts[2]))
+		return maxi(1, int(parts[0]) * 100 + int(parts[1]) * 10 + int(parts[2]))
 	return 1

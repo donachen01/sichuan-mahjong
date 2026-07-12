@@ -138,42 +138,6 @@ func analyze_self_action(player_state: Dictionary, table_state: Dictionary, rule
 	return analysis
 
 
-func analyze_bao_jiao(player_state: Dictionary, table_state: Dictionary, rules_config, plan: Dictionary) -> Dictionary:
-	var started_at_ms := Time.get_ticks_msec()
-	var analysis: Dictionary = {}
-	var active_backend := "csharp_bao_jiao_required"
-	last_native_turn_error = ""
-	if has_native_csharp_runtime() and rules_config != null and bool(rules_config.is_sichuan_mode()) and native_csharp_runtime.has_method("AnalyzeBaoJiaoJson"):
-		var payload: Dictionary = csharp_bridge.build_bao_jiao_transport_payload(player_state, table_state, rules_config, plan)
-		var raw := str(native_csharp_runtime.call("AnalyzeBaoJiaoJson", JSON.stringify(payload)))
-		var parsed = JSON.parse_string(raw)
-		var native_result: Dictionary = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
-		if not native_result.is_empty() and bool(native_result.get("ok", true)) and not str(native_result.get("action", "")).is_empty():
-			analysis = _build_csharp_bao_jiao_analysis(native_result, "csharp_native_bao_jiao")
-			active_backend = "csharp_native_bao_jiao"
-		else:
-			last_native_turn_error = str(native_result.get("error", "empty_native_bao_jiao_result"))
-	elif _should_use_csharp_backend(rules_config) and csharp_bridge.is_available():
-		var csharp_result := csharp_bridge.analyze_bao_jiao(player_state, table_state, rules_config, plan, "bao_jiao")
-		if not csharp_result.is_empty() and bool(csharp_result.get("ok", true)) and not str(csharp_result.get("action", "")).is_empty():
-			analysis = _build_csharp_bao_jiao_analysis(csharp_result, "csharp_bao_jiao")
-			active_backend = "csharp_bao_jiao"
-		else:
-			last_native_turn_error = "empty_csharp_bao_jiao_result"
-	if analysis.is_empty() and rules_config != null and bool(rules_config.is_sichuan_mode()):
-		last_native_turn_error = "strict_csharp_required_no_bao_jiao_analysis" if last_native_turn_error.is_empty() else last_native_turn_error
-	var elapsed_ms := maxi(0, Time.get_ticks_msec() - started_at_ms)
-	latest_turn_snapshot = {
-		"seat": int(player_state.get("seat", -1)),
-		"analysis": analysis.duplicate(true),
-		"active_backend": active_backend,
-		"elapsed_ms": elapsed_ms,
-		"budget_ms": TURN_BUDGET_MS,
-		"over_budget": elapsed_ms > TURN_BUDGET_MS,
-	}
-	return analysis
-
-
 func analyze_ding_que(hand_tiles: Array, active_suits: Array) -> Dictionary:
 	var started_at_ms := Time.get_ticks_msec()
 	var analysis: Dictionary = {}
@@ -275,20 +239,6 @@ func _build_csharp_self_action_analysis(csharp_result: Dictionary, default_backe
 		"reasons": csharp_result.get("reasons", []).duplicate(true),
 		"action_scores": csharp_result.get("actionScores", {}).duplicate(true),
 		"backend_mode": default_backend,
-		"csharp_result": csharp_result.duplicate(true),
-	}
-
-
-func _build_csharp_bao_jiao_analysis(csharp_result: Dictionary, default_backend: String) -> Dictionary:
-	return {
-		"action": str(csharp_result.get("action", "pass")).strip_edges().to_lower(),
-		"declare": bool(csharp_result.get("declare", false)),
-		"selected_bao_gang_keys": Array(csharp_result.get("selectedBaoGangKeys", csharp_result.get("selected_bao_gang_keys", []))).duplicate(true),
-		"score": int(csharp_result.get("score", 0)),
-		"reasons": Array(csharp_result.get("reasons", [])).duplicate(true),
-		"candidate_scores": csharp_result.get("candidateScores", csharp_result.get("candidate_scores", {})).duplicate(true),
-		"backend_mode": str(csharp_result.get("backendMode", default_backend)),
-		"elapsed_ms": int(csharp_result.get("elapsedMs", -1)),
 		"csharp_result": csharp_result.duplicate(true),
 	}
 
