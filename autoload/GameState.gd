@@ -1084,14 +1084,15 @@ func run_ai_turn() -> bool:
 	if decision.is_empty():
 		decision = _build_ai_turn_decision(true)
 		if decision.is_empty():
-			debug_last_message = "C# AI 暂未返回有效决策，本回合保持等待。"
-			_emit_state_changed()
-			return false
+			decision = _build_ai_turn_fail_safe_decision()
 	pending_ai_turn_decision.clear()
 	_clear_pending_ai_turn_request()
 	if _execute_ai_turn_decision(decision):
 		return true
 	decision = _build_ai_turn_decision(true)
+	if not decision.is_empty() and _execute_ai_turn_decision(decision):
+		return true
+	decision = _build_ai_turn_fail_safe_decision()
 	if not decision.is_empty() and _execute_ai_turn_decision(decision):
 		return true
 	debug_last_message = "C# AI seat %d 返回了不可执行决策，已拒绝本地替代出牌。" % current_turn_seat
@@ -1326,6 +1327,50 @@ func _build_ai_turn_decision(force_lightweight: bool = false) -> Dictionary:
 		"table_state": table_state.duplicate(true),
 	})
 	return base
+
+
+func _build_ai_turn_fail_safe_decision() -> Dictionary:
+	if not is_ai_turn_ready() or ai_manager == null:
+		return {}
+	var seat: int = current_turn_seat
+	var player_state := _build_player_state(seat)
+	var table_state := _build_table_state()
+	var allow_cheat: bool = int(players[seat].get("ai_level", int(ai_level))) == int(AILevel.CHEATING)
+	var analysis: Dictionary = ai_manager.analyze_turn_fail_safe(
+		player_state,
+		table_state,
+		rules,
+		ai_tuning_config,
+		hu_checker,
+		risk_analyzer,
+		allow_cheat
+	)
+	if analysis.is_empty():
+		return {}
+	analysis = _apply_ding_que_priority_to_discard_analysis(seat, analysis)
+	var selected_tile: Dictionary = analysis.get("recommended", {}).get("tile", {})
+	if selected_tile.is_empty() or int(selected_tile.get("id", -1)) < 0:
+		return {}
+	var decision := {
+		"round_index": round_index,
+		"seat": seat,
+		"phase": int(current_phase),
+		"wall_count": wall_count,
+		"hand_count": int(players[seat].get("hand_count", 0)),
+		"state_signature": _ai_turn_state_signature(seat),
+		"action": "discard",
+		"tile_id": int(selected_tile.get("id", -1)),
+		"analysis": analysis.duplicate(true),
+		"source": "gdscript_sichuan_fail_safe",
+		"reason": "C# AI 返回空结果时使用完整四川决策引擎推进牌局。",
+	}
+	debug_last_message = "C# AI 返回空结果，已使用四川本地决策完成本回合。"
+	_record_ai_chain_debug("turn_fail_safe seat=%d tile_id=%d native_error=%s" % [
+		seat,
+		int(selected_tile.get("id", -1)),
+		str(analysis.get("native_error", "")),
+	])
+	return decision
 
 
 func _build_ai_turn_gang_decision_from_analysis(base: Dictionary, seat: int, analysis: Dictionary) -> Dictionary:

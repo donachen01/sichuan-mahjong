@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.1.0`
+- 版本：`2.1.1`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -91,7 +91,7 @@ Debug APK：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.0-direct-debug.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.1-direct-debug.apk`
 
 Release APK：
 
@@ -101,7 +101,7 @@ Release APK：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.0-release.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.1-release.apk`
 
 Release 脚本会读取本机签名文件：
 
@@ -119,8 +119,8 @@ Release 脚本会读取本机签名文件：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.0-ios-xcode/SichuanMahjongIOS.xcodeproj`
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.0-ios-personal.ipa`（个人开发者签名归档包）
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.1-ios-xcode/SichuanMahjongIOS.xcodeproj`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.1-ios-personal.ipa`（个人开发者签名归档包）
 
 自用安装流程：
 
@@ -136,18 +136,19 @@ Release 脚本会读取本机签名文件：
 
 ## 当前已验证
 
-2.1.0 优化与发布验收已通过：
+2.1.1 优化与发布验收已通过：
 
 - 四川规则回归：`RULE REGRESSION OK: 26/26`
 - UI 六问题回归：`VERIFY SIX ISSUES OK: 6/6`
-- 定缺专项：`RULE REGRESSION OK: 6/6`
+- 定缺与移动端开局专项：`RULE REGRESSION OK: 8/8`
+- iOS NativeAOT 返回空结果时，自动切换到完整四川 GDScript 决策引擎；状态机回归确认庄家实际完成首打并推进牌局
 - 独立出牌评分器回归通过；线上 AI 分数不参与裁判评分
 - 候选骨灰透视 AI 与冻结旧版 AI 完成同种子 100 局对战：候选组 36 局打完、14 局流局；旧版组 6 局打完、44 局流局；两组 `forced_stop=0`
 - 候选 AI 独立评分复测 30 局：1,508 次出牌，平均分 `99.1227`，裁判第一选择命中率 `85.013%`
 - C# AI Core Release build + smoke：0 warnings / 0 errors
 - Godot C# Debug build：0 warnings / 0 errors
-- Android release APK：包名 `com.chendong.sichuanmahjong`，`versionCode=210`，`versionName=2.1.0`，通过 APK Signature Scheme v2/v3 验签
-- iOS Release App：Bundle ID `com.chendong.sichuanmahjong.iosdev`，版本 `2.1.0`，通过 Xcode 自动个人开发者签名和 `codesign --deep --strict`
+- Android release APK：包名 `com.chendong.sichuanmahjong`，`versionCode=211`，`versionName=2.1.1`，通过 APK Signature Scheme v2/v3 验签
+- iOS Release App：Bundle ID `com.chendong.sichuanmahjong.iosdev`，版本 `2.1.1`，通过 Xcode 自动个人开发者签名和 `codesign --deep --strict`
 - iOS 真机：已安装到配对的 iPhone 15，`devicectl` 启动成功，启动 5 秒后进程仍在运行
 
 Godot headless 测试和导出会输出若干编辑器退出时的 RID/ObjectDB/resource leak 警告；这些警告发生在无窗口编辑器退出阶段。当前已分别用独立 C# 构建、签名产物检查、真机安装和真机启动验证发布链路。真机上的完整一局人工操作仍需以实际触控体验作为最终人工验收。

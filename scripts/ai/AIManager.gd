@@ -96,6 +96,16 @@ func analyze_turn_lightweight(player_state: Dictionary, table_state: Dictionary,
 	return result.get("analysis", {}).duplicate(true)
 
 
+func analyze_turn_fail_safe(player_state: Dictionary, table_state: Dictionary, rules_config, ai_config, hu_checker, risk_analyzer, allow_cheat: bool = false) -> Dictionary:
+	var payload := bridge.build_discard_payload(player_state, table_state, rules_config, ai_config, allow_cheat)
+	var analysis: Dictionary = bridge.request_discard(payload, hu_checker, risk_analyzer)
+	if analysis.is_empty():
+		return {}
+	analysis["backend_mode"] = "gdscript_sichuan_fail_safe"
+	analysis["native_error"] = last_native_turn_error
+	return analysis
+
+
 func analyze_reaction_lightweight(candidate: Dictionary, player_state: Dictionary, table_state: Dictionary, discard_context: Dictionary, rules_config, ai_config, hu_checker, allow_cheat: bool = false) -> Dictionary:
 	var result := _compute_reaction_analysis(candidate, player_state, table_state, discard_context, rules_config, ai_config, hu_checker, allow_cheat)
 	_finalize_reaction_analysis(int(player_state.get("seat", -1)), result)
