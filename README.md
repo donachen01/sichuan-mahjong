@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.1.1`
+- 版本：`2.2.0`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -81,6 +81,25 @@
 /opt/homebrew/opt/dotnet/libexec/dotnet build '/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj' -c Debug
 ```
 
+## 紧凑立体牌桌 UI 开发快照
+
+当前 `2.2.0` 已完成“蜀锦玉案”高端中式会所牌桌：保留紧凑立体布局、四向麻将牌独立轨道和零重叠合同，统一使用暖象牙白厚牌、深玉绿牌背、左上高光与右下投影。桌面由程序化回纹、云雷纹、菱格锦纹、卷草纹和缠枝纹共同构成 5.5% 暗纹层，左上暖玉柔光和四周暗角在不压低牌面可读性的前提下提升材质层次。
+
+零重叠压力合同：
+
+```bash
+'/Applications/Godot.NET.app/Contents/MacOS/Godot' --headless --path '/Volumes/AI/Codex/四川麻将工程_20260701_v2' --script 'res://tests/current/SichuanDenseTableLayoutRunner.gd'
+```
+
+四档视觉证据位于：
+
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/evidence/ui_2.2.0_20260716/table_1365x768.png`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/evidence/ui_2.2.0_20260716/table_2048x1152.png`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/evidence/ui_2.2.0_20260716/table_2400x1080.png`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/evidence/ui_2.2.0_20260716/table_2556x1179.png`
+
+`2.2.0` 已完成源码回归、四档 Metal 视觉截图、Android release 导出与签名校验、iOS Xcode/NativeAOT 导出和 arm64 开发签名构建。安装与启动仍独立以实际设备在线状态为准，不用构建成功代替真机验收。
+
 ## Android 打包
 
 Debug APK：
@@ -91,7 +110,7 @@ Debug APK：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.1-direct-debug.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.2.0-direct-debug.apk`
 
 Release APK：
 
@@ -101,7 +120,7 @@ Release APK：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.1.1-release.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.2.0-release.apk`
 
 Release 脚本会读取本机签名文件：
 
@@ -119,8 +138,8 @@ Release 脚本会读取本机签名文件：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.1-ios-xcode/SichuanMahjongIOS.xcodeproj`
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.1.1-ios-personal.ipa`（个人开发者签名归档包）
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.2.0-ios-xcode/SichuanMahjongIOS.xcodeproj`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/DerivedData-2.2.0/Build/Products/Release-iphoneos/SichuanMahjongIOS.app`（arm64 个人开发签名 App）
 
 自用安装流程：
 
@@ -136,19 +155,16 @@ Release 脚本会读取本机签名文件：
 
 ## 当前已验证
 
-2.1.1 优化与发布验收已通过：
+2.2.0 核心与发布验收：
 
-- 四川规则回归：`RULE REGRESSION OK: 26/26`
-- UI 六问题回归：`VERIFY SIX ISSUES OK: 6/6`
-- 定缺与移动端开局专项：`RULE REGRESSION OK: 8/8`
-- iOS NativeAOT 返回空结果时，自动切换到完整四川 GDScript 决策引擎；状态机回归确认庄家实际完成首打并推进牌局
-- 独立出牌评分器回归通过；线上 AI 分数不参与裁判评分
-- 候选骨灰透视 AI 与冻结旧版 AI 完成同种子 100 局对战：候选组 36 局打完、14 局流局；旧版组 6 局打完、44 局流局；两组 `forced_stop=0`
-- 候选 AI 独立评分复测 30 局：1,508 次出牌，平均分 `99.1227`，裁判第一选择命中率 `85.013%`
-- C# AI Core Release build + smoke：0 warnings / 0 errors
-- Godot C# Debug build：0 warnings / 0 errors
-- Android release APK：包名 `com.chendong.sichuanmahjong`，`versionCode=211`，`versionName=2.1.1`，通过 APK Signature Scheme v2/v3 验签
-- iOS Release App：Bundle ID `com.chendong.sichuanmahjong.iosdev`，版本 `2.1.1`，通过 Xcode 自动个人开发者签名和 `codesign --deep --strict`
-- iOS 真机：已安装到配对的 iPhone 15，`devicectl` 启动成功，启动 5 秒后进程仍在运行
+- 四川规则 `32/32`、定缺 `7/7`、C# 移动合同 `29/29`、AI 解释 UI `9/9`、界面六问题 `7/7` 全部通过。
+- C# 精确牌形穷举 131,841 状态无失败；19 组 PDF 黄金牌例全部通过。
+- 30 局非透视门禁平均裁判分差 `158.18`、严重错误率 `4.42%`，优于冻结旧版 `628.48` 和 `16.45%`。
+- 200 局真实 C# 对局（100 局非透视 + 100 局骨灰透视）全部自然结束：`forced_stop=0`、非法动作 `0`、本地 AI fallback `0`。
+- 10,517 次实际出牌综合平均裁判分差 `74.01`，严重错误率 `1.91%`，Top-1 一致率 `81.93%`。
+- 线上出牌、碰、杠、胡、过由 C# 决策；C# 失败时明确报错，不使用 GDScript 简化 AI 自动代打。
+- Android release APK：`com.chendong.sichuanmahjong`，`versionCode=220`，`versionName=2.2.0`，arm64，v2/v3 签名验证通过后才视为完成。
+- iOS Release App：`com.chendong.sichuanmahjong.iosdev`，版本 `2.2.0`，arm64 NativeAOT，完成个人开发者签名和 `codesign --deep --strict` 后再进入真机安装验收。
+- iOS 真机：已安装到配对的 iPhone 15；多次自动启动均因手机保持锁屏而被 iOS 拒绝，未取得本版真机启动和完整触控对局证据。
 
-Godot headless 测试和导出会输出若干编辑器退出时的 RID/ObjectDB/resource leak 警告；这些警告发生在无窗口编辑器退出阶段。当前已分别用独立 C# 构建、签名产物检查、真机安装和真机启动验证发布链路。真机上的完整一局人工操作仍需以实际触控体验作为最终人工验收。
+完整验收数据见 `测试数据统计/PDF16份落地验收_20260713/README.md`。Godot headless 测试和导出仍会输出编辑器退出时的 RID/ObjectDB/resource leak 警告；真机完整一局仍需解锁手机后人工验收。

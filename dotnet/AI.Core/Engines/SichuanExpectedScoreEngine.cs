@@ -94,15 +94,15 @@ public sealed class SichuanExpectedScoreEngine
         else if (hasQing && hasDuiDui) baseFan = 4.0;
         else if (hasQing || hasQiDui || hasDuiDui) baseFan = 3.0;
 
-        var guiPotential = CountGuiPotential(handAfterDiscard18);
-        var fan = baseFan + Math.Min(2, guiPotential) * 0.42;
+        var genPotential = CountGenPotential(handAfterDiscard18);
+        var fan = baseFan + Math.Min(2, genPotential) * 0.42;
         if (shanten <= 0 && waitCount >= 2) fan += 0.18;
         if (shanten <= 1 && liveUkeire >= 8) fan += 0.10;
         if (roundStage >= 2 && shanten > 0) fan -= 0.35;
         return Math.Clamp(fan, 1.0, 3.0);
     }
 
-    private static int CountGuiPotential(int[] handAfterDiscard18)
+    private static int CountGenPotential(int[] handAfterDiscard18)
     {
         var count = 0;
         for (var index = 0; index < handAfterDiscard18.Length; index++)

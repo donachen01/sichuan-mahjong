@@ -114,7 +114,7 @@ func analyze_discard_options(player: Dictionary, players: Array, rules_config, h
 		var fast_rank := _resolve_fast_rank(tile, hand_tiles, player, players, forced_suit)
 		if is_ready:
 			fast_rank = 0 if ting_tiles.size() >= 2 else 1
-		var gui_locked: bool = _should_hard_keep_gui(tile, hand_tiles, forced_suit)
+		var gen_locked: bool = _should_hard_keep_gen(tile, hand_tiles, forced_suit)
 		var score_breakdown := _build_score_breakdown(tile, shanten_info, ukeire_info, quality, risk_info, route_after, route_loss, ai_config, players, player)
 		var win_probability := _estimate_win_probability(shanten_info, ukeire_info, quality, risk_info, ai_config)
 		var option := {
@@ -149,13 +149,13 @@ func analyze_discard_options(player: Dictionary, players: Array, rules_config, h
 			"deal_in_probability": float(risk_info.get("risk", 0)) / 100.0,
 			"expected_value": float(score_breakdown.get("total_score", 0)) / 100.0,
 			"strategy_mode": _resolve_strategy_mode(current_shanten_info, current_ting_tiles, risk_info, players),
-			"gui_locked": gui_locked,
+			"gen_locked": gen_locked,
 			"reasons": _build_reasons(tile, shanten_info, ukeire_info, quality, risk_info, route_after, route_loss, forced_suit),
 		}
 		options.append(option)
 	var unlocked_options: Array = []
 	for option in options:
-		if not bool(option.get("gui_locked", false)):
+		if not bool(option.get("gen_locked", false)):
 			unlocked_options.append(option)
 	if not unlocked_options.is_empty():
 		options = unlocked_options
@@ -350,8 +350,6 @@ func _build_reaction_posterior_context(player: Dictionary, players: Array, tile:
 		var seat_demand: Dictionary = belief.get("seat_tile_demand", {}).get(other_seat, {})
 		var suit_info: Dictionary = seat_demand.get(suit, {})
 		var hold_like := float(suit_info.get("ranks", {}).get(tile_rank, 0.0)) * 0.55 + float(suit_info.get("heat", 0.0)) * 0.45
-		if bool(other.get("bao_jiao", false)):
-			hold_like += 0.18
 		if hold_like > top_hold:
 			top_hold = hold_like
 			top_holder = other_seat
@@ -436,7 +434,7 @@ func _build_score_breakdown(tile: Dictionary, shanten_info: Dictionary, ukeire_i
 	var fan_value_score := route_after.size() * (10 + big_hand * 3) - route_loss.size() * (12 + fast_ting)
 	var safety_score := -int(round(float(risk_info.get("risk", 0)) * (0.70 + float(read_weight) * 0.12 + float(defense) * 0.08)))
 	var global_plan_score := int(quality.get("score", 0)) * (2 + self_draw) + _two_suit_balance_bonus(tile, player.get("hand_tiles", []), route_after) + attack * 12
-	global_plan_score += _gui_preserve_bonus(tile, player.get("hand_tiles", []), route_after)
+	global_plan_score += _gen_preserve_bonus(tile, player.get("hand_tiles", []), route_after)
 	var total_score := tempo_score + probability_score + fan_value_score + safety_score + global_plan_score
 	return {
 		"tempo_score": tempo_score,
@@ -500,7 +498,7 @@ func _resolve_strategy_mode(current_shanten_info: Dictionary, current_ting_tiles
 		return "宽叫压制"
 	if shanten <= 1:
 		return "快速成叫"
-	return "两门提速"
+	return "缩门提速"
 
 
 func _estimate_routes(hand_tiles: Array, player: Dictionary) -> Array:
@@ -605,7 +603,7 @@ func _is_weak_gap(tile: Dictionary, hand_tiles: Array) -> bool:
 	return has_gap
 
 
-func _should_hard_keep_gui(tile: Dictionary, hand_tiles: Array, forced_suit: String) -> bool:
+func _should_hard_keep_gen(tile: Dictionary, hand_tiles: Array, forced_suit: String) -> bool:
 	if forced_suit != "":
 		return false
 	var same_count := 0
@@ -615,7 +613,7 @@ func _should_hard_keep_gui(tile: Dictionary, hand_tiles: Array, forced_suit: Str
 	return same_count >= 4
 
 
-func _gui_preserve_bonus(tile: Dictionary, hand_tiles: Array, route_after: Array) -> int:
+func _gen_preserve_bonus(tile: Dictionary, hand_tiles: Array, route_after: Array) -> int:
 	var same_count := 0
 	for item in hand_tiles:
 		if str(item.get("suit", "")) == str(tile.get("suit", "")) and int(item.get("rank", 0)) == int(tile.get("rank", 0)):

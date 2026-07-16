@@ -117,10 +117,6 @@ func can_human_an_gang() -> bool:
 	return false if game_state == null else bool(game_state.call("can_human_an_gang", 0))
 
 
-func can_human_bao_jiao() -> bool:
-	return false if game_state == null else bool(game_state.call("can_human_bao_jiao", 0))
-
-
 func execute_action(action: String) -> bool:
 	if game_state == null:
 		return false
@@ -139,10 +135,6 @@ func execute_action(action: String) -> bool:
 			return bool(game_state.call("execute_human_add_gang", 0))
 		"an_gang":
 			return bool(game_state.call("execute_human_an_gang", 0))
-		"bao_jiao":
-			return bool(game_state.call("execute_human_bao_jiao", 0))
-		"pass_opening_bao_jiao":
-			return bool(game_state.call("pass_human_opening_bao_jiao", 0))
 		"pass":
 			return bool(game_state.call("pass_human_reaction", 0))
 		_:

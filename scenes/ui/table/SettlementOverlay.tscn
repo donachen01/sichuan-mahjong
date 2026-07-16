@@ -1,0 +1,137 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/table/SettlementOverlay.gd" id="1_settlement"]
+
+[node name="SettlementOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_settlement")
+
+[node name="Shade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+color = Color(0.015, 0.04, 0.032, 0.76)
+
+[node name="Panel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+custom_minimum_size = Vector2(1500, 850)
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="RootVBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/RootVBox"]
+layout_mode = 2
+
+[node name="RoundLabel" type="Label" parent="Panel/Margin/RootVBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "第 1 局 · 本局结算"
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/RootVBox/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(152, 64)
+layout_mode = 2
+text = "稍后查看"
+
+[node name="Content" type="HBoxContainer" parent="Panel/Margin/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="PlayerColumn" type="VBoxContainer" parent="Panel/Margin/RootVBox/Content"]
+custom_minimum_size = Vector2(410, 0)
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PlayerTitle" type="Label" parent="Panel/Margin/RootVBox/Content/PlayerColumn"]
+layout_mode = 2
+text = "四家得分"
+
+[node name="PlayerList" type="VBoxContainer" parent="Panel/Margin/RootVBox/Content/PlayerColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="DetailColumn" type="VBoxContainer" parent="Panel/Margin/RootVBox/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="HeroRow" type="HBoxContainer" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="ResultBadge" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn/HeroRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "自摸"
+
+[node name="FocusNameLabel" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn/HeroRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "本家"
+
+[node name="ScoreLabel" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+15"
+
+[node name="FanLabel" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "3番 · 清一色"
+
+[node name="HandLabel" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+text = "手牌：未提供"
+
+[node name="BreakdownTitle" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+layout_mode = 2
+text = "得分明细"
+
+[node name="BreakdownLabel" type="Label" parent="Panel/Margin/RootVBox/Content/DetailColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
+text = "本局分数变化：+15"
+
+[node name="Footer" type="HBoxContainer" parent="Panel/Margin/RootVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="NextRoundButton" type="Button" parent="Panel/Margin/RootVBox/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(196, 72)
+layout_mode = 2
+text = "下一局"

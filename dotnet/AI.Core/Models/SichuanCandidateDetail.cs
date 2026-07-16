@@ -23,6 +23,7 @@ public sealed class SichuanCandidateDetail
     public double TenpaiProbability { get; init; }
     public double SelfDrawProbability { get; init; }
     public double WinProbability { get; init; }
+    public double ExpectedFan { get; init; }
     public double DealInProbability { get; init; }
     public double ExpectedValue { get; init; }
     public double ExpectedNetScore { get; init; }

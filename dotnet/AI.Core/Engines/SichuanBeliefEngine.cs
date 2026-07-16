@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text;
+using SichuanMahjong.AI.Core.Domain;
+using SichuanMahjong.AI.Core.Inference;
 using SichuanMahjong.AI.Core.Models;
 
 namespace SichuanMahjong.AI.Core.Engines;
@@ -19,6 +21,7 @@ public sealed class SichuanBeliefEngine
     private readonly SichuanEvidenceEngine _evidence = new();
     private readonly SichuanOpponentRangeEngine _range = new();
     private readonly SichuanPosteriorNormalizer _normalizer = new();
+    private readonly SichuanHiddenHandInferenceEngine _hiddenInference = new();
 
     public SichuanBeliefSnapshot Build(SichuanStateView state)
     {
@@ -87,6 +90,12 @@ public sealed class SichuanBeliefEngine
     {
         var snapshot = new SichuanBeliefSnapshot();
         var evidence = _evidence.Build(state);
+        var particleBudget = state.WallCount <= 12 ? 48 : 32;
+        var particlePosterior = _hiddenInference.Infer(
+            state,
+            particleBudget,
+            unchecked(20260713 + state.SeatIndex * 1009 + (int)(state.EventVersion % int.MaxValue)),
+            SichuanInformationMode.Public);
         snapshot.Unknown18 = state.Remaining18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
         var seatWeightsByTile = new Dictionary<int, Dictionary<int, double>>();
         var activeSeats = new List<int>();
@@ -110,7 +119,10 @@ public sealed class SichuanBeliefEngine
                 + wallPressure;
             pressure = Math.Clamp(pressure, 0.05, 0.95);
             snapshot.SeatPressure[seat] = pressure;
-            snapshot.SeatReadyPosterior[seat] = range.ReadyProbability;
+            snapshot.SeatReadyPosterior[seat] = Math.Clamp(
+                range.ReadyProbability * 0.85 + particlePosterior.ReadyProbabilities[seat] * 0.15,
+                0.0,
+                0.99);
 
             var discardBySuit = new[] { 0, 0, 0 };
             var meldBySuit = new[] { 0, 0, 0 };
@@ -162,8 +174,12 @@ public sealed class SichuanBeliefEngine
                 if (exactSafeTiles.Contains(tileType))
                 {
                     perTile[tileType] = 0.03;
-                    holdWeights[tileType] = range.HoldProbability18[tileType];
-                    waitWeights[tileType] = range.WaitProbability18[tileType];
+                    holdWeights[tileType] = BlendPosterior(
+                        range.HoldProbability18[tileType],
+                        particlePosterior.HoldProbabilities[seat][tileType]);
+                    waitWeights[tileType] = BlendPosterior(
+                        range.WaitProbability18[tileType],
+                        particlePosterior.WaitProbabilities[seat][tileType]);
                     continue;
                 }
 
@@ -194,8 +210,12 @@ public sealed class SichuanBeliefEngine
                 posterior *= 1.0 - noHu * 0.42;
 
                 perTile[tileType] = Math.Clamp(posterior, 0.03, 0.98);
-                holdWeights[tileType] = range.HoldProbability18[tileType];
-                waitWeights[tileType] = range.WaitProbability18[tileType];
+                holdWeights[tileType] = BlendPosterior(
+                    range.HoldProbability18[tileType],
+                    particlePosterior.HoldProbabilities[seat][tileType]);
+                waitWeights[tileType] = BlendPosterior(
+                    range.WaitProbability18[tileType],
+                    particlePosterior.WaitProbabilities[seat][tileType]);
             }
 
             snapshot.SeatTileDanger[seat] = perTile;
@@ -213,9 +233,12 @@ public sealed class SichuanBeliefEngine
                 0.99);
         }
 
-        BuildPosteriorMatrix(state, snapshot, activeSeats, seatWeightsByTile, _normalizer);
+        BuildPosteriorMatrix(state, snapshot, activeSeats, seatWeightsByTile, particlePosterior, _normalizer);
         return snapshot;
     }
+
+    private static double BlendPosterior(double matureEstimate, double combinatoricEstimate)
+        => Math.Clamp(matureEstimate * 0.85 + combinatoricEstimate * 0.15, 0.0, 0.99);
 
     private static string BuildCacheKey(SichuanStateView state)
     {
@@ -225,7 +248,9 @@ public sealed class SichuanBeliefEngine
             .Append("|current=").Append(state.CurrentSeat)
             .Append("|wall=").Append(state.WallCount)
             .Append("|turn=").Append(state.TurnIndex)
-            .Append("|phase=").Append(state.Phase);
+            .Append("|phase=").Append(state.Phase)
+            .Append("|event=").Append(state.EventVersion)
+            .Append("|mode=").Append(state.InformationMode);
         AppendIntArray(builder, "|hand=", state.Hand18);
         AppendIntArray(builder, "|visible=", state.Visible18);
         AppendIntArray(builder, "|remaining=", state.Remaining18);
@@ -293,12 +318,19 @@ public sealed class SichuanBeliefEngine
         SichuanBeliefSnapshot snapshot,
         IReadOnlyList<int> activeSeats,
         IReadOnlyDictionary<int, Dictionary<int, double>> seatWeightsByTile,
+        SichuanHiddenHandPosterior particlePosterior,
         SichuanPosteriorNormalizer normalizer)
     {
         var normalized = normalizer.Normalize(state, activeSeats, seatWeightsByTile);
         for (var tileType = 0; tileType < 27; tileType++)
         {
-            snapshot.TileWallPosterior[tileType] = Math.Clamp(normalized.WallProbability18[tileType], 0.0, 0.98);
+            var particleWallShare = state.Remaining18[tileType] <= 0
+                ? 0.0
+                : Math.Clamp(particlePosterior.WallProbabilities[tileType] / state.Remaining18[tileType], 0.0, 1.0);
+            snapshot.TileWallPosterior[tileType] = Math.Clamp(
+                normalized.WallProbability18[tileType] * 0.85 + particleWallShare * 0.15,
+                0.0,
+                0.98);
             foreach (var seat in activeSeats)
             {
                 if (!snapshot.SeatTileHoldProbability.TryGetValue(seat, out var seatMap))

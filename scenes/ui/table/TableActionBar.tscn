@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/table/TableActionBar.gd" id="1_action"]
+[ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="2_craft"]
+
+[node name="TableActionBar" type="Control"]
+custom_minimum_size = Vector2(540, 166)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 1
+script = ExtResource("1_action")
+
+[node name="CraftPanel" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_craft")
+variant = "action"
+cut_size = 16.0
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ContextRow" type="HBoxContainer" parent="Margin/Content"]
+visible = false
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="ContextMark" type="Label" parent="Margin/Content/ContextRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 34)
+layout_mode = 2
+text = "牌"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
+
+[node name="StatusLabel" type="Label" parent="Margin/Content/ContextRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "请选择操作"
+horizontal_alignment = 2
+vertical_alignment = 1
+mouse_filter = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 14
+
+[node name="HuButton" type="Button" parent="Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(132, 132)
+layout_mode = 2
+text = "胡"
+
+[node name="GangButton" type="Button" parent="Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+text = "杠"
+
+[node name="PengButton" type="Button" parent="Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+text = "碰"
+
+[node name="PassButton" type="Button" parent="Margin/Content/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 2
+text = "过"

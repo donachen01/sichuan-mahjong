@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/MainSceneV2.gd" id="1_q1t8j"]
 [ext_resource type="Script" path="res://scripts/game/GameManager.gd" id="2_dxt7q"]
 [ext_resource type="Resource" path="res://res/ui/default_ui_style.tres" id="3_6mkjg"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PlayerHandViewport.tscn" id="4_j1h1j"]
+[ext_resource type="Script" path="res://scripts/ui/table/SafeAreaLayout.gd" id="5_safe"]
 
 [node name="MainScene" type="Node2D"]
 script = ExtResource("1_q1t8j")
@@ -45,6 +46,7 @@ theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 28
+script = ExtResource("5_safe")
 
 [node name="MainVBox" type="VBoxContainer" parent="UILayer/RootUI/SafeArea"]
 layout_mode = 2
@@ -730,7 +732,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0, 0, 0, 0.38)
+color = Color(0.015, 0.045, 0.035, 0.34)
 
 [node name="DingQueCenter" type="CenterContainer" parent="UILayer/RootUI/DingQueOverlay"]
 layout_mode = 1
@@ -744,7 +746,7 @@ mouse_filter = 1
 [node name="DingQuePanel" type="Panel" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(820, 348)
+custom_minimum_size = Vector2(760, 320)
 
 [node name="DingQueMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel"]
 layout_mode = 1
@@ -813,19 +815,19 @@ theme_override_constants/separation = 22
 [node name="DingQueTiaoButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 64)
+custom_minimum_size = Vector2(176, 72)
 text = "缺条"
 
 [node name="DingQueTongButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 64)
+custom_minimum_size = Vector2(176, 72)
 text = "缺筒"
 
 [node name="DingQueWanButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(160, 64)
+custom_minimum_size = Vector2(176, 72)
 text = "缺万"
 
 [node name="DingQueBottomSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]

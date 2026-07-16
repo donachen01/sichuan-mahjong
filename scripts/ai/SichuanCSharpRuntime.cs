@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using SichuanMahjong.AI.Core.Codec;
+using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Learning;
@@ -212,6 +213,187 @@ public partial class SichuanCSharpRuntime : Node
         }
     }
 
+    public string DecideDingQueSuit(int tiaoCount, int tongCount, int wanCount)
+    {
+        var suitCounts = new Dictionary<string, int>
+        {
+            ["tiao"] = Math.Max(0, tiaoCount),
+            ["tong"] = Math.Max(0, tongCount),
+            ["wan"] = Math.Max(0, wanCount)
+        };
+        return _facade.DecideDingQue(suitCounts, ["tiao", "tong", "wan"]).Suit;
+    }
+
+    // iOS NativeAOT disables reflection-based System.Text.Json metadata. These
+    // compact entry points use generated input metadata and a scalar transport
+    // so gameplay decisions remain available without a reflection fallback.
+    public string AnalyzeDiscardAotCompact(string payloadJson, bool hellChallenge)
+    {
+        try
+        {
+            if (hellChallenge)
+            {
+                var payload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.HellChallengePayload);
+                if (payload is null)
+                    return "error|invalid_hell_challenge_payload";
+                var state = BuildState(payload);
+                var result = _hellChallenge.DecideDiscard(
+                    state,
+                    payload.AllHands18.Select(item => (IReadOnlyList<int>)item).ToArray(),
+                    payload.ExactWall18,
+                    payload.CurrentScores);
+                return PackCompact(
+                    "ok",
+                    result.Action.ActionType.ToString().ToLowerInvariant(),
+                    result.Action.TileType,
+                    result.Action.Score,
+                    result.SelectedShanten,
+                    0,
+                    result.SelectedLiveUkeire,
+                    "",
+                    result.SelectedWaitCount,
+                    "hell_challenge_aot_compact");
+            }
+
+            var discardPayload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.DiscardPayload);
+            if (discardPayload is null)
+                return "error|invalid_discard_payload";
+            var discardState = BuildState(discardPayload);
+            var discardResult = _facade.DecideDiscardCached(
+                discardState,
+                forceLightweight: discardPayload.MobileSpeedMode || discardPayload.ForceLightweight);
+            var selectedDiscard = discardResult.Candidates.FirstOrDefault(item => item.TileType == discardResult.Action.TileType);
+            return PackCompact(
+                "ok",
+                discardResult.Action.ActionType.ToString().ToLowerInvariant(),
+                discardResult.Action.TileType,
+                discardResult.Action.Score,
+                discardResult.Shanten,
+                discardResult.Ukeire,
+                discardResult.LiveUkeire,
+                discardResult.GangSubtype,
+                selectedDiscard?.WaitCount ?? 0,
+                "csharp_native_aot_compact",
+                selectedDiscard?.ExpectedNetScore ?? 0,
+                selectedDiscard?.ExpectedFan ?? 0,
+                selectedDiscard?.WinProbability ?? discardResult.WinProbability,
+                selectedDiscard?.TenpaiProbability ?? 0,
+                selectedDiscard?.ExplanationHint ?? discardResult.Reasons.FirstOrDefault() ?? string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return PackCompact("error", SanitizeCompactField(ex.GetBaseException().Message));
+        }
+    }
+
+    public string AnalyzeReactionAotCompact(string payloadJson, bool hellChallenge)
+    {
+        try
+        {
+            if (hellChallenge)
+            {
+                var payload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.HellChallengeReactionPayload);
+                if (payload is null)
+                    return "error|invalid_hell_challenge_reaction_payload";
+                var state = BuildState(payload);
+                var result = _hellChallengeReaction.DecideReaction(
+                    state,
+                    payload.ReactionTileType,
+                    payload.CanHu,
+                    payload.CanPeng,
+                    payload.CanGang,
+                    payload.SourceSeat,
+                    payload.ReactionType,
+                    payload.AllHands18.Select(item => (IReadOnlyList<int>)item).ToArray(),
+                    payload.ExactWall18,
+                    payload.CurrentScores,
+                    payload.MandatoryGang);
+                return PackCompact(
+                    "ok",
+                    result.Action.ActionType.ToString().ToLowerInvariant(),
+                    result.Action.TileType,
+                    result.Action.Score,
+                    result.ShantenAfter,
+                    result.LiveUkeireAfter,
+                    result.CurrentShanten,
+                    result.CurrentLiveUkeire,
+                    result.ThreatLevel,
+                    result.RoundStage,
+                    "hell_challenge_reaction_aot_compact");
+            }
+
+            var reactionPayload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.ReactionPayload);
+            if (reactionPayload is null)
+                return "error|invalid_reaction_payload";
+            var reactionState = BuildState(reactionPayload);
+            var reactionResult = _facade.DecideReaction(
+                reactionState,
+                reactionPayload.ReactionTileType,
+                reactionPayload.CanHu,
+                reactionPayload.CanPeng,
+                reactionPayload.CanGang,
+                reactionPayload.SourceSeat,
+                reactionPayload.ReactionType,
+                reactionPayload.MobileSpeedMode,
+                reactionPayload.MandatoryGang);
+            return PackCompact(
+                "ok",
+                reactionResult.Action.ActionType.ToString().ToLowerInvariant(),
+                reactionResult.Action.TileType,
+                reactionResult.Action.Score,
+                reactionResult.ShantenAfter,
+                reactionResult.LiveUkeireAfter,
+                reactionResult.CurrentShanten,
+                reactionResult.CurrentLiveUkeire,
+                reactionResult.ThreatLevel,
+                reactionResult.RoundStage,
+                "csharp_reaction_aot_compact",
+                reactionResult.Reasons.FirstOrDefault() ?? string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return PackCompact("error", SanitizeCompactField(ex.GetBaseException().Message));
+        }
+    }
+
+    public string AnalyzeSelfActionAotCompact(string payloadJson)
+    {
+        try
+        {
+            var payload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.SelfActionPayload);
+            if (payload is null)
+                return "error|invalid_self_action_payload";
+            var state = BuildState(payload);
+            var result = _facade.DecideSelfAction(
+                state,
+                payload.CanSelfHu,
+                payload.AnGangTileTypes,
+                payload.AddGangTileTypes,
+                payload.AddGangQiangGangCounts,
+                payload.MandatoryGangTileTypes);
+            return PackCompact(
+                "ok",
+                result.Action.ActionType.ToString().ToLowerInvariant(),
+                result.Action.TileType,
+                result.Action.Score,
+                result.GangSubtype,
+                result.ShantenAfter,
+                result.LiveUkeireAfter,
+                "csharp_self_action_aot_compact",
+                result.Reasons.FirstOrDefault() ?? string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return PackCompact("error", SanitizeCompactField(ex.GetBaseException().Message));
+        }
+    }
+
+    private static string PackCompact(params object?[] values)
+        => string.Join('|', values.Select(value => SanitizeCompactField(value?.ToString() ?? string.Empty)));
+
+    private static string SanitizeCompactField(string value)
+        => value.Replace('|', '/').Replace('\r', ' ').Replace('\n', ' ');
+
     public string AnalyzeHellOracleDiscardJson(string payloadJson)
     {
         try
@@ -352,6 +534,21 @@ public partial class SichuanCSharpRuntime : Node
                 constraints = result.RoutePlan.Constraints,
                 reasons = result.RoutePlan.Reasons,
                 targetSuit = result.RoutePlan.TargetSuit
+            },
+            roundBrain = new
+            {
+                result.RoundBrain.RoundIndex,
+                result.RoundBrain.SeatIndex,
+                result.RoundBrain.Revision,
+                result.RoundBrain.Stage,
+                result.RoundBrain.PrimaryRoute,
+                result.RoundBrain.FallbackRoute,
+                result.RoundBrain.Commitment,
+                result.RoundBrain.TargetSuit,
+                ProtectedTriplets = result.RoundBrain.ProtectedTriplets.ToArray(),
+                ProtectedQuads = result.RoundBrain.ProtectedQuads.ToArray(),
+                BrokenTriplets = result.RoundBrain.BrokenTriplets.ToArray(),
+                Reasons = result.RoundBrain.Reasons.ToArray()
             },
             strategyProfile = strategyProfile,
             beliefSummary,
@@ -804,6 +1001,7 @@ public partial class SichuanCSharpRuntime : Node
             tenpaiProbability = item.TenpaiProbability,
             selfDrawProbability = item.SelfDrawProbability,
             winProbability = item.WinProbability,
+            expectedFan = item.ExpectedFan,
             dealInProbability = item.DealInProbability,
             expectedValue = item.ExpectedValue,
             expectedNetScore = item.ExpectedNetScore,
@@ -868,6 +1066,7 @@ public partial class SichuanCSharpRuntime : Node
             tenpaiProbability = item.TenpaiProbability,
             selfDrawProbability = item.SelfDrawProbability,
             winProbability = item.WinProbability,
+            expectedFan = item.ExpectedFan,
             dealInProbability = item.DealInProbability,
             expectedValue = item.ExpectedValue,
             expectedNetScore = item.ExpectedNetScore,
@@ -929,12 +1128,26 @@ public partial class SichuanCSharpRuntime : Node
             payload.VisibleVersion,
             payload.HandVersion,
             payload.StrategyContextVersion,
-            payload.DingQueSuits);
+            payload.DingQueSuits,
+			payload.HandCounts,
+			payload.LockedFans,
+			payload.LockTurns,
+			payload.UnlockOnOwnDraw,
+			payload.ActiveSeats,
+			payload.EventVersion,
+			payload.InformationMode);
 
         if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
         if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
         if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
         state.LastDrawTileType = payload.LastDrawTileType;
+		state.LastDrawOrigin = payload.LastDrawOrigin;
+		state.LastGangSeat = payload.LastGangSeat;
+		state.LastGangTileType = payload.LastGangTileType;
+		state.LastGangType = payload.LastGangType;
+		state.PublicEvents.AddRange(payload.PublicEvents.Where(item => item.TileType is >= -1 and < 27));
+		for (var seat = 0; seat < Math.Min(4, payload.MeldViews.Count); seat++)
+			state.MeldViews[seat].AddRange(payload.MeldViews[seat].Where(item => item.TileType is >= 0 and < 27));
         return state;
     }
 
@@ -1147,11 +1360,20 @@ public partial class SichuanCSharpRuntime : Node
         public int StrategyContextVersion { get; set; }
         public List<int> Scores { get; set; } = new();
         public List<int> DingQueSuits { get; set; } = new();
+		public List<int> HandCounts { get; set; } = new();
+		public List<int> LockedFans { get; set; } = new();
+		public List<int> LockTurns { get; set; } = new();
+		public List<bool> UnlockOnOwnDraw { get; set; } = new();
+		public List<bool> ActiveSeats { get; set; } = new();
+		public long EventVersion { get; set; }
+		public string InformationMode { get; set; } = "public";
         public int[] Hand18 { get; set; } = Array.Empty<int>();
         public int[] Visible18 { get; set; } = Array.Empty<int>();
         public int[] Remaining18 { get; set; } = Array.Empty<int>();
         public List<List<int>> Discards18 { get; set; } = new();
         public List<List<int>> Melds18 { get; set; } = new();
+		public List<List<SichuanMeldView>> MeldViews { get; set; } = new();
+		public List<SichuanPublicEvent> PublicEvents { get; set; } = new();
         public List<List<int>> PassedHu18 { get; set; } = new();
         public List<List<int>> PassedPeng18 { get; set; } = new();
         public List<List<int>> PassedGang18 { get; set; } = new();
@@ -1159,6 +1381,10 @@ public partial class SichuanCSharpRuntime : Node
         public bool[] IsReady { get; set; } = Array.Empty<bool>();
         public bool[] HasHu { get; set; } = Array.Empty<bool>();
         public int LastDrawTileType { get; set; } = -1;
+		public SichuanTileOrigin LastDrawOrigin { get; set; } = SichuanTileOrigin.Unknown;
+		public int LastGangSeat { get; set; } = -1;
+		public int LastGangTileType { get; set; } = -1;
+		public string LastGangType { get; set; } = string.Empty;
         public bool ForceLightweight { get; set; }
         public bool MobileSpeedMode { get; set; }
         public bool CompactResult { get; set; }
@@ -1212,6 +1438,16 @@ public partial class SichuanCSharpRuntime : Node
     {
         public int FairTileType { get; set; } = -1;
         public int ActualTileType { get; set; } = -1;
+    }
+
+    [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, UseStringEnumConverter = true)]
+    [JsonSerializable(typeof(DiscardPayload))]
+    [JsonSerializable(typeof(ReactionPayload))]
+    [JsonSerializable(typeof(SelfActionPayload))]
+    [JsonSerializable(typeof(HellChallengePayload))]
+    [JsonSerializable(typeof(HellChallengeReactionPayload))]
+    private partial class RuntimeJsonContext : JsonSerializerContext
+    {
     }
 
     private sealed record OpponentThreatSummary(

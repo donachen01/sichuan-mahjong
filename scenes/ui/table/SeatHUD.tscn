@@ -1,0 +1,116 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/table/SeatHUD.gd" id="1_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/table/DingQueBadge.tscn" id="2_badge"]
+[ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="3_craft"]
+
+[node name="SeatHUD" type="Control"]
+custom_minimum_size = Vector2(176, 178)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+script = ExtResource("1_hud")
+
+[node name="CraftPanel" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_craft")
+variant = "hud"
+cut_size = 13.0
+
+[node name="BackgroundPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="InnerFrame" type="Panel" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+mouse_filter = 2
+
+[node name="Content" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 3
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "本家"
+
+[node name="ScoreLabel" type="Label" parent="ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "0分"
+
+[node name="DingQueCenter" type="CenterContainer" parent="ContentMargin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DingQueBadge" parent="ContentMargin/Content/DingQueCenter" instance=ExtResource("2_badge")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DealerBadge" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 124.0
+offset_top = 6.0
+offset_right = 170.0
+offset_bottom = 52.0
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "庄"
+mouse_filter = 2
+
+[node name="WonBadge" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 64.0
+offset_bottom = 44.0
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "已胡"
+mouse_filter = 2

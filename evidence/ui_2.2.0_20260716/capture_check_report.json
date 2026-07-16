@@ -1,0 +1,161 @@
+{
+  "captures": [
+    {
+      "file": "table_1365x768.png",
+      "size": [
+        1366,
+        768
+      ],
+      "black_ratio": 4e-05,
+      "transparent_ratio": 0.0,
+      "left_edge_black_ratio": 0.0,
+      "right_edge_black_ratio": 0.0,
+      "content_bbox": [
+        0,
+        0,
+        1366,
+        768
+      ],
+      "corner_rgb_means": {
+        "左上": [
+          27.63,
+          36.09,
+          24.93
+        ],
+        "右上": [
+          27.58,
+          36.06,
+          24.92
+        ],
+        "左下": [
+          26.55,
+          35.36,
+          24.55
+        ],
+        "右下": [
+          27.55,
+          36.03,
+          24.91
+        ]
+      }
+    },
+    {
+      "file": "table_2048x1152.png",
+      "size": [
+        2048,
+        1152
+      ],
+      "black_ratio": 4.1e-05,
+      "transparent_ratio": 0.0,
+      "left_edge_black_ratio": 0.0,
+      "right_edge_black_ratio": 0.0,
+      "content_bbox": [
+        0,
+        0,
+        2048,
+        1152
+      ],
+      "corner_rgb_means": {
+        "左上": [
+          25.13,
+          34.69,
+          24.5
+        ],
+        "右上": [
+          25.14,
+          34.69,
+          24.49
+        ],
+        "左下": [
+          22.98,
+          33.21,
+          23.73
+        ],
+        "右下": [
+          25.13,
+          34.68,
+          24.49
+        ]
+      }
+    },
+    {
+      "file": "table_2400x1080.png",
+      "size": [
+        2400,
+        1080
+      ],
+      "black_ratio": 6.9e-05,
+      "transparent_ratio": 0.0,
+      "left_edge_black_ratio": 0.0,
+      "right_edge_black_ratio": 0.0,
+      "content_bbox": [
+        0,
+        0,
+        2400,
+        1080
+      ],
+      "corner_rgb_means": {
+        "左上": [
+          24.82,
+          34.5,
+          24.39
+        ],
+        "右上": [
+          24.8,
+          34.49,
+          24.38
+        ],
+        "左下": [
+          22.5,
+          32.91,
+          23.55
+        ],
+        "右下": [
+          24.81,
+          34.5,
+          24.38
+        ]
+      }
+    },
+    {
+      "file": "table_2556x1179.png",
+      "size": [
+        2556,
+        1180
+      ],
+      "black_ratio": 3.2e-05,
+      "transparent_ratio": 0.0,
+      "left_edge_black_ratio": 0.0,
+      "right_edge_black_ratio": 0.0,
+      "content_bbox": [
+        0,
+        0,
+        2556,
+        1180
+      ],
+      "corner_rgb_means": {
+        "左上": [
+          24.81,
+          34.5,
+          24.34
+        ],
+        "右上": [
+          24.82,
+          34.49,
+          24.34
+        ],
+        "左下": [
+          23.41,
+          33.53,
+          23.83
+        ],
+        "右下": [
+          24.81,
+          34.49,
+          24.33
+        ]
+      }
+    }
+  ],
+  "failures": []
+}

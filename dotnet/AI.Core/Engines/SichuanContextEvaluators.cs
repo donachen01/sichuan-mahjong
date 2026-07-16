@@ -406,7 +406,7 @@ public sealed class SichuanTileDangerEvaluator
         if (risk <= 25) codes.Add("LOW_TILE_DANGER");
         if (risk >= 65 && stage.StageIndex >= 2) codes.Add("HIGH_LIVE_TILE_LATE_STAGE");
         if (reasons.Any(item => item.Contains("现物"))) codes.Add("SAFE_DISCARDED_BY_OPPONENT");
-        if (reasons.Any(item => item.Contains("已报叫"))) codes.Add("HIGH_READY_OPPONENT_RISK");
+		if (reasons.Any(item => item.Contains("已成叫"))) codes.Add("HIGH_READY_OPPONENT_RISK");
         if (codes.Count == 0) codes.Add(risk >= 45 ? "MEDIUM_TILE_DANGER" : "LOW_TILE_DANGER");
         return codes.Distinct().ToArray();
     }

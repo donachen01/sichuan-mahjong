@@ -40,5 +40,25 @@ func _init() -> void:
 		push_error("Independent judge followed the online score instead of objective outcomes")
 		quit(2)
 		return
+	var route_consistent := objectively_strong.duplicate(true)
+	route_consistent["csharp_tile_type"] = 6
+	route_consistent["route_plan_score"] = 900
+	route_consistent["wait_shape_score"] = 12.0
+	var route_breaking := objectively_strong.duplicate(true)
+	route_breaking["csharp_tile_type"] = 7
+	route_breaking["route_plan_score"] = -900
+	route_breaking["wait_shape_score"] = -6.0
+	route_breaking["route_loss"] = ["清一色"]
+	var theory_result: Dictionary = judge.score_analysis(
+		{"options": [route_breaking, route_consistent]},
+		6,
+		0,
+		2,
+		8
+	)
+	if int(theory_result.get("best_tile_type", -1)) != 6:
+		push_error("Independent judge ignored route continuity and wait quality")
+		quit(3)
+		return
 	print("INDEPENDENT JUDGE REGRESSION OK")
 	quit()

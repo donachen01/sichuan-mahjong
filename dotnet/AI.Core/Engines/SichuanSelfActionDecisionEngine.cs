@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Decision;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -9,6 +10,7 @@ public sealed class SichuanSelfActionDecisionEngine
     private readonly SichuanBeliefEngine _belief = new();
     private readonly SichuanDangerEngine _danger = new();
     private readonly SichuanRoutePlanEngine _routePlan = new();
+	private readonly SichuanUnifiedDecisionEngine _unified = new();
 
     public SichuanSelfActionDecisionResult DecideSelfAction(
         SichuanStateView state,
@@ -16,18 +18,24 @@ public sealed class SichuanSelfActionDecisionEngine
         IReadOnlyList<int> anGangTileTypes,
         IReadOnlyList<int> addGangTileTypes,
         IReadOnlyDictionary<int, int>? addGangQiangGangCounts = null,
-        IReadOnlyList<int>? mandatoryGangTileTypes = null)
+        IReadOnlyList<int>? mandatoryGangTileTypes = null,
+        SichuanRoundBrainSnapshot? roundBrain = null)
     {
         var scores = new Dictionary<string, int>();
 
         if (canSelfHu)
         {
-            scores["hu"] = 100000;
-            scores["pass"] = -100000;
+			var confirmation = _unified.ConfirmSelfDrawHu(state);
+			var huCandidate = confirmation.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Hu);
+			var passCandidate = confirmation.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Pass);
+			var huScore = (int)Math.Round(huCandidate.ExpectedNetScore * 1000.0);
+			var passEvScore = (int)Math.Round(passCandidate.ExpectedNetScore * 1000.0);
+			scores["hu"] = huScore;
+			scores["pass"] = passEvScore;
             return new SichuanSelfActionDecisionResult
             {
-                Action = new SichuanAction(SichuanActionType.Hu, -1, 100000, "自摸可胡，直接胡牌"),
-                Reasons = new[] { "自摸可胡，直接胡牌", "四川血战先胡牌落袋为安" },
+				Action = new SichuanAction(SichuanActionType.Hu, state.LastDrawTileType, huScore, confirmation.Summary),
+				Reasons = confirmation.Reasons,
                 ActionScores = scores
             };
         }
@@ -36,7 +44,7 @@ public sealed class SichuanSelfActionDecisionEngine
         var current = EvaluateBestFollowUp(state.Hand18, state.Remaining18, meldCount);
         var belief = _belief.Build(state);
         var roundStage = ResolveRoundStage(state);
-        var currentPlan = _routePlan.Evaluate(state);
+        var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var threatLevel = ResolveThreatLevel(state, belief);
         var passScore = 20 - current.Shanten * 82 + current.LiveUkeire * 5 - roundStage * 8 + Math.Min(12, state.WallCount);
@@ -53,12 +61,16 @@ public sealed class SichuanSelfActionDecisionEngine
                 .ToArray(),
             ActionScores = scores
         };
+        SichuanSelfActionDecisionResult? mandatoryGang = null;
+        var mandatoryTiles = (mandatoryGangTileTypes ?? Array.Empty<int>()).ToHashSet();
 
         foreach (var tileType in anGangTileTypes.Where(tile => tile is >= 0 and < 27).Distinct())
         {
             if (state.Hand18[tileType] < 4) continue;
             var candidate = EvaluateSelfGang(state, belief, tileType, "an_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior);
             scores[$"an_gang:{tileType}"] = candidate.Action.Score;
+            if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
+                mandatoryGang = candidate;
             if (candidate.Action.Score > best.Action.Score)
                 best = candidate;
         }
@@ -69,6 +81,8 @@ public sealed class SichuanSelfActionDecisionEngine
             var qiangGangCount = Math.Max(0, addGangQiangGangCounts?.GetValueOrDefault(tileType, 0) ?? 0);
             var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, qiangGangCount);
             scores[$"add_gang:{tileType}"] = candidate.Action.Score;
+            if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
+                mandatoryGang = candidate;
             if (qiangGangCount > 0 && candidate.Action.Score <= best.Action.Score)
             {
                 best.Reasons = best.Reasons
@@ -77,6 +91,20 @@ public sealed class SichuanSelfActionDecisionEngine
             }
             if (candidate.Action.Score > best.Action.Score)
                 best = candidate;
+        }
+
+        if (mandatoryGang is not null)
+        {
+            mandatoryGang.Action = mandatoryGang.Action with
+            {
+                Score = Math.Max(mandatoryGang.Action.Score, best.Action.Score + 96),
+                Reason = "规则要求执行杠牌"
+            };
+            mandatoryGang.Reasons = mandatoryGang.Reasons
+                .Concat(new[] { "规则强制杠已通过 C# 合法动作合同执行" })
+                .ToArray();
+            scores[$"{mandatoryGang.GangSubtype}:{mandatoryGang.Action.TileType}"] = mandatoryGang.Action.Score;
+            best = mandatoryGang;
         }
 
         best.ActionScores = new Dictionary<string, int>(scores);

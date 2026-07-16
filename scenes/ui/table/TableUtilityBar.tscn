@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/table/TableUtilityBar.gd" id="1_bar"]
+
+[node name="TableUtilityBar" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_bar")
+
+[node name="AIButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 108.0
+offset_bottom = 94.0
+text = "AI"
+
+[node name="SettingsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1664.0
+offset_top = 18.0
+offset_right = 1760.0
+offset_bottom = 94.0
+text = "设置"
+
+[node name="OpponentHandsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 310.0
+offset_top = 18.0
+offset_right = 452.0
+offset_bottom = 94.0
+text = "明牌 · 关"
+
+[node name="SettlementButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1420.0
+offset_top = 18.0
+offset_right = 1528.0
+offset_bottom = 94.0
+text = "结算"
+
+[node name="NextRoundButton" type="Button" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 1540.0
+offset_top = 18.0
+offset_right = 1664.0
+offset_bottom = 94.0
+text = "下一局"
+
+[node name="ExitButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1772.0
+offset_top = 18.0
+offset_right = 1848.0
+offset_bottom = 94.0
+text = "×"
+tooltip_text = "退出牌局"

@@ -4,16 +4,12 @@ class_name DiscardAdvisor
 
 const StrategyEngineScript := preload("res://scripts/core/strategy_engine.gd")
 const LookaheadEvaluatorScript := preload("res://scripts/core/lookahead_evaluator.gd")
-const NeijiangDecisionEngineScript := preload("res://scripts/ai/sichuan_decision_engine.gd")
 
 var strategy_engine = StrategyEngineScript.new()
 var lookahead_evaluator = LookaheadEvaluatorScript.new()
-var neijiang_decision_engine = NeijiangDecisionEngineScript.new()
 
 
 func analyze_discard_options(player: Dictionary, players: Array, rules_config, hu_checker, shanten_analyzer, risk_analyzer, allow_cheat: bool = false, enable_lookahead: bool = true, ai_config = null) -> Dictionary:
-	if rules_config != null and bool(rules_config.is_neijiang_mode()):
-		return {}
 	var hand_tiles: Array = player.get("hand_tiles", []).duplicate(true)
 	var active_suits: Array = _resolve_active_suits(rules_config)
 	var forced_suit: String = _get_forced_discard_suit(player)
@@ -80,8 +76,8 @@ func analyze_discard_options(player: Dictionary, players: Array, rules_config, h
 		var safety_score := _build_safety_score(int(risk_info.get("risk", 0)), weights)
 		var pressure_score := _build_pressure_score(tile, risk_info, strategy_profile, weights)
 		var self_draw_score := _build_self_draw_score(ting_tiles, remaining_hand, players, self_seat, strategy_profile, ai_config)
-		var neijiang_speed_score := _build_neijiang_speed_score(tile, hand_tiles, remaining_hand, shanten_info, ting_tiles, route_after, player, players, strategy_profile, rules_config, ai_config)
-		var gui_preserve_score := _build_neijiang_gui_preserve_score(tile, hand_tiles, remaining_hand, route_after, rules_config)
+		var sichuan_speed_score := _build_sichuan_speed_score(tile, hand_tiles, remaining_hand, shanten_info, ting_tiles, route_after, player, players, strategy_profile, ai_config)
+		var gen_preserve_score := _build_gen_preserve_score(tile, hand_tiles, remaining_hand, route_after)
 		var flush_commit_score := _build_flush_commit_score(tile, hand_tiles, remaining_hand, player, players, current_routes, route_after, weights)
 		var forced_cleanup_score := _build_forced_cleanup_score(tile, hand_tiles, players, strategy_profile, forced_suit, ai_config)
 		var global_plan_score := _build_global_plan_score(tile, hand_tiles, remaining_hand, strategy_profile, shanten_info, ting_tiles, route_after, route_loss, risk_info, endgame_absolute_defense, ai_config)
@@ -99,15 +95,13 @@ func analyze_discard_options(player: Dictionary, players: Array, rules_config, h
 			active_suits
 		)
 		var probability_score: int = int(probability_profile.get("score", 0))
-		var heuristic_score: int = tempo_score + wait_quality_score + fan_value_score + shape_score + safety_score + pressure_score + self_draw_score + neijiang_speed_score + gui_preserve_score + flush_commit_score + forced_cleanup_score + global_plan_score
+		var heuristic_score: int = tempo_score + wait_quality_score + fan_value_score + shape_score + safety_score + pressure_score + self_draw_score + sichuan_speed_score + gen_preserve_score + flush_commit_score + forced_cleanup_score + global_plan_score
 		var score := probability_score + int(round(float(heuristic_score) * 0.42))
 
 		var reason_parts: Array[String] = []
 		reason_parts.append("策略 %s" % str(strategy_profile.get("mode_label", "定缺速听")))
-		if forced_suit != "" and not (rules_config != null and bool(rules_config.is_neijiang_mode())):
+		if forced_suit != "":
 			reason_parts.append("缺门未出尽，必须优先打%s" % _suit_name(forced_suit))
-		elif rules_config != null and bool(rules_config.is_neijiang_mode()):
-			reason_parts.append("四川定缺后，优先快速成叫")
 		reason_parts.append("向听 %d" % maxi(0, int(shanten_info.get("best", 8))))
 		reason_parts.append(_fast_ting_rank_reason(fast_ting_discard_rank))
 		reason_parts.append("估算胡率 %.1f%%" % (float(probability_profile.get("win_probability", 0.0)) * 100.0))
@@ -149,8 +143,8 @@ func analyze_discard_options(player: Dictionary, players: Array, rules_config, h
 				"safety_score": safety_score,
 				"pressure_score": pressure_score,
 				"self_draw_score": self_draw_score,
-				"neijiang_speed_score": neijiang_speed_score,
-				"gui_preserve_score": gui_preserve_score,
+				"sichuan_speed_score": sichuan_speed_score,
+				"gen_preserve_score": gen_preserve_score,
 				"flush_commit_score": flush_commit_score,
 				"forced_cleanup_score": forced_cleanup_score,
 				"global_plan_score": global_plan_score,
@@ -260,7 +254,7 @@ func _build_wait_quality_score(ting_tiles: Array, remaining_hand: Array, players
 	return int(round(float(quality) * wait_weight))
 
 
-func _build_neijiang_speed_score(
+func _build_sichuan_speed_score(
 	tile: Dictionary,
 	hand_tiles: Array,
 	remaining_hand: Array,
@@ -270,11 +264,8 @@ func _build_neijiang_speed_score(
 	player: Dictionary,
 	players: Array,
 	strategy_profile: Dictionary,
-	rules_config,
 	ai_config
 ) -> int:
-	if rules_config == null or not bool(rules_config.is_neijiang_mode()):
-		return 0
 	var score := 0
 	var shanten: int = int(shanten_info.get("best", 8))
 	var self_draw_priority: int = 3 if ai_config == null else clampi(int(ai_config.self_draw_priority), 0, 4)
@@ -320,12 +311,12 @@ func _build_neijiang_speed_score(
 		score += 16 + self_draw_priority * 2
 	if _breaks_two_suit_balance(suit_span_before, suit_span_after, tile_suit) and shanten >= 2 and not keeps_ting_routes:
 		score -= 20 + self_draw_priority * 2
-	score += _build_neijiang_wait_focus_bonus(ting_tiles, remaining_hand, players, int(player.get("seat", -1)), self_draw_priority)
-	score += _build_neijiang_table_read_score(tile, hand_tiles, remaining_hand, ting_tiles, route_after, player, players, strategy_profile)
+	score += _build_sichuan_wait_focus_bonus(ting_tiles, remaining_hand, players, int(player.get("seat", -1)), self_draw_priority)
+	score += _build_sichuan_table_read_score(tile, hand_tiles, remaining_hand, ting_tiles, route_after, player, players, strategy_profile)
 	return score
 
 
-func _build_neijiang_wait_focus_bonus(ting_tiles: Array, remaining_hand: Array, players: Array, self_seat: int, self_draw_priority: int) -> int:
+func _build_sichuan_wait_focus_bonus(ting_tiles: Array, remaining_hand: Array, players: Array, self_seat: int, self_draw_priority: int) -> int:
 	if ting_tiles.is_empty():
 		return 0
 	var visible_counts := _build_visible_tile_counts(remaining_hand, players)
@@ -343,7 +334,7 @@ func _build_neijiang_wait_focus_bonus(ting_tiles: Array, remaining_hand: Array, 
 	return score
 
 
-func _build_neijiang_table_read_score(
+func _build_sichuan_table_read_score(
 	tile: Dictionary,
 	hand_tiles: Array,
 	remaining_hand: Array,
@@ -377,15 +368,12 @@ func _build_neijiang_table_read_score(
 	return score
 
 
-func _build_neijiang_gui_preserve_score(
+func _build_gen_preserve_score(
 	tile: Dictionary,
 	hand_tiles: Array,
 	remaining_hand: Array,
-	route_after: Array,
-	rules_config
+	route_after: Array
 ) -> int:
-	if rules_config == null or not bool(rules_config.is_neijiang_mode()) or not bool(rules_config.enable_gui):
-		return 0
 	var before_count: int = _count_matching_tiles(hand_tiles, tile)
 	var after_count: int = _count_matching_tiles(remaining_hand, tile)
 	var score := 0

@@ -9,6 +9,7 @@ public sealed class SichuanHellChallengeReactionEngine
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanHellChallengeEngine _followUpDiscard = new();
+    private readonly SichuanRoundBrainEngine _roundBrain = new();
 
     public SichuanReactionDecisionResult DecideReaction(
         SichuanStateView state,
@@ -25,6 +26,7 @@ public sealed class SichuanHellChallengeReactionEngine
     {
         allHands18 = NormalizeHands(allHands18);
         exactWall18 = NormalizeCounts(exactWall18);
+        var roundBrain = _roundBrain.Observe(state);
         var fair = _fair.DecideReaction(
             state,
             reactionTileType,
@@ -34,7 +36,8 @@ public sealed class SichuanHellChallengeReactionEngine
             sourceSeat,
             reactionType,
             forceLightweight: true,
-            mandatoryGang);
+            mandatoryGang,
+            roundBrain);
         if (mandatoryGang && fair.Action.ActionType == SichuanActionType.Gang)
             return fair;
         var scores = new Dictionary<string, int>(fair.ActionScores);
@@ -72,7 +75,8 @@ public sealed class SichuanHellChallengeReactionEngine
                 }.Concat(teamPlan.Reasons).Distinct().ToArray());
         }
 
-        var best = BuildPassResult(reactionTileType, currentShanten, currentLive, humanPressure, scores);
+        var passResult = BuildPassResult(reactionTileType, currentShanten, currentLive, humanPressure, scores);
+        var best = passResult;
         var bestKey = "pass";
         var directMeldedGangAvailable = canGang
             && reactionTileType is >= 0 and < 27
@@ -145,6 +149,36 @@ public sealed class SichuanHellChallengeReactionEngine
             }
         }
 
+        if (best.Action.ActionType == SichuanActionType.Peng)
+        {
+            var noSpeedGain = best.ShantenAfter >= currentShanten && best.ShantenAfter > 0;
+            var damagesReadyWait = currentShanten <= 0
+                && best.ShantenAfter <= 0
+                && best.LiveUkeireAfter < currentLive;
+            var weakOneStepGain = best.ShantenAfter > 0
+                && best.ShantenAfter < currentShanten
+                && best.LiveUkeireAfter + 4 < currentLive;
+            var wideFlexibleBeforeCall = currentShanten >= 2
+                && currentLive >= 12
+                && best.ShantenAfter > 0
+                && best.LiveUkeireAfter <= currentLive + 2;
+            var narrowReadyTrap = currentShanten == 1
+                && best.ShantenAfter == 0
+                && currentLive >= 14
+                && best.LiveUkeireAfter <= 5
+                && state.WallCount > 8;
+            var insufficientMargin = best.ShantenAfter > 0
+                && best.Action.Score < passResult.Action.Score + 160;
+            if (noSpeedGain || damagesReadyWait || weakOneStepGain || wideFlexibleBeforeCall || narrowReadyTrap || insufficientMargin)
+            {
+                passResult.Reasons = passResult.Reasons
+                    .Concat(new[] { "连续大脑反应闸门：碰牌未形成可靠提速，不因透视压制奖励破坏自身牌路" })
+                    .ToArray();
+                best = passResult;
+                bestKey = "pass";
+            }
+        }
+
         var finalScores = new Dictionary<string, int>(scores)
         {
             ["team_block_human"] = sourceSeat == 0 && bestKey != "pass" ? humanPressure * 900 : 0,
@@ -161,7 +195,9 @@ public sealed class SichuanHellChallengeReactionEngine
         int humanPressure,
         Dictionary<string, int> scores)
     {
-        var score = -20 + currentLive * 4 - humanPressure * 8;
+        var score = scores.GetValueOrDefault("pass", -20 + currentLive * 4)
+            + Math.Clamp(currentLive - 8, -12, 12)
+            - humanPressure * 2;
         scores["pass"] = score;
         return BuildResult(
             SichuanActionType.Pass,
@@ -200,22 +236,30 @@ public sealed class SichuanHellChallengeReactionEngine
         var shantenAfter = _shanten.CalcBestShanten(handAfter, meldCountAfter);
         var liveAfter = EstimateBestLiveUkeire(handAfter, exactWall18, meldCountAfter);
         var blocksHuman = sourceSeat == 0 && reactionType == "discard";
-        var callBase = actionType == SichuanActionType.Gang ? 190 : 120;
+        var fairActionKey = actionType == SichuanActionType.Gang ? "gang" : "peng";
+        var fairScore = inheritedScores.GetValueOrDefault(fairActionKey, -400);
         var teamPlanPressure = blocksHuman ? seatPlan.CallInterceptionBias : seatPlan.PressureBonus / 3;
-        var teamBlockBonus = blocksHuman ? 420 + humanPressure * 170 + teamPlanPressure : 0;
-        var speedScore = (currentShanten - shantenAfter) * 260 + (liveAfter - currentLive) * 14;
-        var readyBonus = shantenAfter <= 0 ? 460 : 0;
+        var teamBlockBonus = blocksHuman ? 80 + humanPressure * 30 + Math.Min(100, teamPlanPressure / 4) : 0;
+        var speedScore = (currentShanten - shantenAfter) * 160 + (liveAfter - currentLive) * 6;
+        var readyBonus = shantenAfter <= 0 ? 220 : 0;
         var slowPenalty = shantenAfter > currentShanten ? 520 : 0;
-        var gangBonus = actionType == SichuanActionType.Gang ? 160 : 0;
+        var noSpeedPenalty = shantenAfter >= currentShanten && liveAfter <= currentLive + 1 ? 180 : 0;
+        var gangBonus = actionType == SichuanActionType.Gang ? 100 : 0;
         var nonHumanMiddlePengPenalty = 0;
         if (actionType == SichuanActionType.Peng
             && !blocksHuman
             && shantenAfter > 0
             && IsMiddleTile(reactionTileType))
         {
-            nonHumanMiddlePengPenalty = 460;
+            nonHumanMiddlePengPenalty = 700;
         }
-        var score = callBase + teamBlockBonus + speedScore + readyBonus + gangBonus - slowPenalty - nonHumanMiddlePengPenalty;
+        var tripletPengPenalty = actionType == SichuanActionType.Peng
+            && state.Hand18[reactionTileType] >= 3
+            && shantenAfter > 0
+            ? 520
+            : 0;
+        var score = fairScore + teamBlockBonus + speedScore + readyBonus + gangBonus
+            - slowPenalty - noSpeedPenalty - nonHumanMiddlePengPenalty - tripletPengPenalty;
         var actionText = actionType == SichuanActionType.Gang ? "杠" : "碰";
         var reasons = new List<string>
         {
@@ -233,6 +277,10 @@ public sealed class SichuanHellChallengeReactionEngine
             reasons.Add("团队：明杠收雨钱并争取补牌");
         if (nonHumanMiddlePengPenalty > 0)
             reasons.Add("牌理约束：AI 间中张碰牌未直接下叫，避免见碰就碰");
+        if (noSpeedPenalty > 0)
+            reasons.Add("连续大脑：响应没有提速或扩张活口，优先保留过牌");
+        if (tripletPengPenalty > 0)
+            reasons.Add("连续大脑：已有暗刻时保护第四张明杠收益，不降格为碰");
 
         var scores = new Dictionary<string, int>(inheritedScores)
         {
@@ -242,6 +290,10 @@ public sealed class SichuanHellChallengeReactionEngine
         };
         if (nonHumanMiddlePengPenalty > 0)
             scores["middle_peng_shape_penalty"] = -nonHumanMiddlePengPenalty;
+        if (noSpeedPenalty > 0)
+            scores["no_speed_call_penalty"] = -noSpeedPenalty;
+        if (tripletPengPenalty > 0)
+            scores["triplet_peng_penalty"] = -tripletPengPenalty;
         return BuildResult(actionType, reactionTileType, score, currentShanten, currentLive, shantenAfter, liveAfter, humanPressure, scores, reasons.Concat(teamPlanReasons).Distinct().ToArray());
     }
 

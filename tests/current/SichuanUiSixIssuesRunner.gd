@@ -25,7 +25,7 @@ func _run() -> void:
 	_check_issue_6(root_node, failures)
 
 	if failures.is_empty():
-		print("VERIFY SIX ISSUES OK: 6/6")
+		print("VERIFY SIX ISSUES OK: 7/7")
 		quit(0)
 		return
 
@@ -36,6 +36,9 @@ func _run() -> void:
 func _advance_to_ding_que_after_opening_roll(root_node: Node, game_state) -> void:
 	if int(game_state.current_phase) != int(GAME_STATE_SCRIPT.RoundPhase.TABLE_SETUP):
 		return
+	# Reproduce the reported mobile case exactly: the human seat is dealer.
+	game_state.current_dealer_seat = 0
+	game_state.current_turn_seat = 0
 	if bool(game_state.opening_roll_pending_completion):
 		game_state.complete_opening_roll()
 		await process_frame
@@ -53,27 +56,34 @@ func _check_issue_3_and_4(root_node: Node, game_state, failures: Array[String]) 
 	if not root_node.ding_que_overlay.visible:
 		failures.append("问题3：开局缺门选择界面没有显示")
 
-	if root_node.left_ui.identity_ding_que_label.visible:
+	if _seat_ding_que_badge(root_node, 1).visible:
 		failures.append("问题4：本家未选缺门前，上家缺门已可见")
-	if root_node.top_ui.identity_ding_que_label.visible:
+	if _seat_ding_que_badge(root_node, 2).visible:
 		failures.append("问题4：本家未选缺门前，对家缺门已可见")
-	if root_node.right_ui.identity_ding_que_label.visible:
+	if _seat_ding_que_badge(root_node, 3).visible:
 		failures.append("问题4：本家未选缺门前，下家缺门已可见")
 
 
 func _check_issue_1_and_2(root_node: Node, game_state, failures: Array[String]) -> void:
+	game_state.ai_manager.force_mobile_aot_runtime_for_tests = true
 	var choose_ok := await _click_ding_que_button(root_node, game_state, "tong")
 	if not choose_ok:
 		failures.append("问题3补充：定缺按钮命中路径无法完成本家定缺；%s" % _ding_que_click_debug(root_node, game_state))
 		return
 	if root_node.ding_que_overlay.visible:
 		failures.append("问题3补充：本家点选定缺后，定缺面板仍未关闭")
-	if not root_node.left_ui.identity_ding_que_label.visible:
+	if not _seat_ding_que_badge(root_node, 1).visible:
 		failures.append("问题4补充：本家选缺后，上家缺门仍不可见")
-	if not root_node.top_ui.identity_ding_que_label.visible:
+	if not _seat_ding_que_badge(root_node, 2).visible:
 		failures.append("问题4补充：本家选缺后，对家缺门仍不可见")
-	if not root_node.right_ui.identity_ding_que_label.visible:
+	if not _seat_ding_que_badge(root_node, 3).visible:
 		failures.append("问题4补充：本家选缺后，下家缺门仍不可见")
+	if int(game_state.current_phase) != int(GAME_STATE_SCRIPT.RoundPhase.DISCARD):
+		failures.append("问题3补充：本家选缺后仍未进入出牌阶段，phase=%s" % game_state.current_phase)
+	if not bool(game_state.can_human_discard(0)):
+		failures.append("问题3补充：本家为庄家且选缺后仍不能实际出牌")
+	elif not await _verify_mobile_aot_ai_follow_up(game_state):
+		failures.append("问题7：本家出牌后，iOS AOT C# AI 没有完成响应并打出下一张牌")
 
 	var players: Array = game_state.players
 	for seat in [1, 2, 3]:
@@ -86,14 +96,12 @@ func _check_issue_1_and_2(root_node: Node, game_state, failures: Array[String]) 
 	await process_frame
 	await process_frame
 
-	var board_core_rect: Rect2 = root_node.board_core.get_global_rect()
-	for lane in [root_node.board_left_lane, root_node.board_right_lane]:
-		for child in lane.get_children():
-			if child is Control:
-				var tile_rect := (child as Control).get_global_rect()
-				if tile_rect.intersects(board_core_rect):
-					failures.append("问题1：左右弃牌仍侵入中心骰子保留区")
-					return
+	var discard_layer: Control = root_node.table_discard_layer
+	var center_reserved: Rect2 = discard_layer.call("get_center_reserved_rect")
+	for seat in [1, 3]:
+		if (discard_layer.call("get_lane_rect", seat) as Rect2).intersects(center_reserved):
+			failures.append("问题1：左右弃牌仍侵入中心骰子保留区")
+			return
 
 	var top_rect: Rect2 = root_node.top_ui.hand_lane.get_global_rect()
 	var left_rect: Rect2 = root_node.left_ui.hand_lane.get_global_rect()
@@ -102,6 +110,61 @@ func _check_issue_1_and_2(root_node: Node, game_state, failures: Array[String]) 
 		failures.append("问题2：上家与对家手牌区域仍有重叠")
 	if top_rect.intersects(right_rect):
 		failures.append("问题2：下家与对家手牌区域仍有重叠")
+
+
+func _verify_mobile_aot_ai_follow_up(game_state) -> bool:
+	var baseline_ai_discards := _count_ai_discards(game_state.players)
+	var hand_tiles: Array = game_state.players[0].get("hand_tiles", [])
+	if hand_tiles.is_empty():
+		return false
+	var chosen_tile: Dictionary = {}
+	var ding_que := str(game_state.players[0].get("ding_que", ""))
+	for tile_item in hand_tiles:
+		var tile: Dictionary = tile_item
+		if str(tile.get("suit", "")) == ding_que:
+			chosen_tile = tile
+			break
+	if chosen_tile.is_empty():
+		chosen_tile = hand_tiles[0]
+	if not bool(game_state.discard_tile_by_id(0, int(chosen_tile.get("id", -1)))):
+		return false
+	for _step in range(360):
+		game_state.pump_ai_background_requests()
+		if game_state.is_ai_reaction_pending():
+			game_state.run_ai_reaction()
+		elif game_state.is_ai_turn_ready():
+			game_state.run_ai_turn()
+		if _count_ai_discards(game_state.players) > baseline_ai_discards:
+			return true
+		await process_frame
+	print("mobile_aot_ai_follow_up_timeout=", JSON.stringify({
+		"phase": int(game_state.current_phase),
+		"turn": int(game_state.current_turn_seat),
+		"wall": int(game_state.wall_count),
+		"pending_reactions": game_state.pending_reactions,
+		"pending_turn_request": int(game_state.pending_ai_turn_request_id),
+		"pending_reaction_request": int(game_state.pending_ai_reaction_request_id),
+		"pending_turn_decision": game_state.pending_ai_turn_decision,
+		"pending_reaction_decision": game_state.pending_ai_reaction_decision,
+		"debug_last_message": str(game_state.debug_last_message),
+		"ai_backend": game_state.ai_manager.get_backend_status(),
+		"ai_debug": game_state.ai_manager.get_debug_snapshot(),
+	}).left(12000))
+	return false
+
+
+func _count_ai_discards(players: Array) -> int:
+	var total := 0
+	for seat in [1, 2, 3]:
+		if seat < players.size():
+			total += Array(players[seat].get("discards", [])).size()
+	return total
+
+
+func _seat_ding_que_badge(root_node: Node, seat: int) -> Control:
+	var seat_huds: Dictionary = root_node.get("seat_huds")
+	var seat_hud: Control = seat_huds.get(seat)
+	return seat_hud.call("get_ding_que_badge")
 
 
 func _check_issue_5(root_node: Node, failures: Array[String]) -> void:

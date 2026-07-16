@@ -29,9 +29,6 @@ func evaluate_tile(tile: Dictionary, discarder_seat: int, players: Array, active
 		elif _is_suit_abandoned(player, suit):
 			tile_risk *= 0.54
 			reasons.append("%s该门已弃多张" % _seat_name(player))
-		if bool(player.get("bao_jiao", false)):
-			tile_risk *= 1.22
-			reasons.append("%s已报叫" % _seat_name(player))
 		max_risk = maxf(max_risk, tile_risk)
 	var risk_int := clampi(int(round(max_risk * 100.0)), 0, 100)
 	return {

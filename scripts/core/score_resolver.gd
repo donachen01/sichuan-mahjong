@@ -79,8 +79,6 @@ func build_score_changes(players: Array, settlement_data: Dictionary, rules_conf
 			if not changes.has(winner_seat) or not changes.has(payer_seat):
 				continue
 			var payment := hand_score + self_draw_bonus
-			if rules_config != null and bool(rules_config.is_neijiang_mode()) and bool(players[payer_seat].get("bao_jiao", false)) and payer_seat != winner_seat:
-				payment += _resolve_hand_basic_score(1, rules_config)
 			changes[winner_seat] += payment
 			changes[payer_seat] -= payment
 
@@ -90,16 +88,6 @@ func build_score_changes(players: Array, settlement_data: Dictionary, rules_conf
 
 
 func _resolve_hand_basic_score(capped_fan: int, rules_config = null) -> int:
-	if rules_config != null and bool(rules_config.is_neijiang_mode()):
-		if capped_fan <= 1:
-			return 1
-		if capped_fan == 2:
-			return 2
-		if capped_fan == 3:
-			return 4
-		if capped_fan == 4:
-			return 8
-		return 16
 	if capped_fan <= 0:
 		return 1
 	return int(pow(2.0, capped_fan - 1))
@@ -134,10 +122,8 @@ func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary) -
 	var ting_items_by_seat: Dictionary = {}
 	var no_ting_seats: Array[int] = []
 	var hua_zhu_seats: Array[int] = []
-	var bao_jiao_failed_seats: Array[int] = []
 	for item in draw_assessment:
 		var seat: int = int(item.get("seat", -1))
-		var is_bao_jiao := bool(item.get("is_bao_jiao", false))
 		var is_ting := bool(item.get("is_ting", false))
 		if item.get("hua_zhu", false):
 			hua_zhu_seats.append(seat)
@@ -146,8 +132,6 @@ func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary) -
 			ting_items_by_seat[seat] = item
 		else:
 			no_ting_seats.append(seat)
-		if is_bao_jiao:
-			bao_jiao_failed_seats.append(seat)
 
 	for hua_zhu_seat in hua_zhu_seats:
 		for item in ting_items:
@@ -158,25 +142,12 @@ func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary) -
 				changes[target] += payment
 
 	for no_ting_seat in no_ting_seats:
-		if bao_jiao_failed_seats.has(no_ting_seat):
-			continue
 		for item in ting_items:
 			var target: int = int(item.get("seat", -1))
 			var payment := _resolve_draw_assessment_payment(item)
 			if changes.has(no_ting_seat) and changes.has(target):
 				changes[no_ting_seat] -= payment
 				changes[target] += payment
-
-	for bao_jiao_seat in bao_jiao_failed_seats:
-		for item in ting_items:
-			var target: int = int(item.get("seat", -1))
-			if target == bao_jiao_seat:
-				continue
-			var payment := _resolve_draw_assessment_payment(item)
-			if changes.has(bao_jiao_seat) and changes.has(target):
-				changes[bao_jiao_seat] -= payment
-				changes[target] += payment
-
 
 func _resolve_draw_assessment_payment(item: Dictionary) -> int:
 	return maxi(1, int(item.get("cha_jiao_score", 1)))

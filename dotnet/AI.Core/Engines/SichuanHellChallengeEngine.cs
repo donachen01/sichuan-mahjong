@@ -240,10 +240,10 @@ public sealed class SichuanHellChallengeEngine
             return ("X_DANGER_HU", 90);
         if (feedsHumanGang)
             return ("X_DANGER_GANG", 82);
+        if (keepsReady && exactWallRemaining > 0)
+            return ("A_READY", 0);
         if (feedsHumanPeng && humanPengThreat >= 4 && wallCount > 10)
             return ("D_FEEDS_STRONG_PENG", 70);
-        if (keepsReady && (waitCount > 0 || exactWallRemaining > 0))
-            return ("A_READY", 0);
         if (shanten <= 1 && exactWallRemaining >= 3)
             return ("B_ONE_AWAY_LIVE", 10);
         if (shanten <= 1)
@@ -367,7 +367,11 @@ public sealed class SichuanHellChallengeEngine
             penalty -= 700;
         if (seatPlan.Role == "catch_up" && keepsReady)
             penalty -= 500;
+        if (keepsReady && exactWallRemaining > 0 && shantenAfterDiscard <= 0)
+            penalty = Math.Min(penalty, wallCount <= 10 ? 1200 : 2200);
         var floor = humanPengThreat >= 3 ? 1600 : 120;
+        if (keepsReady && exactWallRemaining > 0 && shantenAfterDiscard <= 0)
+            floor = Math.Min(floor, wallCount <= 10 ? 600 : 1200);
         if (humanAlreadyReady && wallCount <= 10 && shantenAfterDiscard <= 1 && keepsReady)
             floor = 420;
         if (humanAlreadyReady && wallCount <= 10 && shantenAfterDiscard <= 0 && keepsReady && humanPengThreat <= 4)

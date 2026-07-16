@@ -2,11 +2,6 @@ extends RefCounted
 
 class_name ReactionAdvisor
 
-const NeijiangDecisionEngineScript := preload("res://scripts/ai/sichuan_decision_engine.gd")
-
-var neijiang_decision_engine = NeijiangDecisionEngineScript.new()
-
-
 func choose_action(
 	candidate: Dictionary,
 	player: Dictionary,
@@ -16,8 +11,6 @@ func choose_action(
 	mahjong_judge,
 	allow_cheat: bool = false
 ) -> Dictionary:
-	if rules_config != null and bool(rules_config.is_neijiang_mode()):
-		return {}
 	var discarded_tile: Dictionary = discard_context.get("tile", {})
 	if discarded_tile.is_empty():
 		return {"action": "pass", "score": -9999, "reasons": ["无可用弃牌上下文"]}
@@ -83,7 +76,7 @@ func _evaluate_peng(
 	var reasons: Array[String] = []
 	var round_stage: int = int(shape.get("round_stage", 1))
 	var fast_call_count: int = int(shape.get("fast_call_count", 0))
-	var is_neijiang: bool = rules_config != null and bool(rules_config.is_neijiang_mode())
+	var is_sichuan := true
 	if best_shanten < current_best_shanten:
 		score += 180
 		reasons.append("碰后向听下降，明显提速")
@@ -94,13 +87,13 @@ func _evaluate_peng(
 		score -= 160
 		reasons.append("碰后向听变差，不宜轻碰")
 
-	if is_neijiang and best_shanten <= 0:
+	if is_sichuan and best_shanten <= 0:
 		score += 160
 		reasons.append("碰后可直接成叫，四川血战优先尽快成叫")
-	elif is_neijiang and current_best_shanten > 1 and best_shanten == 1:
+	elif is_sichuan and current_best_shanten > 1 and best_shanten == 1:
 		score += 96
 		reasons.append("碰后可快速逼近成叫，允许主动提速")
-	elif is_neijiang and current_best_shanten == 1 and best_shanten == 1:
+	elif is_sichuan and current_best_shanten == 1 and best_shanten == 1:
 		score += 42
 		reasons.append("当前已接近听牌，碰后可稳住一向听")
 
@@ -108,20 +101,20 @@ func _evaluate_peng(
 	if strategy_mode in ["全攻", "进攻平衡"] and best_shanten <= 1:
 		score += 28
 		reasons.append("当前偏进攻，碰后有利于压缩和牌距离")
-	if not is_neijiang and int(shape.get("dingque_count", 0)) > _count_dingque_tiles(player.get("hand_tiles", []), str(player.get("ding_que", ""))):
+	if int(shape.get("dingque_count", 0)) > _count_dingque_tiles(player.get("hand_tiles", []), str(player.get("ding_que", ""))):
 		score -= 52
 		reasons.append("碰后缺门处理变慢")
 	if int(shape.get("isolated_count", 0)) >= 3:
 		score -= 24
 		reasons.append("碰后孤张仍多，价值有限")
-	if is_neijiang and round_stage == 0 and best_shanten > current_best_shanten:
+	if is_sichuan and round_stage == 0 and best_shanten > current_best_shanten:
 		score -= 68
 		reasons.append("四川前期碰后变慢，不轻碰")
 	var pair_count := _count_pairs(player.get("hand_tiles", []), discarded_tile)
-	if is_neijiang and pair_count >= 3 and best_shanten <= current_best_shanten:
+	if is_sichuan and pair_count >= 3 and best_shanten <= current_best_shanten:
 		score += 120
 		reasons.append("对子冗余较多且碰后不降速，老手主动碰牌定型")
-	if is_neijiang and current_best_shanten <= 1 and best_shanten <= current_best_shanten:
+	if is_sichuan and current_best_shanten <= 1 and best_shanten <= current_best_shanten:
 		score += 24
 		reasons.append("已接近成叫，碰牌可直接压缩和牌距离")
 	if round_stage >= 2 or fast_call_count >= 2:

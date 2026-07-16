@@ -24,7 +24,14 @@ public static class SichuanStateCodec
         int visibleVersion = 0,
         int handVersion = 0,
         int strategyContextVersion = 0,
-        IEnumerable<int>? dingQueSuits = null)
+        IEnumerable<int>? dingQueSuits = null,
+		IEnumerable<int>? handCounts = null,
+		IEnumerable<int>? lockedFans = null,
+		IEnumerable<int>? lockTurns = null,
+		IEnumerable<bool>? unlockOnOwnDraw = null,
+		IEnumerable<bool>? activeSeats = null,
+		long eventVersion = 0,
+		string informationMode = "public")
     {
         var hand = hand18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
         var visible = visible18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
@@ -43,6 +50,13 @@ public static class SichuanStateCodec
             Scores = scores?.Take(4).Concat(Enumerable.Repeat(0, 4)).Take(4).ToArray() ?? new int[4],
             DingQueSuits = dingQueSuits?.Take(4).Concat(Enumerable.Repeat(-1, 4)).Take(4).ToArray()
                 ?? Enumerable.Repeat(-1, 4).ToArray(),
+			HandCounts = handCounts?.Take(4).Concat(Enumerable.Repeat(13, 4)).Take(4).ToArray() ?? new[] { 13, 13, 13, 13 },
+			LockedFans = lockedFans?.Take(4).Concat(Enumerable.Repeat(-1, 4)).Take(4).ToArray() ?? Enumerable.Repeat(-1, 4).ToArray(),
+			LockTurns = lockTurns?.Take(4).Concat(Enumerable.Repeat(-1, 4)).Take(4).ToArray() ?? Enumerable.Repeat(-1, 4).ToArray(),
+			UnlockOnOwnDraw = unlockOnOwnDraw?.Take(4).Concat(Enumerable.Repeat(false, 4)).Take(4).ToArray() ?? new bool[4],
+			ActiveSeats = activeSeats?.Take(4).Concat(Enumerable.Repeat(true, 4)).Take(4).ToArray() ?? Enumerable.Repeat(true, 4).ToArray(),
+			EventVersion = eventVersion,
+			InformationMode = informationMode,
             RoundIndex = roundIndex,
             TotalRounds = totalRounds,
             RemainingRounds = remainingRounds,

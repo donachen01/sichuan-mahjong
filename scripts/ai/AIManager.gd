@@ -37,6 +37,7 @@ var last_native_turn_raw_summary: String = ""
 var last_native_reaction_raw_summary: String = ""
 var is_pumping_async_requests: bool = false
 var native_async_enabled: bool = false
+var force_mobile_aot_runtime_for_tests: bool = false
 
 
 func _should_use_csharp_backend(rules_config) -> bool:
@@ -96,16 +97,6 @@ func analyze_turn_lightweight(player_state: Dictionary, table_state: Dictionary,
 	return result.get("analysis", {}).duplicate(true)
 
 
-func analyze_turn_fail_safe(player_state: Dictionary, table_state: Dictionary, rules_config, ai_config, hu_checker, risk_analyzer, allow_cheat: bool = false) -> Dictionary:
-	var payload := bridge.build_discard_payload(player_state, table_state, rules_config, ai_config, allow_cheat)
-	var analysis: Dictionary = bridge.request_discard(payload, hu_checker, risk_analyzer)
-	if analysis.is_empty():
-		return {}
-	analysis["backend_mode"] = "gdscript_sichuan_fail_safe"
-	analysis["native_error"] = last_native_turn_error
-	return analysis
-
-
 func analyze_reaction_lightweight(candidate: Dictionary, player_state: Dictionary, table_state: Dictionary, discard_context: Dictionary, rules_config, ai_config, hu_checker, allow_cheat: bool = false) -> Dictionary:
 	var result := _compute_reaction_analysis(candidate, player_state, table_state, discard_context, rules_config, ai_config, hu_checker, allow_cheat)
 	_finalize_reaction_analysis(int(player_state.get("seat", -1)), result)
@@ -119,9 +110,14 @@ func analyze_self_action(player_state: Dictionary, table_state: Dictionary, rule
 	last_native_turn_error = ""
 	if has_native_csharp_runtime() and rules_config != null and bool(rules_config.is_sichuan_mode()):
 		var payload: Dictionary = csharp_bridge.build_self_action_transport_payload(player_state, table_state, rules_config, can_self_hu, an_gang_tile_types, add_gang_tile_types, add_gang_qiang_gang_counts, mandatory_gang_tile_types)
-		var raw := str(native_csharp_runtime.call("AnalyzeSelfActionJson", JSON.stringify(payload)))
-		var parsed = JSON.parse_string(raw)
-		var native_result: Dictionary = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+		var native_result: Dictionary = {}
+		if _is_mobile_aot_runtime() and native_csharp_runtime.has_method("AnalyzeSelfActionAotCompact"):
+			var compact_raw := str(native_csharp_runtime.call("AnalyzeSelfActionAotCompact", JSON.stringify(payload)))
+			native_result = _parse_aot_self_action_result(compact_raw)
+		else:
+			var raw := str(native_csharp_runtime.call("AnalyzeSelfActionJson", JSON.stringify(payload)))
+			var parsed = JSON.parse_string(raw)
+			native_result = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
 		if not native_result.is_empty() and bool(native_result.get("ok", true)) and not str(native_result.get("action", "")).is_empty():
 			analysis = _build_csharp_self_action_analysis(native_result, "csharp_native_self_action")
 			active_backend = "csharp_native_self_action"
@@ -153,7 +149,27 @@ func analyze_ding_que(hand_tiles: Array, active_suits: Array) -> Dictionary:
 	var analysis: Dictionary = {}
 	var active_backend := "csharp_ding_que_required"
 	last_native_turn_error = ""
-	if has_native_csharp_runtime() and native_csharp_runtime.has_method("AnalyzeDingQueJson"):
+	if has_native_csharp_runtime() and native_csharp_runtime.has_method("DecideDingQueSuit"):
+		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
+		var suit_counts: Dictionary = payload.get("suitCounts", {})
+		var native_suit := str(native_csharp_runtime.call(
+			"DecideDingQueSuit",
+			int(suit_counts.get("tiao", 0)),
+			int(suit_counts.get("tong", 0)),
+			int(suit_counts.get("wan", 0))
+		))
+		if active_suits.has(native_suit):
+			analysis = {
+				"ok": true,
+				"action": "ding_que",
+				"suit": native_suit,
+				"suitCounts": suit_counts.duplicate(true),
+				"backendMode": "csharp_native_ding_que_direct",
+			}
+			active_backend = "csharp_native_ding_que_direct"
+		else:
+			last_native_turn_error = "invalid_native_direct_ding_que_result"
+	elif has_native_csharp_runtime() and native_csharp_runtime.has_method("AnalyzeDingQueJson"):
 		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
 		var raw := str(native_csharp_runtime.call("AnalyzeDingQueJson", JSON.stringify(payload)))
 		var parsed = JSON.parse_string(raw)
@@ -208,10 +224,7 @@ func analyze_hell_challenge_discard(player_state: Dictionary, table_state: Dicti
 	var payload: Dictionary = csharp_bridge.build_discard_transport_payload(player_state, table_state, rules_config)
 	for key in hell_payload.keys():
 		payload[key] = hell_payload[key]
-	var raw := str(native_csharp_runtime.call("AnalyzeHellChallengeDiscardJson", JSON.stringify(payload)))
-	last_native_turn_raw_summary = "hell_challenge raw=%s" % raw.left(700)
-	var parsed = JSON.parse_string(raw)
-	var native_result: Dictionary = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	var native_result := _call_native_discard_result(payload, true)
 	if native_result.is_empty() or not bool(native_result.get("ok", false)):
 		last_native_turn_error = str(native_result.get("error", "empty_hell_challenge_result"))
 		return {}
@@ -226,10 +239,7 @@ func analyze_hell_challenge_reaction(candidate: Dictionary, player_state: Dictio
 	var payload: Dictionary = csharp_bridge.build_reaction_transport_payload(candidate, player_state, table_state, discard_context, rules_config)
 	for key in hell_payload.keys():
 		payload[key] = hell_payload[key]
-	var raw := str(native_csharp_runtime.call("AnalyzeHellChallengeReactionJson", JSON.stringify(payload)))
-	last_native_reaction_raw_summary = "hell_challenge_reaction raw=%s" % raw.left(700)
-	var native_result = JSON.parse_string(raw)
-	var result: Dictionary = native_result if typeof(native_result) == TYPE_DICTIONARY else {}
+	var result := _call_native_reaction_result(payload, true)
 	if result.is_empty() or not bool(result.get("ok", false)):
 		last_native_reaction_error = str(result.get("error", "empty_hell_challenge_reaction_result"))
 		return {}
@@ -355,10 +365,7 @@ func _analyze_discard_via_native_runtime(player_state: Dictionary, table_state: 
 		str(force_lightweight),
 		str(compact_result),
 	]
-	var raw := str(native_csharp_runtime.call("AnalyzeDiscardJson", JSON.stringify(payload)))
-	last_native_turn_raw_summary = "%s raw=%s" % [last_native_turn_raw_summary, raw.left(700)]
-	var parsed = JSON.parse_string(raw)
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return _call_native_discard_result(payload, false)
 
 
 func _analyze_reaction_via_native_runtime(candidate: Dictionary, player_state: Dictionary, table_state: Dictionary, discard_context: Dictionary, rules_config) -> Dictionary:
@@ -373,10 +380,101 @@ func _analyze_reaction_via_native_runtime(candidate: Dictionary, player_state: D
 		str(payload.get("canPeng", false)),
 		str(payload.get("canGang", false)),
 	]
-	var raw := str(native_csharp_runtime.call("AnalyzeReactionJson", JSON.stringify(payload)))
+	return _call_native_reaction_result(payload, false)
+
+
+func _is_mobile_aot_runtime() -> bool:
+	return force_mobile_aot_runtime_for_tests or OS.has_feature("ios") or OS.has_feature("android")
+
+
+func _call_native_discard_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
+	if _is_mobile_aot_runtime() and native_csharp_runtime.has_method("AnalyzeDiscardAotCompact"):
+		var compact_raw := str(native_csharp_runtime.call("AnalyzeDiscardAotCompact", JSON.stringify(payload), hell_challenge))
+		last_native_turn_raw_summary = "%s aot=%s" % [last_native_turn_raw_summary, compact_raw.left(700)]
+		return _parse_aot_discard_result(compact_raw)
+	var method := "AnalyzeHellChallengeDiscardJson" if hell_challenge else "AnalyzeDiscardJson"
+	var raw := str(native_csharp_runtime.call(method, JSON.stringify(payload)))
+	last_native_turn_raw_summary = "%s raw=%s" % [last_native_turn_raw_summary, raw.left(700)]
+	var parsed = JSON.parse_string(raw)
+	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+
+
+func _call_native_reaction_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
+	if _is_mobile_aot_runtime() and native_csharp_runtime.has_method("AnalyzeReactionAotCompact"):
+		var compact_raw := str(native_csharp_runtime.call("AnalyzeReactionAotCompact", JSON.stringify(payload), hell_challenge))
+		last_native_reaction_raw_summary = "%s aot=%s" % [last_native_reaction_raw_summary, compact_raw.left(700)]
+		return _parse_aot_reaction_result(compact_raw)
+	var method := "AnalyzeHellChallengeReactionJson" if hell_challenge else "AnalyzeReactionJson"
+	var raw := str(native_csharp_runtime.call(method, JSON.stringify(payload)))
 	last_native_reaction_raw_summary = "%s raw=%s" % [last_native_reaction_raw_summary, raw.left(700)]
 	var parsed = JSON.parse_string(raw)
 	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+
+
+func _parse_aot_discard_result(raw: String) -> Dictionary:
+	var parts := raw.split("|", true)
+	if parts.size() < 2 or parts[0] != "ok":
+		return {"ok": false, "error": parts[1] if parts.size() > 1 else "invalid_aot_discard_result"}
+	if parts.size() < 10:
+		return {"ok": false, "error": "incomplete_aot_discard_result"}
+	return {
+		"ok": true,
+		"action": parts[1],
+		"tileType": int(parts[2]),
+		"score": int(parts[3]),
+		"shanten": int(parts[4]),
+		"ukeire": int(parts[5]),
+		"liveUkeire": int(parts[6]),
+		"gangSubtype": parts[7],
+		"waitCount": int(parts[8]),
+		"backendMode": parts[9],
+		"expectedNetScore": float(parts[10]) if parts.size() > 10 else 0.0,
+		"expectedFan": float(parts[11]) if parts.size() > 11 else 0.0,
+		"winProbability": float(parts[12]) if parts.size() > 12 else 0.0,
+		"tenpaiProbability": float(parts[13]) if parts.size() > 13 else 0.0,
+		"reasons": [parts[14]] if parts.size() > 14 and not parts[14].is_empty() else ["iOS NativeAOT C# 决策"],
+	}
+
+
+func _parse_aot_reaction_result(raw: String) -> Dictionary:
+	var parts := raw.split("|", true)
+	if parts.size() < 2 or parts[0] != "ok":
+		return {"ok": false, "error": parts[1] if parts.size() > 1 else "invalid_aot_reaction_result"}
+	if parts.size() < 11:
+		return {"ok": false, "error": "incomplete_aot_reaction_result"}
+	return {
+		"ok": true,
+		"action": parts[1],
+		"tileType": int(parts[2]),
+		"score": int(parts[3]),
+		"shantenAfter": int(parts[4]),
+		"liveUkeireAfter": int(parts[5]),
+		"currentShanten": int(parts[6]),
+		"currentLiveUkeire": int(parts[7]),
+		"threatLevel": int(parts[8]),
+		"roundStage": int(parts[9]),
+		"backendMode": parts[10],
+		"reasons": [parts[11]] if parts.size() > 11 and not parts[11].is_empty() else ["iOS NativeAOT C# 响应决策"],
+	}
+
+
+func _parse_aot_self_action_result(raw: String) -> Dictionary:
+	var parts := raw.split("|", true)
+	if parts.size() < 2 or parts[0] != "ok":
+		return {"ok": false, "error": parts[1] if parts.size() > 1 else "invalid_aot_self_action_result"}
+	if parts.size() < 8:
+		return {"ok": false, "error": "incomplete_aot_self_action_result"}
+	return {
+		"ok": true,
+		"action": parts[1],
+		"tileType": int(parts[2]),
+		"score": int(parts[3]),
+		"gangSubtype": parts[4],
+		"shantenAfter": int(parts[5]),
+		"liveUkeireAfter": int(parts[6]),
+		"backendMode": parts[7],
+		"reasons": [parts[8]] if parts.size() > 8 and not parts[8].is_empty() else ["iOS NativeAOT C# 自摸与杠决策"],
+	}
 
 
 func _start_native_turn_analysis_background(request_id: int, player_state: Dictionary, table_state: Dictionary, rules_config, request_key: String = "", hell_payload: Dictionary = {}, force_lightweight: bool = false, compact_result: bool = false) -> bool:
@@ -426,10 +524,7 @@ func _start_native_turn_analysis_sync_delivery(request_id: int, player_state: Di
 		var payload: Dictionary = csharp_bridge.build_discard_transport_payload(player_state, table_state, rules_config, force_lightweight, compact_result)
 		for key in hell_payload.keys():
 			payload[key] = hell_payload[key]
-		var raw := str(native_csharp_runtime.call("AnalyzeHellChallengeDiscardJson", JSON.stringify(payload)))
-		last_native_turn_raw_summary = "sync_delivery_hell raw=%s" % raw.left(700)
-		var parsed = JSON.parse_string(raw)
-		var native_result: Dictionary = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+		var native_result := _call_native_discard_result(payload, true)
 		var native_error := _validate_native_discard_result(native_result)
 		if not native_error.is_empty():
 			last_native_turn_error = native_error
@@ -521,10 +616,7 @@ func _start_native_reaction_analysis_sync_delivery(request_id: int, candidate: D
 		var payload: Dictionary = csharp_bridge.build_reaction_transport_payload(candidate, player_state, table_state, discard_context, rules_config)
 		for key in hell_payload.keys():
 			payload[key] = hell_payload[key]
-		var raw := str(native_csharp_runtime.call("AnalyzeHellChallengeReactionJson", JSON.stringify(payload)))
-		last_native_reaction_raw_summary = "sync_delivery_hell raw=%s" % raw.left(700)
-		var parsed = JSON.parse_string(raw)
-		var native_result: Dictionary = parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+		var native_result := _call_native_reaction_result(payload, true)
 		var native_error := _validate_native_reaction_result(native_result)
 		if not native_error.is_empty():
 			last_native_reaction_error = native_error
@@ -725,13 +817,10 @@ func _build_csharp_discard_analysis(player_state: Dictionary, csharp_result: Dic
 	var action_tile_type := int(csharp_result.get("tileType", -1))
 	var active_suits: Array = bridge_instance.tile_codec.resolve_active_suits(rules_config)
 	var hand_tiles: Array = player_state.get("hand_tiles", [])
-	var preferred_tile_by_type := _build_preferred_discard_tile_by_type(player_state, table_state, active_suits, bridge_instance)
 	var hand_tile_by_type: Dictionary = {}
 	for tile in hand_tiles:
 		var tile_type: int = int(bridge_instance.tile_codec.tile_type(tile, active_suits))
-		if tile_type >= 0 and preferred_tile_by_type.has(tile_type):
-			hand_tile_by_type[tile_type] = preferred_tile_by_type[tile_type].duplicate(true)
-		elif tile_type >= 0 and not hand_tile_by_type.has(tile_type):
+		if tile_type >= 0 and not hand_tile_by_type.has(tile_type):
 			hand_tile_by_type[tile_type] = tile.duplicate(true)
 	var action := str(csharp_result.get("action", "")).strip_edges().to_lower()
 	if action == "gang":
@@ -1032,26 +1121,6 @@ func _select_csharp_recommended_option(enriched_options: Array, action_tile_type
 	return enriched_options[0] if not enriched_options.is_empty() else {}
 
 
-func _build_preferred_discard_tile_by_type(player_state: Dictionary, table_state: Dictionary, active_suits: Array, bridge_instance) -> Dictionary:
-	var result: Dictionary = {}
-	if not bool(player_state.get("bao_jiao", false)):
-		return result
-	var self_seat := int(player_state.get("seat", -1))
-	var last_draw: Dictionary = table_state.get("last_draw_tile", {})
-	if int(last_draw.get("seat", -1)) != self_seat:
-		return result
-	var last_draw_tile: Dictionary = last_draw.get("tile", {})
-	var last_draw_type := int(bridge_instance.tile_codec.tile_type(last_draw_tile, active_suits))
-	if last_draw_type < 0:
-		return result
-	for tile in player_state.get("hand_tiles", []):
-		var hand_tile: Dictionary = tile
-		if int(hand_tile.get("id", -1)) == int(last_draw_tile.get("id", -2)):
-			result[last_draw_type] = hand_tile.duplicate(true)
-			return result
-	return result
-
-
 func _build_hybrid_option(csharp_item: Dictionary, support_option: Dictionary, active_suits: Array, bridge_instance = null) -> Dictionary:
 	var tile_type: int = int(csharp_item.get("tileType", -1))
 	var option: Dictionary = support_option.duplicate(true)
@@ -1080,6 +1149,7 @@ func _build_hybrid_option(csharp_item: Dictionary, support_option: Dictionary, a
 	option["csharp_tenpai_probability"] = float(csharp_item.get("tenpaiProbability", option.get("tenpai_probability", 0.0)))
 	option["csharp_self_draw_probability"] = float(csharp_item.get("selfDrawProbability", option.get("self_draw_probability", 0.0)))
 	option["csharp_win_probability"] = float(csharp_item.get("winProbability", option.get("win_probability", 0.0)))
+	option["csharp_expected_fan"] = float(csharp_item.get("expectedFan", option.get("expected_fan", 0.0)))
 	option["csharp_deal_in_probability"] = float(csharp_item.get("dealInProbability", option.get("deal_in_probability", 0.0)))
 	option["csharp_expected_value"] = float(csharp_item.get("expectedValue", option.get("expected_value", 0.0)))
 	option["csharp_expected_net_score"] = float(csharp_item.get("expectedNetScore", option.get("expected_net_score", 0.0)))
@@ -1146,6 +1216,7 @@ func _build_hybrid_option(csharp_item: Dictionary, support_option: Dictionary, a
 	option["tenpai_probability"] = float(csharp_item.get("tenpaiProbability", option.get("tenpai_probability", 0.0)))
 	option["self_draw_probability"] = float(csharp_item.get("selfDrawProbability", option.get("self_draw_probability", 0.0)))
 	option["win_probability"] = float(csharp_item.get("winProbability", option.get("win_probability", 0.0)))
+	option["expected_fan"] = float(csharp_item.get("expectedFan", option.get("expected_fan", 0.0)))
 	option["discard_hu_probability"] = maxf(0.0, float(option.get("win_probability", 0.0)) - float(option.get("self_draw_probability", 0.0)))
 	option["deal_in_probability"] = float(csharp_item.get("dealInProbability", option.get("deal_in_probability", 0.0)))
 	option["expected_value"] = float(csharp_item.get("expectedValue", option.get("expected_value", 0.0)))
@@ -1559,12 +1630,17 @@ func _validate_native_discard_result(native_result: Dictionary) -> String:
 		return "empty_native_discard_result"
 	if not bool(native_result.get("ok", true)):
 		return str(native_result.get("error", "native_discard_not_ok"))
-	if str(native_result.get("action", "")).strip_edges().to_lower() == "gang":
+	var action := str(native_result.get("action", "")).strip_edges().to_lower()
+	if action == "gang":
 		if int(native_result.get("tileType", -1)) < 0:
 			return "native_discard_gang_missing_tile"
 		return ""
 	var candidates = native_result.get("candidates", [])
 	if typeof(candidates) != TYPE_ARRAY or Array(candidates).is_empty():
+		# Compact NativeAOT responses intentionally carry only the selected C#
+		# action. _build_csharp_discard_analysis expands this top-level choice.
+		if action == "discard" and int(native_result.get("tileType", -1)) >= 0:
+			return ""
 		return "native_discard_missing_candidates"
 	return ""
 
@@ -1665,7 +1741,6 @@ func _build_turn_cache_key(player_state: Dictionary, table_state: Dictionary, ru
 	parts.append("force_gd=%d" % int(force_gdscript))
 	parts.append("light=%d" % int(force_lightweight))
 	parts.append("prefer_csharp=%d" % int(prefer_csharp_backend))
-	parts.append("self_bao=%d" % int(bool(player_state.get("bao_jiao", false))))
 	var last_draw: Dictionary = table_state.get("last_draw_tile", {})
 	parts.append("last_draw=%d:%s" % [
 		int(last_draw.get("seat", -1)),
@@ -1677,7 +1752,6 @@ func _build_turn_cache_key(player_state: Dictionary, table_state: Dictionary, ru
 		var player: Dictionary = players[index]
 		parts.append("p%d_d=%s" % [index, _encode_tile_sequence(player.get("discards", []), active_suits)])
 		parts.append("p%d_m=%s" % [index, _encode_meld_sequence(player.get("melds", []), active_suits)])
-		parts.append("p%d_bj=%d" % [index, int(bool(player.get("bao_jiao", false)))])
 		parts.append("p%d_hu=%d" % [index, int(bool(player.get("has_won", false)))])
 	return "|".join(parts)
 

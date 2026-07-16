@@ -3,8 +3,6 @@ extends RefCounted
 class_name RuleConfig
 
 const MODE_SICHUAN_COMPETITIVE_BATTLE_TO_END := "sichuan_competitive_battle_to_end"
-const MODE_NEIJIANG_CLASSIC := "removed_neijiang_classic"
-
 const ALL_SUITS := ["tiao", "tong", "wan"]
 
 var mode: String = MODE_SICHUAN_COMPETITIVE_BATTLE_TO_END
@@ -23,10 +21,6 @@ var max_winners_per_round: int = 3
 var fan_cap: int = 3
 
 var use_ding_que_phase: bool = true
-var enable_bao_jiao: bool = false
-var enable_bao_gang: bool = false
-var enable_ka_er_tiao: bool = false
-var enable_gui: bool = false
 var enable_cha_jiao: bool = true
 var enable_tui_shui: bool = true
 var enable_hua_zhu: bool = true
@@ -40,10 +34,6 @@ func _init(mode_name: String = MODE_SICHUAN_COMPETITIVE_BATTLE_TO_END) -> void:
 func apply_mode(mode_name: String) -> void:
 	mode = MODE_SICHUAN_COMPETITIVE_BATTLE_TO_END
 	_apply_sichuan_defaults()
-
-
-func is_neijiang_mode() -> bool:
-	return false
 
 
 func is_sichuan_mode() -> bool:
@@ -68,10 +58,6 @@ func _apply_sichuan_defaults() -> void:
 	max_winners_per_round = 3
 	fan_cap = 3
 	use_ding_que_phase = true
-	enable_bao_jiao = false
-	enable_bao_gang = false
-	enable_ka_er_tiao = false
-	enable_gui = false
 	enable_cha_jiao = true
 	enable_tui_shui = true
 	enable_hua_zhu = true
@@ -94,10 +80,6 @@ func to_debug_dict() -> Dictionary:
 		"max_winners_per_round": max_winners_per_round,
 		"fan_cap": fan_cap,
 		"use_ding_que_phase": use_ding_que_phase,
-		"enable_bao_jiao": enable_bao_jiao,
-		"enable_bao_gang": enable_bao_gang,
-		"enable_ka_er_tiao": enable_ka_er_tiao,
-		"enable_gui": enable_gui,
 		"enable_cha_jiao": enable_cha_jiao,
 		"enable_tui_shui": enable_tui_shui,
 		"enable_hua_zhu": enable_hua_zhu,

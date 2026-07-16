@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Decision;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -9,6 +10,7 @@ public sealed class SichuanReactionDecisionEngine
     private readonly SichuanBeliefEngine _belief = new();
     private readonly SichuanDangerEngine _danger = new();
     private readonly SichuanRoutePlanEngine _routePlan = new();
+	private readonly SichuanUnifiedDecisionEngine _unified = new();
     private const int ReactionSearchDepth = 2;
     private const int ReactionSearchRollouts = 24;
 
@@ -21,20 +23,26 @@ public sealed class SichuanReactionDecisionEngine
         int sourceSeat = -1,
         string reactionType = "discard",
         bool forceLightweight = false,
-        bool mandatoryGang = false)
+        bool mandatoryGang = false,
+        SichuanRoundBrainSnapshot? roundBrain = null)
     {
         if (canHu)
         {
+			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType);
+			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
+			var huScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Hu).ExpectedNetScore * 1000.0);
+			var passEvScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Pass).ExpectedNetScore * 1000.0);
+			var selectedScore = selected.Action.ActionType == SichuanActionType.Hu ? huScore : passEvScore;
             return new SichuanReactionDecisionResult
             {
-                Action = new SichuanAction(SichuanActionType.Hu, reactionTileType, 100000, "可胡时直接胡牌"),
-                ShantenAfter = -1,
-                CurrentShanten = -1,
-                Reasons = new[] { "可胡时直接胡牌", "四川血战先胡牌落袋为安" },
+				Action = new SichuanAction(selected.Action.ActionType, reactionTileType, selectedScore, comparison.Summary),
+				ShantenAfter = selected.Action.ActionType == SichuanActionType.Hu ? -1 : 0,
+				CurrentShanten = 0,
+				Reasons = comparison.Reasons,
                 ActionScores = new Dictionary<string, int>
                 {
-                    ["hu"] = 100000,
-                    ["pass"] = -100000
+					["hu"] = huScore,
+					["pass"] = passEvScore
                 }
             };
         }
@@ -43,7 +51,7 @@ public sealed class SichuanReactionDecisionEngine
         var roundStage = ResolveRoundStage(state);
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
         var currentFollowUp = EvaluateBestFollowUp(state.Hand18, state.Remaining18, meldCount);
-        var currentPlan = _routePlan.Evaluate(state);
+        var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var threatLevel = ResolveThreatLevel(state, belief);
         var passDiscardRisk = currentFollowUp.BestDiscardTile >= 0 ? _danger.EvaluateDetail(currentFollowUp.BestDiscardTile, state, belief) : new SichuanDangerEvaluation();
@@ -80,19 +88,7 @@ public sealed class SichuanReactionDecisionEngine
 
         if (canPeng && reactionTileType is >= 0 and < 27 && state.Hand18[reactionTileType] >= 2)
         {
-            var pengResult = EvaluatePeng(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior);
-            if (ShouldForceOldHandPeng(state, reactionTileType, currentFollowUp, pengResult, roundStage, threatLevel, maxReadyPosterior)
-                && pengResult.Action.Score <= best.Action.Score)
-            {
-                pengResult.Action = pengResult.Action with
-                {
-                    Score = best.Action.Score + 96,
-                    Reason = "老手主动碰牌抢听"
-                };
-                var forcedReasons = pengResult.Reasons.ToList();
-                forcedReasons.Add("老手碰牌闸门：不升向听且非稳定七对，禁止被普通过牌压掉");
-                pengResult.Reasons = forcedReasons;
-            }
+            var pengResult = EvaluatePeng(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, roundBrain);
             scores["peng"] = pengResult.Action.Score;
             candidates.Add(("peng", pengResult, RemoveCopies(state.Hand18, reactionTileType, 2), meldCount + 1));
             if (pengResult.Action.Score > best.Action.Score)
@@ -105,18 +101,6 @@ public sealed class SichuanReactionDecisionEngine
         if (canGang && reactionTileType is >= 0 and < 27 && state.Hand18[reactionTileType] >= 3)
         {
             var gangResult = EvaluateGang(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, reactionType, sourceSeat);
-            if (ShouldForceMeldedGang(state, reactionTileType, currentFollowUp, gangResult, roundStage, threatLevel, maxReadyPosterior, reactionType, sourceSeat)
-                && gangResult.Action.Score <= best.Action.Score)
-            {
-                gangResult.Action = gangResult.Action with
-                {
-                    Score = best.Action.Score + 112,
-                    Reason = "明杠收益明确，且非七对路线"
-                };
-                var forcedReasons = gangResult.Reasons.ToList();
-                forcedReasons.Add("明杠闸门：别人打出第四张且杠后不慢，优先收雨钱/补牌");
-                gangResult.Reasons = forcedReasons;
-            }
             scores["gang"] = gangResult.Action.Score;
             candidates.Add(("gang", gangResult, RemoveCopies(state.Hand18, reactionTileType, 3), meldCount + 1));
             if (gangResult.Action.Score > best.Action.Score)
@@ -124,6 +108,35 @@ public sealed class SichuanReactionDecisionEngine
                 gangResult.ActionScores = scores;
                 best = gangResult;
             }
+        }
+
+        var pengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
+        var gangCandidate = candidates.FirstOrDefault(item => item.action == "gang");
+        var pengWouldRediscardClaimedTile = pengCandidate.result is not null
+            && EvaluateBestFollowUp(
+                RemoveCopies(state.Hand18, reactionTileType, 2),
+                state.Remaining18,
+                meldCount + 1).BestDiscardTile == reactionTileType;
+        var preferGangByCounterfactual = pengCandidate.result is not null
+            && gangCandidate.result is not null
+            && (pengWouldRediscardClaimedTile
+                || gangCandidate.result.ShantenAfter <= pengCandidate.result.ShantenAfter
+                || pengCandidate.result.ShantenAfter >= currentFollowUp.Shanten);
+        if (pengCandidate.result is not null
+            && gangCandidate.result is not null
+            && preferGangByCounterfactual
+            && pengCandidate.result.Action.Score >= gangCandidate.result.Action.Score - 120)
+        {
+            pengCandidate.result.Action = pengCandidate.result.Action with
+            {
+                Score = gangCandidate.result.Action.Score - (pengWouldRediscardClaimedTile ? 1200 : 120),
+                Reason = "同张可杠且杠后牌效不差，保留明杠收益"
+            };
+            pengCandidate.result.Reasons = pengCandidate.result.Reasons
+                .Concat(new[] { "反事实比较：明杠不比碰牌慢，碰牌会白白损失杠分和补张" })
+                .ToArray();
+            scores["peng"] = pengCandidate.result.Action.Score;
+            best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
         }
 
         if (!forceLightweight && ShouldSearchReaction(candidates))
@@ -150,42 +163,75 @@ public sealed class SichuanReactionDecisionEngine
                 .First();
         }
 
-        var forcedGangAfterSearch = candidates
-            .FirstOrDefault(item => item.action == "gang"
-                && ShouldForceMeldedGang(state, reactionTileType, currentFollowUp, item.result, roundStage, threatLevel, maxReadyPosterior, reactionType, sourceSeat));
-        if (forcedGangAfterSearch.result is not null && forcedGangAfterSearch.result.Action.Score <= best.Action.Score)
+        if (preferGangByCounterfactual
+            && pengCandidate.result is not null
+            && gangCandidate.result is not null
+            && pengCandidate.result.Action.Score >= gangCandidate.result.Action.Score)
         {
-            forcedGangAfterSearch.result.Action = forcedGangAfterSearch.result.Action with
+            pengCandidate.result.Action = pengCandidate.result.Action with
             {
-                Score = best.Action.Score + 112,
-                Reason = "明杠收益明确，且非七对路线"
+                Score = gangCandidate.result.Action.Score - 120,
+                Reason = "反事实搜索确认明杠不慢，保留杠分和补张"
             };
-            var forcedReasons = forcedGangAfterSearch.result.Reasons.ToList();
-            forcedReasons.Add("明杠闸门：短搜索后仍保护不降速的明杠收益");
-            forcedGangAfterSearch.result.Reasons = forcedReasons;
-            scores["gang"] = forcedGangAfterSearch.result.Action.Score;
-            best = forcedGangAfterSearch.result;
+            pengCandidate.result.Reasons = pengCandidate.result.Reasons
+                .Concat(new[] { "短搜索后复核：碰不比杠提速，不能用搜索噪声丢掉明杠收益" })
+                .ToArray();
+            scores["peng"] = pengCandidate.result.Action.Score;
+            best = gangCandidate.result;
         }
 
-        var lateWallTripletGang = candidates
-            .FirstOrDefault(item => item.action == "gang"
-                && ShouldForceLateWallTripletGang(state, reactionTileType, currentFollowUp, item.result, reactionType, sourceSeat));
-        if (lateWallTripletGang.result is not null && lateWallTripletGang.result.Action.Score <= best.Action.Score)
+        var finalPengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
+        var passCandidate = candidates.First(item => item.action == "pass").result;
+        if (best.Action.ActionType == SichuanActionType.Peng && finalPengCandidate.result is not null)
         {
-            lateWallTripletGang.result.Action = lateWallTripletGang.result.Action with
+            var peng = finalPengCandidate.result;
+            var noSpeedGain = peng.ShantenAfter >= currentFollowUp.Shanten && peng.ShantenAfter > 0;
+            var wideFlexibleBeforeCall = currentFollowUp.Shanten >= 2
+                && currentFollowUp.LiveUkeire >= 12
+                && peng.ShantenAfter > 0
+                && peng.LiveUkeireAfter <= currentFollowUp.LiveUkeire + 2;
+            var narrowReadyTrap = currentFollowUp.Shanten == 1
+                && peng.ShantenAfter == 0
+                && currentFollowUp.LiveUkeire >= 12
+                && peng.LiveUkeireAfter * 2 < currentFollowUp.LiveUkeire
+                && roundStage <= 1;
+            var damagesExistingReady = currentFollowUp.Shanten <= 0
+                && peng.ShantenAfter <= 0
+                && peng.LiveUkeireAfter < currentFollowUp.LiveUkeire;
+            if (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady)
+            {
+                passCandidate.Reasons = passCandidate.Reasons
+                    .Concat(new[] { "连续大脑反应闸门：保留门前宽进张和当前听口，拒绝表面降向听的低质量碰牌" })
+                    .ToArray();
+                best = passCandidate;
+            }
+        }
+
+        var mandatoryGangCandidate = candidates.FirstOrDefault(item => item.action == "gang");
+        if (mandatoryGang && mandatoryGangCandidate.result is not null)
+        {
+            mandatoryGangCandidate.result.Action = mandatoryGangCandidate.result.Action with
             {
                 Score = best.Action.Score + 96,
-                Reason = "尾张明杠优先收雨钱"
+                Reason = "规则要求执行杠牌"
             };
-            var forcedReasons = lateWallTripletGang.result.Reasons.ToList();
-            forcedReasons.Add("尾张三张在手且别人打出第四张，明杠不比当前路径更慢，优先直接杠");
-            lateWallTripletGang.result.Reasons = forcedReasons;
-            scores["gang"] = lateWallTripletGang.result.Action.Score;
-            best = lateWallTripletGang.result;
+            scores["gang"] = mandatoryGangCandidate.result.Action.Score;
+            best = mandatoryGangCandidate.result;
         }
 
         if (!scores.ContainsKey("peng")) scores["peng"] = int.MinValue / 4;
         if (!scores.ContainsKey("gang")) scores["gang"] = int.MinValue / 4;
+		var unifiedMelds = _unified.RankMeldActions(state, reactionTileType, canPeng, canGang);
+		foreach (var candidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
+		{
+			var key = candidate.Action.ActionType.ToString().ToLowerInvariant();
+			if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
+			scores[key] += (int)Math.Round(Math.Clamp(candidate.ExpectedNetScore, -6, 6) * 18.0);
+		}
+		var selectedKey = best.Action.ActionType.ToString().ToLowerInvariant();
+		if (scores.TryGetValue(selectedKey, out var unifiedScore))
+			best.Action = best.Action with { Score = unifiedScore };
+		best.Reasons = best.Reasons.Concat(new[] { $"统一反事实层已复核（{unifiedMelds.Summary}），最终动作仍服从规则和连续大脑闸门" }).ToArray();
         best.ActionScores = new Dictionary<string, int>(scores);
         return best;
     }
@@ -198,7 +244,8 @@ public sealed class SichuanReactionDecisionEngine
         SichuanRoutePlanResult currentPlan,
         int roundStage,
         int threatLevel,
-        double maxReadyPosterior)
+        double maxReadyPosterior,
+        SichuanRoundBrainSnapshot? roundBrain)
     {
         var handAfter = RemoveCopies(state.Hand18, reactionTileType, 2);
         var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
@@ -280,6 +327,10 @@ public sealed class SichuanReactionDecisionEngine
             score -= 6000;
         if (currentPlan.ForbidsMelds)
             score -= 6000;
+        if (state.Hand18[reactionTileType] >= 3 && followUp.Shanten > 0)
+            score -= 520;
+        if (roundBrain?.WasTripletBroken(reactionTileType) == true)
+            score -= 900;
 
         var reasons = new List<string>
         {
@@ -289,6 +340,10 @@ public sealed class SichuanReactionDecisionEngine
         };
         if (currentPlan.ForbidsMelds)
             reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止碰牌，碰牌会破坏七对");
+        if (state.Hand18[reactionTileType] >= 3 && followUp.Shanten > 0)
+            reasons.Add("持续大脑：手中已有暗刻，碰牌会放弃第四张明杠收益");
+        if (roundBrain?.WasTripletBroken(reactionTileType) == true)
+            reasons.Add("持续大脑：此前主动拆过该暗刻，本次碰牌构成策略矛盾，强烈降权");
         if (sevenPairsLikely && currentPairCount >= 5)
             reasons.Add("七对路线：五对以上门清牌不碰，保留七对/龙七对");
         if (sevenPairsTenpai) reasons.Add("七对已听，碰牌会破坏听牌，优先过牌");

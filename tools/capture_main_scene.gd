@@ -36,10 +36,30 @@ func _capture() -> void:
 	await process_frame
 	_force_tabletop_polish_preview(root_node)
 	_force_self_hand_preview(root_node)
-	_force_self_hu_preview(root_node)
-	_force_ai_helper_preview(root_node)
+	_force_table_overlays_hidden(root_node)
+	if _capture_mode() == "settlement":
+		_force_settlement_preview(root_node)
+	else:
+		_force_ai_helper_preview(root_node)
+		_force_action_bar_preview(root_node)
 
-	var image: Image = get_root().get_texture().get_image()
+	# Metal can expose a partially initialized frame on the first viewport read.
+	# Warm the complete UI tree before collecting the evidence image.
+	for _frame in range(12):
+		await process_frame
+	if _capture_mode() == "settlement":
+		_force_settlement_preview(root_node)
+		for _frame in range(4):
+			await process_frame
+	else:
+		_force_ai_helper_preview(root_node)
+		_force_action_bar_preview(root_node)
+		for _frame in range(2):
+			await process_frame
+	RenderingServer.force_draw()
+	await process_frame
+
+	var image: Image = await _capture_stable_image()
 	if image == null:
 		push_error("Failed to capture viewport image")
 		quit(1)
@@ -56,6 +76,36 @@ func _capture() -> void:
 	quit()
 
 
+func _capture_stable_image() -> Image:
+	var fallback: Image
+	for attempt in range(8):
+		for _frame in range(8):
+			await process_frame
+		RenderingServer.force_draw()
+		await process_frame
+		fallback = get_root().get_texture().get_image()
+		var black_ratio := _sample_near_black_ratio(fallback)
+		if black_ratio <= 0.025:
+			return fallback
+		print("capture_retry=", attempt + 1, " sampled_black_ratio=", black_ratio)
+	return fallback
+
+
+func _sample_near_black_ratio(image: Image) -> float:
+	if image == null or image.is_empty():
+		return 1.0
+	var sample_step := 24
+	var black_count := 0
+	var sample_count := 0
+	for y in range(0, image.get_height(), sample_step):
+		for x in range(0, image.get_width(), sample_step):
+			var pixel := image.get_pixel(x, y)
+			sample_count += 1
+			if pixel.a >= 0.9 and pixel.r <= 0.03 and pixel.g <= 0.03 and pixel.b <= 0.03:
+				black_count += 1
+	return float(black_count) / float(maxi(1, sample_count))
+
+
 func _capture_output_path() -> String:
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--capture-output="):
@@ -63,6 +113,13 @@ func _capture_output_path() -> String:
 			if value != "":
 				return value
 	return DEFAULT_OUTPUT_PATH
+
+
+func _capture_mode() -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--capture-mode="):
+			return argument.trim_prefix("--capture-mode=")
+	return "table"
 
 
 func _force_playable_snapshot() -> void:
@@ -130,6 +187,10 @@ func _force_discard_demo() -> void:
 					"tile": tile,
 				}
 			)
+		while player["discards"].size() < 14 and not wall.is_empty():
+			var pressure_tile: Dictionary = wall.pop_back()
+			player["discards"].append(pressure_tile)
+			discard_pile.append({"seat": seat, "tile": pressure_tile})
 		players[seat] = player
 
 	game_state.set("players", players)
@@ -143,6 +204,10 @@ func _force_ai_helper_preview(root_node: Node) -> void:
 	if root_node == null:
 		return
 	root_node.set("ai_helper_enabled", true)
+	var drawer: Control = root_node.get("ai_assistant_drawer") as Control
+	if drawer != null:
+		drawer.call("set_glass_opacity_index", 1)
+		drawer.call("set_expanded", true)
 	root_node.call("_update_discard_helper_panel", {
 		"players": [
 			{
@@ -175,6 +240,52 @@ func _force_ai_helper_preview(root_node: Node) -> void:
 		"strategy_profile": {"mode_label": "快攻"},
 		"situation_label": "缺门",
 	}, true)
+	var utility_bar: Control = root_node.get("table_utility_bar") as Control
+	if utility_bar != null:
+		utility_bar.call("render", true, false, false, "骨灰", false)
+	root_node.call_deferred("_layout_ai_assistant_drawer")
+
+
+func _force_settlement_preview(root_node: Node) -> void:
+	if root_node == null:
+		return
+	var manager: Node = root_node.get("game_manager") as Node
+	if manager == null:
+		return
+	var snapshot: Dictionary = manager.call("get_snapshot").duplicate(true)
+	var players: Array = snapshot.get("players", [])
+	if players.size() < 4:
+		return
+	for index in range(players.size()):
+		var player: Dictionary = players[index]
+		player["nickname"] = ["陈旭", "舒小燕", "陈东", "舒玲"][index]
+		player["score"] = [18, -4, -8, -6][index]
+		player["has_won"] = index == 0
+		players[index] = player
+	var winning_tile: Dictionary = players[0].get("hand_tiles", [{}]).back() if not players[0].get("hand_tiles", []).is_empty() else {"id": 9999, "suit": "wan", "rank": 9}
+	snapshot["current_phase"] = 7
+	snapshot["current_dealer_seat"] = 1
+	snapshot["players"] = players
+	snapshot["settlement_data"] = {
+		"round_index": 3,
+		"dealer_seat": 1,
+		"end_reason": "battle_end",
+		"winner_seats": [0],
+		"score_changes": {0: 18, 1: -4, 2: -8, 3: -6},
+		"win_events": [{
+			"winner_seat": 0,
+			"source_seat": 2,
+			"payer_seats": [2],
+			"win_type": "discard_win",
+			"winning_tile": winning_tile,
+			"fan_detail": {"capped_fan": 3, "hand_score": 8, "labels": ["清一色", "平胡"]},
+		}],
+		"gang_events": [{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]}],
+		"tui_gang_refunds": [{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]}],
+		"transfer_events": [{"transfer_type": "hu_jiao_zhuan_yi", "to_seat": 0, "gang_type": "melded_gang", "payer_seats": [2]}],
+	}
+	root_node.set("last_snapshot", {"current_phase": 6})
+	root_node.call("_refresh_settlement", snapshot)
 
 
 func _force_self_hand_preview(root_node: Node) -> void:
@@ -183,18 +294,18 @@ func _force_self_hand_preview(root_node: Node) -> void:
 	var self_hand_host: Node = root_node.get("self_hand_host") as Node
 	if self_hand_host == null:
 		return
+	var preview_tiles: Array = []
+	for index in range(11):
+		preview_tiles.append({
+			"id": 9001 + index,
+			"suit": ["tiao", "tong", "wan"][index % 3],
+			"rank": index % 9 + 1,
+		})
 	self_hand_host.call(
 		"configure_hand",
-		[
-			{"id": 9001, "suit": "tiao", "rank": 1},
-			{"id": 9002, "suit": "tiao", "rank": 2},
-			{"id": 9003, "suit": "tiao", "rank": 3},
-			{"id": 9004, "suit": "tong", "rank": 5},
-			{"id": 9005, "suit": "wan", "rank": 7},
-			{"id": 9006, "suit": "wan", "rank": 8},
-		],
+		preview_tiles,
 		-1,
-		-1,
+		9011,
 		false,
 		{"recommended_tile_id": 9002},
 		{}
@@ -245,6 +356,29 @@ func _force_self_hu_preview(root_node: Node) -> void:
 	)
 
 
+func _force_table_overlays_hidden(root_node: Node) -> void:
+	for property_name in ["settlement_overlay_v2", "settlement_overlay", "ding_que_overlay"]:
+		var overlay: Control = root_node.get(property_name) as Control
+		if overlay != null:
+			overlay.visible = false
+	var utility_bar: Control = root_node.get("table_utility_bar") as Control
+	if utility_bar != null:
+		utility_bar.call("render", false, false, false)
+
+
+func _force_action_bar_preview(root_node: Node) -> void:
+	if root_node == null:
+		return
+	var action_bar: Control = root_node.get("table_action_bar") as Control
+	if action_bar == null:
+		return
+	action_bar.call("set_action_label", "peng", "碰")
+	action_bar.call("set_action_label", "pass", "过")
+	var preview_actions: Array[String] = ["peng", "pass"]
+	action_bar.call("render", preview_actions, "响应 3筒 · 可选：碰 / 过")
+	root_node.call_deferred("_layout_table_action_bar")
+
+
 func _force_tabletop_polish_preview(root_node: Node) -> void:
 	if root_node == null:
 		return
@@ -271,16 +405,13 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 			],
 			"discards": [],
 			"ding_que": "tong",
-			"has_won": true,
-			"win_type": "discard_win",
-			"winning_tile": {"id": 9399, "suit": "tong", "rank": 8},
-			"winning_source_seat": 1,
+			"has_won": false,
 		},
 		{
 			"seat": 1,
 			"nickname": "舒小燕",
 			"score": -5,
-			"hand_count": 8,
+			"hand_count": 11,
 			"hand_tiles": [],
 			"melds": [
 				{"type": "gang", "tile": {"id": 9411, "suit": "tong", "rank": 3}, "tiles": [
@@ -298,7 +429,7 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 			"seat": 2,
 			"nickname": "陈东",
 			"score": 6,
-			"hand_count": 9,
+			"hand_count": 11,
 			"hand_tiles": [],
 			"melds": [
 				{"type": "peng", "tile": {"id": 9511, "suit": "tiao", "rank": 6}, "tiles": [
@@ -315,7 +446,7 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 			"seat": 3,
 			"nickname": "舒玲",
 			"score": 2,
-			"hand_count": 8,
+			"hand_count": 11,
 			"hand_tiles": [],
 			"melds": [
 				{"type": "peng", "tile": {"id": 9611, "suit": "wan", "rank": 5}, "tiles": [
@@ -345,7 +476,7 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 		root_node.get("top_ui").apply_snapshot(players[2], true, 0, 0, true)
 	if root_node.get("right_ui") != null:
 		root_node.get("right_ui").apply_snapshot(players[3], true, 0, 0, true)
-	root_node.call("_update_v17_player_info_panels", snapshot)
+	root_node.call("_update_seat_huds", snapshot)
 	root_node.call("_update_self_area", snapshot, players[0]["hand_tiles"])
 
 

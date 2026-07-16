@@ -4,7 +4,6 @@ class_name MahjongState
 
 
 func build_player_state(player: Dictionary) -> Dictionary:
-	var bao_jiao_enabled := false
 	return {
 		"seat": int(player.get("seat", -1)),
 		"nickname": str(player.get("nickname", "")),
@@ -12,9 +11,6 @@ func build_player_state(player: Dictionary) -> Dictionary:
 		"ai_level": int(player.get("ai_level", -1)),
 		"score": int(player.get("score", 0)),
 		"ding_que": str(player.get("ding_que", "")),
-		"bao_jiao": bao_jiao_enabled,
-		"bao_gang_tiles": [],
-		"bao_jiao_ting_tiles": [],
 		"has_won": bool(player.get("has_won", false)),
 		"win_type": str(player.get("win_type", "")),
 		"winning_source_seat": int(player.get("winning_source_seat", -1)),

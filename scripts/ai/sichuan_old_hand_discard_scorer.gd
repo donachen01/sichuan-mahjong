@@ -77,6 +77,10 @@ func _independent_judge_score(option: Dictionary) -> int:
 	var expected_deal_in_loss := float(option.get("expected_deal_in_loss", option.get("csharp_expected_deal_in_loss", 0.0)))
 	var good_shape := int(option.get("good_shape_count", option.get("csharp_good_shape_count", 0)))
 	var bad_shape := int(option.get("bad_shape_count", option.get("csharp_bad_shape_count", 0)))
+	var wait_shape_score := float(option.get("wait_shape_score", option.get("csharp_wait_shape_score", 0.0)))
+	var set_preservation_score := float(option.get("set_preservation_score", option.get("csharp_set_preservation_score", 0.0)))
+	var route_plan_score := int(option.get("route_plan_score", option.get("csharp_route_plan_score", 0)))
+	var route_loss: Array = option.get("route_loss", option.get("csharp_route_loss", []))
 	var score := 12000
 	score -= maxi(0, shanten) * 2600
 	if shanten <= 0:
@@ -89,10 +93,17 @@ func _independent_judge_score(option: Dictionary) -> int:
 	score -= int(round(expected_deal_in_loss * 240.0))
 	score += good_shape * 55
 	score -= bad_shape * 45
+	score += int(round(wait_shape_score * 34.0))
+	score += int(round(set_preservation_score * 70.0))
+	score += clampi(route_plan_score, -1200, 1200) / 3
+	score -= route_loss.size() * 220
 	if bool(option.get("breaks_triplet", option.get("csharp_breaks_triplet", false))):
 		score -= 900
 	if bool(option.get("breaks_pair", option.get("csharp_breaks_pair", false))) and shanten > 0:
 		score -= 260
+	if shanten <= 0 and live <= 0:
+		# 查叫仍有价值，但死叫不能被当成普通活叫重复奖励。
+		score -= 520
 	var exact_deal_in := bool(option.get("exact_deal_in", option.get("csharp_exact_deal_in", false)))
 	var feeds_human_hu := bool(option.get("feeds_human_hu", option.get("csharp_feeds_human_hu", false)))
 	var feeds_human_gang := bool(option.get("feeds_human_gang", option.get("csharp_feeds_human_gang", false)))
@@ -110,6 +121,10 @@ func _independent_judge_score(option: Dictionary) -> int:
 	elif shanten >= 2:
 		risk_weight = 8
 	score -= risk * risk_weight
+	# 老手不会把“成叫”当成冲极危险牌的通行证；高危区使用非线性损失。
+	# 这项独立于线上总分，用于识别点根、清一色目标门和高听牌后验下的冒进。
+	if risk >= 78:
+		score -= (risk - 77) * (190 if shanten <= 0 else 120)
 	return score
 
 
@@ -128,6 +143,16 @@ func _independent_judge_reasons(option: Dictionary) -> Array[String]:
 		result.append("拆刻子")
 	if bool(option.get("breaks_pair", option.get("csharp_breaks_pair", false))):
 		result.append("拆对子")
+	var route_plan_score := int(option.get("route_plan_score", option.get("csharp_route_plan_score", 0)))
+	if route_plan_score >= 600:
+		result.append("符合本局主路线")
+	elif route_plan_score <= -600:
+		result.append("偏离本局主路线")
+	var wait_shape_score := float(option.get("wait_shape_score", option.get("csharp_wait_shape_score", 0.0)))
+	if wait_shape_score >= 8.0:
+		result.append("听形较宽")
+	elif shanten <= 0 and wait_shape_score <= -4.0:
+		result.append("听形偏窄")
 	if bool(option.get("exact_deal_in", option.get("csharp_exact_deal_in", false))):
 		result.append("透视点炮")
 	elif bool(option.get("feeds_human_gang", option.get("csharp_feeds_human_gang", false))):

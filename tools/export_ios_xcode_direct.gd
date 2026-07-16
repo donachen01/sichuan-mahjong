@@ -6,6 +6,7 @@ const DEFAULT_IOS_TEMPLATE := "/Users/chendong/Library/Application Support/Godot
 
 func _initialize() -> void:
 	await _wait_for_editor_filesystem()
+	_prune_non_runtime_import_cache()
 	_export_ios_xcode_project()
 
 
@@ -21,6 +22,58 @@ func _wait_for_editor_filesystem() -> void:
 		await process_frame
 	for index in range(10):
 		await process_frame
+
+
+func _prune_non_runtime_import_cache() -> void:
+	var removed := 0
+	for import_path in _collect_import_sidecars("res://docs"):
+		removed += _remove_import_artifacts(import_path)
+	print("pruned_non_runtime_import_cache=", removed)
+
+
+func _collect_import_sidecars(root_path: String) -> Array[String]:
+	var result: Array[String] = []
+	var directories: Array[String] = [root_path]
+	while not directories.is_empty():
+		var current: String = str(directories.pop_back())
+		var dir := DirAccess.open(current)
+		if dir == null:
+			continue
+		dir.list_dir_begin()
+		while true:
+			var entry := dir.get_next()
+			if entry == "":
+				break
+			if entry.begins_with("."):
+				continue
+			var path := current.path_join(entry)
+			if dir.current_is_dir():
+				directories.append(path)
+			elif entry.ends_with(".import"):
+				result.append(path)
+		dir.list_dir_end()
+	return result
+
+
+func _remove_import_artifacts(import_path: String) -> int:
+	var config := ConfigFile.new()
+	if config.load(import_path) != OK:
+		return 0
+	var removed := 0
+	for dest in config.get_value("deps", "dest_files", []):
+		var path := str(dest)
+		if path.begins_with("res://.godot/imported/"):
+			if FileAccess.file_exists(path):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+				removed += 1
+			var md5_path := path.get_basename() + ".md5"
+			if FileAccess.file_exists(md5_path):
+				DirAccess.remove_absolute(ProjectSettings.globalize_path(md5_path))
+				removed += 1
+	if FileAccess.file_exists(import_path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(import_path))
+		removed += 1
+	return removed
 
 
 func _export_ios_xcode_project() -> void:

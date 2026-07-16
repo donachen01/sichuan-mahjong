@@ -50,7 +50,7 @@ func evaluate_an_gang(
 	var round_stage: int = int(strategy_profile.get("round_stage", 1))
 	var threat_level: int = int(strategy_profile.get("threat_level", 0))
 	var posterior_penalty: int = _estimate_posterior_gang_penalty(player, players, gang_tiles[0], rules_config, ai_config, true)
-	var gui_bonus: int = _estimate_gui_bonus_from_option(gang_tiles, rules_config)
+	var gen_bonus: int = _estimate_gen_bonus_from_option(gang_tiles, rules_config)
 	var endgame_penalty: int = _estimate_endgame_gang_penalty(strategy_profile, current_shanten, after_shanten)
 
 	var score := 102
@@ -65,8 +65,8 @@ func evaluate_an_gang(
 		score -= 96
 		reasons.append("暗杠后向听变差，不宜贸然开杠")
 	score += int(round(float(after_score - current_score) * 0.22))
-	score += gui_bonus
-	if gui_bonus > 0:
+	score += gen_bonus
+	if gen_bonus > 0:
 		reasons.append("暗杠顺带放大归收益")
 	if round_stage >= 2 and threat_level >= 3:
 		score -= 24
@@ -128,7 +128,7 @@ func evaluate_add_gang(
 	var round_stage: int = int(strategy_profile.get("round_stage", 1))
 	var threat_level: int = int(strategy_profile.get("threat_level", 0))
 	var posterior_penalty: int = _estimate_posterior_gang_penalty(player, players, option.get("tile", {}), rules_config, ai_config, false)
-	var gui_bonus: int = _estimate_gui_bonus_from_option([option.get("tile", {})], rules_config)
+	var gen_bonus: int = _estimate_gen_bonus_from_option([option.get("tile", {})], rules_config)
 	var endgame_penalty: int = _estimate_endgame_gang_penalty(strategy_profile, current_shanten, after_shanten)
 
 	var score := 64
@@ -143,8 +143,8 @@ func evaluate_add_gang(
 		score -= 92
 		reasons.append("补杠后结构变差")
 	score += int(round(float(after_score - current_score) * 0.20))
-	score += gui_bonus
-	if gui_bonus > 0:
+	score += gen_bonus
+	if gen_bonus > 0:
 		reasons.append("补杠能放大归/杠收益")
 	if qiang_gang_candidate_count > 0:
 		score -= 180 * qiang_gang_candidate_count
@@ -188,12 +188,8 @@ func _replace_player(players: Array, simulated_player: Dictionary) -> Array:
 	return result
 
 
-func _estimate_gui_bonus_from_option(tiles: Array, rules_config) -> int:
-	if rules_config == null or not bool(rules_config.is_neijiang_mode()) or not bool(rules_config.enable_gui):
-		return 0
-	if tiles.is_empty():
-		return 0
-	return 18
+func _estimate_gen_bonus_from_option(tiles: Array, rules_config) -> int:
+	return 0
 
 
 func _estimate_endgame_gang_penalty(strategy_profile: Dictionary, current_shanten: int, after_shanten: int) -> int:
@@ -208,7 +204,7 @@ func _estimate_endgame_gang_penalty(strategy_profile: Dictionary, current_shante
 
 
 func _estimate_posterior_gang_penalty(player: Dictionary, players: Array, tile: Dictionary, rules_config, ai_config = null, is_an_gang: bool = false) -> int:
-	if tile.is_empty() or rules_config == null or not bool(rules_config.is_neijiang_mode()):
+	if tile.is_empty() or rules_config == null:
 		return 0
 	var active_suits: Array = rules_config.available_suits.duplicate()
 	var belief: Dictionary = belief_engine.build_snapshot(players, int(player.get("seat", -1)), active_suits)
@@ -224,8 +220,6 @@ func _estimate_posterior_gang_penalty(player: Dictionary, players: Array, tile: 
 		max_ready = maxf(max_ready, float(belief.get("seat_pressure", {}).get(seat, 0.0)))
 		var suit_info: Dictionary = belief.get("seat_tile_demand", {}).get(seat, {}).get(suit, {})
 		var hold_like := float(suit_info.get("ranks", {}).get(rank, 0.0)) * 0.55 + float(suit_info.get("heat", 0.0)) * 0.45
-		if bool(other.get("bao_jiao", false)):
-			hold_like += 0.18
 		top_hold = maxf(top_hold, hold_like)
 	var penalty := 0
 	var round_stage := 0

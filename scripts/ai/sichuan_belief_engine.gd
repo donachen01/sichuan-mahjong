@@ -33,8 +33,6 @@ func _estimate_ready_pressure(player: Dictionary) -> float:
 		pressure += 0.22
 	elif discard_count >= 6:
 		pressure += 0.12
-	if bool(player.get("bao_jiao", false)):
-		pressure += 0.36
 	return clampf(pressure, 0.05, 0.95)
 
 
@@ -49,8 +47,6 @@ func _build_tile_demand(player: Dictionary, active_suits: Array) -> Dictionary:
 			discard_counts[suit] = int(discard_counts.get(suit, 0)) + 1
 	for suit in active_suits:
 		var heat := maxf(0.0, 1.0 - float(discard_counts.get(suit, 0)) / 6.0)
-		if bool(player.get("bao_jiao", false)):
-			heat += 0.14
 		demand[suit] = {
 			"heat": clampf(heat, 0.0, 1.0),
 			"ranks": _rank_demand(player, suit),

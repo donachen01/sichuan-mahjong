@@ -94,13 +94,13 @@ func _analyze_against_opponent(tile: Dictionary, opponent: Dictionary, profile: 
 		reasons.append("中后盘阶段，应提高防守权重")
 
 	var dangerous_suit: String = str(profile.get("dangerous_suit", ""))
-	if bool(profile.get("bao_jiao", false)):
+	if bool(profile.get("is_ready", false)):
 		risk += 24
-		reasons.append("对手已报叫，此时放铳风险显著上升")
-		for ting_tile in opponent.get("bao_jiao_ting_tiles", []):
+		reasons.append("对手已成叫，此时放铳风险显著上升")
+		for ting_tile in opponent.get("is_ready_ting_tiles", []):
 			if str(ting_tile.get("suit", "")) == tile_suit and int(ting_tile.get("rank", 0)) == int(tile.get("rank", 0)):
 				risk += 38
-				reasons.append("该张命中其报叫听口，极高危")
+				reasons.append("该张命中其成叫听口，极高危")
 				break
 	if dangerous_suit != "" and dangerous_suit == tile_suit:
 		risk += 18

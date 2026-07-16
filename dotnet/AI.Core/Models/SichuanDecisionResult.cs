@@ -12,6 +12,7 @@ public sealed class SichuanDecisionResult
     public bool SearchUsed { get; init; }
     public int SearchSimulations { get; init; }
     public SichuanRoutePlanResult RoutePlan { get; init; } = new();
+    public SichuanRoundBrainSnapshot RoundBrain { get; init; } = new();
     public SichuanBeliefSummary BeliefSummary { get; init; } = new();
     public SichuanAiContext? AiContext { get; init; }
     public SichuanDecisionExplain Explain { get; init; } = new();

@@ -51,9 +51,9 @@ Console.WriteLine($"expected_net_score={bestCandidate.ExpectedNetScore:F2}");
 Console.WriteLine($"expected_win_gain={bestCandidate.ExpectedWinGain:F2}");
 Console.WriteLine($"expected_deal_in_loss={bestCandidate.ExpectedDealInLoss:F2}");
 Console.WriteLine($"reasons={string.Join(" | ", result.Reasons)}");
-if (!SmokeAggressivePeng(facade))
+if (!SmokePassesNoSpeedPeng(facade))
 {
-    Console.Error.WriteLine("aggressive_peng_smoke_failed");
+    Console.Error.WriteLine("pass_no_speed_peng_smoke_failed");
     return 4;
 }
 
@@ -255,9 +255,9 @@ if (!SmokeReactionPassesSevenPairsTenpai(facade))
     return 17;
 }
 
-if (!SmokeReactionPrefersGangWhenPengWouldRediscard(facade))
+if (!SmokeReactionPrefersReadyPengWhenGangWouldLoseReady(facade))
 {
-    Console.Error.WriteLine("reaction_peng_rediscard_gang_smoke_failed");
+    Console.Error.WriteLine("reaction_ready_peng_over_unready_gang_smoke_failed");
     return 18;
 }
 
@@ -459,6 +459,168 @@ if (!SmokeAiContextStrategyModes(facade))
     return 37;
 }
 
+if (!RoundBrainSmoke.KeepsIndependentContinuousBrains())
+{
+    Console.Error.WriteLine("round_brain_continuity_smoke_failed");
+    return 3801;
+}
+
+if (!RoundBrainSmoke.PenalizesBreakThenPengContradiction())
+{
+    Console.Error.WriteLine("round_brain_break_then_peng_smoke_failed");
+    return 3802;
+}
+
+if (!RoundBrainSmoke.SafeReadyDominatesHigherScoredNonReady())
+{
+    Console.Error.WriteLine("round_brain_safe_ready_dominance_smoke_failed");
+    return 3803;
+}
+
+if (!RoundBrainSmoke.ResetsAtRoundBoundaryAndExposesStrategyState())
+{
+    Console.Error.WriteLine("round_brain_strategy_state_smoke_failed");
+    return 3804;
+}
+
+if (!SichuanTheorySmoke.RecognizesClassicFlushWaits())
+{
+    Console.Error.WriteLine("theory_classic_flush_waits_smoke_failed");
+    return 3901;
+}
+
+if (!SichuanTheorySmoke.OpponentBigHandShiftsTowardFastReady())
+{
+    Console.Error.WriteLine("theory_opponent_threat_shift_smoke_failed");
+    return 3902;
+}
+
+if (!SichuanTheorySmoke.DingQueWidthRaisesFlushValue())
+{
+    Console.Error.WriteLine("theory_dingque_width_smoke_failed");
+    return 3903;
+}
+
+if (!SichuanTheorySmoke.ExactAnalyzerEnumeratesClassicFlushWaits())
+{
+    Console.Error.WriteLine("exact_analyzer_classic_flush_smoke_failed");
+    return 3904;
+}
+
+if (!SichuanTheorySmoke.ScoringProjectionMatchesFrozenRules())
+{
+    Console.Error.WriteLine("scoring_projection_contract_smoke_failed");
+    return 3905;
+}
+
+if (!SichuanTheorySmoke.PdfSixExpectedValueExampleIsExact())
+{
+    Console.Error.WriteLine("pdf6_expected_value_smoke_failed");
+    return 3906;
+}
+
+if (!SichuanTheorySmoke.HiddenInferenceConservesProbability())
+{
+    Console.Error.WriteLine("hidden_inference_probability_smoke_failed");
+    return 3907;
+}
+
+if (!SichuanTheorySmoke.QingPlannerPrefersDiscardingOffSuit())
+{
+    Console.Error.WriteLine("qing_planner_off_suit_smoke_failed");
+    return 3908;
+}
+
+if (!SichuanTheorySmoke.UnifiedHuUsesExpectedValueContract())
+{
+    Console.Error.WriteLine("unified_hu_expected_value_smoke_failed");
+    return 3909;
+}
+
+if (!SichuanTheorySmoke.IndependentJudgeDoesNotReadOnlineScore())
+{
+    Console.Error.WriteLine("independent_judge_isolation_smoke_failed");
+    return 3910;
+}
+
+if (!SichuanTheorySmoke.LegalActionsAndTransitionsRespectSichuanRules())
+{
+    Console.Error.WriteLine("sichuan_legal_transition_smoke_failed");
+    return 3911;
+}
+
+if (!SichuanTheorySmoke.PublicInferenceBeatsUniformOnBehaviorConsistentHand())
+{
+    Console.Error.WriteLine("sichuan_inference_calibration_smoke_failed");
+    return 3912;
+}
+
+if (!SichuanTheorySmoke.MultiPlayerUtilityHonorsStrategicRiskBounds())
+{
+    Console.Error.WriteLine("sichuan_multiplayer_utility_bounds_smoke_failed");
+    return 3913;
+}
+
+if (!SichuanTheorySmoke.MeldCounterfactualChargesRouteAndRisk())
+{
+    Console.Error.WriteLine("sichuan_meld_counterfactual_smoke_failed");
+    return 3914;
+}
+
+if (!SichuanTheorySmoke.IndependentJudgeCoversReactionAndSelfActions())
+{
+    Console.Error.WriteLine("sichuan_independent_all_actions_smoke_failed");
+    return 3915;
+}
+
+if (!SichuanTheorySmoke.ReplayJudgeAggregatesAllActionsCalibrationAndPdfSources())
+{
+    Console.Error.WriteLine("sichuan_independent_replay_metrics_smoke_failed");
+    return 39151;
+}
+
+if (!SichuanTheorySmoke.GoldenPdfWaitCasesPass())
+{
+    Console.Error.WriteLine("sichuan_golden_pdf_waits_smoke_failed");
+    return 3916;
+}
+
+if (!SichuanTheorySmoke.ExactAnalyzerExhaustivelyMatchesShanten())
+{
+    Console.Error.WriteLine("sichuan_exact_exhaustive_smoke_failed");
+    return 3917;
+}
+
+if (!SichuanTheorySmoke.ExactScoringAndSettlementBreakdownIsComplete())
+{
+    Console.Error.WriteLine("sichuan_exact_scoring_settlement_smoke_failed");
+    return 3918;
+}
+
+if (!SichuanTheorySmoke.PublicEventsRebuildThePublicTableExactly())
+{
+    Console.Error.WriteLine("sichuan_public_event_replay_smoke_failed");
+    return 3919;
+}
+
+if (!SichuanTheorySmoke.QingPlannerDistinguishesStrongWeakOverlapAndCompetition())
+{
+    Console.Error.WriteLine("sichuan_qing_planner_strategy_smoke_failed");
+    return 3920;
+}
+
+if (!SichuanTheorySmoke.ChanceSearchModelsOrderThreatGangAndBudget())
+{
+    Console.Error.WriteLine("sichuan_chance_search_smoke_failed");
+    return 3921;
+}
+
+if (!SichuanTheorySmoke.UnifiedDecisionRanksAllLegalActionsAndCompositeTriplets())
+{
+    Console.Error.WriteLine("sichuan_unified_all_actions_smoke_failed");
+    return 3922;
+}
+
 return 0;
 
 static bool SmokeAiContextStageExplainAndPerf(SichuanAiFacade facade)
@@ -567,7 +729,7 @@ static bool SmokeAiContextStrategyModes(SichuanAiFacade facade)
         && protectResult.AiContext.StrategyMode.Mode is "defense" or "fold" or "attack";
 }
 
-static bool SmokeAggressivePeng(SichuanAiFacade facade)
+static bool SmokePassesNoSpeedPeng(SichuanAiFacade facade)
 {
     var pairTile = SichuanTileCodec.EncodeTileType(1, 8);
     var hand = new[]
@@ -588,8 +750,10 @@ static bool SmokeAggressivePeng(SichuanAiFacade facade)
     };
     var state = SichuanStateCodec.FromRaw(1, 0, 1, 15, SichuanTileCodec.BuildCount18(hand), new int[27]);
     var result = facade.DecideReaction(state, pairTile, false, true, false, 0, "discard");
-    Console.WriteLine($"peng_smoke_action={result.Action.ActionType} score={result.Action.Score} pass={result.ActionScores.GetValueOrDefault("pass")}");
-    return result.Action.ActionType == SichuanActionType.Peng;
+    Console.WriteLine($"peng_smoke_action={result.Action.ActionType} score={result.Action.Score} pass={result.ActionScores.GetValueOrDefault("pass")} current={result.CurrentShanten}/{result.CurrentLiveUkeire} after={result.ShantenAfter}/{result.LiveUkeireAfter}");
+    return result.Action.ActionType == SichuanActionType.Pass
+        && result.ShantenAfter >= result.CurrentShanten
+        && result.LiveUkeireAfter <= result.CurrentLiveUkeire;
 }
 
 static bool SmokeReasonableAnGang(SichuanAiFacade facade)
@@ -1242,7 +1406,7 @@ static bool SmokeReactionPassesSevenPairsTenpai(SichuanAiFacade facade)
         && result.ActionScores.GetValueOrDefault("peng") < result.ActionScores.GetValueOrDefault("pass");
 }
 
-static bool SmokeReactionPrefersGangWhenPengWouldRediscard(SichuanAiFacade facade)
+static bool SmokeReactionPrefersReadyPengWhenGangWouldLoseReady(SichuanAiFacade facade)
 {
     var hand18 = new int[27];
     hand18[2] = 1;  // 3条
@@ -1278,9 +1442,10 @@ static bool SmokeReactionPrefersGangWhenPengWouldRediscard(SichuanAiFacade facad
 
     var state = SichuanStateCodec.FromRaw(2, 0, 2, 1, hand18, visible18, null, discards, melds);
     var result = facade.DecideReaction(state, 13, false, true, true, 0, "discard");
-    Console.WriteLine($"peng_rediscard_reaction_action={result.Action.ActionType} gang={result.ActionScores.GetValueOrDefault("gang")} peng={result.ActionScores.GetValueOrDefault("peng")}");
-    return result.Action.ActionType == SichuanActionType.Gang
-        && result.ActionScores.GetValueOrDefault("gang") > result.ActionScores.GetValueOrDefault("peng");
+    Console.WriteLine($"ready_peng_over_unready_gang_action={result.Action.ActionType} gang={result.ActionScores.GetValueOrDefault("gang")} peng={result.ActionScores.GetValueOrDefault("peng")} shanten={result.ShantenAfter}");
+    return result.Action.ActionType == SichuanActionType.Peng
+        && result.ShantenAfter <= 0
+        && result.ActionScores.GetValueOrDefault("peng") > result.ActionScores.GetValueOrDefault("gang");
 }
 
 static bool SmokeHellChallengePengRediscardPenaltyIsDecisive()

@@ -9,26 +9,48 @@ public sealed class SichuanRoutePlanEngine
     public SichuanRoutePlanResult Evaluate(SichuanStateView state)
     {
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        return Evaluate(state, state.Hand18, meldCount);
+        return Evaluate(state, state.Hand18, meldCount, null);
     }
 
-    public SichuanRoutePlanResult Evaluate(SichuanStateView state, int[] hand18, int meldCount)
+    public SichuanRoutePlanResult Evaluate(SichuanStateView state, SichuanRoundBrainSnapshot? brain)
+    {
+        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        return Evaluate(state, state.Hand18, meldCount, brain);
+    }
+
+    public SichuanRoutePlanResult Evaluate(
+        SichuanStateView state,
+        int[] hand18,
+        int meldCount,
+        SichuanRoundBrainSnapshot? brain = null)
     {
         var features = BuildFeatures(state, hand18, meldCount);
         var weights = BuildWeights(features);
+        if (brain is not null)
+            weights = ApplyBrainCommitment(weights, brain);
         var ordered = weights
             .OrderByDescending(item => item.Value)
             .ThenBy(item => RouteTieBreakRank(item.Key))
             .ToArray();
-        var primary = ordered.FirstOrDefault().Key ?? "平胡";
+        var primary = brain is not null && weights.ContainsKey(brain.PrimaryRoute)
+            ? brain.PrimaryRoute
+            : ordered.FirstOrDefault().Key ?? "平胡";
         var secondary = ordered
-            .Skip(1)
-            .Where(item => item.Value >= Math.Max(35, ordered[0].Value - 22))
+            .Where(item => item.Key != primary)
+            .Where(item => item.Value >= Math.Max(35, weights.GetValueOrDefault(primary, ordered[0].Value) - 22))
             .Take(3)
             .Select(item => item.Key)
             .ToArray();
-        var constraints = BuildConstraints(primary, features);
-        var reasons = BuildReasons(primary, secondary, features);
+        var targetSuit = brain is not null && IsFlushRoute(primary) && brain.TargetSuit is >= 0 and < 3
+            ? brain.TargetSuit
+            : features.TargetSuit;
+        var constraints = BuildConstraints(primary, targetSuit);
+        var reasons = BuildReasons(primary, secondary, features)
+            .Concat(brain is null
+                ? Array.Empty<string>()
+                : new[] { $"持续大脑：{brain.PrimaryRoute}，承诺度 {brain.Commitment}，备用 {brain.FallbackRoute}" }
+                    .Concat(brain.Reasons.TakeLast(2)))
+            .ToArray();
 
         return new SichuanRoutePlanResult
         {
@@ -37,8 +59,20 @@ public sealed class SichuanRoutePlanEngine
             RouteWeights = weights,
             Constraints = constraints,
             Reasons = reasons,
-            TargetSuit = features.TargetSuit
+            TargetSuit = targetSuit
         };
+    }
+
+    private static Dictionary<string, int> ApplyBrainCommitment(
+        IReadOnlyDictionary<string, int> rawWeights,
+        SichuanRoundBrainSnapshot brain)
+    {
+        var adjusted = rawWeights.ToDictionary(item => item.Key, item => item.Value);
+        if (adjusted.ContainsKey(brain.PrimaryRoute))
+            adjusted[brain.PrimaryRoute] = Math.Clamp(adjusted[brain.PrimaryRoute] + 10 + brain.Commitment / 4, 0, 130);
+        if (brain.FallbackRoute != brain.PrimaryRoute && adjusted.ContainsKey(brain.FallbackRoute))
+            adjusted[brain.FallbackRoute] = Math.Clamp(adjusted[brain.FallbackRoute] + 4, 0, 110);
+        return adjusted;
     }
 
     public static bool IsSevenPairsRoute(string route)
@@ -99,6 +133,10 @@ public sealed class SichuanRoutePlanEngine
             score += 8;
         if (features.PairLikeCount >= 5 && features.MeldCount == 0)
             score -= 16;
+        if (features.MaxOpponentBigHandThreat >= 45)
+            score += features.StandardShanten <= 2 ? 18 : 8;
+        if (features.MaxOpponentBigHandThreat >= 70)
+            score += features.StandardShanten <= 1 ? 22 : 10;
         return score;
     }
 
@@ -120,6 +158,10 @@ public sealed class SichuanRoutePlanEngine
             score += features.SevenPairsShanten <= 2 ? 8 : -10;
         if (features.WallCount <= 8 && features.SevenPairsShanten > 0)
             score -= 10;
+        if (features.MaxOpponentBigHandThreat >= 45)
+            score -= features.PairLikeCount >= 5 && features.SevenPairsShanten <= 1 ? 10 : 30;
+        if (features.MaxOpponentBigHandThreat >= 70 && features.SevenPairsShanten > 0)
+            score -= 36;
         return score;
     }
 
@@ -127,8 +169,8 @@ public sealed class SichuanRoutePlanEngine
     {
         if (features.MeldCount > 0)
             return 0;
-        var score = ScoreQiDui(features) - 10 + features.GuiPotential * 18;
-        if (features.PairLikeCount >= 5 && features.GuiPotential > 0)
+        var score = ScoreQiDui(features) - 10 + features.GenPotential * 18;
+        if (features.PairLikeCount >= 5 && features.GenPotential > 0)
             score += 14;
         return score;
     }
@@ -157,6 +199,12 @@ public sealed class SichuanRoutePlanEngine
             score -= 22;
         if (features.WallCount <= 10 && features.OffSuitCount >= 3)
             score -= 14;
+        score += features.TargetSuitDingQueOpponents * 7;
+        score -= features.TargetSuitCompetitors * 5;
+        if (features.MaxOpponentBigHandThreat >= 55 && features.TargetSuitCount < 11)
+            score -= 24;
+        if (features.MaxOpponentBigHandThreat >= 75 && features.OffSuitCount >= 3)
+            score -= 28;
         return score;
     }
 
@@ -171,7 +219,7 @@ public sealed class SichuanRoutePlanEngine
     {
         if (features.MeldCount > 0)
             return 0;
-        return ScoreQingQiDui(features) + features.GuiPotential * 16 - 8;
+        return ScoreQingQiDui(features) + features.GenPotential * 16 - 8;
     }
 
     private static int ScoreDaDuiZi(RouteFeatures features)
@@ -192,7 +240,7 @@ public sealed class SichuanRoutePlanEngine
     private static int ScoreQingDui(RouteFeatures features)
         => ScoreDaDuiZi(features) + ScoreQingYiSe(features) / 2 - 8;
 
-    private static IReadOnlyList<string> BuildConstraints(string primary, RouteFeatures features)
+    private static IReadOnlyList<string> BuildConstraints(string primary, int targetSuit)
     {
         var constraints = new List<string>();
         if (IsSevenPairsRoute(primary))
@@ -202,7 +250,7 @@ public sealed class SichuanRoutePlanEngine
             constraints.Add("preserve_pairs");
         }
         if (IsFlushRoute(primary))
-            constraints.Add($"target_suit:{features.TargetSuit}");
+            constraints.Add($"target_suit:{targetSuit}");
         if (IsPungRoute(primary))
             constraints.Add("prefer_triplets");
         if (primary == "平胡")
@@ -215,14 +263,16 @@ public sealed class SichuanRoutePlanEngine
         var reasons = new List<string>
         {
             $"路线规划：主路线 {primary}",
-            $"对子 {features.PairLikeCount}，刻子 {features.TripletCount}，归潜力 {features.GuiPotential}",
-            $"单门 {features.TargetSuitName} {features.TargetSuitCount} 张，异门 {features.OffSuitCount} 张"
+            $"对子 {features.PairLikeCount}，刻子 {features.TripletCount}，根潜力 {features.GenPotential}",
+            $"单门 {features.TargetSuitName} {features.TargetSuitCount} 张，异门 {features.OffSuitCount} 张",
+            $"{features.TargetSuitName}门宽度：{features.TargetSuitDingQueOpponents} 家定缺，竞争 {features.TargetSuitCompetitors} 家",
+            $"场上最大大牌威胁 {features.MaxOpponentBigHandThreat}"
         };
         if (secondary.Count > 0)
             reasons.Add($"副路线：{string.Join("/", secondary)}");
         if (IsSevenPairsRoute(primary))
             reasons.Add("七对路线：碰杠会破坏七对，优先门清推进");
-        if (primary is "平胡" or "卡二条平胡")
+        if (primary == "平胡")
             reasons.Add("平胡路线：速度、宽叫、活张优先");
         if (IsFlushRoute(primary))
             reasons.Add($"清色路线：优先保留{features.TargetSuitName}，清理异门孤张");
@@ -281,6 +331,20 @@ public sealed class SichuanRoutePlanEngine
             .First();
         var targetSuitCount = suitCounts[targetSuit];
         var offSuitCount = suitCounts.Sum() - targetSuitCount;
+        var targetSuitDingQueOpponents = Enumerable.Range(0, 4)
+            .Count(seat => seat != state.SeatIndex
+                && seat < state.DingQueSuits.Length
+                && state.DingQueSuits[seat] == targetSuit);
+        var targetSuitCompetitors = Enumerable.Range(0, 4)
+            .Count(seat => seat != state.SeatIndex
+                && !state.HasHu[seat]
+                && seat < state.DingQueSuits.Length
+                && state.DingQueSuits[seat] != targetSuit);
+        var maxOpponentBigHandThreat = Enumerable.Range(0, 4)
+            .Where(seat => seat != state.SeatIndex && !state.HasHu[seat])
+            .Select(seat => EstimateOpponentBigHandThreat(state, seat))
+            .DefaultIfEmpty(0)
+            .Max();
         return new RouteFeatures(
             hand18,
             meldCount,
@@ -296,8 +360,48 @@ public sealed class SichuanRoutePlanEngine
             targetSuit,
             targetSuit switch { 0 => "条", 1 => "筒", _ => "万" },
             targetSuitCount,
-            offSuitCount);
+            offSuitCount,
+            targetSuitDingQueOpponents,
+            targetSuitCompetitors,
+            maxOpponentBigHandThreat);
     }
+
+    private static int EstimateOpponentBigHandThreat(SichuanStateView state, int seat)
+    {
+        var melds = state.Melds18[seat];
+        var discards = state.Discards18[seat];
+        var meldSuitCounts = new int[3];
+        foreach (var tile in melds.Where(tile => tile is >= 0 and < 27))
+            meldSuitCounts[tile / 9]++;
+
+        var dominantSuit = Enumerable.Range(0, 3)
+            .OrderByDescending(suit => meldSuitCounts[suit])
+            .First();
+        var dominantMeldTiles = meldSuitCounts[dominantSuit];
+        var offSuitDiscards = discards.Count(tile => tile is >= 0 and < 27 && tile / 9 != dominantSuit);
+        var targetSuitDiscards = discards.Count(tile => tile is >= 0 and < 27 && tile / 9 == dominantSuit);
+        var exposedSets = melds.Count / 3;
+        var exposedRoots = CountExposedRoots(melds);
+        var threat = exposedSets * 10 + exposedRoots * 14;
+
+        if (dominantMeldTiles >= 6 && targetSuitDiscards == 0)
+            threat += 30;
+        else if (dominantMeldTiles >= 3 && offSuitDiscards >= 5 && targetSuitDiscards <= 1)
+            threat += 18;
+        if (offSuitDiscards >= 7 && targetSuitDiscards <= 1)
+            threat += 18;
+        if (state.IsReady[seat] || state.IsCalled[seat])
+            threat += 20;
+        if (state.WallCount <= 13)
+            threat += Math.Min(12, exposedSets * 4);
+        return Math.Clamp(threat, 0, 100);
+    }
+
+    private static int CountExposedRoots(IReadOnlyList<int> melds)
+        => melds
+            .Where(tile => tile is >= 0 and < 27)
+            .GroupBy(tile => tile)
+            .Count(group => group.Count() >= 4);
 
     private static int RouteTieBreakRank(string route) => route switch
     {
@@ -319,7 +423,7 @@ public sealed class SichuanRoutePlanEngine
         int PairLikeCount,
         int TripletCount,
         int QuadCount,
-        int GuiPotential,
+        int GenPotential,
         int SequencePotential,
         int RyanmenPotential,
         int StandardShanten,
@@ -327,5 +431,8 @@ public sealed class SichuanRoutePlanEngine
         int TargetSuit,
         string TargetSuitName,
         int TargetSuitCount,
-        int OffSuitCount);
+        int OffSuitCount,
+        int TargetSuitDingQueOpponents,
+        int TargetSuitCompetitors,
+        int MaxOpponentBigHandThreat);
 }

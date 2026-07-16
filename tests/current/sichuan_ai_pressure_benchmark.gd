@@ -39,6 +39,7 @@ func _run() -> void:
 		_write_discard_audit(discard_audit_records, discard_audit_output_path)
 		_write_discard_audit_csv(discard_audit_records, discard_audit_csv_output_path)
 		report["discard_audit"] = _build_discard_audit_summary(discard_audit_records, discard_audit_output_path, discard_audit_csv_output_path, game_state)
+	report["acceptance_metrics"] = _build_acceptance_metrics(report)
 	_print_summary(report)
 	_write_report(report, output_path)
 	_write_csv_report(report, csv_output_path)
@@ -113,7 +114,9 @@ func _play_single_round(game_state: Node, round_no: int, max_steps_per_round: in
 						_print_turn_stall_debug(game_state, step)
 			6:
 				if bool(game_state.call("is_ai_reaction_pending")):
-					game_state.call("run_ai_reaction")
+					var reaction_ok := bool(game_state.call("run_ai_reaction"))
+					if not reaction_ok and step % 20 == 0:
+						print("reaction_stall step=", step, " debug=", str(game_state.get("debug_last_message")))
 				else:
 					game_state.call("_finalize_reaction_without_claim")
 			7:
@@ -170,6 +173,7 @@ func _extract_round_result(game_state: Node, round_no: int, steps: int, forced_s
 		"current_phase": int(game_state.get("current_phase")),
 		"current_turn_seat": int(game_state.get("current_turn_seat")),
 		"debug_last_message": str(game_state.get("debug_last_message")),
+		"backend": game_state.call("_build_full_ai_core_debug_snapshot"),
 		"opening_roll_pending_completion": bool(game_state.get("opening_roll_pending_completion")),
 		"pending_reaction_count": int(game_state.get("pending_reactions").size()),
 		"end_reason": str(settlement_data.get("end_reason", "")),
@@ -177,6 +181,9 @@ func _extract_round_result(game_state: Node, round_no: int, steps: int, forced_s
 		"score_changes": score_changes.duplicate(true),
 		"win_events": win_events.duplicate(true),
 		"gang_events": gang_events.duplicate(true),
+		"tui_gang_refunds": settlement_data.get("tui_gang_refunds", []).duplicate(true),
+		"transfer_events": settlement_data.get("transfer_events", []).duplicate(true),
+		"draw_assessment": settlement_data.get("draw_assessment", []).duplicate(true),
 		"players": players,
 		"ai_decision_metrics": game_state.get("ai_decision_metrics").duplicate(true),
 		"debug_decision_trace": game_state.call("_build_debug_decision_trace_snapshot"),
@@ -197,7 +204,7 @@ func _append_new_discard_audit_records(records: Array, game_state: Node, round_n
 		var player := _player_by_seat(players, seat)
 		var tile: Dictionary = discard_entry.get("tile", {})
 		var record := {
-			"schema_version": 1,
+			"schema_version": 2,
 			"record_type": "discard",
 			"round_no": round_no,
 			"step": step,
@@ -223,7 +230,7 @@ func _append_new_discard_audit_records(records: Array, game_state: Node, round_n
 		}
 		if discard_entry.has("ai_decision"):
 			record["ai_decision_source"] = "discard_record"
-			record["ai_decision"] = discard_entry.get("ai_decision", {}).duplicate(true)
+			record["ai_decision"] = _compact_ai_decision(discard_entry.get("ai_decision", {}))
 		else:
 			record["ai_decision_source"] = "latest_snapshot"
 		var analysis: Dictionary = discard_entry.get("ai_analysis", {})
@@ -231,6 +238,19 @@ func _append_new_discard_audit_records(records: Array, game_state: Node, round_n
 			analysis = fallback_analysis
 		_apply_decision_audit_fields(record, analysis, tile)
 		records.append(record)
+
+
+func _compact_ai_decision(source: Dictionary) -> Dictionary:
+	return {
+		"round_index": int(source.get("round_index", 0)),
+		"seat": int(source.get("seat", -1)),
+		"phase": int(source.get("phase", -1)),
+		"wall_count": int(source.get("wall_count", 0)),
+		"hand_count": int(source.get("hand_count", 0)),
+		"action": str(source.get("action", "discard")),
+		"tile_id": int(source.get("tile_id", -1)),
+		"state_signature": str(source.get("state_signature", "")),
+	}
 
 
 func _latest_turn_analysis(game_state: Node) -> Dictionary:
@@ -262,12 +282,18 @@ func _apply_decision_audit_fields(record: Dictionary, analysis: Dictionary, tile
 	record["decision_score"] = _first_present(selected, ["score", "csharp_score"])
 	record["decision_expected_net_score"] = _first_present(selected, ["expected_net_score", "csharp_expected_net_score"])
 	record["decision_self_draw_probability"] = _first_present(selected, ["self_draw_probability", "csharp_self_draw_probability"])
+	record["decision_win_probability"] = _first_present(selected, ["win_probability", "csharp_win_probability"])
+	record["decision_tenpai_probability"] = _first_present(selected, ["tenpai_probability", "csharp_tenpai_probability"])
+	record["decision_expected_fan"] = _first_present(selected, ["expected_fan", "csharp_expected_fan"])
 	record["decision_deal_in_probability"] = _first_present(selected, ["deal_in_probability", "csharp_deal_in_probability"])
 	record["decision_danger"] = _first_present(selected, ["danger", "csharp_danger"])
 	record["decision_risk_label"] = str(selected.get("risk_label", selected.get("csharp_risk_label", "")))
 	record["decision_shanten"] = _first_present(selected, ["shanten", "csharp_shanten"])
 	record["decision_live_ukeire"] = _first_present(selected, ["live_ukeire", "csharp_live_ukeire"])
 	record["decision_reasons"] = selected.get("reasons", selected.get("csharp_reasons", []))
+	record["decision_route"] = str(selected.get("route_plan_primary", selected.get("csharp_route_plan_primary", analysis.get("route_plan", {}).get("primary_route", ""))))
+	record["decision_routes_after"] = selected.get("routes_after", []).duplicate(true)
+	record["decision_route_loss"] = selected.get("route_loss", []).duplicate(true)
 	if options.size() > 0:
 		var best := _best_score_option(options)
 		record["best_candidate_tile_name"] = str(best.get("tile_name", best.get("display_name", best.get("tile", {}).get("display_name", ""))))
@@ -393,12 +419,24 @@ func _seat_scores(game_state: Node) -> Dictionary:
 
 func _finalize_round_discard_audit(records: Array, result: Dictionary) -> void:
 	var score_changes: Dictionary = result.get("score_changes", {})
+	var winner_seats: Array = result.get("winner_seats", [])
+	var qing_winner_seats: Array = []
+	for event in result.get("win_events", []):
+		var fan_detail: Dictionary = event.get("fan_detail", {})
+		if str(fan_detail.get("hand_type", "")) == "qing_yi_se":
+			qing_winner_seats.append(int(event.get("winner_seat", -1)))
 	for index in range(records.size()):
 		var record: Dictionary = records[index]
 		var seat := int(record.get("seat", -1))
 		record["round_end_reason"] = str(result.get("end_reason", ""))
 		record["round_forced_stop"] = bool(result.get("forced_stop", false))
-		record["round_winner_seats"] = result.get("winner_seats", []).duplicate()
+		record["round_winner_seats"] = winner_seats.duplicate()
+		record["round_qing_winner_seats"] = qing_winner_seats.duplicate()
+		record["decision_actual_round_win"] = seat in winner_seats
+		var predicted_win = record.get("decision_win_probability", "")
+		if _is_numeric(predicted_win):
+			var actual_win := 1.0 if seat in winner_seats else 0.0
+			record["decision_round_win_brier"] = pow(float(predicted_win) - actual_win, 2.0)
 		record["round_score_changes"] = score_changes.duplicate(true)
 		record["seat_round_delta"] = _seat_delta(score_changes, seat)
 		records[index] = record
@@ -408,6 +446,59 @@ func _seat_delta(score_changes: Dictionary, seat: int) -> int:
 	if score_changes.has(seat):
 		return int(score_changes.get(seat, 0))
 	return int(score_changes.get(str(seat), 0))
+
+
+func _build_gang_net(result: Dictionary) -> Dictionary:
+	var net := {0: 0, 1: 0, 2: 0, 3: 0}
+	for event in result.get("gang_events", []):
+		if str(event.get("related_outcome", "")) == "gang_discard_win":
+			continue
+		_apply_gang_payment(net, int(event.get("actor_seat", -1)), event.get("payer_seats", []), _gang_unit_score(str(event.get("gang_type", ""))))
+	for refund in result.get("tui_gang_refunds", []):
+		_apply_gang_payment(net, int(refund.get("actor_seat", -1)), refund.get("payer_seats", []), -_gang_unit_score(str(refund.get("gang_type", ""))))
+	for event in result.get("transfer_events", []):
+		if str(event.get("transfer_type", "")) != "hu_jiao_zhuan_yi":
+			continue
+		_apply_gang_payment(net, int(event.get("to_seat", -1)), event.get("payer_seats", []), _gang_unit_score(str(event.get("gang_type", ""))))
+	return net
+
+
+func _apply_gang_payment(net: Dictionary, receiver: int, payer_seats: Array, unit_score: int) -> void:
+	if not net.has(receiver):
+		return
+	for payer_value in payer_seats:
+		var payer := int(payer_value)
+		if not net.has(payer):
+			continue
+		net[receiver] = int(net.get(receiver, 0)) + unit_score
+		net[payer] = int(net.get(payer, 0)) - unit_score
+
+
+func _gang_unit_score(gang_type: String) -> int:
+	return 1 if gang_type == "add_gang" else 2
+
+
+func _build_cha_jiao_net(draw_assessment: Array) -> Dictionary:
+	var net := {0: 0, 1: 0, 2: 0, 3: 0}
+	var ting_items: Array = []
+	var payer_seats: Array = []
+	for item_value in draw_assessment:
+		var item: Dictionary = item_value
+		if bool(item.get("is_ting", false)) and not bool(item.get("hua_zhu", false)):
+			ting_items.append(item)
+		else:
+			payer_seats.append(int(item.get("seat", -1)))
+	for payer in payer_seats:
+		if not net.has(payer):
+			continue
+		for item in ting_items:
+			var receiver := int(item.get("seat", -1))
+			if not net.has(receiver):
+				continue
+			var payment := maxi(1, int(item.get("cha_jiao_score", 1)))
+			net[receiver] = int(net.get(receiver, 0)) + payment
+			net[payer] = int(net.get(payer, 0)) - payment
+	return net
 
 
 func _create_stats() -> Dictionary:
@@ -432,6 +523,10 @@ func _create_stats() -> Dictionary:
 			"deal_in_loss_total": 0,
 			"dealt_win_count": 0,
 			"self_draw_loss_rounds": 0,
+			"fan_total": 0,
+			"qing_yi_se_wins": 0,
+			"gang_net": 0,
+			"cha_jiao_net": 0,
 		}
 	return {
 		"total_rounds": 0,
@@ -459,11 +554,15 @@ func _accumulate_round_stats(stats: Dictionary, result: Dictionary) -> void:
 
 	var seat_stats: Dictionary = stats.get("seat_stats", {})
 	var score_changes: Dictionary = result.get("score_changes", {})
+	var gang_net := _build_gang_net(result)
+	var cha_jiao_net := _build_cha_jiao_net(result.get("draw_assessment", []))
 	for seat_key in seat_stats.keys():
 		var seat := int(seat_key)
 		var item: Dictionary = seat_stats[seat]
 		var delta := int(score_changes.get(seat, 0))
 		item["total_delta"] = int(item.get("total_delta", 0)) + delta
+		item["gang_net"] = int(item.get("gang_net", 0)) + int(gang_net.get(seat, 0))
+		item["cha_jiao_net"] = int(item.get("cha_jiao_net", 0)) + int(cha_jiao_net.get(seat, 0))
 		if delta > 0:
 			item["positive_rounds"] = int(item.get("positive_rounds", 0)) + 1
 		elif delta < 0:
@@ -480,6 +579,10 @@ func _accumulate_round_stats(stats: Dictionary, result: Dictionary) -> void:
 			continue
 		var item: Dictionary = seat_stats[winner]
 		item["wins"] = int(item.get("wins", 0)) + 1
+		var fan_detail: Dictionary = event.get("fan_detail", {})
+		item["fan_total"] = int(item.get("fan_total", 0)) + int(fan_detail.get("capped_fan", 0))
+		if str(fan_detail.get("hand_type", "")) == "qing_yi_se":
+			item["qing_yi_se_wins"] = int(item.get("qing_yi_se_wins", 0)) + 1
 		var win_type := str(event.get("win_type", ""))
 		match win_type:
 			"self_draw", "gang_self_draw":
@@ -549,10 +652,12 @@ func _finalize_stats(stats: Dictionary, game_state: Node) -> void:
 			item["avg_delta_per_round"] = 0.0 if int(stats.get("total_rounds", 0)) <= 0 else float(item.get("total_delta", 0)) / float(stats.get("total_rounds", 0))
 			item["win_rate"] = 0.0 if int(stats.get("total_rounds", 0)) <= 0 else float(item.get("wins", 0)) / float(stats.get("total_rounds", 0))
 			item["deal_in_rate"] = 0.0 if int(stats.get("total_rounds", 0)) <= 0 else float(item.get("deal_in_count", 0)) / float(stats.get("total_rounds", 0))
+			item["average_fan"] = 0.0 if int(item.get("wins", 0)) <= 0 else float(item.get("fan_total", 0)) / float(item.get("wins", 0))
+			item["qing_yi_se_win_rate"] = 0.0 if int(item.get("wins", 0)) <= 0 else float(item.get("qing_yi_se_wins", 0)) / float(item.get("wins", 0))
 			seat_stats[seat] = item
 			stats["seat_stats"] = seat_stats
 	stats["avg_steps_per_round"] = 0.0 if int(stats.get("total_rounds", 0)) <= 0 else float(stats.get("total_steps", 0)) / float(stats.get("total_rounds", 0))
-	stats["report_version"] = 1
+	stats["report_version"] = 2
 
 
 func _print_summary(stats: Dictionary) -> void:
@@ -570,6 +675,17 @@ func _print_summary(stats: Dictionary) -> void:
 	print("draw_rounds=", stats.get("draw_rounds", 0))
 	print("battle_end_rounds=", stats.get("battle_end_rounds", 0))
 	print("avg_steps_per_round=", "%.2f" % float(stats.get("avg_steps_per_round", 0.0)))
+	var acceptance: Dictionary = stats.get("acceptance_metrics", {})
+	if not acceptance.is_empty():
+		print("acceptance win_rate=%.4f self_draw_share=%.4f deal_in_rate=%.4f avg_fan=%.3f regret=%.3f severe=%.5f brier=%.5f" % [
+			float(acceptance.get("win_rate_per_seat_round", 0.0)),
+			float(acceptance.get("self_draw_share_of_wins", 0.0)),
+			float(acceptance.get("deal_in_rate_per_seat_round", 0.0)),
+			float(acceptance.get("average_fan", 0.0)),
+			float(acceptance.get("average_regret_score_gap", 0.0)),
+			float(acceptance.get("severe_error_rate", 0.0)),
+			float(acceptance.get("round_win_brier", 0.0)),
+		])
 	var seat_stats: Dictionary = stats.get("seat_stats", {})
 	for seat_key in seat_stats.keys():
 		var seat := int(seat_key)
@@ -751,6 +867,15 @@ func _build_discard_audit_summary(records: Array, jsonl_output_path: String, csv
 	var by_suit := {}
 	var decision_score_sum := 0.0
 	var decision_score_count := 0
+	var expected_fan_sum := 0.0
+	var expected_fan_count := 0
+	var round_win_brier_sum := 0.0
+	var round_win_brier_count := 0
+	var route_transition_count := 0
+	var route_switch_count := 0
+	var last_route_by_round_seat := {}
+	var qing_route_rounds := {}
+	var qing_route_wins := {}
 	var old_hand_records: Array = []
 	for record in records:
 		var seat_key := str(record.get("seat", -1))
@@ -761,6 +886,26 @@ func _build_discard_audit_summary(records: Array, jsonl_output_path: String, csv
 		if _is_numeric(score):
 			decision_score_sum += float(score)
 			decision_score_count += 1
+		var expected_fan = record.get("decision_expected_fan", "")
+		if _is_numeric(expected_fan):
+			expected_fan_sum += float(expected_fan)
+			expected_fan_count += 1
+		var brier = record.get("decision_round_win_brier", "")
+		if _is_numeric(brier):
+			round_win_brier_sum += float(brier)
+			round_win_brier_count += 1
+		var route := str(record.get("decision_route", ""))
+		var round_seat_key := "%d:%d" % [int(record.get("round_no", 0)), int(record.get("seat", -1))]
+		if route != "":
+			if last_route_by_round_seat.has(round_seat_key):
+				route_transition_count += 1
+				if str(last_route_by_round_seat.get(round_seat_key, "")) != route:
+					route_switch_count += 1
+			last_route_by_round_seat[round_seat_key] = route
+			if _is_qing_route(route, record.get("decision_routes_after", [])):
+				qing_route_rounds[round_seat_key] = true
+				if int(record.get("seat", -1)) in record.get("round_qing_winner_seats", []):
+					qing_route_wins[round_seat_key] = true
 		var old_hand_score: Dictionary = record.get("old_hand_score_record", {})
 		if not old_hand_score.is_empty():
 			old_hand_records.append(old_hand_score)
@@ -770,12 +915,81 @@ func _build_discard_audit_summary(records: Array, jsonl_output_path: String, csv
 		"by_seat": by_seat,
 		"by_suit": by_suit,
 		"avg_decision_score": 0.0 if decision_score_count <= 0 else decision_score_sum / float(decision_score_count),
+		"avg_expected_fan": 0.0 if expected_fan_count <= 0 else expected_fan_sum / float(expected_fan_count),
+		"round_win_brier": 0.0 if round_win_brier_count <= 0 else round_win_brier_sum / float(round_win_brier_count),
+		"round_win_calibration_samples": round_win_brier_count,
+		"route_transition_count": route_transition_count,
+		"route_switch_count": route_switch_count,
+		"route_switch_rate": 0.0 if route_transition_count <= 0 else float(route_switch_count) / float(route_transition_count),
+		"qing_route_rounds": qing_route_rounds.size(),
+		"qing_route_wins": qing_route_wins.size(),
+		"qing_route_success_rate": 0.0 if qing_route_rounds.is_empty() else float(qing_route_wins.size()) / float(qing_route_rounds.size()),
 		"old_hand_scorer": old_hand_scorer.summarize(old_hand_records),
 		"jsonl_path": jsonl_output_path,
 		"jsonl_path_absolute": ProjectSettings.globalize_path(jsonl_output_path),
 		"csv_path": csv_output_path,
 		"csv_path_absolute": ProjectSettings.globalize_path(csv_output_path),
 		"debug_decision_trace": game_state.call("_build_debug_decision_trace_snapshot"),
+	}
+
+
+func _is_qing_route(primary_route: String, routes_after: Array) -> bool:
+	if primary_route.findn("qing") >= 0 or primary_route.find("清一色") >= 0:
+		return true
+	for route in routes_after:
+		var text := str(route)
+		if text.findn("qing") >= 0 or text.find("清一色") >= 0:
+			return true
+	return false
+
+
+func _build_acceptance_metrics(stats: Dictionary) -> Dictionary:
+	if str(stats.get("benchmark_mode", "")) == "ab_compare":
+		return {}
+	var seat_stats: Dictionary = stats.get("seat_stats", {})
+	var rounds := int(stats.get("total_rounds", 0))
+	var wins := 0
+	var self_draw_wins := 0
+	var deal_in_count := 0
+	var total_delta := 0
+	var absolute_delta := 0
+	var fan_total := 0
+	var qing_wins := 0
+	var gang_net_by_seat := {}
+	var cha_jiao_net_by_seat := {}
+	var average_net_by_seat := {}
+	for seat_key in seat_stats.keys():
+		var item: Dictionary = seat_stats[seat_key]
+		wins += int(item.get("wins", 0))
+		self_draw_wins += int(item.get("self_draw_wins", 0))
+		deal_in_count += int(item.get("deal_in_count", 0))
+		total_delta += int(item.get("total_delta", 0))
+		absolute_delta += absi(int(item.get("total_delta", 0)))
+		fan_total += int(item.get("fan_total", 0))
+		qing_wins += int(item.get("qing_yi_se_wins", 0))
+		gang_net_by_seat[str(seat_key)] = int(item.get("gang_net", 0))
+		cha_jiao_net_by_seat[str(seat_key)] = int(item.get("cha_jiao_net", 0))
+		average_net_by_seat[str(seat_key)] = float(item.get("avg_delta_per_round", 0.0))
+	var seat_rounds := rounds * 4
+	var audit: Dictionary = stats.get("discard_audit", {})
+	var judge: Dictionary = audit.get("old_hand_scorer", {})
+	return {
+		"average_net_by_seat": average_net_by_seat,
+		"zero_sum_average_net_per_seat_round": 0.0 if seat_rounds <= 0 else float(total_delta) / float(seat_rounds),
+		"average_absolute_final_net_per_seat": 0.0 if seat_stats.is_empty() else float(absolute_delta) / float(seat_stats.size()),
+		"win_rate_per_seat_round": 0.0 if seat_rounds <= 0 else float(wins) / float(seat_rounds),
+		"self_draw_share_of_wins": 0.0 if wins <= 0 else float(self_draw_wins) / float(wins),
+		"deal_in_rate_per_seat_round": 0.0 if seat_rounds <= 0 else float(deal_in_count) / float(seat_rounds),
+		"cha_jiao_net_by_seat": cha_jiao_net_by_seat,
+		"gang_net_by_seat": gang_net_by_seat,
+		"average_fan": 0.0 if wins <= 0 else float(fan_total) / float(wins),
+		"qing_yi_se_win_share": 0.0 if wins <= 0 else float(qing_wins) / float(wins),
+		"qing_route_success_rate": float(audit.get("qing_route_success_rate", 0.0)),
+		"route_switch_rate": float(audit.get("route_switch_rate", 0.0)),
+		"average_regret_score_gap": float(judge.get("average_score_gap", 0.0)),
+		"severe_error_rate": float(judge.get("severe_miss_rate", 0.0)),
+		"round_win_brier": float(audit.get("round_win_brier", 0.0)),
+		"calibration_sample_count": int(audit.get("round_win_calibration_samples", 0)),
 	}
 
 

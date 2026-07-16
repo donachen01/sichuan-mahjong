@@ -5,6 +5,21 @@ const REACTION_RESOLVER_SCRIPT := preload("res://scripts/core/reaction_resolver.
 const MAIN_SCENE_SCRIPT := preload("res://scripts/game/MainSceneV2.gd")
 
 
+class DelayedDingQueAiManager:
+	extends RefCounted
+
+	var ready := false
+
+	func analyze_ding_que(_hand_tiles: Array, _active_suits: Array) -> Dictionary:
+		return {"suit": "wan"} if ready else {}
+
+	func pump_async_requests() -> int:
+		return 0
+
+	func get_debug_snapshot() -> Dictionary:
+		return {}
+
+
 func _init() -> void:
 	var failures: Array[String] = []
 	_run_test("missing_suit_blocks_peng_and_gang_on_same_suit", _test_missing_suit_blocks_peng_and_gang_on_same_suit, failures)
@@ -13,11 +28,10 @@ func _init() -> void:
 	_run_test("trainer_hint_forces_missing_suit_first", _test_trainer_hint_forces_missing_suit_first, failures)
 	_run_test("missing_suit_blocks_add_gang_and_an_gang_only_for_missing_suit", _test_missing_suit_blocks_add_gang_and_an_gang_only_for_missing_suit, failures)
 	_run_test("display_hand_sorts_missing_suit_to_right", _test_display_hand_sorts_missing_suit_to_right, failures)
-	_run_test("mobile_opening_fail_safe_discards_missing_suit", _test_mobile_opening_fail_safe_discards_missing_suit, failures)
-	_run_test("mobile_opening_fail_safe_advances_game_state", _test_mobile_opening_fail_safe_advances_game_state, failures)
+	_run_test("human_choice_retries_delayed_csharp_ding_que", _test_human_choice_retries_delayed_csharp_ding_que, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 8/8")
+		print("RULE REGRESSION OK: 7/7")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -220,99 +234,42 @@ func _test_display_hand_sorts_missing_suit_to_right():
 	return true
 
 
-func _test_mobile_opening_fail_safe_discards_missing_suit():
-	var ai_manager = load("res://scripts/ai/AIManager.gd").new()
-	ai_manager.last_native_turn_error = "simulated_ios_native_empty_result"
-	var rules = load("res://scripts/core/rule_config.gd").new()
-	var ai_config = load("res://scripts/core/ai_tuning_config.gd").new()
-	ai_config.apply_preset("bone_ash")
-	var hu_checker = load("res://scripts/core/hu_checker.gd").new()
-	var risk_analyzer = load("res://scripts/core/risk_analyzer.gd").new()
-	var hand := [
-		_make_tile(101, "wan", 1),
-		_make_tile(102, "wan", 4),
-		_make_tile(103, "wan", 9),
-		_make_tile(104, "tiao", 1),
-		_make_tile(105, "tiao", 2),
-		_make_tile(106, "tiao", 3),
-		_make_tile(107, "tiao", 5),
-		_make_tile(108, "tiao", 6),
-		_make_tile(109, "tiao", 7),
-		_make_tile(110, "tong", 2),
-		_make_tile(111, "tong", 3),
-		_make_tile(112, "tong", 4),
-		_make_tile(113, "tong", 8),
-		_make_tile(114, "tong", 8),
-	]
-	var player := _make_player(1, "wan", hand)
-	player["ai_level"] = 3
-	var table_players := [
-		_make_player(0, "tiao", []),
-		player,
-		_make_player(2, "tong", []),
-		_make_player(3, "wan", []),
-	]
-	var analysis: Dictionary = ai_manager.analyze_turn_fail_safe(
-		player,
-		{"players": table_players, "wall_count": 55},
-		rules,
-		ai_config,
-		hu_checker,
-		risk_analyzer,
-		true
-	)
-	if analysis.is_empty():
-		return "expected Sichuan fail-safe analysis after simulated iOS native failure"
-	if str(analysis.get("backend_mode", "")) != "gdscript_sichuan_fail_safe":
-		return "unexpected fail-safe backend: %s" % str(analysis.get("backend_mode", ""))
-	var tile: Dictionary = analysis.get("recommended", {}).get("tile", {})
-	if str(tile.get("suit", "")) != "wan":
-		return "expected fail-safe opening discard to clear wan first, got %s" % str(tile)
-	if str(analysis.get("native_error", "")) != "simulated_ios_native_empty_result":
-		return "expected native error to remain available for diagnostics"
-	return true
-
-
-func _test_mobile_opening_fail_safe_advances_game_state():
+func _test_human_choice_retries_delayed_csharp_ding_que():
 	var game_state = _build_test_game_state()
-	game_state.ai_manager = load("res://scripts/ai/AIManager.gd").new()
-	game_state.ai_manager.last_native_turn_error = "simulated_ios_native_empty_result"
-	game_state.current_phase = game_state.RoundPhase.DISCARD
-	game_state.current_dealer_seat = 1
-	game_state.current_turn_seat = 1
-	game_state.round_index = 1
-	var hand := [
-		_make_tile(201, "wan", 1), _make_tile(202, "wan", 4), _make_tile(203, "wan", 9),
-		_make_tile(204, "tiao", 1), _make_tile(205, "tiao", 2), _make_tile(206, "tiao", 3),
-		_make_tile(207, "tiao", 5), _make_tile(208, "tiao", 6), _make_tile(209, "tiao", 7),
-		_make_tile(210, "tong", 2), _make_tile(211, "tong", 3), _make_tile(212, "tong", 4),
-		_make_tile(213, "tong", 8), _make_tile(214, "tong", 8),
-	]
+	var delayed_ai := DelayedDingQueAiManager.new()
+	game_state.ai_manager = delayed_ai
+	game_state.current_dealer_seat = 0
+	game_state.current_turn_seat = 0
 	var opening_players: Array[Dictionary] = [
-		_make_player(0, "tiao", []),
-		_make_player(1, "wan", hand),
-		_make_player(2, "tong", []),
-		_make_player(3, "wan", []),
+		_make_player(0, "", _make_hand(100, 14, "tiao")),
+		_make_player(1, "", _make_hand(200, 13, "tong")),
+		_make_player(2, "", _make_hand(300, 13, "wan")),
+		_make_player(3, "", _make_hand(400, 13, "tiao")),
 	]
 	game_state.players = opening_players
-	game_state.players[1]["ai_level"] = 3
-	var opening_wall: Array[Dictionary] = [_make_tile(300, "tong", 6)]
-	game_state.wall = opening_wall
-	game_state.wall_count = 1
-	var decision: Dictionary = game_state._build_ai_turn_fail_safe_decision()
-	if decision.is_empty():
-		return "expected executable opening fail-safe decision"
-	var selected: Dictionary = game_state._tile_by_id_in_hand(1, int(decision.get("tile_id", -1)))
-	if str(selected.get("suit", "")) != "wan":
-		return "expected executable fail-safe to choose wan, got %s" % str(selected)
-	if not bool(game_state._execute_ai_turn_decision(decision)):
-		return "expected fail-safe decision to execute"
-	if game_state.discard_pile.size() != 1:
-		return "expected opening discard pile size 1, got %d" % game_state.discard_pile.size()
-	var discarded_tile: Dictionary = game_state.discard_pile[0].get("tile", {})
-	if int(discarded_tile.get("id", -1)) != int(decision.get("tile_id", -2)):
-		return "opening discard pile does not contain fail-safe tile"
+	game_state.current_phase = game_state.RoundPhase.DING_QUE
+	game_state._auto_select_ai_ding_que()
+	for seat in [1, 2, 3]:
+		if str(game_state.players[seat].get("ding_que", "")) != "":
+			return "expected initial delayed C# call to leave AI seat %d pending" % seat
+	delayed_ai.ready = true
+	if not bool(game_state.choose_ding_que(0, "tong")):
+		return "expected dealer human ding-que choice to succeed"
+	for seat in [1, 2, 3]:
+		if str(game_state.players[seat].get("ding_que", "")) != "wan":
+			return "expected human confirmation to retry C# choice for AI seat %d" % seat
+	if int(game_state.current_phase) != int(game_state.RoundPhase.DISCARD):
+		return "expected all ding-que choices to advance to discard phase"
+	if not bool(game_state.can_human_discard(0)):
+		return "expected dealer to be able to discard after recovered C# ding-que"
 	return true
+
+
+func _make_hand(start_id: int, count: int, suit: String) -> Array:
+	var hand: Array = []
+	for index in range(count):
+		hand.append(_make_tile(start_id + index, suit, index % 9 + 1))
+	return hand
 
 
 func _build_test_game_state():

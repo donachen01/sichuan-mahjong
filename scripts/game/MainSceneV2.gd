@@ -7,6 +7,14 @@ const DICE_FACE_SCRIPT := preload("res://scripts/ui/DiceFace.gd")
 const WALL_COUNT_DISC_SCRIPT := preload("res://scripts/ui/WallCountDisc.gd")
 const TABLE_MATERIAL_OVERLAY_SCRIPT := preload("res://scripts/ui/TableMaterialOverlay.gd")
 const CIRCULAR_ACTION_BUTTON_OVERLAY_SCRIPT := preload("res://scripts/ui/CircularActionButtonOverlay.gd")
+const SEAT_HUD_SCENE := preload("res://scenes/ui/table/SeatHUD.tscn")
+const TABLE_UTILITY_BAR_SCENE := preload("res://scenes/ui/table/TableUtilityBar.tscn")
+const CENTER_TURN_INDICATOR_SCENE := preload("res://scenes/ui/table/CenterTurnIndicator.tscn")
+const TABLE_DISCARD_LAYER_SCRIPT := preload("res://scripts/ui/table/TableDiscardLayer.gd")
+const TABLE_ACTION_BAR_SCENE := preload("res://scenes/ui/table/TableActionBar.tscn")
+const AI_ASSISTANT_SCENE := preload("res://scenes/ui/AIAssistant.tscn")
+const SICHUAN_TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
+const SETTLEMENT_OVERLAY_SCENE := preload("res://scenes/ui/table/SettlementOverlay.tscn")
 const AUDIO_SFX_DIR := "res://res/audio/sfx"
 const AUDIO_TTS_DIR := "res://res/audio/tts"
 const DICE_ROLL_AUDIO_PATH := "res://res/audio/sfx/mahjong_dice_roll.wav"
@@ -65,6 +73,10 @@ const UI_PREFS_PATH := "user://ui_prefs.cfg"
 const UI_PREFS_SECTION := "main_scene_v2"
 const UI_PREFS_KEY_AI_HELPER := "ai_helper_enabled"
 const UI_PREFS_KEY_OPPONENT_HANDS := "opponent_hands_enabled"
+const UI_PREFS_KEY_AI_GLASS_OPACITY := "ai_glass_opacity"
+const UI_PREFS_KEY_AI_GLASS_OPACITY_LEGACY := "ai_glass_opacity_index"
+const UI_PREFS_KEY_AI_DRAWER_POSITION := "ai_drawer_position_normalized"
+const UI_PREFS_KEY_AI_DRAWER_POSITIONED := "ai_drawer_positioned"
 const TILE_VISUAL_BASE_SIZE := Vector2(92.0, 140.0)
 const SETTLEMENT_PANEL_SCREEN_RATIO := Vector2(0.985, 0.965)
 const SETTLEMENT_PANEL_MAX_SIZE := Vector2(4096.0, 4096.0)
@@ -72,15 +84,15 @@ const SETTLEMENT_PANEL_MIN_SIZE := Vector2(1320.0, 760.0)
 const SETTLEMENT_TILE_SCALE := 0.47
 const SETTLEMENT_MELD_TILE_SCALE := 0.39
 const SETTLEMENT_WIN_TILE_SCALE := 0.50
-const MATTE_FELT_BG := Color("0D5039")
-const MATTE_FELT_BASE := Color("176447")
-const MATTE_FELT_PANEL := Color("1E7251")
-const MATTE_FELT_DEEP := Color(0.03, 0.22, 0.16, 0.97)
-const WOOD_DARK := Color("3B2921")
-const WOOD_MID := Color("604434")
-const WOOD_EDGE := Color("9C7954")
-const GOLD_SOFT := Color("D2B36E")
-const IVORY_SOFT := Color("F4F0E6")
+const MATTE_FELT_BG := Color("052820")
+const MATTE_FELT_BASE := Color("062C28")
+const MATTE_FELT_PANEL := Color("0B3F34")
+const MATTE_FELT_DEEP := Color(0.012, 0.094, 0.082, 0.98)
+const WOOD_DARK := Color("15110E")
+const WOOD_MID := Color("2A2018")
+const WOOD_EDGE := Color("7A522C")
+const GOLD_SOFT := Color("B99655")
+const IVORY_SOFT := Color("F4E9C9")
 const ACTION_PRIMARY_CENTER := Color("FFF176")
 const ACTION_PRIMARY_EDGE := Color("FF8F00")
 const ACTION_PRIMARY_OUTLINE := Color("FFD54F")
@@ -96,13 +108,6 @@ const ACTION_SECONDARY_SIZE := Vector2(204.0, 204.0)
 const ACTION_PRIMARY_FONT_SIZE := 172
 const ACTION_SECONDARY_FONT_SIZE := 148
 const AI_PRESET_ORDER := ["intermediate", "bone_ash", "hell"]
-const BAO_GANG_DIALOG_MIN_SIZE := Vector2(900.0, 430.0)
-const BAO_GANG_DIALOG_CONTENT_MIN_SIZE := Vector2(840.0, 330.0)
-const BAO_GANG_DIALOG_POPUP_MAX_HEIGHT := 720.0
-const BAO_GANG_DIALOG_TITLE_FONT_SIZE := 42
-const BAO_GANG_DIALOG_OPTION_FONT_SIZE := 32
-const BAO_GANG_DIALOG_OPTION_HEIGHT := 210.0
-const BAO_GANG_DIALOG_OPTION_SEPARATION := 24
 const AI_PRESET_LABELS := {
 	"intermediate": "中级",
 	"bone_ash": "骨灰",
@@ -232,13 +237,9 @@ var top_ui
 var left_ui
 var right_ui
 var an_gang_button: Button
-var bao_jiao_button: Button
-var bao_gang_dialog: ConfirmationDialog
-var bao_gang_dialog_content: Control
-var bao_gang_option_checks: Array[Button] = []
-var bao_gang_dialog_committed := false
 var selected_tile_id: int = -1
 var settlement_selected_seat: int = -1
+var settlement_layout_scale: float = 1.0
 var last_snapshot: Dictionary = {}
 var ai_turn_timer: Timer
 var ai_reaction_timer: Timer
@@ -265,21 +266,6 @@ var draw_transition_started_at_ms: int = 0
 var draw_transition_expected_ms: int = 0
 var ai_turn_timer_started_at_ms: int = 0
 var ai_reaction_timer_started_at_ms: int = 0
-var board_discard_overlay: Control
-var board_discard_field: Control
-var board_discard_top_panel: Control
-var board_discard_bottom_panel: Control
-var board_discard_left_panel: Control
-var board_discard_right_panel: Control
-var board_discard_top_lane: Control
-var board_discard_bottom_lane: Control
-var board_discard_left_lane: Control
-var board_discard_right_lane: Control
-var board_cross_top_plate: Panel
-var board_cross_bottom_plate: Panel
-var board_cross_left_plate: Panel
-var board_cross_right_plate: Panel
-var board_cross_center_plate: Panel
 var round_result_overlay: Control
 var round_result_banner: Label
 var seat_result_labels: Dictionary = {}
@@ -309,6 +295,9 @@ var ai_tuning_panel_moved: bool = false
 var ai_tuning_click_actions: Array = []
 var ai_helper_enabled: bool = false
 var opponent_hands_enabled: bool = false
+var ai_glass_opacity: float = 0.70
+var ai_drawer_position_normalized := Vector2(0.5, 0.72)
+var ai_drawer_positioned := false
 var discard_helper_panel: Panel
 var discard_helper_title: Label
 var discard_helper_summary: Label
@@ -337,13 +326,13 @@ var floating_preset_button: Button
 var floating_exit_button: Button
 var floating_right_buttons_collapsed: bool = false
 var floating_left_buttons_collapsed: bool = false
-var v17_top_button_stack: VBoxContainer
-var v17_player_info_panels: Dictionary = {}
-var v17_player_info_name_labels: Dictionary = {}
-var v17_player_info_status_labels: Dictionary = {}
-var v17_player_info_avatar_labels: Dictionary = {}
-var v17_player_info_dealer_badges: Dictionary = {}
-var v17_player_info_ding_que_badges: Dictionary = {}
+var seat_huds: Dictionary = {}
+var table_utility_bar: Control
+var table_discard_layer: Control
+var center_turn_indicator: Control
+var table_action_bar: Control
+var ai_assistant_drawer: Control
+var settlement_overlay_v2: Control
 var self_hu_tile_host: Control
 
 const SELF_ROW_MAX_SLOTS := 18
@@ -362,27 +351,24 @@ func _ready() -> void:
 	_setup_audio_players()
 	_setup_ai_timers()
 	_setup_opening_roll_timers()
-	_setup_board_discard_overlay()
+	_setup_table_discard_layer()
+	_setup_center_turn_indicator()
 	_setup_opening_roll_ui()
 	_setup_round_result_overlay()
-	_setup_discard_helper_panel()
+	_setup_rich_settlement_overlay()
+	_setup_settlement_overlay_v2()
+	_setup_ai_assistant_drawer()
 	_setup_ai_tuning_overlay()
 	_setup_board_core_hud()
-	_setup_v17_plus_menu()
-	_setup_v17_player_info_panels()
+	_setup_table_utility_bar()
+	_setup_table_action_bar()
+	_setup_seat_huds()
 	_setup_self_hu_tile_host()
-	_ensure_action_panel_root()
 	game_manager.set_human_trainer_hint_enabled(ai_helper_enabled)
-	_ensure_an_gang_button()
-	_ensure_bao_jiao_button()
-	_ensure_bao_gang_dialog()
 	_apply_style()
 	_mount_self_won_stamp_overlay()
 	_configure_board_lanes()
 	_bind_board_square_layout()
-	_bind_action_panel_layout()
-	action_panel.top_level = true
-	action_panel.z_index = 220
 	ding_que_overlay.top_level = true
 	ding_que_overlay.z_index = 260
 	ding_que_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -390,9 +376,6 @@ func _ready() -> void:
 	var ding_que_center := ding_que_overlay.get_node_or_null("DingQueCenter") as Control
 	if ding_que_center != null:
 		ding_que_center.mouse_filter = Control.MOUSE_FILTER_PASS
-	settlement_overlay.top_level = true
-	settlement_overlay.z_index = 240
-	settlement_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	self_ui = _mount_player_ui(player_self_host, SeatDock.SELF)
 	top_ui = _mount_player_ui(player_top_host, SeatDock.TOP)
 	left_ui = _mount_player_ui(player_left_host, SeatDock.LEFT)
@@ -406,20 +389,9 @@ func _ready() -> void:
 	top_settlement_info_button.pressed.connect(_on_top_settlement_info_pressed)
 	top_next_round_button.pressed.connect(_on_top_next_round_pressed)
 	top_exit_button.pressed.connect(_on_top_exit_pressed)
-	hu_button.pressed.connect(_on_hu_pressed)
-	gang_button.pressed.connect(_on_gang_pressed)
-	peng_button.pressed.connect(_on_peng_pressed)
-	pass_button.pressed.connect(_on_pass_pressed)
-	if bao_jiao_button != null:
-		bao_jiao_button.pressed.connect(_on_bao_jiao_pressed)
-	if an_gang_button != null:
-		an_gang_button.pressed.connect(_on_an_gang_pressed)
 	ding_que_tiao_button.pressed.connect(_on_ding_que_pressed.bind("tiao"))
 	ding_que_tong_button.pressed.connect(_on_ding_que_pressed.bind("tong"))
 	ding_que_wan_button.pressed.connect(_on_ding_que_pressed.bind("wan"))
-	settlement_close_button.pressed.connect(_on_settlement_close_pressed)
-	settlement_shade.gui_input.connect(_on_settlement_shade_gui_input)
-	next_round_button.pressed.connect(_on_next_round_pressed)
 
 	game_manager.snapshot_changed.connect(_on_snapshot_changed)
 	game_manager.opening_roll_started.connect(_on_opening_roll_started)
@@ -428,9 +400,29 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		var touch_event := event as InputEventScreenTouch
+		if touch_event.pressed:
+			if _handle_table_utility_click(touch_event.position):
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_table_action_click(touch_event.position):
+				get_viewport().set_input_as_handled()
+				return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+			if _handle_table_utility_click(mouse_event.position):
+				get_viewport().set_input_as_handled()
+				return
+			# Keep the decision buttons operable even when one of the full-table
+			# presentation layers happens to win Godot's GUI hit test.  The table
+			# already uses this explicit dispatch pattern for other floating UI.
+			# Marking the event handled also prevents the Button signal from firing
+			# the same claim twice.
+			if _handle_table_action_click(mouse_event.position):
+				get_viewport().set_input_as_handled()
+				return
 			if _handle_ding_que_overlay_click(mouse_event.position):
 				get_viewport().set_input_as_handled()
 				return
@@ -453,6 +445,40 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		ai_tuning_panel.global_position = get_global_mouse_position() - ai_tuning_drag_offset
 		_clamp_ai_tuning_panel_position()
+
+
+func _handle_table_utility_click(global_pos: Vector2) -> bool:
+	if table_utility_bar == null or not is_instance_valid(table_utility_bar) or not table_utility_bar.visible:
+		return false
+	for action in ["ai", "settings", "opponent_hands", "settlement", "next_round", "exit"]:
+		var button: Button = table_utility_bar.call("get_button", action)
+		if button == null or not is_instance_valid(button):
+			continue
+		if not button.is_visible_in_tree() or button.disabled:
+			continue
+		var rect := button.get_global_rect()
+		if rect.size.x > 1.0 and rect.size.y > 1.0 and rect.has_point(global_pos):
+			button.emit_signal("pressed")
+			return true
+	return false
+
+
+func _handle_table_action_click(global_pos: Vector2) -> bool:
+	if table_action_bar == null or not is_instance_valid(table_action_bar) or not table_action_bar.visible:
+		return false
+	for action in ["hu", "gang", "peng", "pass"]:
+		var button: Button = table_action_bar.call("get_button", action)
+		if button == null or not is_instance_valid(button):
+			continue
+		if not button.is_visible_in_tree() or button.disabled:
+			continue
+		var rect := button.get_global_rect()
+		if rect.size.x > 1.0 and rect.size.y > 1.0 and rect.has_point(global_pos):
+			# Emit the real Button signal so pressed feedback and the action-bar
+			# dispatch path are identical to a normal GUI hit.
+			button.emit_signal("pressed")
+			return true
+	return false
 
 
 func _handle_ding_que_overlay_click(global_pos: Vector2) -> bool:
@@ -487,36 +513,6 @@ func _bind_board_square_layout() -> void:
 	_queue_board_square_layout()
 
 
-func _ensure_action_panel_root() -> void:
-	if action_panel == null or root_ui == null:
-		return
-	if action_panel.get_parent() != root_ui:
-		var previous_parent := action_panel.get_parent()
-		if previous_parent != null:
-			previous_parent.remove_child(action_panel)
-		root_ui.add_child(action_panel)
-	action_panel.top_level = true
-	action_panel.z_index = 220
-	action_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-
-
-func _bind_action_panel_layout() -> void:
-	if root_ui != null and not root_ui.resized.is_connected(_queue_action_panel_layout):
-		root_ui.resized.connect(_queue_action_panel_layout)
-	if root_ui != null and not root_ui.resized.is_connected(_queue_settlement_overlay_layout):
-		root_ui.resized.connect(_queue_settlement_overlay_layout)
-	_queue_action_panel_layout()
-	_queue_settlement_overlay_layout()
-
-
-func _queue_action_panel_layout() -> void:
-	call_deferred("_layout_action_panel")
-
-
-func _queue_settlement_overlay_layout() -> void:
-	call_deferred("_layout_settlement_overlay")
-
-
 func _queue_board_square_layout() -> void:
 	call_deferred("_apply_board_square_layout")
 
@@ -535,7 +531,7 @@ func _apply_board_square_layout() -> void:
 	board_aspect.ratio = BOARD_TARGET_RATIO
 	board_aspect.custom_minimum_size = Vector2(width, height)
 	board_square.custom_minimum_size = Vector2(width, height)
-	_layout_board_discard_overlay(width, height)
+	_layout_table_center_components(width, height)
 
 
 func _setup_audio_players() -> void:
@@ -764,7 +760,6 @@ func _apply_style() -> void:
 	if discard_helper_action_button != null:
 		style.apply_button(discard_helper_action_button, true)
 	_apply_ding_que_overlay_style()
-	_apply_action_button_styles()
 	_apply_top_bar_button_group_styles()
 	center_status.visible = false
 	self_status.visible = false
@@ -791,83 +786,17 @@ func _setup_v17_plus_menu() -> void:
 
 
 func _configure_v17_top_bar() -> void:
-	if top_next_round_button == null or info_card == null:
+	if info_card == null:
 		return
-	var top_bar := %TopBar
-	var top_row := top_next_round_button.get_parent() as HBoxContainer
-	if top_row != null:
-		if info_card.get_parent() == top_row:
-			top_row.move_child(info_card, maxi(0, top_row.get_child_count() - 1))
-		top_row.add_theme_constant_override("separation", 12)
 	%RoomCard.visible = false
-	top_bar.custom_minimum_size = Vector2(0, 24)
-	info_card.custom_minimum_size = Vector2(76, 0)
-	info_card.size_flags_horizontal = Control.SIZE_SHRINK_END
 	info_card.visible = false
-	top_bar_button.custom_minimum_size = Vector2(214, 82)
-	top_settlement_info_button.custom_minimum_size = Vector2(214, 82)
-	top_next_round_button.custom_minimum_size = Vector2(214, 88)
-	top_next_round_button.text = "下一局"
-	top_bar_button.visible = true
+	top_bar_button.visible = false
 	top_ai_tuning_button.visible = false
 	top_ai_helper_button.visible = false
 	top_opponent_hand_button.visible = false
-	top_bar_button.visible = false
-	_configure_top_right_exit_button()
-	_ensure_v17_top_button_stack()
-	_layout_v17_top_button_stack()
-
-
-func _ensure_v17_top_button_stack() -> void:
-	if root_ui == null:
-		return
-	if v17_top_button_stack == null:
-		v17_top_button_stack = VBoxContainer.new()
-		v17_top_button_stack.name = "V17TopButtonStack"
-		v17_top_button_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		v17_top_button_stack.top_level = true
-		v17_top_button_stack.z_index = 130
-		v17_top_button_stack.add_theme_constant_override("separation", 8)
-		root_ui.add_child(v17_top_button_stack)
-	for button in [top_settlement_info_button, top_next_round_button]:
-		if button == null:
-			continue
-		if button.get_parent() != v17_top_button_stack:
-			if button.get_parent() != null:
-				button.get_parent().remove_child(button)
-			v17_top_button_stack.add_child(button)
-		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-
-
-func _layout_v17_top_button_stack() -> void:
-	if root_ui == null:
-		return
-	_ensure_v17_top_button_stack()
-	if v17_top_button_stack == null:
-		return
-	var visible_count := 0
-	for child in v17_top_button_stack.get_children():
-		if child is Control and (child as Control).visible:
-			visible_count += 1
-	v17_top_button_stack.visible = visible_count > 0
-	v17_top_button_stack.custom_minimum_size = Vector2(132.0, 164.0)
-	v17_top_button_stack.size = v17_top_button_stack.custom_minimum_size
-	v17_top_button_stack.position = Vector2(
-		root_ui.size.x - v17_top_button_stack.custom_minimum_size.x - 18.0,
-		108.0
-	)
-	var next_y := 0.0
-	for child in v17_top_button_stack.get_children():
-		if not (child is Button):
-			continue
-		var button := child as Button
-		if not button.visible:
-			continue
-		button.custom_minimum_size = Vector2(214.0, 82.0 if button != top_next_round_button else 88.0)
-		button.size = button.custom_minimum_size
-		button.position = Vector2((v17_top_button_stack.custom_minimum_size.x - button.size.x) * 0.5, next_y)
-		next_y += button.size.y + 8.0
+	top_settlement_info_button.visible = false
+	top_next_round_button.visible = false
+	top_exit_button.visible = false
 
 
 func _configure_board_lanes() -> void:
@@ -880,11 +809,6 @@ func _configure_board_lanes() -> void:
 
 
 func _apply_reference_table_layout() -> void:
-	if safe_area != null:
-		safe_area.add_theme_constant_override("margin_left", TABLE_SCREEN_MARGIN)
-		safe_area.add_theme_constant_override("margin_top", TABLE_SCREEN_MARGIN)
-		safe_area.add_theme_constant_override("margin_right", TABLE_SCREEN_MARGIN)
-		safe_area.add_theme_constant_override("margin_bottom", 5)
 	var main_vbox := get_node_or_null("UILayer/RootUI/SafeArea/MainVBox") as VBoxContainer
 	if main_vbox != null:
 		main_vbox.add_theme_constant_override("separation", 4)
@@ -935,7 +859,7 @@ func _apply_reference_table_layout() -> void:
 	_apply_v17_reference_frames()
 
 
-func _scale_v17_rect(x: float, y: float, width: float, height: float) -> Rect2:
+func _scale_design_rect(x: float, y: float, width: float, height: float) -> Rect2:
 	if root_ui == null or root_ui.size.x <= 0.0 or root_ui.size.y <= 0.0:
 		return Rect2(Vector2(x, y), Vector2(width, height))
 	var scale_x := root_ui.size.x / DESIGN_BASE_SIZE.x
@@ -944,6 +868,10 @@ func _scale_v17_rect(x: float, y: float, width: float, height: float) -> Rect2:
 		Vector2(x * scale_x, y * scale_y),
 		Vector2(width * scale_x, height * scale_y)
 	)
+
+
+func _scale_v17_rect(x: float, y: float, width: float, height: float) -> Rect2:
+	return _scale_design_rect(x, y, width, height)
 
 
 func _apply_v17_reference_frames() -> void:
@@ -971,47 +899,67 @@ func _apply_v17_reference_frames() -> void:
 
 
 func _v17_board_rect() -> Rect2:
-	return _scale_v17_rect(490.0, 158.0, 1065.0, 772.0)
+	return _compact_board_rect()
+
+
+func _compact_board_rect() -> Rect2:
+	return _scale_design_rect(304.0, 160.0, 1440.0, 710.0)
 
 
 func _v17_top_dynamic_rect() -> Rect2:
-	return _scale_v17_rect(16.0, 0.0, 1482.0, 210.0)
+	return _opponent_host_rect(2)
 
 
 func _v17_left_dynamic_rect() -> Rect2:
-	return _scale_v17_rect(146.0, 184.0, 340.0, 660.0)
+	return _opponent_host_rect(1)
 
 
 func _v17_right_dynamic_rect() -> Rect2:
-	return _scale_v17_rect(1552.0, 184.0, 340.0, 660.0)
+	return _opponent_host_rect(3)
 
 
 func _v17_self_dynamic_rect() -> Rect2:
-	return _scale_v17_rect(18.0, 958.0, 2012.0, 188.0)
+	return _self_hand_rect()
 
 
 func _v17_self_meld_rect() -> Rect2:
-	return _scale_v17_rect(24.0, 940.0, 536.0, 204.0)
+	return _scale_design_rect(20.0, 884.0, 560.0, 262.0)
 
 
 func _v17_self_hand_rect() -> Rect2:
-	return _v17_self_dynamic_rect()
+	return _self_hand_rect()
+
+
+func _self_hand_rect() -> Rect2:
+	return _scale_design_rect(20.0, 884.0, 2008.0, 262.0)
+
+
+func _opponent_host_rect(seat: int) -> Rect2:
+	match seat:
+		1:
+			return _scale_design_rect(126.0, 160.0, 390.0, 700.0)
+		2:
+			return _scale_design_rect(330.0, 12.0, 1388.0, 144.0)
+		3:
+			return _scale_design_rect(1532.0, 160.0, 390.0, 700.0)
+		_:
+			return Rect2()
 
 
 func _v17_self_hu_rect() -> Rect2:
-	return _scale_v17_rect(1868.0, 970.0, 152.0, 184.0)
+	return _scale_design_rect(1876.0, 894.0, 144.0, 236.0)
 
 
-func _v17_player_info_rect(seat: int) -> Rect2:
+func _seat_hud_rect(seat: int) -> Rect2:
 	match seat:
 		0:
-			return _scale_v17_rect(8.0, 812.0, 302.0, 136.0)
+			return _scale_design_rect(20.0, 724.0, 232.0, 112.0)
 		1:
-			return _scale_v17_rect(8.0, 318.0, 137.0, 204.0)
+			return _scale_design_rect(18.0, 250.0, 144.0, 132.0)
 		2:
-			return _scale_v17_rect(1506.0, 20.0, 296.0, 128.0)
+			return _scale_design_rect(1748.0, 34.0, 252.0, 96.0)
 		3:
-			return _scale_v17_rect(1906.0, 318.0, 136.0, 204.0)
+			return _scale_design_rect(1886.0, 250.0, 144.0, 132.0)
 		_:
 			return Rect2(Vector2.ZERO, Vector2.ZERO)
 
@@ -1046,70 +994,36 @@ func _place_v17_absolute_host(host: Control, rect: Rect2, z_index_value: int = 1
 	_place_overlay_box(host, Vector2.ZERO, rect.position, rect.size)
 
 
-func _setup_board_discard_overlay() -> void:
-	board_discard_overlay = Control.new()
-	board_discard_overlay.name = "BoardDiscardOverlay"
-	board_discard_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	board_discard_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_square.add_child(board_discard_overlay)
+func _setup_table_discard_layer() -> void:
+	if board_square == null:
+		return
+	table_discard_layer = TABLE_DISCARD_LAYER_SCRIPT.new()
+	table_discard_layer.name = "TableDiscardLayer"
+	table_discard_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	table_discard_layer.z_index = 4
+	board_square.add_child(table_discard_layer)
 
-	board_discard_field = Control.new()
-	board_discard_field.name = "BoardDiscardField"
-	board_discard_field.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_discard_overlay.add_child(board_discard_field)
 
-	board_cross_top_plate = Panel.new()
-	board_cross_top_plate.name = "BoardCrossTopPlate"
-	board_discard_field.add_child(board_cross_top_plate)
+func _setup_center_turn_indicator() -> void:
+	if board_square == null:
+		return
+	center_turn_indicator = CENTER_TURN_INDICATOR_SCENE.instantiate()
+	center_turn_indicator.name = "CenterTurnIndicator"
+	center_turn_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center_turn_indicator.z_index = 8
+	board_square.add_child(center_turn_indicator)
 
-	board_cross_bottom_plate = Panel.new()
-	board_cross_bottom_plate.name = "BoardCrossBottomPlate"
-	board_discard_field.add_child(board_cross_bottom_plate)
 
-	board_cross_left_plate = Panel.new()
-	board_cross_left_plate.name = "BoardCrossLeftPlate"
-	board_discard_field.add_child(board_cross_left_plate)
-
-	board_cross_right_plate = Panel.new()
-	board_cross_right_plate.name = "BoardCrossRightPlate"
-	board_discard_field.add_child(board_cross_right_plate)
-
-	board_cross_center_plate = Panel.new()
-	board_cross_center_plate.name = "BoardCrossCenterPlate"
-	board_discard_field.add_child(board_cross_center_plate)
-
-	board_discard_top_panel = _create_discard_zone_panel("BoardDiscardTopPanel")
-	board_discard_field.add_child(board_discard_top_panel)
-
-	board_discard_top_lane = Control.new()
-	board_discard_top_lane.name = "BoardDiscardTopLane"
-	board_discard_top_lane.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_discard_top_panel.add_child(board_discard_top_lane)
-
-	board_discard_bottom_panel = _create_discard_zone_panel("BoardDiscardBottomPanel")
-	board_discard_field.add_child(board_discard_bottom_panel)
-
-	board_discard_bottom_lane = Control.new()
-	board_discard_bottom_lane.name = "BoardDiscardBottomLane"
-	board_discard_bottom_lane.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_discard_bottom_panel.add_child(board_discard_bottom_lane)
-
-	board_discard_left_panel = _create_discard_zone_panel("BoardDiscardLeftPanel")
-	board_discard_field.add_child(board_discard_left_panel)
-
-	board_discard_left_lane = Control.new()
-	board_discard_left_lane.name = "BoardDiscardLeftLane"
-	board_discard_left_lane.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_discard_left_panel.add_child(board_discard_left_lane)
-
-	board_discard_right_panel = _create_discard_zone_panel("BoardDiscardRightPanel")
-	board_discard_field.add_child(board_discard_right_panel)
-
-	board_discard_right_lane = Control.new()
-	board_discard_right_lane.name = "BoardDiscardRightLane"
-	board_discard_right_lane.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_discard_right_panel.add_child(board_discard_right_lane)
-	_layout_board_discard_overlay(board_square.custom_minimum_size.x, board_square.custom_minimum_size.y)
+func _layout_table_center_components(board_width: float, board_height: float) -> void:
+	if board_width <= 0.0 or board_height <= 0.0:
+		return
+	var board_rect := Rect2(Vector2.ZERO, Vector2(board_width, board_height))
+	if table_discard_layer != null:
+		table_discard_layer.call("set_board_rect", board_rect)
+	if center_turn_indicator != null:
+		var compact := get_viewport_rect().size.y < 820.0
+		center_turn_indicator.call("set_compact", compact)
+		center_turn_indicator.position = (board_rect.size - center_turn_indicator.size) * 0.5
 
 
 func _place_overlay_box(node: Control, anchor: Vector2, offset: Vector2, box_size: Vector2) -> void:
@@ -1122,131 +1036,6 @@ func _place_overlay_box(node: Control, anchor: Vector2, offset: Vector2, box_siz
 	node.offset_right = offset.x + box_size.x
 	node.offset_bottom = offset.y + box_size.y
 	node.custom_minimum_size = box_size
-
-
-func _create_discard_zone_panel(name: String) -> Control:
-	var panel := Control.new()
-	panel.name = name
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.clip_contents = true
-	return panel
-
-
-func _layout_board_discard_overlay(board_width: float, board_height: float) -> void:
-	if board_discard_field == null or board_discard_top_lane == null or board_discard_bottom_lane == null:
-		return
-	if board_width <= 0.0 or board_height <= 0.0:
-		return
-
-	var field_size := Vector2(board_width, board_height)
-	var scale_x := field_size.x / 1065.0
-	var scale_y := field_size.y / 772.0
-	var top_plate_rect := Rect2(Vector2(28.0, 0.0), Vector2(1009.0, 210.0))
-	var bottom_plate_rect := Rect2(Vector2(28.0, 562.0), Vector2(1009.0, 210.0))
-	var left_plate_rect := Rect2(Vector2(0.0, 214.0), Vector2(352.0, 344.0))
-	var right_plate_rect := Rect2(Vector2(713.0, 214.0), Vector2(352.0, 344.0))
-	var center_plate_rect := Rect2(Vector2(459.0, 333.0), Vector2(147.0, 106.0))
-	var top_lane_rect := Rect2(Vector2(34.0, 0.0), Vector2(997.0, 210.0))
-	var bottom_lane_rect := Rect2(Vector2(34.0, 562.0), Vector2(997.0, 210.0))
-	var left_lane_rect := Rect2(Vector2(0.0, 214.0), Vector2(352.0, 344.0))
-	var right_lane_rect := Rect2(Vector2(713.0, 214.0), Vector2(352.0, 344.0))
-
-	_place_overlay_box(
-		board_discard_field,
-		Vector2(0.0, 0.0),
-		Vector2.ZERO,
-		field_size
-	)
-
-	_place_overlay_box(
-		board_cross_top_plate,
-		Vector2.ZERO,
-		top_plate_rect.position * Vector2(scale_x, scale_y),
-		top_plate_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_cross_bottom_plate,
-		Vector2.ZERO,
-		bottom_plate_rect.position * Vector2(scale_x, scale_y),
-		bottom_plate_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_cross_left_plate,
-		Vector2.ZERO,
-		left_plate_rect.position * Vector2(scale_x, scale_y),
-		left_plate_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_cross_right_plate,
-		Vector2.ZERO,
-		right_plate_rect.position * Vector2(scale_x, scale_y),
-		right_plate_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_cross_center_plate,
-		Vector2.ZERO,
-		center_plate_rect.position * Vector2(scale_x, scale_y),
-		center_plate_rect.size * Vector2(scale_x, scale_y)
-	)
-
-	_place_overlay_box(
-		board_discard_top_panel,
-		Vector2.ZERO,
-		top_lane_rect.position * Vector2(scale_x, scale_y),
-		top_lane_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_discard_bottom_panel,
-		Vector2.ZERO,
-		bottom_lane_rect.position * Vector2(scale_x, scale_y),
-		bottom_lane_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_discard_left_panel,
-		Vector2.ZERO,
-		left_lane_rect.position * Vector2(scale_x, scale_y),
-		left_lane_rect.size * Vector2(scale_x, scale_y)
-	)
-	_place_overlay_box(
-		board_discard_right_panel,
-		Vector2.ZERO,
-		right_lane_rect.position * Vector2(scale_x, scale_y),
-		right_lane_rect.size * Vector2(scale_x, scale_y)
-	)
-	_layout_discard_lane_inside_panel(board_discard_top_lane)
-	_layout_discard_lane_inside_panel(board_discard_bottom_lane)
-	_layout_discard_lane_inside_panel(board_discard_left_lane)
-	_layout_discard_lane_inside_panel(board_discard_right_lane)
-
-
-func _layout_discard_lane_inside_panel(lane: Control) -> void:
-	if lane == null:
-		return
-	lane.anchor_left = 0.0
-	lane.anchor_top = 0.0
-	lane.anchor_right = 1.0
-	lane.anchor_bottom = 1.0
-	lane.offset_left = 0.0
-	lane.offset_top = 0.0
-	lane.offset_right = 0.0
-	lane.offset_bottom = 0.0
-
-
-func _discard_zone_size(columns: int, limit: int, scale: float) -> Vector2:
-	var tile_size := TILE_VISUAL_BASE_SIZE * scale
-	var rows := maxi(1, ceili(float(limit) / float(maxi(1, columns))))
-	var width := tile_size.x * columns + CENTER_DISCARD_SEPARATION * maxi(0, columns - 1)
-	var height := tile_size.y * rows + CENTER_DISCARD_SEPARATION * maxi(0, rows - 1)
-	return Vector2(ceilf(width), ceilf(height))
-
-
-func _discard_zone_size_rotated(columns: int, limit: int, scale: float) -> Vector2:
-	var tile_size := TILE_VISUAL_BASE_SIZE * scale
-	var oriented_size := Vector2(tile_size.y, tile_size.x)
-	var rows := maxi(1, ceili(float(limit) / float(maxi(1, columns))))
-	var width := oriented_size.x * rows + CENTER_DISCARD_SEPARATION * maxi(0, rows - 1)
-	var height := oriented_size.y * columns + CENTER_DISCARD_SEPARATION * maxi(0, columns - 1)
-	return Vector2(ceilf(width), ceilf(height))
 
 
 func _setup_opening_roll_ui() -> void:
@@ -1342,12 +1131,93 @@ func _setup_round_result_overlay() -> void:
 		seat_result_labels[seat] = score_label
 
 
+func _setup_settlement_overlay_v2() -> void:
+	if root_ui == null or settlement_overlay_v2 != null:
+		return
+	settlement_overlay_v2 = SETTLEMENT_OVERLAY_SCENE.instantiate() as Control
+	settlement_overlay_v2.name = "SettlementOverlayV2"
+	settlement_overlay_v2.top_level = true
+	settlement_overlay_v2.z_index = 245
+	settlement_overlay_v2.visible = false
+	root_ui.add_child(settlement_overlay_v2)
+	settlement_overlay_v2.connect("close_requested", _on_settlement_close_pressed)
+	settlement_overlay_v2.connect("next_round_requested", _on_top_next_round_pressed)
+
+
+func _setup_rich_settlement_overlay() -> void:
+	settlement_overlay.top_level = true
+	settlement_overlay.z_index = 245
+	settlement_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	settlement_panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	if not settlement_close_button.pressed.is_connected(_on_settlement_close_pressed):
+		settlement_close_button.pressed.connect(_on_settlement_close_pressed)
+	if not next_round_button.pressed.is_connected(_on_next_round_pressed):
+		next_round_button.pressed.connect(_on_next_round_pressed)
+	if not root_ui.resized.is_connected(_queue_settlement_overlay_layout):
+		root_ui.resized.connect(_queue_settlement_overlay_layout)
+	call_deferred("_layout_settlement_overlay")
+
+
+func _queue_settlement_overlay_layout() -> void:
+	call_deferred("_layout_settlement_overlay")
+
+
+func _layout_settlement_overlay() -> void:
+	if settlement_panel == null or root_ui == null:
+		return
+	var viewport_size := root_ui.size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		viewport_size = get_viewport_rect().size
+	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
+		return
+	var outer_margin := 10.0
+	var compact_margin := 6.0
+	var max_size := Vector2(
+		minf(SETTLEMENT_PANEL_MAX_SIZE.x, maxf(0.0, viewport_size.x - outer_margin * 2.0)),
+		minf(SETTLEMENT_PANEL_MAX_SIZE.y, maxf(0.0, viewport_size.y - outer_margin * 2.0))
+	)
+	var target_size := Vector2(
+		clampf(viewport_size.x * SETTLEMENT_PANEL_SCREEN_RATIO.x, minf(SETTLEMENT_PANEL_MIN_SIZE.x, max_size.x), max_size.x),
+		clampf(viewport_size.y * SETTLEMENT_PANEL_SCREEN_RATIO.y, minf(SETTLEMENT_PANEL_MIN_SIZE.y, max_size.y), max_size.y)
+	)
+	if viewport_size.x < 1700.0 or viewport_size.y < 940.0:
+		target_size = Vector2(maxf(0.0, viewport_size.x - compact_margin * 2.0), maxf(0.0, viewport_size.y - compact_margin * 2.0))
+	settlement_panel.custom_minimum_size = target_size
+	settlement_panel.size = target_size
+
+	var scale := clampf(target_size.y / 1000.0, 0.72, 1.30)
+	settlement_layout_scale = scale
+	_set_margin_constants(settlement_margin, 28.0 * scale, 12.0 * scale, 28.0 * scale, 16.0 * scale)
+	_set_margin_constants(settlement_player_list_margin, 18.0 * scale, 18.0 * scale, 18.0 * scale, 18.0 * scale)
+	_set_margin_constants(settlement_detail_margin, 20.0 * scale, 14.0 * scale, 20.0 * scale, 14.0 * scale)
+	_set_margin_constants(settlement_hero_margin, 22.0 * scale, 14.0 * scale, 22.0 * scale, 14.0 * scale)
+	_set_margin_constants(settlement_hand_margin, 14.0 * scale, 10.0 * scale, 14.0 * scale, 10.0 * scale)
+	_set_margin_constants(settlement_breakdown_margin, 14.0 * scale, 10.0 * scale, 14.0 * scale, 10.0 * scale)
+	settlement_vbox.add_theme_constant_override("separation", int(round(10.0 * scale)))
+	settlement_content.add_theme_constant_override("separation", int(round(18.0 * scale)))
+	settlement_player_list_vbox.add_theme_constant_override("separation", int(round(14.0 * scale)))
+	settlement_player_list.add_theme_constant_override("separation", int(round(12.0 * scale)))
+	settlement_detail_vbox.add_theme_constant_override("separation", int(round(10.0 * scale)))
+	settlement_hero_row.add_theme_constant_override("separation", int(round(22.0 * scale)))
+	settlement_hero_info.add_theme_constant_override("separation", int(round(9.0 * scale)))
+	settlement_hero_stats.add_theme_constant_override("separation", int(round(22.0 * scale)))
+	settlement_hand_row.add_theme_constant_override("separation", int(round(10.0 * scale)))
+	settlement_breakdown_vbox.add_theme_constant_override("separation", int(round(8.0 * scale)))
+	settlement_breakdown_list.add_theme_constant_override("separation", int(round(8.0 * scale)))
+	settlement_player_list_card.custom_minimum_size = Vector2(maxf(292.0, target_size.x * 0.24), 0.0)
+	settlement_hero_card.custom_minimum_size = Vector2(0.0, 148.0 * scale)
+	settlement_hand_card.custom_minimum_size = Vector2(0.0, 190.0 * scale)
+	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, 330.0 * scale)
+	settlement_close_button.custom_minimum_size = Vector2(124.0 * scale, 52.0 * scale)
+	next_round_button.custom_minimum_size = Vector2(300.0 * scale, 82.0 * scale)
+
+
 func _setup_discard_helper_panel() -> void:
 	if root_ui == null:
 		return
 	discard_helper_panel = Panel.new()
 	discard_helper_panel.name = "DiscardHelperPanel"
-	discard_helper_panel.custom_minimum_size = Vector2(1320, 190)
+	discard_helper_panel.custom_minimum_size = Vector2(1320, 238)
 	discard_helper_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	discard_helper_panel.z_index = 160
 	discard_helper_panel.top_level = true
@@ -1417,6 +1287,89 @@ func _setup_discard_helper_panel() -> void:
 	root_ui.add_child(discard_helper_panel)
 
 
+func _setup_ai_assistant_drawer() -> void:
+	if root_ui == null or ai_assistant_drawer != null:
+		return
+	ai_assistant_drawer = AI_ASSISTANT_SCENE.instantiate() as Control
+	ai_assistant_drawer.name = "AIAssistantDrawer"
+	ai_assistant_drawer.top_level = true
+	ai_assistant_drawer.z_index = 228
+	ai_assistant_drawer.visible = false
+	root_ui.add_child(ai_assistant_drawer)
+	ai_assistant_drawer.connect("toggle_requested", _on_ai_drawer_toggle_requested)
+	ai_assistant_drawer.connect("recommendation_requested", _on_ai_recommendation_requested)
+	ai_assistant_drawer.connect("opacity_changed", _on_ai_glass_opacity_changed)
+	ai_assistant_drawer.connect("opacity_change_finished", _on_ai_glass_opacity_change_finished)
+	ai_assistant_drawer.connect("position_changed", _on_ai_drawer_position_changed)
+	ai_assistant_drawer.connect("position_change_finished", _on_ai_drawer_position_change_finished)
+	ai_assistant_drawer.call("set_glass_opacity", ai_glass_opacity)
+	ai_assistant_drawer.call("restore_user_position", ai_drawer_position_normalized, ai_drawer_positioned)
+	if not root_ui.resized.is_connected(_layout_ai_assistant_drawer):
+		root_ui.resized.connect(_layout_ai_assistant_drawer)
+	if safe_area != null and not safe_area.resized.is_connected(_layout_ai_assistant_drawer):
+		safe_area.resized.connect(_layout_ai_assistant_drawer)
+
+
+func _layout_ai_assistant_drawer() -> void:
+	if ai_assistant_drawer == null or root_ui == null or not ai_assistant_drawer.visible:
+		return
+	var margins := Vector4(24.0, 18.0, 24.0, 22.0)
+	if safe_area != null and safe_area.has_method("get_safe_margins"):
+		margins = safe_area.call("get_safe_margins")
+	var desired_size := ai_assistant_drawer.custom_minimum_size
+	var max_width := maxf(320.0, root_ui.size.x - margins.x - margins.z - 24.0)
+	desired_size.x = minf(desired_size.x, max_width)
+	ai_assistant_drawer.size = desired_size
+	var drag_bounds := Rect2(
+		Vector2(margins.x + 8.0, margins.y + 104.0),
+		Vector2(
+			maxf(desired_size.x, root_ui.size.x - margins.x - margins.z - 16.0),
+			maxf(desired_size.y, root_ui.size.y - margins.y - margins.w - 116.0)
+		)
+	)
+	ai_assistant_drawer.call("set_drag_bounds", drag_bounds)
+	var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2()
+	var root_origin := root_ui.global_position
+	var target_x := (root_ui.size.x - desired_size.x) * 0.5
+	var target_y := root_ui.size.y - margins.w - desired_size.y - 224.0
+	if hand_rect.size.y > 1.0:
+		target_x = hand_rect.get_center().x - root_origin.x - desired_size.x * 0.5
+		target_y = hand_rect.position.y - root_origin.y - desired_size.y - 16.0
+	ai_assistant_drawer.call("place_default_position", Vector2(
+		clampf(target_x, margins.x + 8.0, root_ui.size.x - margins.z - desired_size.x - 8.0),
+		clampf(target_y, margins.y + 104.0, root_ui.size.y - margins.w - desired_size.y - 12.0)
+	))
+
+
+func _on_ai_drawer_toggle_requested(_expanded: bool) -> void:
+	_layout_ai_assistant_drawer()
+
+
+func _on_ai_glass_opacity_changed(opacity: float) -> void:
+	ai_glass_opacity = clampf(opacity, 0.40, 0.92)
+
+
+func _on_ai_glass_opacity_change_finished(opacity: float) -> void:
+	ai_glass_opacity = clampf(opacity, 0.40, 0.92)
+	_save_ui_preferences()
+
+
+func _on_ai_drawer_position_changed(normalized_position: Vector2) -> void:
+	ai_drawer_position_normalized = normalized_position
+	ai_drawer_positioned = true
+
+
+func _on_ai_drawer_position_change_finished(normalized_position: Vector2) -> void:
+	ai_drawer_position_normalized = normalized_position
+	ai_drawer_positioned = true
+	_save_ui_preferences()
+
+
+func _on_ai_recommendation_requested(tile_id: int) -> void:
+	selected_tile_id = tile_id
+	_on_snapshot_changed(game_manager.get_snapshot())
+
+
 func _apply_discard_helper_style() -> void:
 	if discard_helper_panel == null:
 		return
@@ -1449,10 +1402,10 @@ func _apply_discard_helper_style() -> void:
 	discard_helper_compare.add_theme_color_override("font_color", Color(0.94, 0.99, 0.86, 0.99))
 	discard_helper_compare.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.02, 0.88))
 	discard_helper_compare.add_theme_constant_override("outline_size", 3)
-	discard_helper_options.add_theme_font_size_override("font_size", 1)
+	discard_helper_options.add_theme_font_size_override("font_size", 26)
 	discard_helper_options.add_theme_color_override("font_color", Color(0.79, 0.84, 0.81, 0.92))
 	discard_helper_options.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.02, 0.82))
-	discard_helper_options.add_theme_constant_override("outline_size", 0)
+	discard_helper_options.add_theme_constant_override("outline_size", 2)
 	discard_helper_action_button.modulate = Color(1.0, 1.0, 1.0, 0.92)
 	discard_helper_action_button.visible = false
 	discard_helper_action_button.disabled = true
@@ -1502,17 +1455,17 @@ func _apply_tabletop_matte_theme() -> void:
 		_ensure_material_overlay(background_rect, "TableFeltSoftGlow", TABLE_MATERIAL_OVERLAY_SCRIPT.MaterialMode.FELT, 1.0)
 
 	_apply_clear_panel(%TopBar)
-	_apply_felt_panel(room_card, Color(0.06, 0.20, 0.16, 0.40), Color(0.86, 1.0, 0.82, 0.04), 18, 0, 8)
-	_apply_felt_panel(info_card, Color(0.06, 0.20, 0.16, 0.46), Color(0.86, 1.0, 0.82, 0.06), 14, 0, 10)
+	_apply_felt_panel(room_card, Color(0.012, 0.094, 0.082, 0.72), Color(0.659, 0.475, 0.227, 0.34), 18, 1, 8)
+	_apply_felt_panel(info_card, Color(0.012, 0.094, 0.082, 0.78), Color(0.659, 0.475, 0.227, 0.38), 14, 1, 10)
 	_ensure_material_overlay(info_card, "InfoCardSoftLight", TABLE_MATERIAL_OVERLAY_SCRIPT.MaterialMode.SOFT_PANEL, 0.80)
 
 	_apply_clear_panel(center_card)
-	_apply_felt_panel(center_stats_card, Color(0.10, 0.33, 0.24, 0.70), Color(0.84, 0.95, 0.90, 0.10), 16, 1, 4)
-	_apply_felt_panel(center_hint_card, Color(0.10, 0.33, 0.24, 0.70), Color(0.84, 0.95, 0.90, 0.10), 16, 1, 4)
+	_apply_felt_panel(center_stats_card, Color(0.012, 0.094, 0.082, 0.90), Color(0.725, 0.588, 0.333, 0.62), 16, 1, 5)
+	_apply_felt_panel(center_hint_card, Color(0.012, 0.094, 0.082, 0.90), Color(0.725, 0.588, 0.333, 0.62), 16, 1, 5)
 	_apply_clear_panel(board_area)
 	_apply_clear_panel(board_square)
 	_remove_material_overlay(board_square, "BoardFeltTexture")
-	_apply_felt_panel(board_core, Color(0.17, 0.19, 0.18, 0.96), Color(0.45, 0.90, 1.0, 0.80), 14, 2, 10)
+	_apply_felt_panel(board_core, Color(0.012, 0.094, 0.082, 0.98), Color(0.725, 0.588, 0.333, 0.78), 14, 2, 10)
 	_apply_clear_panel(center_meld_card)
 	_apply_clear_panel(center_discard_card)
 	_apply_clear_panel(%SelfSection)
@@ -1537,24 +1490,8 @@ func _apply_tabletop_matte_theme() -> void:
 
 
 func _apply_v17_plate_styles() -> void:
-	for panel in [
-		board_cross_top_plate,
-		board_cross_bottom_plate,
-		board_cross_left_plate,
-		board_cross_right_plate,
-		board_cross_center_plate,
-	]:
-		_apply_v17_plate_panel(panel, true)
 	for host in [player_self_host, self_hu_tile_host]:
 		_hide_v17_host_backplate(host)
-
-
-func _apply_v17_plate_panel(panel: Panel, glowing: bool) -> void:
-	if panel == null:
-		return
-	STYLE_CONFIG.apply_tabletop_zone_panel(panel)
-	panel.clip_contents = true
-	_remove_material_overlay(panel, "V17SoftPlateLight")
 
 
 func _apply_v17_host_backplate(host: Control) -> void:
@@ -1593,9 +1530,9 @@ func _apply_felt_panel(panel: Panel, bg: Color, border: Color, radius: int, bord
 	style.corner_radius_top_right = restrained_radius
 	style.corner_radius_bottom_left = restrained_radius
 	style.corner_radius_bottom_right = restrained_radius
-	style.shadow_color = Color(0.05, 0.18, 0.10, 0.16)
+	style.shadow_color = Color(0.0, 0.015, 0.010, 0.34)
 	style.shadow_size = mini(shadow_size, 8)
-	style.shadow_offset = Vector2(0, maxf(2.0, float(style.shadow_size) * 0.32))
+	style.shadow_offset = Vector2(3.0, maxf(3.0, float(style.shadow_size) * 0.48))
 	panel.add_theme_stylebox_override("panel", style)
 
 
@@ -1850,10 +1787,9 @@ func _update_board_core_hud(snapshot: Dictionary) -> void:
 		return
 	var wall_count := int(snapshot.get("wall_count", 0))
 	board_core_count_label.text = str(maxi(0, wall_count))
-	board_core_wind_top.text = "北"
-	board_core_wind_right.text = "东"
-	board_core_wind_bottom.text = "南"
-	board_core_wind_left.text = "西"
+	for wind_label in [board_core_wind_top, board_core_wind_right, board_core_wind_bottom, board_core_wind_left]:
+		wind_label.text = ""
+		wind_label.visible = false
 	var dealer_seat := int(snapshot.get("current_dealer_seat", 0))
 	var turn_seat := int(snapshot.get("current_turn_seat", 0))
 	var reaction_text := str(snapshot.get("reaction_summary", "-"))
@@ -1948,6 +1884,8 @@ func _setup_board_core_hud() -> void:
 	board_core_wind_bottom = _create_board_core_wind_label("南", Vector2(0.5, 1.0), Vector2(-24, 12), Vector2(48, 34))
 	board_core_wind_left = _create_board_core_wind_label("西", Vector2(0.0, 0.5), Vector2(-30, -17), Vector2(38, 34))
 	for node in [board_core_wind_top, board_core_wind_right, board_core_wind_bottom, board_core_wind_left]:
+		node.text = ""
+		node.visible = false
 		core_root.add_child(node)
 
 	board_core_status_chip = _create_board_core_chip(Vector2(0.5, 1.0), Vector2(42, 10), Vector2(96, 34))
@@ -1958,157 +1896,86 @@ func _setup_board_core_hud() -> void:
 	board_core_recent_chip.visible = false
 
 
-func _setup_v17_player_info_panels() -> void:
-	if root_ui == null or not v17_player_info_panels.is_empty():
+func _setup_seat_huds() -> void:
+	if root_ui == null or not seat_huds.is_empty():
 		return
-	for seat in [1, 2, 3]:
-		var panel := Panel.new()
-		panel.name = "V17SeatInfoPanel%d" % seat
-		panel.top_level = true
-		panel.z_index = 120
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		_apply_v17_player_info_panel_style(panel, seat)
-		root_ui.add_child(panel)
-
-		var margin := MarginContainer.new()
-		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-		margin.add_theme_constant_override("margin_left", 9)
-		margin.add_theme_constant_override("margin_top", 7)
-		margin.add_theme_constant_override("margin_right", 9)
-		margin.add_theme_constant_override("margin_bottom", 7)
-		panel.add_child(margin)
-
-		var row := HBoxContainer.new()
-		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 0)
-		margin.add_child(row)
-		v17_player_info_avatar_labels[seat] = null
-
-		var vbox := VBoxContainer.new()
-		vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-		vbox.add_theme_constant_override("separation", 10)
-		row.add_child(vbox)
-
-		var name_label := Label.new()
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		STYLE_CONFIG.apply_label(name_label, false, true)
-		name_label.add_theme_font_size_override("font_size", 38)
-		name_label.add_theme_color_override("font_color", Color(1.0, 0.99, 0.90, 1.0))
-		name_label.add_theme_color_override("font_outline_color", Color(0.03, 0.10, 0.07, 0.96))
-		name_label.add_theme_constant_override("outline_size", 4)
-		vbox.add_child(name_label)
-
-		var status_label := Label.new()
-		status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		STYLE_CONFIG.apply_label(status_label, false, false)
-		status_label.add_theme_font_size_override("font_size", 34)
-		status_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.46, 1.0))
-		status_label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.05, 0.92))
-		status_label.add_theme_constant_override("outline_size", 4)
-		vbox.add_child(status_label)
-
-		var dealer_badge := Label.new()
-		dealer_badge.name = "DealerBadge"
-		dealer_badge.text = "庄"
-		dealer_badge.visible = false
-		dealer_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		dealer_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		dealer_badge.anchor_left = 1.0
-		dealer_badge.anchor_right = 1.0
-		dealer_badge.anchor_top = 0.0
-		dealer_badge.anchor_bottom = 0.0
-		dealer_badge.offset_left = -58.0
-		dealer_badge.offset_top = 6.0
-		dealer_badge.offset_right = -8.0
-		dealer_badge.offset_bottom = 62.0
-		STYLE_CONFIG.apply_label(dealer_badge, false, false)
-		dealer_badge.add_theme_font_size_override("font_size", 34)
-		dealer_badge.add_theme_color_override("font_color", Color(1.0, 0.92, 0.42, 1.0))
-		dealer_badge.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.01, 0.95))
-		dealer_badge.add_theme_constant_override("outline_size", 4)
-		var dealer_style := StyleBoxFlat.new()
-		dealer_style.bg_color = Color(0.20, 0.07, 0.03, 0.97)
-		dealer_style.border_color = Color(1.0, 0.78, 0.22, 0.98)
-		dealer_style.set_border_width_all(3)
-		dealer_style.corner_radius_top_left = 14
-		dealer_style.corner_radius_top_right = 14
-		dealer_style.corner_radius_bottom_left = 14
-		dealer_style.corner_radius_bottom_right = 14
-		dealer_style.content_margin_left = 12
-		dealer_style.content_margin_right = 12
-		dealer_style.content_margin_top = 6
-		dealer_style.content_margin_bottom = 6
-		dealer_style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
-		dealer_style.shadow_size = 6
-		dealer_style.shadow_offset = Vector2(0, 2)
-		dealer_badge.add_theme_stylebox_override("normal", dealer_style)
-		panel.add_child(dealer_badge)
-		v17_player_info_dealer_badges[seat] = dealer_badge
-
-		var ding_que_badge := Label.new()
-		ding_que_badge.name = "DingQueBadge"
-		ding_que_badge.visible = false
-		ding_que_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		ding_que_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		ding_que_badge.anchor_left = 0.0
-		ding_que_badge.anchor_right = 0.0
-		ding_que_badge.anchor_top = 0.0
-		ding_que_badge.anchor_bottom = 0.0
-		ding_que_badge.offset_left = 54.0
-		ding_que_badge.offset_top = 8.0
-		ding_que_badge.offset_right = 86.0
-		ding_que_badge.offset_bottom = 40.0
-		STYLE_CONFIG.apply_label(ding_que_badge, false, false)
-		ding_que_badge.add_theme_font_size_override("font_size", 14)
-		var ding_que_style := StyleBoxFlat.new()
-		ding_que_style.bg_color = Color(0.18, 0.50, 0.34, 0.94)
-		ding_que_style.border_color = Color(0.95, 1.0, 0.82, 0.64)
-		ding_que_style.set_border_width_all(2)
-		ding_que_style.corner_radius_top_left = 10
-		ding_que_style.corner_radius_top_right = 10
-		ding_que_style.corner_radius_bottom_left = 10
-		ding_que_style.corner_radius_bottom_right = 10
-		ding_que_badge.add_theme_stylebox_override("normal", ding_que_style)
-		panel.add_child(ding_que_badge)
-		v17_player_info_ding_que_badges[seat] = ding_que_badge
-
-		v17_player_info_panels[seat] = panel
-		v17_player_info_name_labels[seat] = name_label
-		v17_player_info_status_labels[seat] = status_label
+	for seat in [0, 1, 2, 3]:
+		var seat_hud := SEAT_HUD_SCENE.instantiate() as Control
+		seat_hud.name = "SeatHUD%d" % seat
+		seat_hud.top_level = true
+		seat_hud.z_index = 120
+		seat_hud.configure_seat(seat)
+		root_ui.add_child(seat_hud)
+		seat_huds[seat] = seat_hud
 
 
-func _apply_v17_player_info_panel_style(panel: Panel, seat: int) -> void:
-	if panel == null:
+func _setup_table_utility_bar() -> void:
+	if root_ui == null or table_utility_bar != null:
 		return
-	panel.clip_contents = true
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.27, 0.21, 0.48)
-	style.border_color = Color(0.96, 1.0, 0.82, 0.16)
-	style.set_border_width_all(1)
-	style.corner_radius_top_left = 20
-	style.corner_radius_top_right = 20
-	style.corner_radius_bottom_left = 20
-	style.corner_radius_bottom_right = 20
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	style.shadow_color = Color(0.00, 0.07, 0.05, 0.14)
-	style.shadow_size = 8
-	style.shadow_offset = Vector2(0, 4)
-	style.anti_aliasing = true
-	style.anti_aliasing_size = 1.4
-	panel.add_theme_stylebox_override("panel", style)
-	panel.self_modulate = Color(1.0, 1.0, 1.0, 0.94)
-	_ensure_material_overlay(panel, "V17SeatCardSoftLight", TABLE_MATERIAL_OVERLAY_SCRIPT.MaterialMode.SOFT_PANEL, 0.48)
+	table_utility_bar = TABLE_UTILITY_BAR_SCENE.instantiate() as Control
+	table_utility_bar.name = "TableUtilityBar"
+	table_utility_bar.top_level = true
+	table_utility_bar.z_index = 230
+	root_ui.add_child(table_utility_bar)
+	table_utility_bar.connect("ai_pressed", _on_top_ai_helper_button_pressed)
+	table_utility_bar.connect("settings_pressed", _on_top_bar_button_pressed)
+	table_utility_bar.connect("opponent_hands_pressed", _on_top_opponent_hand_button_pressed)
+	table_utility_bar.connect("settlement_pressed", _on_top_settlement_info_pressed)
+	table_utility_bar.connect("next_round_pressed", _on_top_next_round_pressed)
+	table_utility_bar.connect("exit_pressed", _on_top_exit_pressed)
+	if not root_ui.resized.is_connected(_layout_table_utility_bar):
+		root_ui.resized.connect(_layout_table_utility_bar)
+	if safe_area != null and not safe_area.resized.is_connected(_layout_table_utility_bar):
+		safe_area.resized.connect(_layout_table_utility_bar)
+	call_deferred("_layout_table_utility_bar")
 
 
+func _setup_table_action_bar() -> void:
+	if root_ui == null or table_action_bar != null:
+		return
+	table_action_bar = TABLE_ACTION_BAR_SCENE.instantiate() as Control
+	table_action_bar.name = "TableActionBar"
+	table_action_bar.top_level = true
+	table_action_bar.z_index = 225
+	root_ui.add_child(table_action_bar)
+	table_action_bar.connect("action_selected", _on_table_action_selected)
+	if not root_ui.resized.is_connected(_queue_table_action_bar_layout):
+		root_ui.resized.connect(_queue_table_action_bar_layout)
+	if safe_area != null and not safe_area.resized.is_connected(_queue_table_action_bar_layout):
+		safe_area.resized.connect(_queue_table_action_bar_layout)
+	call_deferred("_layout_table_action_bar")
+
+
+func _queue_table_action_bar_layout() -> void:
+	call_deferred("_layout_table_action_bar")
+
+
+func _layout_table_action_bar() -> void:
+	if table_action_bar == null or root_ui == null or not table_action_bar.visible:
+		return
+	var margins := Vector4(24.0, 18.0, 24.0, 22.0)
+	if safe_area != null and safe_area.has_method("get_safe_margins"):
+		margins = safe_area.call("get_safe_margins")
+	var desired_size := table_action_bar.custom_minimum_size
+	table_action_bar.size = desired_size
+	var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2()
+	var target_y := root_ui.size.y - desired_size.y - margins.w - 220.0
+	if hand_rect.size.y > 1.0:
+		target_y = hand_rect.position.y - desired_size.y - 18.0
+	table_action_bar.position = Vector2(
+		maxf(margins.x, root_ui.size.x - margins.z - desired_size.x - 46.0),
+		clampf(target_y, margins.y + 82.0, root_ui.size.y - margins.w - desired_size.y)
+	)
+
+
+func _layout_table_utility_bar() -> void:
+	if table_utility_bar == null or root_ui == null:
+		return
+	table_utility_bar.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var margins := Vector4(24.0, 18.0, 24.0, 22.0)
+	if safe_area != null and safe_area.has_method("get_safe_margins"):
+		margins = safe_area.call("get_safe_margins")
+	table_utility_bar.call("set_safe_margins", margins)
 func _setup_self_hu_tile_host() -> void:
 	if root_ui == null or self_hu_tile_host != null:
 		return
@@ -2409,7 +2276,7 @@ func _on_snapshot_changed(snapshot: Dictionary) -> void:
 	left_ui.apply_snapshot(_player_by_seat(players, 1), not opponent_hands_enabled, current_turn_seat, current_dealer_seat, show_opponent_ding_que)
 	top_ui.apply_snapshot(_player_by_seat(players, 2), not opponent_hands_enabled, current_turn_seat, current_dealer_seat, show_opponent_ding_que)
 	right_ui.apply_snapshot(_player_by_seat(players, 3), not opponent_hands_enabled, current_turn_seat, current_dealer_seat, show_opponent_ding_que)
-	_update_v17_player_info_panels(snapshot)
+	_update_seat_huds(snapshot)
 
 	_update_top_bar(snapshot)
 	_update_center_area(snapshot, players, self_player)
@@ -2420,7 +2287,7 @@ func _on_snapshot_changed(snapshot: Dictionary) -> void:
 	_refresh_ai_tuning_panel(snapshot)
 	_refresh_round_result_overlay(snapshot)
 	_schedule_ai_progress_if_needed(snapshot)
-	_layout_action_panel()
+	_layout_table_action_bar()
 	_refresh_opening_roll_ui(snapshot)
 	_handle_audio_transitions(previous_snapshot, snapshot)
 
@@ -2524,9 +2391,6 @@ func _recover_stale_draw_transition(snapshot: Dictionary) -> void:
 	if current_phase == GameState.RoundPhase.REACTION:
 		_clear_draw_transition_block("entered_reaction_phase")
 		return
-	if bool(snapshot.get("human_can_bao_jiao", false)) or bool(snapshot.get("human_can_pass_opening_bao_jiao", false)):
-		_clear_draw_transition_block("human_opening_bao_jiao_action_available")
-		return
 	var human_can_discard := bool(snapshot.get("human_can_discard", false))
 	var current_turn_seat := int(snapshot.get("current_turn_seat", -1))
 	var timer_running := draw_transition_timer != null and not draw_transition_timer.is_stopped()
@@ -2578,10 +2442,6 @@ func _play_new_meld_voice(previous_players: Array, current_players: Array) -> vo
 	for seat in range(4):
 		var previous_player := _player_by_seat(previous_players, seat)
 		var current_player := _player_by_seat(current_players, seat)
-		if not bool(previous_player.get("bao_jiao", false)) and bool(current_player.get("bao_jiao", false)):
-			var bao_gang_count := int(Array(current_player.get("bao_gang_tiles", [])).size())
-			_speak_action("报杠" if bao_gang_count > 0 else "报叫", seat)
-			return
 		var previous_melds: Array = previous_player.get("melds", [])
 		var current_melds: Array = current_player.get("melds", [])
 		if current_melds.size() > previous_melds.size():
@@ -2758,10 +2618,6 @@ func _action_audio_key(text: String) -> String:
 			return "hu"
 		"自摸":
 			return "zimo"
-		"报叫":
-			return "bao_jiao"
-		"报杠":
-			return "bao_gang"
 		"过":
 			return "pass"
 		"赢了":
@@ -2798,13 +2654,16 @@ func _update_top_bar(snapshot: Dictionary) -> void:
 	top_ai_helper_button.visible = false
 	top_opponent_hand_button.visible = false
 	top_settlement_info_button.visible = false
-	top_next_round_button.visible = true
+	top_next_round_button.visible = false
 	_configure_top_right_exit_button()
 	center_info.text = ""
 	_apply_ai_preset_button_style(preset_name)
 	_apply_ai_helper_button_style()
 	_update_floating_button_texts()
-	_layout_v17_top_button_stack()
+	if table_utility_bar != null:
+		var round_complete := int(snapshot.get("current_phase", 0)) == 7
+		table_utility_bar.call("render", ai_helper_enabled, round_complete, settlement_dismissed, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)
+		_layout_table_utility_bar()
 
 
 func _update_center_area(snapshot: Dictionary, players: Array, self_player: Dictionary) -> void:
@@ -2839,7 +2698,20 @@ func _update_center_area(snapshot: Dictionary, players: Array, self_player: Dict
 		board_core_label.text = ""
 	board_core.visible = false
 	_update_board_core_hud(snapshot)
-	_render_center_discards(players, int(snapshot.get("recent_discard_tile_id", -1)))
+	if table_discard_layer != null:
+		table_discard_layer.call(
+			"render",
+			players,
+			{"id": int(snapshot.get("recent_discard_tile_id", -1))},
+			Rect2(Vector2.ZERO, board_square.size)
+		)
+	if center_turn_indicator != null:
+		center_turn_indicator.call(
+			"render",
+			int(snapshot.get("wall_count", 0)),
+			int(snapshot.get("current_turn_seat", 0)),
+			"当前：%s" % _seat_name(int(snapshot.get("current_turn_seat", 0)))
+		)
 
 	self_meld_summary.text = _meld_summary_text("本家", _player_by_seat(players, 0))
 	left_meld_summary.text = _meld_summary_text("上家", _player_by_seat(players, 1))
@@ -2855,8 +2727,18 @@ func _refresh_opening_roll_ui(snapshot: Dictionary) -> void:
 	var self_player := _player_by_seat(snapshot.get("players", []), 0)
 	var use_ding_que := bool(snapshot.get("rules", {}).get("use_ding_que_phase", true))
 	var ding_que_done := not use_ding_que or str(self_player.get("ding_que", "")) != ""
+	if dice_overlay_layer != null:
+		dice_overlay_layer.visible = not ding_que_done
+	if center_turn_indicator != null:
+		center_turn_indicator.visible = ding_que_done
 	if ding_que_done:
-		_show_wall_count_in_dice_panel(int(snapshot.get("wall_count", 0)))
+		if center_turn_indicator != null:
+			center_turn_indicator.call(
+				"render",
+				int(snapshot.get("wall_count", 0)),
+				int(snapshot.get("current_turn_seat", 0)),
+				"当前：%s" % _seat_name(int(snapshot.get("current_turn_seat", 0)))
+			)
 		return
 
 	var opening_roll: Dictionary = snapshot.get("opening_roll", {})
@@ -2979,7 +2861,7 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 		_position_self_dealer_badge()
 	self_won_stamp.visible = self_has_won
 	_position_self_won_stamp_overlay()
-	self_info_bar.visible = self_ding_que_label.visible or self_score_label.visible or self_won_stamp.visible
+	self_info_bar.visible = false
 	self_hand_host.modulate = Color(0.72, 0.72, 0.72, 0.95) if self_has_won else Color.WHITE
 	self_ding_que_label.modulate = self_hand_host.modulate
 	self_score_label.modulate = self_hand_host.modulate
@@ -3006,7 +2888,6 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 	var self_trainer_markers := {
 		"winning_tile_id": -1,
 		"winning_source_seat": self_winning_source_seat,
-		"bao_gang_keys": self_player.get("bao_gang_tiles", []).duplicate(),
 	}
 	if ai_helper_enabled:
 		self_trainer_markers["recommended_tile_id"] = int(trainer_hint.get("recommended_tile_id", -1))
@@ -3023,41 +2904,25 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 	_update_discard_helper_panel(snapshot, trainer_hint, can_discard)
 
 
-func _update_v17_player_info_panels(snapshot: Dictionary) -> void:
-	if v17_player_info_panels.is_empty():
+func _update_seat_huds(snapshot: Dictionary) -> void:
+	if seat_huds.is_empty():
 		return
 	var players: Array = snapshot.get("players", [])
 	var current_dealer_seat := int(snapshot.get("current_dealer_seat", -1))
 	var use_ding_que := bool(snapshot.get("rules", {}).get("use_ding_que_phase", true))
-	for seat in [1, 2, 3]:
-		var panel: Panel = v17_player_info_panels.get(seat)
-		var name_label: Label = v17_player_info_name_labels.get(seat)
-		var status_label: Label = v17_player_info_status_labels.get(seat)
-		var dealer_badge: Label = v17_player_info_dealer_badges.get(seat)
-		var ding_que_badge: Label = v17_player_info_ding_que_badges.get(seat)
-		if panel == null or name_label == null or status_label == null:
+	var self_player := _player_by_seat(players, 0)
+	var reveal_ding_que := not use_ding_que or not str(self_player.get("ding_que", "")).is_empty()
+	for seat in [0, 1, 2, 3]:
+		var seat_hud: Control = seat_huds.get(seat)
+		if seat_hud == null:
 			continue
-		var rect := _v17_player_info_rect(seat)
-		_place_overlay_box(panel, Vector2.ZERO, rect.position, rect.size)
-		panel.visible = true
-
+		var rect := _seat_hud_rect(seat)
+		_place_overlay_box(seat_hud, Vector2.ZERO, rect.position, rect.size)
+		seat_hud.visible = true
 		var player := _player_by_seat(players, seat)
-		var ding_que := str(player.get("ding_que", "")) if use_ding_que else ""
-		var nickname := str(player.get("nickname", _seat_name(seat)))
-		var score := int(player.get("score", 0))
-		name_label.text = nickname
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if seat == 2 else HORIZONTAL_ALIGNMENT_CENTER
-		if dealer_badge != null:
-			dealer_badge.visible = seat == current_dealer_seat
-		if ding_que_badge != null:
-			ding_que_badge.text = _ding_que_display(ding_que) if ding_que != "" else ""
-			ding_que_badge.visible = ding_que != ""
-			_apply_v17_ding_que_badge_style(ding_que_badge, ding_que, seat)
-
-		var status_parts: Array[String] = []
-		status_parts.append("%d分" % score)
-		status_label.text = " ".join(status_parts)
-		status_label.visible = not status_label.text.is_empty()
+		var player_view := player.duplicate(true)
+		player_view["_is_dealer"] = seat == current_dealer_seat
+		seat_hud.render(player_view, int(snapshot.get("current_turn_seat", -1)), reveal_ding_que)
 
 
 func _update_self_hu_tile_display(winning_tile: Dictionary, winning_source_seat: int) -> void:
@@ -3183,6 +3048,23 @@ func _update_self_row_slot_layout(self_player: Dictionary, hand_count: int) -> v
 
 
 func _update_discard_helper_panel(snapshot: Dictionary, trainer_hint: Dictionary, can_discard: bool) -> void:
+	_update_ai_assistant_drawer(trainer_hint, can_discard)
+	if discard_helper_panel != null:
+		discard_helper_panel.visible = false
+	return
+
+
+func _update_ai_assistant_drawer(trainer_hint: Dictionary, can_discard: bool) -> void:
+	if ai_assistant_drawer == null:
+		return
+	ai_assistant_drawer.visible = ai_helper_enabled
+	if not ai_helper_enabled:
+		return
+	ai_assistant_drawer.call("apply_hint", trainer_hint, can_discard, selected_tile_id)
+	_layout_ai_assistant_drawer()
+
+
+func _update_legacy_discard_helper_panel(snapshot: Dictionary, trainer_hint: Dictionary, can_discard: bool) -> void:
 	if discard_helper_panel == null:
 		return
 	if not ai_helper_enabled:
@@ -3247,10 +3129,52 @@ func _update_discard_helper_panel(snapshot: Dictionary, trainer_hint: Dictionary
 	var reason_text := _build_helper_selected_option_reason(selected_option, recommended) if not selected_option.is_empty() and int(selected_option.get("tile", {}).get("id", -1)) != recommended_tile_id else _build_helper_explanation_text(trainer_hint, recommended)
 	discard_helper_compare.text = reason_text
 	discard_helper_compare.visible = not reason_text.is_empty()
-	discard_helper_options.text = ""
-	discard_helper_options.visible = false
+	discard_helper_options.text = _build_helper_top_candidates_text(trainer_hint.get("options", []))
+	discard_helper_options.visible = not discard_helper_options.text.is_empty()
 	discard_helper_panel.visible = true
 	_position_discard_helper_panel()
+
+
+func _build_helper_top_candidates_text(options: Array) -> String:
+	if options.is_empty():
+		return ""
+	var parts: Array[String] = []
+	var rank := 1
+	for option_item in options.slice(0, mini(3, options.size())):
+		var option: Dictionary = option_item
+		var net := float(option.get("expected_net_score", option.get("csharp_expected_net_score", 0.0)))
+		var risk := _plain_helper_risk_text(str(option.get("risk_label", "低危")))
+		var route := str(option.get("route_plan_primary", option.get("strategy_mode", "")))
+		var expected_fan := float(option.get("expected_fan", option.get("csharp_expected_fan", 0.0)))
+		var win_probability := float(option.get("win_probability", option.get("csharp_win_probability", 0.0)))
+		var tenpai_probability := float(option.get("tenpai_probability", option.get("csharp_tenpai_probability", 0.0)))
+		var reason := _helper_candidate_core_reason(option, route)
+		parts.append("%d.%s  净%.1f  胡%.0f%%/叫%.0f%%  %.1f番  %s  %s" % [
+			rank,
+			str(option.get("tile_name", "?")),
+			net,
+			win_probability * 100.0,
+			tenpai_probability * 100.0,
+			expected_fan,
+			risk,
+			reason,
+		])
+		rank += 1
+	return "候选\n" + "\n".join(parts)
+
+
+func _helper_candidate_core_reason(option: Dictionary, route: String) -> String:
+	var explanation := str(option.get("explanation_hint", option.get("csharp_explanation_hint", ""))).strip_edges()
+	if not explanation.is_empty():
+		return _humanize_helper_text(explanation)
+	var reasons: Array = option.get("reasons", option.get("csharp_reasons", []))
+	for reason_value in reasons:
+		var reason := _humanize_helper_text(str(reason_value)).strip_edges()
+		if not reason.is_empty() and not reason.begins_with("最小向听") and not reason.begins_with("活进张"):
+			return reason
+	if not route.is_empty():
+		return route
+	return "兼顾速度和安全"
 
 
 func _show_discard_helper_status(message: String) -> void:
@@ -3391,7 +3315,7 @@ func _build_helper_explanation_text(trainer_hint: Dictionary, recommended: Dicti
 		if shanten <= 1 and ukeire >= 4:
 			return "这样打更容易尽快听牌"
 		if int(dingque_state.get("spread", 0)) <= 1:
-			return "两门比较平均，先留更容易接牌的打法"
+			return "牌路比较平均，先留更容易接牌的打法"
 
 	if bool(dingque_state.get("is_three_same", false)):
 		return "大家缺的门差不多，先拼速度"
@@ -3639,89 +3563,67 @@ func _build_display_hand_tiles(hand_tiles: Array, _last_draw_tile_id: int, ding_
 
 
 func _refresh_action_panel(snapshot: Dictionary) -> void:
+	_refresh_table_action_bar(snapshot)
+	if action_panel != null:
+		action_panel.visible = false
+	return
+
+
+func _refresh_table_action_bar(snapshot: Dictionary) -> void:
+	if table_action_bar == null:
+		return
 	var reaction_options: Dictionary = snapshot.get("human_reaction_options", {})
 	var can_self_hu := bool(snapshot.get("human_can_self_hu", false))
 	var can_add_gang := bool(snapshot.get("human_can_add_gang", false))
 	var can_an_gang := bool(snapshot.get("human_can_an_gang", false))
-	var can_bao_jiao := bool(snapshot.get("human_can_bao_jiao", false))
-	var can_pass_opening_bao_jiao := bool(snapshot.get("human_can_pass_opening_bao_jiao", false))
-	var human_is_bao_jiao := bool(_player_by_seat(snapshot.get("players", []), 0).get("bao_jiao", false))
 	var show_cancel_self_hu := can_self_hu and not bool(reaction_options.get("can_pass", false))
-	var show_panel := can_self_hu \
-		or can_add_gang \
-		or can_an_gang \
-		or can_bao_jiao \
-		or can_pass_opening_bao_jiao \
-		or bool(reaction_options.get("can_hu", false)) \
-		or bool(reaction_options.get("can_gang", false)) \
-		or bool(reaction_options.get("can_peng", false)) \
-		or bool(reaction_options.get("can_pass", false))
-	if draw_transition_active:
-		if show_panel:
-			_clear_draw_transition_block("human_action_panel_available")
-		else:
-			action_panel.visible = false
-			return
-
-	action_panel.visible = show_panel and int(snapshot.get("current_phase", 0)) != 7
-	if bool(_player_by_seat(snapshot.get("players", []), 0).get("has_won", false)):
-		action_panel.visible = false
-	if not action_panel.visible:
+	var actions: Array[String] = []
+	if can_self_hu or bool(reaction_options.get("can_hu", false)):
+		actions.append("hu")
+	if can_add_gang or can_an_gang or bool(reaction_options.get("can_gang", false)):
+		actions.append("gang")
+	if bool(reaction_options.get("can_peng", false)):
+		actions.append("peng")
+	if bool(reaction_options.get("can_pass", false)) or show_cancel_self_hu:
+		actions.append("pass")
+	var blocked := int(snapshot.get("current_phase", 0)) == 7 \
+		or bool(_player_by_seat(snapshot.get("players", []), 0).get("has_won", false))
+	if draw_transition_active and not actions.is_empty():
+		_clear_draw_transition_block("human_action_panel_available")
+	if actions.is_empty() or blocked:
+		table_action_bar.call("hide_actions")
 		return
-
-	action_status_label.visible = false
-	action_status_label.text = _build_action_panel_status_text(
+	table_action_bar.call("set_action_label", "hu", "自摸" if can_self_hu and not bool(reaction_options.get("can_hu", false)) else "胡")
+	var gang_label := "杠"
+	if can_add_gang:
+		gang_label = "补杠"
+	elif can_an_gang and not bool(reaction_options.get("can_gang", false)):
+		gang_label = "暗杠"
+	table_action_bar.call("set_action_label", "gang", gang_label)
+	table_action_bar.call("set_action_label", "peng", "碰")
+	table_action_bar.call("set_action_label", "pass", "过")
+	var status_text := _build_action_panel_status_text(
 		reaction_options,
 		can_self_hu,
 		can_add_gang,
 		can_an_gang,
-		can_bao_jiao,
-		can_pass_opening_bao_jiao,
-		show_cancel_self_hu
+		show_cancel_self_hu,
+		str(snapshot.get("recent_discard_display", "-"))
 	)
-	hu_button.visible = can_self_hu or bool(reaction_options.get("can_hu", false))
-	gang_button.visible = can_add_gang or bool(reaction_options.get("can_gang", false))
-	gang_button.text = "补杠" if can_add_gang else "杠"
-	if an_gang_button != null:
-		an_gang_button.visible = can_an_gang
-		an_gang_button.text = "报杠" if human_is_bao_jiao else "暗杠"
-	if bao_jiao_button != null:
-		bao_jiao_button.visible = can_bao_jiao
-		var bao_plan: Dictionary = snapshot.get("human_bao_jiao_plan", {})
-		var bao_options: Array = bao_plan.get("bao_gang_options", [])
-		bao_jiao_button.text = "报叫/报杠" if not bao_options.is_empty() else "报叫"
-	peng_button.visible = bool(reaction_options.get("can_peng", false))
-	pass_button.visible = can_pass_opening_bao_jiao or bool(reaction_options.get("can_pass", false)) or show_cancel_self_hu
-	pass_button.text = "过"
-	hu_button.text = "自摸" if can_self_hu and not bool(reaction_options.get("can_hu", false)) else "胡"
-	peng_button.text = "碰"
-	_apply_action_button_styles()
-	_sync_action_button_overlay_labels()
-	var visible_buttons: Array[Button] = []
-	for button in [hu_button, gang_button, an_gang_button, peng_button, bao_jiao_button, pass_button]:
-		if button.visible:
-			visible_buttons.append(button)
-	var visible_button_count := visible_buttons.size()
-	action_buttons.columns = maxi(1, visible_button_count)
-	var total_width := 0.0
-	var max_height := 0.0
-	for button in visible_buttons:
-		total_width += button.custom_minimum_size.x
-		max_height = maxf(max_height, button.custom_minimum_size.y)
-	total_width += float(ACTION_BUTTON_GRID_GAP) * maxi(0, visible_button_count - 1)
-	action_panel.custom_minimum_size = Vector2(
-		maxf(total_width + float(ACTION_PANEL_PADDING * 2), 260.0),
-		maxf(max_height + float(ACTION_PANEL_PADDING * 2), 112.0)
-	)
+	table_action_bar.call("render", actions, status_text)
+	call_deferred("_layout_table_action_bar")
 
 
-func _sync_action_button_overlay_labels() -> void:
-	for button in [hu_button, gang_button, an_gang_button, peng_button, bao_jiao_button, pass_button]:
-		if button == null:
-			continue
-		var overlay: Node = button.get_node_or_null("CircularActionButtonOverlay")
-		if overlay != null:
-			overlay.set("label_text", button.text)
+func _on_table_action_selected(action: String) -> void:
+	match action:
+		"hu":
+			_on_hu_pressed()
+		"gang":
+			_on_gang_pressed()
+		"peng":
+			_on_peng_pressed()
+		"pass":
+			_on_pass_pressed()
 
 
 func _build_action_panel_status_text(
@@ -3729,12 +3631,9 @@ func _build_action_panel_status_text(
 	can_self_hu: bool,
 	can_add_gang: bool,
 	can_an_gang: bool,
-	can_bao_jiao: bool,
-	can_pass_opening_bao_jiao: bool,
-	show_cancel_self_hu: bool
+	show_cancel_self_hu: bool,
+	recent_discard_display: String = "-"
 ) -> String:
-	if can_pass_opening_bao_jiao:
-		return "开局报叫确认：过牌继续"
 	var reaction_labels: Array[String] = []
 	if bool(reaction_options.get("can_hu", false)):
 		reaction_labels.append("胡")
@@ -3745,10 +3644,9 @@ func _build_action_panel_status_text(
 	if bool(reaction_options.get("can_pass", false)):
 		reaction_labels.append("过")
 	if not reaction_labels.is_empty():
-		return "响应出牌：" + " / ".join(reaction_labels)
+		var discard_context := "" if recent_discard_display in ["", "-"] else " %s" % recent_discard_display
+		return "响应%s · 可选：%s" % [discard_context, " / ".join(reaction_labels)]
 	var self_labels: Array[String] = []
-	if can_bao_jiao:
-		self_labels.append("报叫")
 	if can_self_hu:
 		self_labels.append("自摸")
 		if show_cancel_self_hu:
@@ -3758,94 +3656,8 @@ func _build_action_panel_status_text(
 	if can_an_gang:
 		self_labels.append("暗杠")
 	if not self_labels.is_empty():
-		return "轮到你：" + " / ".join(self_labels)
+		return "轮到你 · 可选：" + " / ".join(self_labels)
 	return "当前没有可执行操作"
-
-
-func _layout_action_panel() -> void:
-	if not is_instance_valid(action_panel) or not action_panel.visible or root_ui == null:
-		return
-	var desired_size := Vector2(
-		maxf(action_panel.custom_minimum_size.x, 118.0),
-		maxf(action_panel.custom_minimum_size.y, 112.0)
-	)
-	action_panel.size = desired_size
-	var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2(Vector2.ZERO, Vector2.ZERO)
-	var target_x := root_ui.size.x - desired_size.x - 96.0
-	var target_y := root_ui.size.y - float(SELF_HAND_BOTTOM_HEIGHT) - desired_size.y - 16.0
-	if hand_rect.size != Vector2.ZERO:
-		target_x = hand_rect.end.x - desired_size.x - 96.0
-		target_y = hand_rect.position.y - desired_size.y - 18.0
-	action_panel.position = Vector2(
-		clampf(target_x, 18.0, maxf(18.0, root_ui.size.x - desired_size.x - 24.0)),
-		maxf(72.0, target_y)
-	)
-	if discard_helper_panel != null and discard_helper_panel.visible:
-		_position_discard_helper_panel()
-
-
-func _layout_settlement_overlay() -> void:
-	if settlement_panel == null or root_ui == null:
-		return
-	var viewport_size := root_ui.size
-	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
-		viewport_size = get_viewport_rect().size
-	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
-		return
-
-	var outer_margin := 10.0
-	var compact_margin := 6.0
-	var max_size := Vector2(
-		minf(SETTLEMENT_PANEL_MAX_SIZE.x, maxf(0.0, viewport_size.x - outer_margin * 2.0)),
-		minf(SETTLEMENT_PANEL_MAX_SIZE.y, maxf(0.0, viewport_size.y - outer_margin * 2.0))
-	)
-	var target_size := Vector2(
-		clampf(viewport_size.x * SETTLEMENT_PANEL_SCREEN_RATIO.x, minf(SETTLEMENT_PANEL_MIN_SIZE.x, max_size.x), max_size.x),
-		clampf(viewport_size.y * SETTLEMENT_PANEL_SCREEN_RATIO.y, minf(SETTLEMENT_PANEL_MIN_SIZE.y, max_size.y), max_size.y)
-	)
-	if viewport_size.x < 1700.0 or viewport_size.y < 940.0:
-		target_size = Vector2(maxf(0.0, viewport_size.x - compact_margin * 2.0), maxf(0.0, viewport_size.y - compact_margin * 2.0))
-	settlement_panel.custom_minimum_size = target_size
-	settlement_panel.size = target_size
-
-	var scale := clampf(target_size.y / 1000.0, 0.90, 1.30)
-	_set_margin_constants(settlement_margin, 28.0 * scale, 12.0 * scale, 28.0 * scale, 16.0 * scale)
-	_set_margin_constants(settlement_player_list_margin, 18.0 * scale, 18.0 * scale, 18.0 * scale, 18.0 * scale)
-	_set_margin_constants(settlement_detail_margin, 20.0 * scale, 14.0 * scale, 20.0 * scale, 14.0 * scale)
-	_set_margin_constants(settlement_hero_margin, 22.0 * scale, 14.0 * scale, 22.0 * scale, 14.0 * scale)
-	_set_margin_constants(settlement_hand_margin, 14.0 * scale, 10.0 * scale, 14.0 * scale, 10.0 * scale)
-	_set_margin_constants(settlement_breakdown_margin, 14.0 * scale, 10.0 * scale, 14.0 * scale, 10.0 * scale)
-
-	settlement_vbox.add_theme_constant_override("separation", int(round(10.0 * scale)))
-	settlement_content.add_theme_constant_override("separation", int(round(18.0 * scale)))
-	settlement_player_list_vbox.add_theme_constant_override("separation", int(round(14.0 * scale)))
-	settlement_player_list.add_theme_constant_override("separation", int(round(12.0 * scale)))
-	settlement_detail_vbox.add_theme_constant_override("separation", int(round(10.0 * scale)))
-	settlement_hero_row.add_theme_constant_override("separation", int(round(22.0 * scale)))
-	settlement_hero_info.add_theme_constant_override("separation", int(round(9.0 * scale)))
-	settlement_hero_stats.add_theme_constant_override("separation", int(round(22.0 * scale)))
-	settlement_hand_row.add_theme_constant_override("separation", int(round(10.0 * scale)))
-	settlement_breakdown_vbox.add_theme_constant_override("separation", int(round(8.0 * scale)))
-	settlement_breakdown_list.add_theme_constant_override("separation", int(round(8.0 * scale)))
-
-	settlement_player_list_card.custom_minimum_size = Vector2(maxf(390.0, target_size.x * 0.25), 0.0)
-	settlement_hero_card.custom_minimum_size = Vector2(0.0, 156.0 * scale)
-	settlement_hand_card.custom_minimum_size = Vector2(0.0, 205.0 * scale)
-	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, 390.0 * scale)
-	settlement_close_button.custom_minimum_size = Vector2(124.0 * scale, 52.0 * scale)
-	next_round_button.custom_minimum_size = Vector2(300.0 * scale, 88.0 * scale)
-	settlement_close_button.add_theme_font_size_override("font_size", int(round(22.0 * scale)))
-	next_round_button.add_theme_font_size_override("font_size", int(round(34.0 * scale)))
-	settlement_round_label.add_theme_font_size_override("font_size", int(round(20.0 * scale)))
-	settlement_player_list_title.add_theme_font_size_override("font_size", int(round(28.0 * scale)))
-	settlement_breakdown_title.add_theme_font_size_override("font_size", int(round(24.0 * scale)))
-	settlement_hero_badge.add_theme_font_size_override("font_size", int(round(18.0 * scale)))
-	settlement_hero_name.add_theme_font_size_override("font_size", int(round(26.0 * scale)))
-	settlement_hero_result.add_theme_font_size_override("font_size", int(round(36.0 * scale)))
-	settlement_hero_summary.add_theme_font_size_override("font_size", int(round(18.0 * scale)))
-	settlement_hero_hu.add_theme_font_size_override("font_size", int(round(22.0 * scale)))
-	settlement_hero_fan.add_theme_font_size_override("font_size", int(round(22.0 * scale)))
-	settlement_hero_score.add_theme_font_size_override("font_size", int(round(54.0 * scale)))
 
 
 func _set_margin_constants(margin: MarginContainer, left: float, top: float, right: float, bottom: float) -> void:
@@ -3858,12 +3670,7 @@ func _set_margin_constants(margin: MarginContainer, left: float, top: float, rig
 
 
 func _settlement_content_scale() -> float:
-	if settlement_panel == null:
-		return 1.0
-	var panel_height := settlement_panel.size.y
-	if panel_height <= 1.0:
-		panel_height = settlement_panel.custom_minimum_size.y
-	return clampf(panel_height / 1000.0, 1.05, 1.48)
+	return settlement_layout_scale
 
 
 func _refresh_ding_que_panel(snapshot: Dictionary) -> void:
@@ -3885,9 +3692,9 @@ func _refresh_ding_que_panel(snapshot: Dictionary) -> void:
 	if ding_que_center != null:
 		ding_que_center.mouse_filter = Control.MOUSE_FILTER_PASS
 	ding_que_overlay.move_to_front()
-	ding_que_status_label.text = "请选择花色"
-	ding_que_hint_label.text = ""
-	ding_que_hint_label.visible = false
+	ding_que_status_label.text = "请选择缺门"
+	ding_que_hint_label.text = "选择一门作为本局缺门"
+	ding_que_hint_label.visible = true
 	var options: Array = game_manager.game_state.call("get_human_ding_que_options", 0)
 	ding_que_tiao_button.disabled = not options.has("tiao")
 	ding_que_tong_button.disabled = not options.has("tong")
@@ -4123,7 +3930,7 @@ func _position_self_won_stamp_overlay() -> void:
 func _layout_reference_self_info_bar() -> void:
 	if self_info_bar == null or root_ui == null:
 		return
-	var info_rect := _v17_player_info_rect(0)
+	var info_rect := _seat_hud_rect(0)
 	self_info_bar.top_level = true
 	self_info_bar.z_index = 110
 	self_info_bar.custom_minimum_size = info_rect.size
@@ -4136,11 +3943,11 @@ func _layout_reference_self_info_bar() -> void:
 
 
 func _apply_ding_que_overlay_style() -> void:
-	ding_que_shade.color = Color(0.03, 0.08, 0.06, 0.52)
+	ding_que_shade.color = Color(0.015, 0.045, 0.035, 0.34)
 
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.48, 0.30, 0.17, 0.98)
-	panel_style.border_color = Color(WOOD_EDGE.r, WOOD_EDGE.g, WOOD_EDGE.b, 0.96)
+	panel_style.bg_color = Color(0.025, 0.13, 0.105, 0.98)
+	panel_style.border_color = Color(SICHUAN_TABLE_THEME.BRASS, 0.88)
 	panel_style.set_border_width_all(3)
 	panel_style.corner_radius_top_left = 28
 	panel_style.corner_radius_top_right = 28
@@ -4156,8 +3963,8 @@ func _apply_ding_que_overlay_style() -> void:
 	ding_que_panel.add_theme_stylebox_override("panel", panel_style)
 
 	var button_card_style := StyleBoxFlat.new()
-	button_card_style.bg_color = Color(0.16, 0.54, 0.40, 0.94)
-	button_card_style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.42)
+	button_card_style.bg_color = Color(0.04, 0.22, 0.17, 0.74)
+	button_card_style.border_color = Color(SICHUAN_TABLE_THEME.BRASS, 0.34)
 	button_card_style.set_border_width_all(2)
 	button_card_style.corner_radius_top_left = 24
 	button_card_style.corner_radius_top_right = 24
@@ -4168,7 +3975,7 @@ func _apply_ding_que_overlay_style() -> void:
 	button_card_style.shadow_offset = Vector2(0, 5)
 	ding_que_button_card.add_theme_stylebox_override("panel", button_card_style)
 
-	ding_que_status_label.add_theme_font_size_override("font_size", 28)
+	ding_que_status_label.add_theme_font_size_override("font_size", 34)
 	ding_que_status_label.add_theme_color_override("font_color", IVORY_SOFT)
 	ding_que_status_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.28))
 	ding_que_status_label.add_theme_constant_override("shadow_outline_size", 1)
@@ -4180,21 +3987,21 @@ func _apply_ding_que_overlay_style() -> void:
 
 	_apply_ding_que_button_style(
 		ding_que_tiao_button,
-		Color(0.34, 0.55, 0.38, 0.96),
-		Color(0.48, 0.66, 0.48, 0.98),
-		Color(0.13, 0.27, 0.21, 0.92)
+		SICHUAN_TABLE_THEME.TIAO_QUE,
+		SICHUAN_TABLE_THEME.TIAO_QUE.lightened(0.12),
+		SICHUAN_TABLE_THEME.TIAO_QUE.darkened(0.28)
 	)
 	_apply_ding_que_button_style(
 		ding_que_tong_button,
-		Color(0.32, 0.43, 0.58, 0.96),
-		Color(0.46, 0.54, 0.68, 0.98),
-		Color(0.13, 0.20, 0.28, 0.92)
+		SICHUAN_TABLE_THEME.TONG_QUE,
+		SICHUAN_TABLE_THEME.TONG_QUE.lightened(0.12),
+		SICHUAN_TABLE_THEME.TONG_QUE.darkened(0.28)
 	)
 	_apply_ding_que_button_style(
 		ding_que_wan_button,
-		Color(0.56, 0.25, 0.24, 0.96),
-		Color(0.66, 0.36, 0.32, 0.98),
-		Color(0.28, 0.13, 0.13, 0.92)
+		SICHUAN_TABLE_THEME.WAN_QUE,
+		SICHUAN_TABLE_THEME.WAN_QUE.lightened(0.12),
+		SICHUAN_TABLE_THEME.WAN_QUE.darkened(0.28)
 	)
 
 
@@ -4264,22 +4071,25 @@ func _refresh_settlement(snapshot: Dictionary) -> void:
 		settlement_dismissed = false
 	var overlay_active := show_panel and not settlement_dismissed
 	settlement_overlay.visible = overlay_active
+	if settlement_overlay_v2 != null:
+		settlement_overlay_v2.visible = false
 	_apply_settlement_backdrop_state(overlay_active)
 	if overlay_active:
 		_layout_settlement_overlay()
+		_render_settlement(snapshot)
 		root_ui.move_child(settlement_overlay, root_ui.get_child_count() - 1)
 		settlement_overlay.move_to_front()
-	top_settlement_info_button.visible = show_panel
-	top_settlement_info_button.disabled = not show_panel or not settlement_dismissed
-	top_next_round_button.disabled = not show_panel
-	_layout_v17_top_button_stack()
+	top_settlement_info_button.visible = false
+	top_next_round_button.visible = false
+	if table_utility_bar != null:
+		var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
+		table_utility_bar.call("render", ai_helper_enabled, show_panel, settlement_dismissed, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)
+		_layout_table_utility_bar()
 	if not show_panel:
 		settlement_dismissed = false
 		settlement_selected_seat = -1
 	if not show_panel:
 		return
-	if not settlement_dismissed:
-		_render_settlement(snapshot)
 
 
 func _apply_settlement_backdrop_state(active: bool) -> void:
@@ -4358,8 +4168,6 @@ func _phase_text(phase: int, snapshot: Dictionary) -> String:
 func _self_waiting_text(snapshot: Dictionary) -> String:
 	if bool(snapshot.get("human_ding_que_pending", false)):
 		return "请先完成当前选择。"
-	if bool(snapshot.get("human_can_bao_jiao", false)):
-		return "当前可报叫。"
 	if int(snapshot.get("current_phase", 0)) == 6:
 		return "等待你决定是否碰、杠、胡或过。"
 	return "当前不是你的回合。"
@@ -4415,296 +4223,6 @@ func _discard_summary_text(prefix: String, player: Dictionary) -> String:
 		int(counts["tong"]),
 		"/".join(recent),
 	]
-
-
-func _render_center_discards(players: Array, recent_discard_tile_id: int) -> void:
-	_render_center_lane(
-		board_discard_top_lane,
-		_player_by_seat(players, 2).get("discards", []),
-		CENTER_DISCARD_TOP_COLUMNS,
-		CENTER_DISCARD_TOP_LIMIT,
-		CENTER_DISCARD_TOP_SCALE,
-		recent_discard_tile_id,
-		2
-	)
-	_render_center_lane(
-		board_discard_bottom_lane,
-		_player_by_seat(players, 0).get("discards", []),
-		CENTER_DISCARD_BOTTOM_COLUMNS,
-		CENTER_DISCARD_BOTTOM_LIMIT,
-		CENTER_DISCARD_BOTTOM_SCALE,
-		recent_discard_tile_id,
-		0
-	)
-	_render_center_lane(
-		board_discard_left_lane,
-		_player_by_seat(players, 1).get("discards", []),
-		CENTER_DISCARD_LEFT_COLUMNS,
-		CENTER_DISCARD_SIDE_LIMIT,
-		CENTER_DISCARD_SIDE_SCALE,
-		recent_discard_tile_id,
-		1
-	)
-	_render_center_lane(
-		board_discard_right_lane,
-		_player_by_seat(players, 3).get("discards", []),
-		CENTER_DISCARD_SIDE_COLUMNS,
-		CENTER_DISCARD_SIDE_LIMIT,
-		CENTER_DISCARD_SIDE_SCALE,
-		recent_discard_tile_id,
-		3
-	)
-
-
-func _render_center_lane(
-	container: Control,
-	discards: Array,
-	items_per_row: int,
-	limit: int,
-	scale: float,
-	recent_discard_tile_id: int,
-	seat: int
-) -> void:
-	for child in container.get_children():
-		container.remove_child(child)
-		child.free()
-
-	var visible_limit := mini(limit, _center_discard_capacity_for_seat(seat))
-	var visible_discards := discards.slice(maxi(0, discards.size() - visible_limit), discards.size())
-	if visible_discards.is_empty():
-		return
-
-	var render_scale := _discard_fit_scale_for_seat(seat, container.size, visible_limit, items_per_row, scale)
-	var face_size := TILE_VISUAL_BASE_SIZE * render_scale
-	var visual_size := _discard_tile_visual_size(render_scale)
-	var oriented_size := face_size
-	var oriented_visual_size := visual_size
-	var rotation_degrees := 0.0
-	if seat == 1:
-		rotation_degrees = 90.0
-		oriented_size = Vector2(face_size.y, face_size.x)
-		oriented_visual_size = Vector2(visual_size.y, visual_size.x)
-	elif seat == 2:
-		rotation_degrees = 0.0
-	elif seat == 3:
-		rotation_degrees = -90.0
-		oriented_size = Vector2(face_size.y, face_size.x)
-		oriented_visual_size = Vector2(visual_size.y, visual_size.x)
-
-	var col_step := _discard_col_step_for_seat(seat, oriented_size, oriented_visual_size, container.size, visible_discards.size(), items_per_row)
-	var row_step := _discard_row_step_for_seat(seat, oriented_size)
-	var origin := _discard_origin_for_seat(seat, container.size, oriented_size, oriented_visual_size, visible_discards.size(), items_per_row, col_step, row_step)
-
-	for index in range(visible_discards.size()):
-		var tile_data = visible_discards[index]
-		var is_recent_discard := int(tile_data.get("id", -1)) == recent_discard_tile_id
-		var tile_host := _create_center_discard_tile_host(tile_data, render_scale, rotation_degrees, is_recent_discard)
-		tile_host.position = _discard_position_v17(
-			seat,
-			index,
-			container.size,
-			oriented_size,
-			origin,
-			col_step,
-			row_step,
-			items_per_row
-		)
-		container.add_child(tile_host)
-
-
-func _discard_fit_scale_for_seat(seat: int, container_size: Vector2, limit: int, items_per_row: int, requested_scale: float) -> float:
-	if container_size.x <= 1.0 or container_size.y <= 1.0:
-		return requested_scale
-
-	var display_count := maxi(1, limit)
-	if seat == 1 or seat == 3:
-		var visible_side_rows := mini(display_count, maxi(1, items_per_row))
-		var available_side_height := container_size.y - CENTER_DISCARD_FIT_PADDING * 2.0 - CENTER_DISCARD_SEPARATION * float(maxi(0, visible_side_rows - 1))
-		var fit_side_height := available_side_height / (TILE_VISUAL_BASE_SIZE.x * float(visible_side_rows) + CENTER_DISCARD_TILE_VISUAL_EXTRA.x)
-		var fit_side_scale := maxf(0.1, fit_side_height)
-		return minf(requested_scale, fit_side_scale)
-
-	var rows := maxi(1, ceili(float(display_count) / float(maxi(1, items_per_row))))
-	var available_height := container_size.y - CENTER_DISCARD_FIT_PADDING * 2.0 - CENTER_DISCARD_SEPARATION * float(maxi(0, rows - 1))
-	var fit_height := available_height / (TILE_VISUAL_BASE_SIZE.y * float(rows) + CENTER_DISCARD_TILE_VISUAL_EXTRA.y)
-	var fit_scale := maxf(0.1, fit_height)
-	return minf(requested_scale, fit_scale)
-
-
-func _discard_tile_visual_size(scale: float) -> Vector2:
-	return (TILE_VISUAL_BASE_SIZE + CENTER_DISCARD_TILE_VISUAL_EXTRA) * scale
-
-
-func _discard_position_v17(
-	seat: int,
-	index: int,
-	container_size: Vector2,
-	tile_size: Vector2,
-	fallback_origin: Vector2,
-	fallback_col_step: Vector2,
-	fallback_row_step: Vector2,
-	items_per_row: int
-) -> Vector2:
-	var safe_items_per_row := maxi(1, items_per_row)
-	var row := index / safe_items_per_row
-	var column := index % safe_items_per_row
-	return fallback_origin + fallback_col_step * float(column) + fallback_row_step * float(row)
-
-
-func _center_discard_capacity_for_seat(seat: int) -> int:
-	return MAX_DISCARD_PER_SEAT
-
-
-func _create_center_discard_tile_host(tile_data: Dictionary, scale: float, rotation_degrees: float, is_recent_discard: bool) -> Control:
-	var tile := TILE_SCENE.instantiate()
-	tile.call("configure", tile_data, scale, false, false, false, is_recent_discard)
-	if absf(rotation_degrees) < 0.01:
-		return tile
-	var tile_size: Vector2 = tile.custom_minimum_size
-	var wrapper := Control.new()
-	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	wrapper.custom_minimum_size = Vector2(tile_size.y, tile_size.x)
-	wrapper.size = wrapper.custom_minimum_size
-	tile.pivot_offset = tile_size * 0.5
-	tile.position = (wrapper.custom_minimum_size - tile_size) * 0.5
-	tile.rotation_degrees = rotation_degrees
-	wrapper.add_child(tile)
-	return wrapper
-
-
-func _discard_position_from_rows(
-	index: int,
-	row_counts: Array,
-	row_origins: Array,
-	step: Vector2,
-	container_size: Vector2,
-	base_size: Vector2
-) -> Vector2:
-	var remaining := index
-	for row in range(row_counts.size()):
-		var row_count := int(row_counts[row])
-		if remaining < row_count:
-			var scale_x := container_size.x / base_size.x
-			var scale_y := container_size.y / base_size.y
-			var origin := Vector2(row_origins[row].x * scale_x, row_origins[row].y * scale_y)
-			return origin + Vector2(step.x * scale_x, step.y * scale_y) * float(remaining)
-		remaining -= row_count
-	var last_origin: Vector2 = row_origins[row_origins.size() - 1]
-	var scale_x := container_size.x / base_size.x
-	var scale_y := container_size.y / base_size.y
-	return Vector2(last_origin.x * scale_x, last_origin.y * scale_y) + Vector2(step.x * scale_x, step.y * scale_y) * float(remaining)
-
-
-func _discard_position_from_columns(
-	index: int,
-	column_counts: Array,
-	column_origins: Array,
-	step: Vector2,
-	container_size: Vector2,
-	base_size: Vector2
-) -> Vector2:
-	var remaining := index
-	for column in range(column_counts.size()):
-		var column_count := int(column_counts[column])
-		if remaining < column_count:
-			var scale_x := container_size.x / base_size.x
-			var scale_y := container_size.y / base_size.y
-			var origin := Vector2(column_origins[column].x * scale_x, column_origins[column].y * scale_y)
-			return origin + Vector2(step.x * scale_x, step.y * scale_y) * float(remaining)
-		remaining -= column_count
-	var last_origin: Vector2 = column_origins[column_origins.size() - 1]
-	var scale_x := container_size.x / base_size.x
-	var scale_y := container_size.y / base_size.y
-	return Vector2(last_origin.x * scale_x, last_origin.y * scale_y) + Vector2(step.x * scale_x, step.y * scale_y) * float(remaining)
-
-
-func _discard_origin_for_seat(
-	seat: int,
-	container_size: Vector2,
-	tile_size: Vector2,
-	visual_size: Vector2,
-	discard_count: int,
-	items_per_row: int,
-	col_step: Vector2,
-	row_step: Vector2
-) -> Vector2:
-	var pad := 4.0
-	var safe_items_per_row := maxi(1, items_per_row)
-	var first_row_count := mini(discard_count, safe_items_per_row)
-	var first_row_width := absf(col_step.x) * float(maxi(0, first_row_count - 1)) + visual_size.x
-	var first_row_height := absf(col_step.y) * float(maxi(0, first_row_count - 1)) + visual_size.y
-	var side_group_count := maxi(1, ceili(float(maxi(1, discard_count)) / float(safe_items_per_row)))
-	var side_group_width := absf(row_step.x) * float(maxi(0, side_group_count - 1)) + visual_size.x
-	match seat:
-		0:
-			return Vector2(maxf(pad, (container_size.x - first_row_width) * 0.5), pad)
-		1:
-			return Vector2(
-				maxf(pad, container_size.x - visual_size.x - pad),
-				pad
-			)
-		2:
-			return Vector2(
-				minf(container_size.x - visual_size.x - pad, maxf(pad, (container_size.x + first_row_width) * 0.5 - visual_size.x)),
-				container_size.y - visual_size.y - pad
-			)
-		3:
-			return Vector2(
-				pad,
-				container_size.y - visual_size.y - pad
-			)
-		_:
-			return Vector2(pad, pad)
-
-
-func _discard_col_step_for_seat(
-	seat: int,
-	tile_size: Vector2,
-	visual_size: Vector2,
-	container_size: Vector2,
-	discard_count: int,
-	items_per_row: int
-) -> Vector2:
-	match seat:
-		0:
-			return Vector2(_horizontal_discard_step(tile_size, visual_size, container_size, discard_count, items_per_row), 0.0)
-		1:
-			return Vector2(0.0, tile_size.y + CENTER_DISCARD_SEPARATION)
-		2:
-			return Vector2(-_horizontal_discard_step(tile_size, visual_size, container_size, discard_count, items_per_row), 0.0)
-		3:
-			return Vector2(0.0, -(tile_size.y + CENTER_DISCARD_SEPARATION))
-		_:
-			return Vector2(tile_size.x + CENTER_DISCARD_SEPARATION, 0.0)
-
-
-func _horizontal_discard_step(
-	tile_size: Vector2,
-	visual_size: Vector2,
-	container_size: Vector2,
-	discard_count: int,
-	items_per_row: int
-) -> float:
-	var visible_columns := mini(maxi(1, discard_count), maxi(1, items_per_row))
-	var natural_step := tile_size.x + CENTER_DISCARD_SEPARATION
-	if visible_columns <= 1:
-		return natural_step
-	var available_step := (container_size.x - CENTER_DISCARD_FIT_PADDING * 2.0 - visual_size.x) / float(visible_columns - 1)
-	return clampf(available_step, tile_size.x * 0.78, natural_step)
-
-
-func _discard_row_step_for_seat(seat: int, tile_size: Vector2) -> Vector2:
-	match seat:
-		0:
-			return Vector2(0.0, tile_size.y + CENTER_DISCARD_SEPARATION)
-		1:
-			return Vector2(-(tile_size.x + CENTER_DISCARD_SEPARATION), 0.0)
-		2:
-			return Vector2(0.0, -(tile_size.y + CENTER_DISCARD_SEPARATION))
-		3:
-			return Vector2(tile_size.x + CENTER_DISCARD_SEPARATION, 0.0)
-		_:
-			return Vector2(0.0, tile_size.y + CENTER_DISCARD_SEPARATION)
 
 
 func _render_settlement(snapshot: Dictionary) -> void:
@@ -5357,14 +4875,12 @@ func _build_settlement_breakdown_lines(players: Array, settlement_data: Dictiona
 	if not focus_assessment.is_empty():
 		var focus_is_hua_zhu := bool(focus_assessment.get("hua_zhu", false))
 		var focus_is_ting := bool(focus_assessment.get("is_ting", false))
-		var focus_is_bao_jiao := bool(focus_assessment.get("is_bao_jiao", false))
 		for item in settlement_data.get("draw_assessment", []):
 			var seat := int(item.get("seat", -1))
 			if seat == focus_seat:
 				continue
 			var target_is_ting := bool(item.get("is_ting", false))
 			var target_is_hua_zhu := bool(item.get("hua_zhu", false))
-			var target_is_bao_jiao := bool(item.get("is_bao_jiao", false))
 			var score_text := ""
 			var reason_text := ""
 			var source_text := _seat_name(seat)
@@ -5374,24 +4890,16 @@ func _build_settlement_breakdown_lines(players: Array, settlement_data: Dictiona
 				reason_text = "花猪赔付"
 				factor_text = _build_cha_jiao_factor_text(item)
 				score_text = "-%d" % maxi(1, int(item.get("cha_jiao_score", 1)))
-			elif not focus_is_ting and not focus_is_hua_zhu and not focus_is_bao_jiao and target_is_ting:
+			elif not focus_is_ting and not focus_is_hua_zhu and target_is_ting:
 				reason_text = "查叫赔付"
-				factor_text = _build_cha_jiao_factor_text(item)
-				score_text = "-%d" % maxi(1, int(item.get("cha_jiao_score", 1)))
-			elif focus_is_bao_jiao and target_is_ting:
-				reason_text = "报叫未成惩罚"
 				factor_text = _build_cha_jiao_factor_text(item)
 				score_text = "-%d" % maxi(1, int(item.get("cha_jiao_score", 1)))
 			elif focus_is_ting and target_is_hua_zhu:
 				reason_text = "花猪赔付"
 				factor_text = _build_cha_jiao_factor_text(focus_assessment)
 				score_text = "+%d" % maxi(1, int(focus_assessment.get("cha_jiao_score", 1)))
-			elif focus_is_ting and not target_is_ting and not target_is_bao_jiao:
+			elif focus_is_ting and not target_is_ting:
 				reason_text = "查叫赔付"
-				factor_text = _build_cha_jiao_factor_text(focus_assessment)
-				score_text = "+%d" % maxi(1, int(focus_assessment.get("cha_jiao_score", 1)))
-			elif focus_is_ting and target_is_bao_jiao:
-				reason_text = "报叫未成惩罚"
 				factor_text = _build_cha_jiao_factor_text(focus_assessment)
 				score_text = "+%d" % maxi(1, int(focus_assessment.get("cha_jiao_score", 1)))
 
@@ -5413,7 +4921,7 @@ func _build_cha_jiao_reason_text(item: Dictionary) -> String:
 	var tile: Dictionary = item.get("cha_jiao_tile", {})
 	var tile_name := str(tile.get("display_name", ""))
 	if tile_name == "":
-		return "流局判定（报叫）" if bool(item.get("is_bao_jiao", false)) else "流局判定（有叫）"
+		return "流局判定（有叫）"
 	return "流局查叫（听%s）" % tile_name
 
 
@@ -5599,40 +5107,19 @@ func _format_fan_and_basic_score(fan_detail: Dictionary, win_type: String = "") 
 	var basic_score := int(fan_detail.get("per_payer_score", hand_score))
 	if (win_type == "self_draw" or win_type == "gang_self_draw") and not fan_detail.has("per_payer_score"):
 		basic_score += 1
-	var fan_text := "%d番（封顶）" % capped_fan if str(last_snapshot.get("rules", {}).get("mode", "")) == "neijiang_classic" and capped_fan >= 5 else "%d番" % capped_fan
+	var fan_text := "%d番（封顶）" % capped_fan if capped_fan >= 3 else "%d番" % capped_fan
 	if basic_score != hand_score and (win_type == "self_draw" or win_type == "gang_self_draw"):
 		return "%s / %d+自摸1=%d分" % [fan_text, hand_score, basic_score]
 	return "%s / %d分" % [fan_text, basic_score]
 
 
-func _build_event_factor_text(event: Dictionary, players: Array) -> String:
+func _build_event_factor_text(event: Dictionary, _players: Array) -> String:
 	var fan_detail: Dictionary = event.get("fan_detail", {})
 	var win_type := str(event.get("win_type", "discard_win"))
-	var factor_text := _format_fan_and_basic_score(fan_detail, win_type)
-	if str(last_snapshot.get("rules", {}).get("mode", "")) != "neijiang_classic":
-		return factor_text
-	var extra_bao_jiao := 0
-	for payer in event.get("payer_seats", []):
-		for player in players:
-			if int(player.get("seat", -1)) == int(payer) and bool(player.get("bao_jiao", false)):
-				extra_bao_jiao += 1
-				break
-	if extra_bao_jiao <= 0:
-		return factor_text
-	return "%s + 报叫补%d" % [factor_text, extra_bao_jiao]
+	return _format_fan_and_basic_score(fan_detail, win_type)
 
 
 func _resolve_basic_score_from_fan(capped_fan: int) -> int:
-	if str(last_snapshot.get("rules", {}).get("mode", "")) == "neijiang_classic":
-		if capped_fan <= 1:
-			return 1
-		if capped_fan == 2:
-			return 2
-		if capped_fan == 3:
-			return 4
-		if capped_fan == 4:
-			return 8
-		return 16
 	if capped_fan <= 0:
 		return 1
 	return int(pow(2.0, capped_fan - 1))
@@ -5651,7 +5138,7 @@ func _resolve_event_total_score(event: Dictionary, players: Array) -> int:
 	return total
 
 
-func _resolve_event_payment_for_payer(event: Dictionary, payer_seat: int, players: Array) -> int:
+func _resolve_event_payment_for_payer(event: Dictionary, _payer_seat: int, _players: Array) -> int:
 	var fan_detail: Dictionary = event.get("fan_detail", {})
 	var win_type: String = str(event.get("win_type", "discard_win"))
 	var capped_fan := int(fan_detail.get("capped_fan", 0))
@@ -5659,11 +5146,6 @@ func _resolve_event_payment_for_payer(event: Dictionary, payer_seat: int, player
 	var payment := hand_score
 	if win_type == "self_draw" or win_type == "gang_self_draw":
 		payment = int(fan_detail.get("per_payer_score", hand_score + 1))
-	if str(last_snapshot.get("rules", {}).get("mode", "")) == "neijiang_classic":
-		for player in players:
-			if int(player.get("seat", -1)) == payer_seat and bool(player.get("bao_jiao", false)):
-				payment += 1
-				break
 	return payment
 
 
@@ -5701,7 +5183,7 @@ func _apply_settlement_visuals(round_delta: int) -> void:
 	next_round_button.add_theme_stylebox_override("hover", _build_settlement_primary_button_hover_style())
 	next_round_button.add_theme_stylebox_override("pressed", _build_settlement_primary_button_pressed_style())
 	next_round_button.add_theme_stylebox_override("focus", _build_settlement_primary_button_hover_style())
-	next_round_button.add_theme_color_override("font_color", Color(0.19, 0.16, 0.10, 1.0))
+	next_round_button.add_theme_color_override("font_color", IVORY_SOFT)
 	settlement_hero_badge.add_theme_stylebox_override("normal", _build_settlement_hero_badge_style())
 	settlement_hero_badge.add_theme_font_size_override("font_size", int(round(22 * scale)))
 	_apply_settlement_label_style(settlement_hero_badge, true, true)
@@ -5774,7 +5256,7 @@ func _apply_settlement_breakdown_label_style(label: Label, is_header: bool = fal
 
 func _build_settlement_side_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.29, 0.23, 0.96)
+	style.bg_color = Color("092923")
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.58)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5783,13 +5265,13 @@ func _build_settlement_side_style() -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 22
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.26)
 	style.shadow_size = 10
-	style.shadow_offset = Vector2(0, 5)
+	style.shadow_offset = Vector2(5, 7)
 	return style
 
 
 func _build_settlement_detail_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.11, 0.26, 0.21, 0.96)
+	style.bg_color = Color("061F1B")
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.62)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5798,19 +5280,19 @@ func _build_settlement_detail_style() -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 22
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.28)
 	style.shadow_size = 10
-	style.shadow_offset = Vector2(0, 5)
+	style.shadow_offset = Vector2(5, 7)
 	return style
 
 
 func _build_settlement_hand_style() -> StyleBoxFlat:
 	var style := _build_settlement_detail_style()
-	style.bg_color = Color(0.13, 0.31, 0.24, 0.96)
+	style.bg_color = Color("082B24")
 	return style
 
 
 func _build_settlement_hand_row_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.18, 0.38, 0.30, 0.98) if is_focus else Color(0.12, 0.28, 0.22, 0.90)
+	style.bg_color = Color("0B3F34") if is_focus else Color(0.027, 0.145, 0.122, 0.94)
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.82) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.34)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 12
@@ -5819,7 +5301,7 @@ func _build_settlement_hand_row_style(is_focus: bool) -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 12
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.16) if is_focus else Color(0.0, 0.0, 0.0, 0.08)
 	style.shadow_size = 4 if is_focus else 1
-	style.shadow_offset = Vector2(0, 2)
+	style.shadow_offset = Vector2(3, 4)
 	return style
 
 
@@ -5841,8 +5323,8 @@ func _build_settlement_hand_tag_style(suit: String, is_focus: bool) -> StyleBoxF
 
 func _build_settlement_group_tag_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.72, 0.55, 0.23, 0.94)
-	style.border_color = Color(0.32, 0.22, 0.09, 0.96)
+	style.bg_color = Color("7A522C")
+	style.border_color = Color("C59A58")
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
@@ -5858,11 +5340,11 @@ func _build_settlement_group_tag_style() -> StyleBoxFlat:
 func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	if is_header:
-		style.bg_color = Color(0.18, 0.39, 0.31, 0.98)
+		style.bg_color = Color("0B3F34")
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.70)
 		style.set_border_width_all(2)
 	else:
-		style.bg_color = Color(0.13, 0.29, 0.23, 0.92) if alternate else Color(0.10, 0.25, 0.20, 0.92)
+		style.bg_color = Color(0.035, 0.161, 0.137, 0.94) if alternate else Color(0.024, 0.122, 0.102, 0.94)
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.16)
 		style.set_border_width_all(1)
 	style.corner_radius_top_left = 10
@@ -5874,25 +5356,25 @@ func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> 
 
 func _build_settlement_hero_style(round_delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.19, 0.40, 0.31, 0.98) if round_delta >= 0 else Color(0.17, 0.31, 0.28, 0.98)
-	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.96)
-	style.set_border_width_all(3)
+	style.bg_color = Color("0B3F34") if round_delta >= 0 else Color("092923")
+	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.90)
+	style.set_border_width_all(2)
 	style.corner_radius_top_left = 24
 	style.corner_radius_top_right = 24
 	style.corner_radius_bottom_left = 24
 	style.corner_radius_bottom_right = 24
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.32)
 	style.shadow_size = 12
-	style.shadow_offset = Vector2(0, 6)
+	style.shadow_offset = Vector2(6, 8)
 	return style
 
 
 func _build_settlement_list_row_style(is_focus: bool, delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.18, 0.39, 0.31, 0.98) if is_focus else Color(0.11, 0.27, 0.22, 0.92)
+	style.bg_color = Color("0B3F34") if is_focus else Color(0.024, 0.122, 0.102, 0.94)
 	if delta < 0 and not is_focus:
-		style.bg_color = Color(0.12, 0.24, 0.21, 0.92)
-	style.border_color = Color(1.0, 0.92, 0.74, 0.96) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.24)
+		style.bg_color = Color(0.075, 0.105, 0.091, 0.94)
+	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.92) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.30)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 14
 	style.corner_radius_top_right = 14
@@ -5910,8 +5392,8 @@ func _build_settlement_list_row_hover_style(is_focus: bool, delta: int) -> Style
 
 func _build_settlement_avatar_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.68, 0.52, 0.23, 0.96) if is_focus else Color(0.32, 0.25, 0.14, 0.96)
-	style.border_color = Color(0.98, 0.87, 0.56, 0.88)
+	style.bg_color = Color("3B2B1B") if is_focus else Color("211A14")
+	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.86)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 14
 	style.corner_radius_top_right = 14
@@ -5919,14 +5401,14 @@ func _build_settlement_avatar_style(is_focus: bool) -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 14
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.18)
 	style.shadow_size = 4
-	style.shadow_offset = Vector2(0, 2)
+	style.shadow_offset = Vector2(3, 4)
 	return style
 
 
 func _build_settlement_dealer_badge_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.64, 0.49, 0.22, 0.96)
-	style.border_color = Color(0.31, 0.22, 0.10, 0.90)
+	style.bg_color = Color("7A522C")
+	style.border_color = Color("C59A58")
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
@@ -5941,8 +5423,8 @@ func _build_settlement_dealer_badge_style() -> StyleBoxFlat:
 
 func _build_settlement_hero_badge_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.73, 0.56, 0.22, 0.98)
-	style.border_color = Color(0.48, 0.29, 0.10, 0.96)
+	style.bg_color = Color("7A522C")
+	style.border_color = Color("C59A58")
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 10
 	style.corner_radius_top_right = 10
@@ -5954,13 +5436,13 @@ func _build_settlement_hero_badge_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 4
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.16)
 	style.shadow_size = 3
-	style.shadow_offset = Vector2(0, 2)
+	style.shadow_offset = Vector2(3, 4)
 	return style
 
 
 func _build_settlement_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.21, 0.18, 0.98)
+	style.bg_color = Color("031815")
 	style.border_color = Color(WOOD_EDGE.r, WOOD_EDGE.g, WOOD_EDGE.b, 0.98)
 	style.set_border_width_all(4)
 	style.corner_radius_top_left = 32
@@ -5969,13 +5451,13 @@ func _build_settlement_panel_style() -> StyleBoxFlat:
 	style.corner_radius_bottom_right = 32
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.38)
 	style.shadow_size = 20
-	style.shadow_offset = Vector2(0, 8)
+	style.shadow_offset = Vector2(8, 10)
 	return style
 
 
 func _build_settlement_utility_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.14, 0.33, 0.26, 0.96)
+	style.bg_color = Color("092923")
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.74)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 18
@@ -5988,7 +5470,7 @@ func _build_settlement_utility_button_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 8
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.24)
 	style.shadow_size = 6
-	style.shadow_offset = Vector2(0, 3)
+	style.shadow_offset = Vector2(3, 4)
 	return style
 
 
@@ -6008,9 +5490,9 @@ func _build_settlement_utility_button_pressed_style() -> StyleBoxFlat:
 
 func _build_settlement_primary_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.80, 0.63, 0.25, 0.99)
-	style.border_color = Color(0.52, 0.30, 0.10, 0.94)
-	style.set_border_width_all(3)
+	style.bg_color = Color("0D5A3E")
+	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.96)
+	style.set_border_width_all(2)
 	style.corner_radius_top_left = 20
 	style.corner_radius_top_right = 20
 	style.corner_radius_bottom_left = 20
@@ -6021,7 +5503,7 @@ func _build_settlement_primary_button_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 10
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.28)
 	style.shadow_size = 8
-	style.shadow_offset = Vector2(0, 4)
+	style.shadow_offset = Vector2(5, 6)
 	return style
 
 
@@ -6188,16 +5670,12 @@ func _apply_action_button_styles() -> void:
 		_apply_action_button_style(an_gang_button, true)
 	_apply_action_button_style(peng_button, false)
 	_apply_action_button_style(pass_button, false)
-	if bao_jiao_button != null:
-		_apply_action_button_style(bao_jiao_button, false)
 	hu_button.custom_minimum_size = ACTION_PRIMARY_SIZE
 	gang_button.custom_minimum_size = ACTION_PRIMARY_SIZE
 	if an_gang_button != null:
 		an_gang_button.custom_minimum_size = ACTION_PRIMARY_SIZE
 	peng_button.custom_minimum_size = ACTION_SECONDARY_SIZE
 	pass_button.custom_minimum_size = ACTION_SECONDARY_SIZE
-	if bao_jiao_button != null:
-		bao_jiao_button.custom_minimum_size = ACTION_SECONDARY_SIZE
 
 
 func _apply_top_bar_button_group_styles() -> void:
@@ -6255,18 +5733,8 @@ func _apply_top_bar_button_group_styles() -> void:
 func _configure_top_right_exit_button() -> void:
 	if top_exit_button == null or root_ui == null:
 		return
-	top_exit_button.text = "X"
-	top_exit_button.visible = true
-	top_exit_button.disabled = false
-	top_exit_button.top_level = true
-	top_exit_button.z_index = 260
-	top_exit_button.custom_minimum_size = TOP_EXIT_BUTTON_SIZE
-	top_exit_button.size = TOP_EXIT_BUTTON_SIZE
-	top_exit_button.position = Vector2(
-		maxf(0.0, root_ui.size.x - TOP_EXIT_BUTTON_MARGIN.x - TOP_EXIT_BUTTON_SIZE.x),
-		TOP_EXIT_BUTTON_MARGIN.y
-	)
-	top_exit_button.tooltip_text = "退出游戏"
+	top_exit_button.visible = false
+	top_exit_button.disabled = true
 
 
 func _apply_ai_preset_button_style(preset_name: String) -> void:
@@ -6892,7 +6360,7 @@ func _build_ai_belief_summary_lines(belief_summary: Dictionary) -> Array[String]
 			ready_parts.append("%s %.0f%%%s" % [
 				_seat_name(int(ready_item.get("seat", -1))),
 				float(ready_item.get("ready_posterior", 0.0)) * 100.0,
-				"｜已经报叫" if bool(ready_item.get("is_called", false)) else "",
+				"｜已有副露" if bool(ready_item.get("is_called", false)) else "",
 			])
 		lines.append("谁更像快听牌了：%s" % " / ".join(ready_parts))
 	var hold_summary: Dictionary = belief_summary.get("hold_summary", {})
@@ -7222,46 +6690,6 @@ func _ding_que_badge_fill(suit: String) -> Color:
 			return Color(0.52, 0.18, 0.17, 1.0)
 		_:
 			return Color(0.30, 0.29, 0.25, 1.0)
-
-
-func _apply_v17_ding_que_badge_style(label: Label, suit: String, seat: int = -1) -> void:
-	if label == null:
-		return
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 32)
-	label.add_theme_color_override("font_color", Color(0.96, 0.94, 0.86, 1.0))
-	label.add_theme_color_override("font_outline_color", Color(0.08, 0.05, 0.03, 0.94))
-	label.add_theme_constant_override("outline_size", 4)
-	if seat == 2:
-		label.custom_minimum_size = Vector2(108, 64)
-		label.offset_left = 8.0
-		label.offset_top = 8.0
-		label.offset_right = 116.0
-		label.offset_bottom = 72.0
-	else:
-		label.custom_minimum_size = Vector2(176, 64)
-		label.offset_left = 36.0
-		label.offset_top = 8.0
-		label.offset_right = 212.0
-		label.offset_bottom = 72.0
-	var style := StyleBoxFlat.new()
-	style.bg_color = _ding_que_badge_fill(suit)
-	style.border_color = Color(1.0, 0.86, 0.54, 0.86)
-	style.set_border_width_all(2)
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
-	style.shadow_size = 3
-	style.content_margin_left = 18
-	style.content_margin_right = 18
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
-	label.add_theme_stylebox_override("normal", style)
-
-
 func _on_hand_tile_pressed(tile_id: int) -> void:
 	if draw_transition_active:
 		_recover_stale_draw_transition(game_manager.get_snapshot())
@@ -7330,6 +6758,10 @@ func _on_top_bar_button_pressed() -> void:
 
 func _on_top_ai_helper_button_pressed() -> void:
 	ai_helper_enabled = not ai_helper_enabled
+	if ai_assistant_drawer != null:
+		ai_assistant_drawer.visible = ai_helper_enabled
+		if ai_helper_enabled:
+			ai_assistant_drawer.call("set_expanded", true)
 	game_manager.set_human_trainer_hint_enabled(ai_helper_enabled)
 	_save_ui_preferences()
 	if not ai_helper_enabled and discard_helper_panel != null:
@@ -7430,12 +6862,27 @@ func _load_ui_preferences() -> void:
 		return
 	ai_helper_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_HELPER, false))
 	opponent_hands_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_OPPONENT_HANDS, false))
+	if config.has_section_key(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY):
+		ai_glass_opacity = clampf(float(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, 0.70)), 0.40, 0.92)
+	else:
+		var legacy_index := clampi(int(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY_LEGACY, 1)), 0, 2)
+		ai_glass_opacity = [0.48, 0.70, 0.90][legacy_index]
+	var stored_position: Variant = config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITION, Vector2(0.5, 0.72))
+	if stored_position is Vector2:
+		ai_drawer_position_normalized = Vector2(
+			clampf((stored_position as Vector2).x, 0.0, 1.0),
+			clampf((stored_position as Vector2).y, 0.0, 1.0)
+		)
+	ai_drawer_positioned = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, false))
 
 
 func _save_ui_preferences() -> void:
 	var config := ConfigFile.new()
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_HELPER, ai_helper_enabled)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_OPPONENT_HANDS, opponent_hands_enabled)
+	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, ai_glass_opacity)
+	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITION, ai_drawer_position_normalized)
+	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, ai_drawer_positioned)
 	config.save(UI_PREFS_PATH)
 
 
@@ -7566,22 +7013,8 @@ func _on_an_gang_pressed() -> void:
 		_speak_action("杠", 0)
 
 
-func _on_bao_jiao_pressed() -> void:
-	var snapshot := game_manager.get_snapshot()
-	var plan: Dictionary = snapshot.get("human_bao_jiao_plan", {})
-	var options: Array = plan.get("bao_gang_options", [])
-	if not options.is_empty():
-		_show_bao_gang_selection_dialog(options)
-		return
-	_execute_human_bao_jiao_with_selection([])
-
-
 func _on_pass_pressed() -> void:
 	var snapshot := game_manager.get_snapshot()
-	if bool(snapshot.get("human_can_pass_opening_bao_jiao", false)):
-		if not _execute_human_action_sequence(["pass_opening_bao_jiao"]).is_empty():
-			_speak_action("过", 0)
-			return
 	if bool(snapshot.get("human_can_self_hu", false)) and not bool(snapshot.get("human_reaction_options", {}).get("can_pass", false)):
 		if not _execute_human_action_sequence(["pass_self_hu"]).is_empty():
 			return
@@ -7605,424 +7038,14 @@ func _execute_human_action_sequence(actions: Array) -> String:
 func _refresh_after_failed_human_action() -> void:
 	if game_manager == null:
 		return
-	var snapshot := game_manager.get_snapshot()
+	# A rejected click must refresh from GameState, not from the manager's
+	# cached frame.  Otherwise a stale reaction panel can remain visible and
+	# make only the visually-unobstructed "过" button appear usable.
+	var snapshot := game_manager.get_fresh_snapshot()
 	if snapshot.is_empty():
 		return
 	_recover_stale_draw_transition(snapshot)
 	_on_snapshot_changed(snapshot)
-
-
-func _ensure_bao_jiao_button() -> void:
-	if bao_jiao_button != null:
-		return
-	bao_jiao_button = Button.new()
-	bao_jiao_button.visible = false
-	bao_jiao_button.focus_mode = Control.FOCUS_NONE
-	action_buttons.add_child(bao_jiao_button)
-	action_buttons.move_child(bao_jiao_button, 4)
-
-
-func _ensure_bao_gang_dialog() -> void:
-	if bao_gang_dialog != null:
-		return
-	bao_gang_dialog = ConfirmationDialog.new()
-	bao_gang_dialog.title = ""
-	bao_gang_dialog.ok_button_text = ""
-	bao_gang_dialog.cancel_button_text = ""
-	bao_gang_dialog.exclusive = true
-	bao_gang_dialog.visible = false
-	bao_gang_dialog.min_size = BAO_GANG_DIALOG_MIN_SIZE
-	bao_gang_dialog.confirmed.connect(_finish_bao_gang_dialog_selection)
-	bao_gang_dialog.canceled.connect(_cancel_bao_gang_dialog_selection)
-	bao_gang_dialog.close_requested.connect(_cancel_bao_gang_dialog_selection)
-	add_child(bao_gang_dialog)
-	_apply_bao_gang_dialog_chrome()
-
-
-func _show_bao_gang_selection_dialog(options: Array) -> void:
-	_ensure_bao_gang_dialog()
-	_apply_bao_gang_dialog_chrome()
-	bao_gang_dialog_committed = false
-	bao_gang_option_checks.clear()
-	if bao_gang_dialog_content != null and is_instance_valid(bao_gang_dialog_content):
-		bao_gang_dialog_content.queue_free()
-	var surface := Panel.new()
-	surface.name = "BaoGangSurface"
-	surface.custom_minimum_size = BAO_GANG_DIALOG_CONTENT_MIN_SIZE
-	surface.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	surface.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_apply_bao_gang_surface_style(surface)
-	bao_gang_dialog_content = surface
-	var margin := MarginContainer.new()
-	margin.name = "BaoGangSurfaceMargin"
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 34)
-	margin.add_theme_constant_override("margin_right", 34)
-	margin.add_theme_constant_override("margin_top", 24)
-	margin.add_theme_constant_override("margin_bottom", 30)
-	surface.add_child(margin)
-	var content_box := VBoxContainer.new()
-	content_box.name = "BaoGangSurfaceContent"
-	content_box.add_theme_constant_override("separation", BAO_GANG_DIALOG_OPTION_SEPARATION)
-	content_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(content_box)
-	var close_button := Button.new()
-	close_button.name = "BaoGangCloseButton"
-	close_button.text = "×"
-	close_button.focus_mode = Control.FOCUS_NONE
-	close_button.custom_minimum_size = Vector2(54, 54)
-	close_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	close_button.offset_left = -70
-	close_button.offset_top = 16
-	close_button.offset_right = -16
-	close_button.offset_bottom = 70
-	_style_bao_gang_close_button(close_button)
-	close_button.pressed.connect(_cancel_bao_gang_dialog_selection)
-	surface.add_child(close_button)
-	var title := Label.new()
-	title.text = "选择要声明的报杠"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", BAO_GANG_DIALOG_TITLE_FONT_SIZE)
-	title.add_theme_color_override("font_color", IVORY_SOFT)
-	title.add_theme_color_override("font_outline_color", Color(0.03, 0.08, 0.05, 0.92))
-	title.add_theme_constant_override("outline_size", 3)
-	title.custom_minimum_size = Vector2(0, 64)
-	content_box.add_child(title)
-	var tile_row := HBoxContainer.new()
-	tile_row.name = "BaoGangTileRow"
-	tile_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	tile_row.add_theme_constant_override("separation", BAO_GANG_DIALOG_OPTION_SEPARATION)
-	tile_row.custom_minimum_size = Vector2(0, BAO_GANG_DIALOG_OPTION_HEIGHT)
-	tile_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content_box.add_child(tile_row)
-	for option_item in options.slice(0, 4):
-		var option: Dictionary = option_item
-		var check := Button.new()
-		check.name = "BaoGangOptionButton"
-		check.text = ""
-		check.toggle_mode = true
-		check.button_pressed = true
-		check.focus_mode = Control.FOCUS_NONE
-		check.custom_minimum_size = Vector2(154, BAO_GANG_DIALOG_OPTION_HEIGHT)
-		check.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		check.add_theme_font_size_override("font_size", BAO_GANG_DIALOG_OPTION_FONT_SIZE)
-		_apply_bao_gang_option_style(check)
-		check.set_meta("bao_gang_key", str(option.get("key", "")))
-		var option_tile: Dictionary = _bao_gang_tile_from_option(option)
-		var tile_visual := _create_bao_gang_option_tile(option_tile)
-		var holder := CenterContainer.new()
-		holder.name = "BaoGangOptionTileHolder"
-		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		holder.set_anchors_preset(Control.PRESET_FULL_RECT)
-		check.add_child(holder)
-		holder.add_child(tile_visual)
-		if tile_visual != null:
-			_refresh_bao_gang_option_selection_visual(check, tile_visual, check.button_pressed)
-			check.toggled.connect(_on_bao_gang_option_toggled.bind(check, tile_visual))
-		tile_row.add_child(check)
-		bao_gang_option_checks.append(check)
-	var footer := HBoxContainer.new()
-	footer.name = "BaoGangDialogFooter"
-	footer.alignment = BoxContainer.ALIGNMENT_CENTER
-	footer.add_theme_constant_override("separation", 22)
-	content_box.add_child(footer)
-	var cancel_button := Button.new()
-	cancel_button.name = "BaoGangCancelButton"
-	cancel_button.text = "取消"
-	cancel_button.focus_mode = Control.FOCUS_NONE
-	_style_bao_gang_dialog_button(cancel_button, false)
-	cancel_button.pressed.connect(_cancel_bao_gang_dialog_selection)
-	footer.add_child(cancel_button)
-	var confirm_button := Button.new()
-	confirm_button.name = "BaoGangConfirmButton"
-	confirm_button.text = "确认报叫"
-	confirm_button.focus_mode = Control.FOCUS_NONE
-	_style_bao_gang_dialog_button(confirm_button, true)
-	confirm_button.pressed.connect(_finish_bao_gang_dialog_selection)
-	footer.add_child(confirm_button)
-	bao_gang_dialog.add_child(surface)
-	bao_gang_dialog.popup_centered(BAO_GANG_DIALOG_MIN_SIZE)
-
-
-func _bao_gang_tile_from_option(option: Dictionary) -> Dictionary:
-	var tile: Dictionary = option.get("tile", {})
-	if not tile.is_empty():
-		return tile.duplicate(true)
-	var key := str(option.get("key", ""))
-	var parts := key.split("_")
-	if parts.size() >= 2:
-		var suit := str(parts[0])
-		var rank := int(parts[1])
-		return {
-			"id": -1,
-			"suit": suit,
-			"rank": rank,
-			"sort_key": _bao_gang_suit_sort_offset(suit) + rank,
-			"display_name": "%d%s" % [rank, _ding_que_short_text(suit)],
-		}
-	return {}
-
-
-func _bao_gang_suit_sort_offset(suit: String) -> int:
-	match suit:
-		"wan":
-			return 0
-		"tiao":
-			return 100
-		"tong":
-			return 200
-		_:
-			return 900
-
-
-func _create_bao_gang_option_row(option: Dictionary, option_tile: Dictionary) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.name = "BaoGangOptionContent"
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.set_anchors_preset(Control.PRESET_FULL_RECT)
-	row.offset_left = 54.0
-	row.offset_top = 8.0
-	row.offset_right = -24.0
-	row.offset_bottom = -8.0
-	row.alignment = BoxContainer.ALIGNMENT_BEGIN
-	row.add_theme_constant_override("separation", 20)
-
-	var tile_visual := TILE_SCENE.instantiate() as TileVisual2D
-	tile_visual.name = "BaoGangOptionTile"
-	tile_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile_visual.call("configure", option_tile, 0.52, false, false, true)
-	row.add_child(tile_visual)
-
-	var text_box := VBoxContainer.new()
-	text_box.name = "BaoGangOptionText"
-	text_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(text_box)
-
-	var label := Label.new()
-	label.name = "BaoGangOptionBadge"
-	label.text = _bao_gang_option_badge_text(option)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 28)
-	label.add_theme_color_override("font_color", IVORY_SOFT)
-	label.add_theme_color_override("font_outline_color", Color(0.03, 0.08, 0.05, 0.90))
-	label.add_theme_constant_override("outline_size", 2)
-	text_box.add_child(label)
-	return row
-
-
-func _create_bao_gang_option_tile(option_tile: Dictionary) -> TileVisual2D:
-	var tile_visual := TILE_SCENE.instantiate() as TileVisual2D
-	tile_visual.name = "BaoGangOptionTile"
-	tile_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tile_visual.call("configure", option_tile, 0.88, false, false, true)
-	return tile_visual
-
-
-func _bao_gang_option_badge_text(option: Dictionary) -> String:
-	var subtype := str(option.get("subtype", ""))
-	match subtype:
-		"an":
-			return "暗杠"
-		"bu":
-			return "补杠"
-		"ming":
-			return "明杠"
-		_:
-			return "报杠牌"
-
-
-func _on_bao_gang_option_toggled(pressed: bool, check: Button, tile_visual: TileVisual2D) -> void:
-	_refresh_bao_gang_option_selection_visual(check, tile_visual, pressed)
-
-
-func _refresh_bao_gang_option_selection_visual(check: Button, tile_visual: TileVisual2D, selected: bool) -> void:
-	if tile_visual != null:
-		var tile_data: Dictionary = tile_visual.tile_data.duplicate(true)
-		tile_visual.call("configure", tile_data, tile_visual.tile_scale, false, false, selected)
-	if check != null:
-		check.modulate = Color.WHITE if selected else Color(0.72, 0.80, 0.74, 0.82)
-
-
-func _apply_bao_gang_dialog_chrome() -> void:
-	if bao_gang_dialog == null:
-		return
-	var empty := StyleBoxFlat.new()
-	empty.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-	empty.border_color = Color(0.0, 0.0, 0.0, 0.0)
-	empty.set_border_width_all(0)
-	empty.content_margin_left = 0
-	empty.content_margin_right = 0
-	empty.content_margin_top = 0
-	empty.content_margin_bottom = 0
-	bao_gang_dialog.add_theme_stylebox_override("panel", empty)
-	bao_gang_dialog.add_theme_stylebox_override("embedded_border", empty)
-	bao_gang_dialog.add_theme_color_override("title_color", Color(IVORY_SOFT.r, IVORY_SOFT.g, IVORY_SOFT.b, 0.0))
-	bao_gang_dialog.add_theme_font_size_override("title_font_size", 1)
-	for button in [bao_gang_dialog.get_ok_button(), bao_gang_dialog.get_cancel_button()]:
-		if button != null:
-			button.visible = false
-			button.disabled = true
-			button.custom_minimum_size = Vector2.ZERO
-
-
-func _apply_bao_gang_surface_style(panel: Panel) -> void:
-	if panel == null:
-		return
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.06, 0.27, 0.19, 0.94)
-	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.72)
-	style.set_border_width_all(2)
-	style.corner_radius_top_left = 24
-	style.corner_radius_top_right = 24
-	style.corner_radius_bottom_left = 24
-	style.corner_radius_bottom_right = 24
-	style.content_margin_left = 30
-	style.content_margin_right = 30
-	style.content_margin_top = 28
-	style.content_margin_bottom = 28
-	style.shadow_color = Color(0.0, 0.08, 0.04, 0.54)
-	style.shadow_size = 22
-	style.shadow_offset = Vector2(0, 10)
-	panel.add_theme_stylebox_override("panel", style)
-	_ensure_material_overlay(panel, "BaoGangSurfaceSoftLight", TABLE_MATERIAL_OVERLAY_SCRIPT.MaterialMode.SOFT_PANEL, 0.55)
-
-
-func _apply_bao_gang_option_style(check: Button) -> void:
-	if check == null:
-		return
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(0.09, 0.34, 0.24, 0.76)
-	normal.border_color = Color(0.93, 0.76, 0.42, 0.48)
-	normal.set_border_width_all(1)
-	normal.corner_radius_top_left = 16
-	normal.corner_radius_top_right = 16
-	normal.corner_radius_bottom_left = 16
-	normal.corner_radius_bottom_right = 16
-	normal.content_margin_left = 18
-	normal.content_margin_right = 18
-	normal.content_margin_top = 10
-	normal.content_margin_bottom = 10
-	normal.shadow_color = Color(0.0, 0.07, 0.04, 0.28)
-	normal.shadow_size = 8
-	normal.shadow_offset = Vector2(0, 3)
-	var hover := normal.duplicate()
-	hover.bg_color = Color(0.13, 0.43, 0.30, 0.86)
-	hover.border_color = Color(1.0, 0.86, 0.52, 0.74)
-	var pressed := normal.duplicate()
-	pressed.bg_color = Color(0.06, 0.25, 0.18, 0.92)
-	pressed.border_color = Color(0.85, 0.64, 0.34, 0.60)
-	check.add_theme_stylebox_override("normal", normal)
-	check.add_theme_stylebox_override("hover", hover)
-	check.add_theme_stylebox_override("pressed", pressed)
-	check.add_theme_stylebox_override("focus", hover)
-	check.add_theme_stylebox_override("disabled", normal)
-	check.add_theme_color_override("font_color", IVORY_SOFT)
-	check.add_theme_color_override("font_hover_color", Color(1.0, 0.98, 0.86, 1.0))
-	check.add_theme_color_override("font_pressed_color", Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 1.0))
-	check.add_theme_color_override("font_outline_color", Color(0.03, 0.08, 0.05, 0.90))
-	check.add_theme_constant_override("outline_size", 2)
-
-
-func _style_bao_gang_close_button(button: Button) -> void:
-	if button == null:
-		return
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = Color(0.32, 0.11, 0.08, 0.92)
-	normal.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.62)
-	normal.set_border_width_all(1)
-	normal.corner_radius_top_left = 14
-	normal.corner_radius_top_right = 14
-	normal.corner_radius_bottom_left = 14
-	normal.corner_radius_bottom_right = 14
-	normal.shadow_color = Color(0.0, 0.05, 0.03, 0.36)
-	normal.shadow_size = 8
-	normal.shadow_offset = Vector2(0, 3)
-	var hover := normal.duplicate()
-	hover.bg_color = Color(0.46, 0.17, 0.12, 0.96)
-	hover.border_color = Color(1.0, 0.86, 0.52, 0.78)
-	var pressed := normal.duplicate()
-	pressed.bg_color = Color(0.22, 0.08, 0.06, 0.96)
-	pressed.shadow_size = 3
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
-	button.add_theme_font_size_override("font_size", 34)
-	button.add_theme_color_override("font_color", IVORY_SOFT)
-	button.add_theme_color_override("font_outline_color", Color(0.03, 0.08, 0.05, 0.90))
-	button.add_theme_constant_override("outline_size", 2)
-
-
-func _style_bao_gang_dialog_button(button: Button, primary: bool) -> void:
-	if button == null:
-		return
-	var base := Color(0.17, 0.42, 0.26, 0.94) if primary else Color(0.14, 0.25, 0.20, 0.90)
-	button.custom_minimum_size = Vector2(146, 56)
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = base
-	normal.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.60)
-	normal.set_border_width_all(1)
-	normal.corner_radius_top_left = 16
-	normal.corner_radius_top_right = 16
-	normal.corner_radius_bottom_left = 16
-	normal.corner_radius_bottom_right = 16
-	normal.content_margin_left = 18
-	normal.content_margin_right = 18
-	normal.content_margin_top = 8
-	normal.content_margin_bottom = 8
-	normal.shadow_color = Color(0.0, 0.08, 0.04, 0.28)
-	normal.shadow_size = 8
-	normal.shadow_offset = Vector2(0, 3)
-	var hover := normal.duplicate()
-	hover.bg_color = base.lightened(0.12)
-	hover.border_color = Color(1.0, 0.90, 0.56, 0.84)
-	var pressed := normal.duplicate()
-	pressed.bg_color = base.darkened(0.12)
-	pressed.shadow_size = 3
-	pressed.shadow_offset = Vector2(0, 1)
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
-	button.add_theme_font_size_override("font_size", 24)
-	button.add_theme_color_override("font_color", IVORY_SOFT)
-	button.add_theme_color_override("font_outline_color", Color(0.03, 0.08, 0.05, 0.90))
-	button.add_theme_constant_override("outline_size", 2)
-
-
-func _finish_bao_gang_dialog_selection() -> void:
-	if bao_gang_dialog_committed:
-		return
-	bao_gang_dialog_committed = true
-	if bao_gang_dialog != null:
-		bao_gang_dialog.hide()
-	var selected_keys: Array = []
-	for check in bao_gang_option_checks:
-		if check.button_pressed:
-			selected_keys.append(str(check.get_meta("bao_gang_key", "")))
-	_execute_human_bao_jiao_with_selection(selected_keys)
-
-
-func _cancel_bao_gang_dialog_selection() -> void:
-	if bao_gang_dialog_committed:
-		return
-	bao_gang_dialog_committed = true
-	if bao_gang_dialog != null:
-		bao_gang_dialog.hide()
-
-
-func _execute_human_bao_jiao_with_selection(selected_keys: Array) -> void:
-	if game_manager == null or game_manager.game_state == null:
-		return
-	if bool(game_manager.game_state.call("execute_human_bao_jiao", 0, selected_keys)):
-		var snapshot := game_manager.get_snapshot()
-		_on_snapshot_changed(snapshot)
 
 
 func _ensure_an_gang_button() -> void:
@@ -8049,9 +7072,12 @@ func _on_top_settlement_info_pressed() -> void:
 		return
 	settlement_dismissed = false
 	settlement_overlay.visible = true
+	if settlement_overlay_v2 != null:
+		settlement_overlay_v2.visible = false
 	_apply_settlement_backdrop_state(true)
 	_layout_settlement_overlay()
 	_render_settlement(game_manager.get_snapshot())
+	settlement_overlay.move_to_front()
 
 
 func _on_settlement_close_pressed() -> void:
@@ -8059,9 +7085,14 @@ func _on_settlement_close_pressed() -> void:
 		return
 	settlement_dismissed = true
 	settlement_overlay.visible = false
+	if settlement_overlay_v2 != null:
+		settlement_overlay_v2.visible = false
 	_apply_settlement_backdrop_state(false)
-	top_settlement_info_button.visible = true
-	top_settlement_info_button.disabled = false
+	if table_utility_bar != null:
+		var snapshot := game_manager.get_snapshot()
+		var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
+		table_utility_bar.call("render", ai_helper_enabled, true, true, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)
+		_layout_table_utility_bar()
 
 
 func _on_settlement_shade_gui_input(event: InputEvent) -> void:

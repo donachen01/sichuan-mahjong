@@ -220,6 +220,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	var remaining18: PackedInt32Array = tile_codec.build_remaining_count_array(hand_tiles, players, active_suits, self_seat)
 	var discards18: Array = []
 	var melds18: Array = []
+	var meld_views: Array = []
 	var passed_hu18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_hu")
 	var passed_peng18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_peng")
 	var passed_gang18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_gang")
@@ -231,6 +232,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	has_hu.resize(4)
 	var scores: Array[int] = []
 	var ding_que_suits: Array[int] = []
+	var hand_counts: Array[int] = []
+	var active_seats: Array[bool] = []
 	var discard_total := 0
 	var meld_total := 0
 	for index in range(mini(4, players.size())):
@@ -239,10 +242,13 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		var encoded_melds := _encode_meld_tile_list(player.get("melds", []), active_suits)
 		discards18.append(encoded_discards)
 		melds18.append(encoded_melds)
+		meld_views.append(_encode_meld_views(player.get("melds", []), active_suits))
 		discard_total += encoded_discards.size()
 		meld_total += encoded_melds.size()
 		scores.append(int(player.get("score", 0)))
 		ding_que_suits.append(active_suits.find(str(player.get("ding_que", ""))))
+		hand_counts.append(int(player.get("hand_count", 0)))
+		active_seats.append(not bool(player.get("has_won", false)))
 		is_called[index] = 1 if not Array(player.get("melds", [])).is_empty() else 0
 		is_ready[index] = 1 if bool(player.get("is_ting", false)) else 0
 		has_hu[index] = 1 if bool(player.get("has_won", false)) else 0
@@ -254,11 +260,29 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		scores.append(0)
 	while ding_que_suits.size() < 4:
 		ding_que_suits.append(-1)
-	var visible_version := int(table_state.get("wall_count", 0)) \
-		+ discard_total * 31 \
-		+ meld_total * 47 \
-		+ int(table_state.get("round_index", 0)) * 101
+	while hand_counts.size() < 4:
+		hand_counts.append(0)
+	while active_seats.size() < 4:
+		active_seats.append(false)
+	while meld_views.size() < 4:
+		meld_views.append([])
+	var public_events: Array = table_state.get("public_ai_events", [])
+	var event_version := int(table_state.get("event_version", 0))
+	if event_version <= 0:
+		for event_item in public_events:
+			event_version = maxi(event_version, int(Dictionary(event_item).get("eventIndex", 0)))
+	var visible_version := event_version
 	var hand_version := int(player_state.get("hand_count", hand_tiles.size())) * 19 + hand_tiles.size()
+	var shun_locks: Dictionary = table_state.get("shun_he_locks", {})
+	var locked_fans: Array[int] = []
+	var lock_turns: Array[int] = []
+	var unlock_on_own_draw: Array[bool] = []
+	for seat in range(4):
+		var lock_info: Dictionary = shun_locks.get(seat, shun_locks.get(str(seat), {}))
+		locked_fans.append(int(lock_info.get("locked_fan", lock_info.get("min_fan", -1))))
+		lock_turns.append(int(lock_info.get("lock_turn", -1)))
+		unlock_on_own_draw.append(bool(lock_info.get("unlock_on_own_draw", true)))
+	var last_gang: Dictionary = table_state.get("last_gang_context", {})
 	return {
 		"seatIndex": self_seat,
 		"dealerSeat": _resolve_dealer_seat(players, table_state, self_seat),
@@ -270,8 +294,15 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"visibleVersion": visible_version,
 		"handVersion": hand_version,
 		"strategyContextVersion": visible_version + hand_version,
+		"eventVersion": event_version,
+		"informationMode": "public",
 		"scores": scores,
 		"dingQueSuits": ding_que_suits,
+		"handCounts": hand_counts,
+		"lockedFans": locked_fans,
+		"lockTurns": lock_turns,
+		"unlockOnOwnDraw": unlock_on_own_draw,
+		"activeSeats": active_seats,
 		"mobileSpeedMode": OS.has_feature("android") or OS.has_feature("ios"),
 		"compactResult": OS.has_feature("android") or OS.has_feature("ios"),
 		"hand18": hand18,
@@ -279,6 +310,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"remaining18": remaining18,
 		"discards18": discards18,
 		"melds18": melds18,
+		"meldViews": meld_views,
+		"publicEvents": _encode_public_events(public_events, active_suits, self_seat),
 		"passedHu18": passed_hu18,
 		"passedPeng18": passed_peng18,
 		"passedGang18": passed_gang18,
@@ -286,7 +319,64 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"isReady": _byte_array_to_bool_array(is_ready),
 		"hasHu": _byte_array_to_bool_array(has_hu),
 		"lastDrawTileType": last_draw_tile_type,
+		"lastDrawOrigin": "draw" if last_draw_tile_type >= 0 else "unknown",
+		"lastGangSeat": int(last_gang.get("seat", -1)),
+		"lastGangTileType": tile_codec.tile_type(last_gang.get("tile", {}), active_suits),
+		"lastGangType": str(last_gang.get("gang_type", "")),
 	}
+
+
+func _encode_meld_views(melds: Array, active_suits: Array) -> Array:
+	var result: Array = []
+	var index := 0
+	for meld_item in melds:
+		var meld: Dictionary = meld_item
+		var tiles: Array = meld.get("tiles", [])
+		if tiles.is_empty():
+			continue
+		var raw_type := str(meld.get("gang_subtype", meld.get("type", "peng")))
+		var meld_type := "peng"
+		match raw_type:
+			"an_gang": meld_type = "concealedGang"
+			"add_gang": meld_type = "addedGang"
+			"gang", "melded_gang": meld_type = "meldedGang"
+		result.append({
+			"type": meld_type,
+			"tileType": tile_codec.tile_type(tiles[0], active_suits),
+			"sourceSeat": int(meld.get("from_seat", -1)),
+			"eventIndex": index,
+		})
+		index += 1
+	return result
+
+
+func _encode_public_events(events: Array, active_suits: Array, self_seat: int) -> Array:
+	var result: Array = []
+	for event_item in events:
+		var event: Dictionary = event_item
+		var event_type := str(event.get("type", "pass"))
+		match event_type:
+			"concealed_gang": event_type = "concealedGang"
+			"melded_gang": event_type = "meldedGang"
+			"added_gang": event_type = "addedGang"
+		var event_seat := int(event.get("seat", -1))
+		var tile_type := tile_codec.tile_type(event.get("tile", {}), active_suits)
+		if event_type == "draw" and event_seat != self_seat:
+			tile_type = -1
+		result.append({
+			"eventIndex": int(event.get("eventIndex", 0)),
+			"turnIndex": int(event.get("turnIndex", 0)),
+			"seat": event_seat,
+			"type": event_type,
+			"tileType": tile_type,
+			"origin": str(event.get("origin", "unknown")),
+			"sourceSeat": int(event.get("sourceSeat", -1)),
+			"wallCountAfter": int(event.get("wallCountAfter", -1)),
+			"canHu": bool(event.get("canHu", false)),
+			"canPeng": bool(event.get("canPeng", false)),
+			"canGang": bool(event.get("canGang", false)),
+		})
+	return result
 
 
 func _build_reaction_pass_count_matrix(pass_evidence: Array, active_suits: Array, flag_key: String) -> Array:

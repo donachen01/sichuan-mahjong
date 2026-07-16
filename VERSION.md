@@ -1,14 +1,13 @@
-# Version
+# 版本
 
-Current app version: `1.0.59`
+当前应用版本：`2.2.0`
 
-`1.0.59` keeps the 1.0.58 realtime AI behavior, cleans old generated evidence and retired regression runners out of the source tree, and refreshes the release/test structure after system-disk cleanup.
+`2.2.0` 是“蜀锦玉案”会所风牌桌 UI 正式发布版：增加可拖动 AI 决策建议框、40%-92% 连续清透比例条，修复明牌开关真实点击切换，精简中心余牌与右下操作区，并重构蜀锦暗纹和左上统一光照。
 
-## Versioning Workflow
+## 版本维护规则
 
-- Every meaningful code, asset, rule, or UI change should be committed to git.
-- Android package builds must update `version/name` and `version/code` in the local `export_presets.cfg` before export.
-- Installer/APK filenames must include the app version number.
-- The repository tracks the source version in `project.godot` (`application/config/version`) and this file.
-- `export_presets.cfg` stays ignored because it can contain local export paths and signing configuration.
-- Build outputs such as APK/AAB files stay out of git. Put release installers on GitHub Releases when needed.
+- 每次正式发布同步更新 `project.godot`、`export_presets.cfg`、`VERSION.md` 与 `README.md`。
+- Android 当前使用 `version/name=2.2.0`、`version/code=220`，产物文件名包含版本号。
+- iOS 当前使用短版本号和构建版本 `2.2.0`，产物目录名包含版本号。
+- 构建产物保留在 `build/android/` 与 `build/ios/`，验证证据保留在 `evidence/`。
+- 版本完成标准区分源码测试、构建、签名、安装、启动和真机完整流程，不以其中一层替代另一层。

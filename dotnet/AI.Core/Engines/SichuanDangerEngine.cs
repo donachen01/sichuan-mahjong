@@ -88,12 +88,17 @@ public sealed class SichuanDangerEngine
                 reasons.Add($"座位{seat}极尾盘保守处理");
             }
 
-            if (state.IsCalled[seat] || state.IsReady[seat])
+            if (state.IsReady[seat])
             {
                 seatRisk *= 1.18;
-                reasons.Add($"座位{seat}已报叫");
+                reasons.Add($"座位{seat}已成叫");
                 reasons.Add($"座位{seat}听牌后验高");
             }
+			else if (state.IsCalled[seat])
+			{
+				seatRisk *= 1.05;
+				reasons.Add($"座位{seat}已有副露");
+			}
 
             if (HasExposedPung(state.Melds18[seat], tileType))
             {
@@ -126,7 +131,7 @@ public sealed class SichuanDangerEngine
             Reasons = reasons
                 .Distinct()
                 .OrderByDescending(item => item.Contains("后验"))
-                .ThenByDescending(item => item.Contains("已报叫"))
+				.ThenByDescending(item => item.Contains("已成叫"))
                 .Take(6)
                 .Append(reasons.Count == 0 ? $"当前{ResolveRiskLabel(riskInt)}可控" : $"整体{ResolveRiskLabel(riskInt)}")
                 .ToArray()

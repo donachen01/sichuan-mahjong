@@ -12,8 +12,8 @@ func analyze_opponent(opponent: Dictionary) -> Dictionary:
 	var dangerous_suit := _resolve_dangerous_suit(opponent)
 	var flush_probability := _estimate_flush_probability(opponent, dangerous_suit)
 	var pung_probability := _estimate_pung_probability(opponent)
-	var bao_jiao := bool(opponent.get("bao_jiao", false))
-	var ready_pressure := _estimate_ready_pressure(meld_count, discards_count, flush_probability, pung_probability, bao_jiao)
+	var is_ready := bool(opponent.get("is_ready", false))
+	var ready_pressure := _estimate_ready_pressure(meld_count, discards_count, flush_probability, pung_probability, is_ready)
 	var stage := _round_stage(discards_count)
 	return {
 		"seat": seat,
@@ -25,10 +25,10 @@ func analyze_opponent(opponent: Dictionary) -> Dictionary:
 		"dangerous_suit_label": _suit_name(dangerous_suit),
 		"flush_probability": flush_probability,
 		"pung_probability": pung_probability,
-		"bao_jiao": bao_jiao,
+		"is_ready": is_ready,
 		"ready_pressure": ready_pressure,
-		"threat_score": _build_threat_score(meld_count, discards_count, flush_probability, pung_probability, ready_pressure, bao_jiao),
-		"reasons": _build_reasons(opponent, dangerous_suit, flush_probability, pung_probability, ready_pressure, stage, bao_jiao),
+		"threat_score": _build_threat_score(meld_count, discards_count, flush_probability, pung_probability, ready_pressure, is_ready),
+		"reasons": _build_reasons(opponent, dangerous_suit, flush_probability, pung_probability, ready_pressure, stage, is_ready),
 	}
 
 
@@ -82,19 +82,19 @@ func _estimate_pung_probability(opponent: Dictionary) -> int:
 	return clampi(score, 0, 100)
 
 
-func _estimate_ready_pressure(meld_count: int, discards_count: int, flush_probability: int, pung_probability: int, bao_jiao: bool) -> int:
+func _estimate_ready_pressure(meld_count: int, discards_count: int, flush_probability: int, pung_probability: int, is_ready: bool) -> int:
 	var pressure := meld_count * 18
 	if discards_count >= 10:
 		pressure += 18
 	elif discards_count >= 7:
 		pressure += 10
 	pressure += int(round(float(maxi(flush_probability, pung_probability)) * 0.22))
-	if bao_jiao:
+	if is_ready:
 		pressure += 36
 	return clampi(pressure, 0, 100)
 
 
-func _build_threat_score(meld_count: int, discards_count: int, flush_probability: int, pung_probability: int, ready_pressure: int, bao_jiao: bool) -> int:
+func _build_threat_score(meld_count: int, discards_count: int, flush_probability: int, pung_probability: int, ready_pressure: int, is_ready: bool) -> int:
 	var score := meld_count * 16
 	if discards_count >= 10:
 		score += 12
@@ -103,16 +103,16 @@ func _build_threat_score(meld_count: int, discards_count: int, flush_probability
 	score += int(round(float(flush_probability) * 0.16))
 	score += int(round(float(pung_probability) * 0.14))
 	score += int(round(float(ready_pressure) * 0.22))
-	if bao_jiao:
+	if is_ready:
 		score += 26
 	return clampi(score, 0, 100)
 
 
-func _build_reasons(opponent: Dictionary, dangerous_suit: String, flush_probability: int, pung_probability: int, ready_pressure: int, stage: int, bao_jiao: bool) -> Array[String]:
+func _build_reasons(opponent: Dictionary, dangerous_suit: String, flush_probability: int, pung_probability: int, ready_pressure: int, stage: int, is_ready: bool) -> Array[String]:
 	var reasons: Array[String] = []
 	var meld_count: int = opponent.get("melds", []).size()
-	if bao_jiao:
-		reasons.append("对手已报叫，进入高压防守区")
+	if is_ready:
+		reasons.append("对手已成叫，进入高压防守区")
 	elif meld_count >= 2:
 		reasons.append("副露较多，出牌速度快")
 	elif meld_count == 1:

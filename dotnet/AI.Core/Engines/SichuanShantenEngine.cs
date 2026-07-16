@@ -12,9 +12,13 @@ public sealed class SichuanShantenEngine
 
     public int CalcSevenPairsShanten(int[] hand18)
     {
-        var pairs = hand18.Count(x => x >= 2);
-        var distinct = hand18.Count(x => x > 0);
-        return Math.Max(-1, 6 - pairs + Math.Max(0, 7 - distinct));
+        // 四川龙七对允许四张同牌按两对参与七对结构。
+        var pairUnits = hand18.Sum(count => Math.Clamp(count, 0, 4) / 2);
+        var singleUnits = hand18.Count(count => Math.Clamp(count, 0, 4) % 2 == 1);
+        var missingPairs = Math.Max(0, 7 - pairUnits);
+        var singlesUsed = Math.Min(missingPairs, singleUnits);
+        var tilesNeeded = singlesUsed + (missingPairs - singlesUsed) * 2;
+        return Math.Max(-1, tilesNeeded - 1);
     }
 
     public int CalcBestShanten(int[] hand18, int meldCount = 0, bool allowQiDui = true)

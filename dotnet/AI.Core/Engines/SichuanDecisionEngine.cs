@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using SichuanMahjong.AI.Core.Cache;
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Strategy;
+using SichuanMahjong.AI.Core.Decision;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -20,6 +22,9 @@ public sealed class SichuanDecisionEngine
     private readonly SichuanRoutePlanEngine _routePlan = new();
     private readonly SichuanAiContextCache _contextCache = new();
     private readonly SichuanDealInPolicyEvaluator _dealInPolicy = new();
+	private readonly SichuanQingYiSePlanner _qingYiSePlanner = new();
+	private readonly SichuanRouteValueEvaluator _routeValueEvaluator = new();
+	private readonly SichuanUnifiedDecisionEngine _unified = new();
 
     private sealed record SichuanBigHandRouteAdjustment(double Score, IReadOnlyList<string> Reasons)
     {
@@ -40,7 +45,10 @@ public sealed class SichuanDecisionEngine
         public static readonly SichuanSetPreservationAdjustment Empty = new(0.0, false, false, Array.Empty<string>());
     }
 
-    public SichuanDecisionResult DecideDiscard(SichuanStateView state, bool forceLightweight = false)
+    public SichuanDecisionResult DecideDiscard(
+        SichuanStateView state,
+        bool forceLightweight = false,
+        SichuanRoundBrainSnapshot? roundBrain = null)
     {
         var decisionStopwatch = Stopwatch.StartNew();
         var belief = _belief.Build(state);
@@ -50,7 +58,25 @@ public sealed class SichuanDecisionEngine
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var currentShanten = _shanten.CalcBestShanten(state.Hand18, meldCount);
         var currentRoutes = EstimateRoutes(state.Hand18, state);
-        var routePlan = _routePlan.Evaluate(state);
+        roundBrain ??= new SichuanRoundBrainSnapshot
+        {
+            RoundIndex = state.RoundIndex,
+            SeatIndex = state.SeatIndex,
+            PrimaryRoute = _routePlan.Evaluate(state).PrimaryRoute
+        };
+        var routePlan = _routePlan.Evaluate(state, roundBrain);
+		var routeValues = _routeValueEvaluator.Evaluate(state);
+		var qingRouteValue = routeValues.FirstOrDefault(item => item.Route == "清一色");
+		var shouldPlanQing = SichuanRoutePlanEngine.IsFlushRoute(roundBrain.PrimaryRoute)
+			|| SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute)
+			|| qingRouteValue is { CompletionProbability: >= 0.42 };
+		var qingPlans = shouldPlanQing
+			? _qingYiSePlanner.Evaluate(state, roundBrain.TargetSuit >= 0 ? roundBrain.TargetSuit : routePlan.TargetSuit).ToDictionary(item => item.DiscardTileType)
+			: new Dictionary<int, SichuanQingPlanCandidate>();
+		var unifiedDiscardValues = forceLightweight
+			? new Dictionary<int, double>()
+			: _unified.RankDiscards(state).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
+		var unifiedMean = unifiedDiscardValues.Values.DefaultIfEmpty(0).Average();
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -77,10 +103,11 @@ public sealed class SichuanDecisionEngine
             var effectiveImprovingTiles = exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles;
             var waitCount = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : (effectiveShanten <= 0 ? improvingTiles.Count : 0);
             var routesAfter = EstimateRoutes(remainingHand, state);
-            var routePlanAfter = _routePlan.Evaluate(state, remainingHand, meldCount);
+            var routePlanAfter = _routePlan.Evaluate(state, remainingHand, meldCount, roundBrain);
             var routeLoss = currentRoutes.Where(route => !routesAfter.Contains(route)).ToArray();
             var bigHandRoute = EvaluateBigHandRouteAdjustment(state.Hand18, remainingHand, state, tileType, meldCount, roundStage, currentShanten, effectiveShanten, effectiveLiveUkeire, waitCount);
             var routePlanAdjustment = EvaluateRoutePlanAdjustment(routePlan, routePlanAfter, state.Hand18, remainingHand, tileType, effectiveShanten, waitCount, roundStage);
+			var qingPlanAdjustment = BuildQingPlanAdjustment(tileType, routePlan, qingPlans);
             var setPreservation = EvaluateSetPreservationAdjustment(state.Hand18, remainingHand, tileType, roundStage);
             var orphanTerminal = EvaluateOrphanTerminalDiscardAdjustment(state.Hand18, tileType, roundStage);
             var connectedRun = EvaluateConnectedRunPreservationAdjustment(state.Hand18, tileType, roundStage);
@@ -110,6 +137,7 @@ public sealed class SichuanDecisionEngine
             var selfDrawProbability = _selfDraw.Estimate(state, effectiveImprovingTiles, waitCount, effectiveLiveUkeire, effectiveShanten, danger, belief);
             var dealInProbability = SichuanRiskCalibration.ToDealInProbability(danger, roundStage, maxReadyPosterior);
             var winProbability = Math.Clamp(tenpaiProbability * 0.58 + selfDrawProbability * 0.42, 0.01, 0.95);
+            var expectedFan = EstimateExpectedFan(routesAfter, qingPlans.GetValueOrDefault(tileType), waitCount);
             var posteriorAdjustment = EstimatePosteriorDefensePenalty(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage);
             var expectedScore = _expectedScore.EvaluateDiscardCandidate(
                 state,
@@ -137,12 +165,22 @@ public sealed class SichuanDecisionEngine
                 expectedScore,
                 routesAfter.Count);
             var dealInPolicy = _dealInPolicy.Evaluate(tileType, aiContext);
+            var roundBrainAdjustment = EvaluateRoundBrainAdjustment(
+                roundBrain,
+                state.Hand18,
+                remainingHand,
+                tileType,
+                effectiveShanten,
+                waitCount,
+                danger,
+                roundStage);
             var shapeValue = EstimateShapeValue(effectiveShanten, effectiveUkeire, effectiveLiveUkeire, waitCount, qualityScore, wallDrawPosterior, roundStage, routesAfter.Count, routeLoss.Length)
                 + shapeSummary.ShapeScore
                 + waitShapeSummary.WaitShapeScore
                 + limitedLookahead.Score
                 + fastTingPriority.Score
                 + routePlanAdjustment.Score
+				+ qingPlanAdjustment.Score
                 + bigHandRoute.Score
                 + orphanTerminal.Score
                 + connectedRun.Score
@@ -150,9 +188,13 @@ public sealed class SichuanDecisionEngine
                 + readyCentralPreservation.Score
                 + setPreservation.Score
                 + strategicAdjustment.Score
+                + roundBrainAdjustment.Score
                 + dealInPolicy.AdjustmentScore / 100.0;
             var defenseAdjustment = posteriorAdjustment * ResolveDefenseAdjustmentWeight(effectiveShanten, waitCount, roundStage, maxReadyPosterior);
-            var expectedValue = expectedScore.Net + shapeValue - defenseAdjustment;
+            var unifiedAdjustment = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue)
+				? Math.Clamp((unifiedValue - unifiedMean) * 0.12, -0.65, 0.65)
+				: 0;
+			var expectedValue = expectedScore.Net + shapeValue - defenseAdjustment + unifiedAdjustment;
             var score = (int)Math.Round(expectedValue * 100.0);
             var fastTingDiscardRank = ResolveFastRank(effectiveShanten, waitCount, effectiveLiveUkeire);
             var riskLabel = dangerEval.RiskLabel;
@@ -168,6 +210,7 @@ public sealed class SichuanDecisionEngine
                 .Concat(limitedLookahead.Reasons)
                 .Concat(fastTingPriority.Reasons)
                 .Concat(routePlanAdjustment.Reasons)
+				.Concat(qingPlanAdjustment.Reasons)
                 .Concat(bigHandRoute.Reasons)
                 .Concat(orphanTerminal.Reasons)
                 .Concat(connectedRun.Reasons)
@@ -175,6 +218,8 @@ public sealed class SichuanDecisionEngine
                 .Concat(readyCentralPreservation.Reasons)
                 .Concat(setPreservation.Reasons)
                 .Concat(strategicAdjustment.Reasons)
+                .Concat(roundBrainAdjustment.Reasons)
+				.Concat(unifiedDiscardValues.ContainsKey(tileType) ? new[] { $"统一净分层修正 {unifiedAdjustment:F2}" } : Array.Empty<string>())
                 .Concat(new[] { dealInPolicy.ReasonCode })
                 .ToArray();
             candidateScores[tileType] = score;
@@ -201,6 +246,7 @@ public sealed class SichuanDecisionEngine
                 TenpaiProbability = tenpaiProbability,
                 SelfDrawProbability = selfDrawProbability,
                 WinProbability = winProbability,
+                ExpectedFan = expectedFan,
                 DealInProbability = dealInProbability,
                 ExpectedValue = expectedValue,
                 ExpectedNetScore = expectedScore.Net,
@@ -295,7 +341,7 @@ public sealed class SichuanDecisionEngine
             bestLive = extremeDangerOverride.LiveUkeire;
             bestSearchBonus = extremeDangerOverride.SearchBonus;
             reasons = extremeDangerOverride.Reasons
-                .Concat(new[] { "同速避险：对报叫压力下避开更危险生张" })
+				.Concat(new[] { "同速避险：对成叫压力下避开更危险生张" })
                 .ToList();
         }
 
@@ -323,7 +369,7 @@ public sealed class SichuanDecisionEngine
             bestLive = lateWallKeepReady.LiveUkeire;
             bestSearchBonus = lateWallKeepReady.SearchBonus;
             reasons = lateWallKeepReady.Reasons
-                .Concat(new[] { "尾盘守叫：危险可接受且收益更高时优先保住有叫" })
+                .Concat(new[] { "尾盘守叫：存在安全听牌时，查叫资格硬优先于普通综合分" })
                 .ToList();
         }
 
@@ -360,8 +406,57 @@ public sealed class SichuanDecisionEngine
             Reasons = finalReasons,
             CandidateScores = candidateScores,
             Candidates = candidates,
-            RoutePlan = routePlan
+            RoutePlan = routePlan,
+            RoundBrain = roundBrain
         };
+    }
+
+    private static SichuanSimpleAdjustment EvaluateRoundBrainAdjustment(
+        SichuanRoundBrainSnapshot brain,
+        IReadOnlyList<int> currentHand,
+        IReadOnlyList<int> remainingHand,
+        int tileType,
+        int shanten,
+        int waitCount,
+        int danger,
+        int roundStage)
+    {
+        var score = 0.0;
+        var reasons = new List<string>();
+        if (brain.IsProtectedQuad(tileType) && currentHand[tileType] >= 4)
+        {
+            score -= roundStage <= 1 ? 18.0 : 10.0;
+            reasons.Add("持续大脑：四张同牌是杠分和补张资产，禁止按普通孤张拆除");
+        }
+        else if (brain.IsProtectedTriplet(tileType) && currentHand[tileType] >= 3 && remainingHand[tileType] == 2)
+        {
+            var canBreakForSafeReady = roundStage >= 2 && shanten <= 0 && waitCount > 0 && danger < 70;
+            score -= canBreakForSafeReady ? 2.0 : 10.0 + brain.Commitment / 12.0;
+            reasons.Add(canBreakForSafeReady
+                ? "持续大脑：尾盘安全成叫允许有条件拆刻"
+                : "持续大脑：保护暗刻及第四张杠牌机会");
+        }
+
+        if (SichuanRoutePlanEngine.IsFlushRoute(brain.PrimaryRoute) && brain.TargetSuit is >= 0 and < 3)
+        {
+            if (tileType / 9 == brain.TargetSuit)
+            {
+                score -= 4.0 + brain.Commitment / 10.0;
+                reasons.Add("持续大脑：主路线清色，拆目标花色需要显著收益");
+            }
+            else
+            {
+                score += 2.0 + brain.Commitment / 18.0;
+                reasons.Add("持续大脑：清理清色路线异门牌");
+            }
+        }
+
+        if (SichuanRoutePlanEngine.IsSevenPairsRoute(brain.PrimaryRoute) && currentHand[tileType] >= 2)
+        {
+            score -= 7.0 + brain.Commitment / 14.0;
+            reasons.Add("持续大脑：七对主路线保护对子");
+        }
+        return new SichuanSimpleAdjustment(score, reasons);
     }
 
     private static SichuanSimpleAdjustment EvaluateStrategyContextAdjustment(
@@ -806,7 +901,7 @@ public sealed class SichuanDecisionEngine
         {
             var penalty = roundStage >= 2 ? 12.0 : 18.0;
             score -= penalty;
-            reasons.Add("四张同牌/归牌不轻拆，强降权");
+            reasons.Add("四张同牌/根牌不轻拆，强降权");
         }
         else if (breaksTriplet)
         {
@@ -814,7 +909,7 @@ public sealed class SichuanDecisionEngine
             if (roundStage >= 2)
                 penalty *= 0.65;
             score -= penalty;
-            reasons.Add(beforeCount >= 4 ? "四张同牌/归牌不轻拆，强降权" : "拆刻子/杠材，降权");
+            reasons.Add(beforeCount >= 4 ? "四张同牌/根牌不轻拆，强降权" : "拆刻子/杠材，降权");
         }
         else if (breaksPair)
         {
@@ -1052,7 +1147,7 @@ public sealed class SichuanDecisionEngine
             reasons.Add("路线切换：能下叫先下叫");
         }
 
-        if (afterPlan.PrimaryRoute is "平胡" or "卡二条平胡")
+		if (afterPlan.PrimaryRoute == "平胡")
         {
             score += reachesReady ? 8.0 : 2.0;
             reasons.Add("平胡路线：保持速度和宽叫");
@@ -1062,6 +1157,24 @@ public sealed class SichuanDecisionEngine
             ? SichuanSimpleAdjustment.Empty
             : new SichuanSimpleAdjustment(score, reasons.Distinct().ToArray());
     }
+
+	private static SichuanSimpleAdjustment BuildQingPlanAdjustment(
+		int tileType,
+		SichuanRoutePlanResult routePlan,
+		IReadOnlyDictionary<int, SichuanQingPlanCandidate> plans)
+	{
+		if (!plans.TryGetValue(tileType, out var plan))
+			return SichuanSimpleAdjustment.Empty;
+		var committed = SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute);
+		var scale = committed ? 2.2 : 0.65;
+		var score = plan.ExpectedValue * scale;
+		if (committed && tileType / 9 != plan.TargetSuit) score += 2.4;
+		if (committed && tileType / 9 == plan.TargetSuit) score -= 1.8;
+		return new SichuanSimpleAdjustment(score, plan.Reasons.Concat(new[]
+		{
+			committed ? "连续大脑：清一色使用两层预下叫前瞻" : "路线评估：保留清一色可行性但不盲目承诺"
+		}).ToArray());
+	}
 
     private static SichuanBigHandRouteAdjustment EvaluateBigHandRouteAdjustment(
         int[] handBeforeDiscard18,
@@ -1221,6 +1334,21 @@ public sealed class SichuanDecisionEngine
         if (shanten == 1) return Math.Clamp(0.36 + liveUkeire * 0.04, 0.18, 0.90);
         if (shanten == 2) return Math.Clamp(0.16 + liveUkeire * 0.02, 0.06, 0.72);
         return Math.Clamp(0.04 + liveUkeire * 0.01, 0.02, 0.50);
+    }
+
+    private static double EstimateExpectedFan(
+        IReadOnlyList<string> routes,
+        SichuanQingPlanCandidate? qingPlan,
+        int waitCount)
+    {
+        if (qingPlan is not null && qingPlan.CompletionProbability >= 0.18)
+            return Math.Clamp(qingPlan.ExpectedFan, 1, 6);
+        if (routes.Any(route => route.Contains("青龙七对", StringComparison.Ordinal))) return 6;
+        if (routes.Any(route => route.Contains("清七对", StringComparison.Ordinal))) return 5;
+        if (routes.Any(route => route.Contains("龙七对", StringComparison.Ordinal))) return 3;
+        if (routes.Any(route => route.Contains("清一色", StringComparison.Ordinal))) return 3;
+        if (routes.Any(route => route.Contains("七对", StringComparison.Ordinal) || route.Contains("金钩钓", StringComparison.Ordinal))) return 2;
+        return waitCount > 0 ? 1.0 : 0.8;
     }
 
     private static double EstimateShapeValue(
@@ -1546,12 +1674,11 @@ public sealed class SichuanDecisionEngine
             .Where(item => item.TileType != current.TileType
                 && item.Shanten <= 0
                 && item.WaitCount > 0
-                && item.Danger < 78
-                && item.Score > current.Score)
-            .OrderByDescending(item => item.Score)
+                && item.Danger < 70)
+            .OrderBy(item => item.Danger)
             .ThenByDescending(item => item.WaitCount)
-            .ThenBy(item => item.Danger)
             .ThenByDescending(item => item.LiveUkeire)
+            .ThenByDescending(item => item.Score)
             .FirstOrDefault();
     }
 
@@ -1592,6 +1719,7 @@ public sealed class SichuanDecisionEngine
                 TenpaiProbability = candidate.TenpaiProbability,
                 SelfDrawProbability = candidate.SelfDrawProbability,
                 WinProbability = candidate.WinProbability,
+                ExpectedFan = candidate.ExpectedFan,
                 DealInProbability = candidate.DealInProbability,
                 ExpectedValue = candidate.ExpectedValue + bonus,
                 ExpectedNetScore = candidate.ExpectedNetScore,

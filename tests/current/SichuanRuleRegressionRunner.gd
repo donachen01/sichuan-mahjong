@@ -33,9 +33,15 @@ func _init() -> void:
 	_run_test("draw_tui_gang_refunds_are_built_for_unresolved_gangs", _test_draw_tui_gang_refunds_are_built_for_unresolved_gangs, failures)
 	_run_test("draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments", _test_draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments, failures)
 	_run_test("draw_tui_gang_refunds_reverse_previously_counted_gang_scores", _test_draw_tui_gang_refunds_reverse_previously_counted_gang_scores, failures)
+	_run_test("fan_combinations_follow_sichuan_table_and_cap", _test_fan_combinations_follow_sichuan_table_and_cap, failures)
+	_run_test("sea_bottom_never_adds_fan", _test_sea_bottom_never_adds_fan, failures)
+	_run_test("shun_he_lock_clears_on_own_draw", _test_shun_he_lock_clears_on_own_draw, failures)
+	_run_test("hu_jiao_zhuan_yi_supports_multiple_payers", _test_hu_jiao_zhuan_yi_supports_multiple_payers, failures)
+	_run_test("hu_jiao_zhuan_yi_waits_for_round_resolution", _test_hu_jiao_zhuan_yi_waits_for_round_resolution, failures)
+	_run_test("multi_payer_tui_gang_fully_reverses_gang_score", _test_multi_payer_tui_gang_fully_reverses_gang_score, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 26/26")
+		print("RULE REGRESSION OK: 32/32")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -233,6 +239,8 @@ func _test_dealer_starts_with_14_and_others_hold_13_before_first_draw():
 		var hand_tiles: Array = game_state.players[seat]["hand_tiles"]
 		if hand_tiles.size() != expected_count:
 			return "expected seat %d to hold %d tiles after dealing, got %d" % [seat, expected_count, hand_tiles.size()]
+	for seat in range(1, 4):
+		game_state.players[seat]["ding_que"] = "tiao"
 	if not bool(game_state.choose_ding_que(0, "tong")):
 		return "expected human player to be able to finish opening ding que"
 	if int(game_state.current_phase) != int(GAME_STATE_SCRIPT.RoundPhase.DISCARD):
@@ -396,8 +404,8 @@ func _test_multi_win_on_discard_keeps_other_hu_candidates():
 	var remaining_hu_seat := int(game_state.pending_reactions[0].get("seat", -1)) if not game_state.pending_reactions.is_empty() else -1
 	if remaining_hu_seat != 2:
 		return "expected second hu candidate to remain after first winner, got %s" % [game_state.pending_reactions]
-	if not bool(game_state.run_ai_reaction()):
-		return "expected second discard hu candidate to resolve via ai reaction"
+	if not bool(game_state.call("_execute_hu_on_discard", 2)):
+		return "expected second discard hu candidate to resolve after first winner"
 	if game_state.round_winners.size() != 2:
 		return "expected two winners after one-pao-duo-xiang resolution"
 	if not game_state.round_winners.has(1) or not game_state.round_winners.has(2):
@@ -1015,6 +1023,173 @@ func _test_draw_tui_gang_refunds_reverse_previously_counted_gang_scores():
 	return true
 
 
+func _test_fan_combinations_follow_sichuan_table_and_cap():
+	var game_state = _build_test_game_state()
+	var cases: Array[Dictionary] = [
+		{
+			"name": "qi_dui",
+			"player": _make_player(0, "tiao", [
+				_make_tile(1000, "wan", 1), _make_tile(1001, "wan", 1),
+				_make_tile(1002, "wan", 2), _make_tile(1003, "wan", 2),
+				_make_tile(1004, "wan", 3), _make_tile(1005, "wan", 3),
+				_make_tile(1006, "tong", 4), _make_tile(1007, "tong", 4),
+				_make_tile(1008, "tong", 5), _make_tile(1009, "tong", 5),
+				_make_tile(1010, "tong", 6), _make_tile(1011, "tong", 6),
+				_make_tile(1012, "tong", 7), _make_tile(1013, "tong", 7),
+			]),
+			"hand_type": "qi_dui",
+			"required_labels": ["暗七对"],
+			"uncapped_fan": 4,
+		},
+		{
+			"name": "da_dui_zi",
+			"player": _make_player(0, "tiao", [
+				_make_tile(1020, "wan", 1), _make_tile(1021, "wan", 1), _make_tile(1022, "wan", 1),
+				_make_tile(1023, "wan", 3), _make_tile(1024, "wan", 3), _make_tile(1025, "wan", 3),
+				_make_tile(1026, "tong", 5), _make_tile(1027, "tong", 5), _make_tile(1028, "tong", 5),
+				_make_tile(1029, "tong", 7), _make_tile(1030, "tong", 7), _make_tile(1031, "tong", 7),
+				_make_tile(1032, "wan", 9), _make_tile(1033, "wan", 9),
+			]),
+			"hand_type": "da_dui_zi",
+			"required_labels": ["大对子"],
+			"uncapped_fan": 2,
+		},
+		{
+			"name": "qing_jin_gou_gen_gang_hua",
+			"player": _make_player(0, "tiao", [
+				_make_tile(1040, "wan", 9), _make_tile(1041, "wan", 9),
+			], [
+				{"type": "gang", "tiles": [_make_tile(1042, "wan", 1), _make_tile(1043, "wan", 1), _make_tile(1044, "wan", 1), _make_tile(1045, "wan", 1)]},
+				{"type": "peng", "tiles": [_make_tile(1046, "wan", 2), _make_tile(1047, "wan", 2), _make_tile(1048, "wan", 2)]},
+				{"type": "peng", "tiles": [_make_tile(1049, "wan", 3), _make_tile(1050, "wan", 3), _make_tile(1051, "wan", 3)]},
+				{"type": "peng", "tiles": [_make_tile(1052, "wan", 4), _make_tile(1053, "wan", 4), _make_tile(1054, "wan", 4)]},
+			]),
+			"hand_type": "qing_yi_se",
+			"required_labels": ["清一色", "金钩钓", "带根", "杠上花", "自摸"],
+			"uncapped_fan": 32,
+		},
+	]
+	for case_data in cases:
+		var detail: Dictionary = game_state.score_resolver.build_event_fan_detail(
+			case_data["player"],
+			_make_tile(1099, "wan", 9),
+			"gang_self_draw" if str(case_data["name"]) == "qing_jin_gou_gen_gang_hua" else "self_draw",
+			game_state.rules
+		)
+		if str(detail.get("hand_type", "")) != str(case_data["hand_type"]):
+			return "%s expected hand type %s, got %s" % [case_data["name"], case_data["hand_type"], detail]
+		if int(detail.get("uncapped_fan", 0)) != int(case_data["uncapped_fan"]):
+			return "%s expected uncapped fan %d, got %s" % [case_data["name"], case_data["uncapped_fan"], detail]
+		if int(detail.get("capped_fan", 0)) != mini(int(case_data["uncapped_fan"]), int(game_state.rules.fan_cap)):
+			return "%s fan cap mismatch: %s" % [case_data["name"], detail]
+		var labels: Array = detail.get("labels", [])
+		for required_label in case_data["required_labels"]:
+			if not labels.has(required_label):
+				return "%s missing label %s: %s" % [case_data["name"], required_label, labels]
+	return true
+
+
+func _test_sea_bottom_never_adds_fan():
+	var game_state = _build_test_game_state()
+	var player := _make_player(0, "tiao", [
+		_make_tile(1100, "wan", 1), _make_tile(1101, "wan", 1), _make_tile(1102, "wan", 1),
+		_make_tile(1103, "wan", 2), _make_tile(1104, "wan", 3), _make_tile(1105, "wan", 4),
+		_make_tile(1106, "wan", 2), _make_tile(1107, "wan", 3), _make_tile(1108, "wan", 4),
+		_make_tile(1109, "wan", 5), _make_tile(1110, "wan", 6), _make_tile(1111, "wan", 7),
+		_make_tile(1112, "wan", 9), _make_tile(1113, "wan", 9),
+	])
+	var detail: Dictionary = game_state.score_resolver.build_event_fan_detail(player, _make_tile(1114, "wan", 9), "self_draw", game_state.rules)
+	var labels: Array = detail.get("labels", [])
+	for label in labels:
+		if str(label).contains("海底"):
+			return "expected no sea-bottom label or multiplier, got %s" % [detail]
+	var flags: Dictionary = detail.get("flags", {})
+	if flags.has("hai_di") or flags.has("sea_bottom"):
+		return "expected fan resolver contract to exclude sea-bottom flags, got %s" % [flags]
+	return true
+
+
+func _test_shun_he_lock_clears_on_own_draw():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "tiao", [_make_tile(1120, "wan", 1)]),
+		_make_player(1, "wan", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	game_state.current_turn_seat = 0
+	game_state.shun_he_locks[0] = {"locked_fan": 2, "min_fan": 2, "lock_turn": 4, "unlock_on_own_draw": true}
+	var wall: Array[Dictionary] = [_make_tile(1121, "wan", 2)]
+	game_state.wall = wall
+	game_state.wall_count = 1
+	game_state._begin_turn()
+	if game_state.shun_he_locks.has(0):
+		return "expected shun-he lock to clear when the same seat draws"
+	return true
+
+
+func _test_hu_jiao_zhuan_yi_supports_multiple_payers():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "wan", []), _make_player(1, "tiao", []),
+		_make_player(2, "tong", []), _make_player(3, "wan", []),
+	]
+	for player in players:
+		player["has_won"] = true
+	var settlement_data: Dictionary = game_state._create_empty_settlement_data()
+	settlement_data["transfer_events"] = [{
+		"from_seat": 0, "to_seat": 2, "transfer_type": "hu_jiao_zhuan_yi",
+		"gang_type": "add_gang", "payer_seats": [0, 1, 3],
+	}]
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
+	if int(changes.get(2, 0)) != 3 or int(changes.get(0, 0)) != -1 or int(changes.get(1, 0)) != -1 or int(changes.get(3, 0)) != -1:
+		return "expected three add-gang payers to transfer one point each, got %s" % [changes]
+	return true
+
+
+func _test_hu_jiao_zhuan_yi_waits_for_round_resolution():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "wan", []), _make_player(1, "tiao", []),
+		_make_player(2, "tong", []), _make_player(3, "wan", []),
+	]
+	players[0]["has_won"] = true
+	players[2]["has_won"] = true
+	var settlement_data: Dictionary = game_state._create_empty_settlement_data()
+	settlement_data["transfer_events"] = [{
+		"from_seat": 0, "to_seat": 2, "transfer_type": "hu_jiao_zhuan_yi",
+		"gang_type": "melded_gang", "payer_seats": [1],
+	}]
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
+	for seat in range(4):
+		if int(changes.get(seat, 99)) != 0:
+			return "expected unfinished battle not to settle transfer events, got %s" % [changes]
+	return true
+
+
+func _test_multi_payer_tui_gang_fully_reverses_gang_score():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "wan", []), _make_player(1, "tiao", []),
+		_make_player(2, "tong", []), _make_player(3, "wan", []),
+	]
+	for player in players:
+		player["has_won"] = true
+	var settlement_data: Dictionary = game_state._create_empty_settlement_data()
+	settlement_data["gang_events"] = [{
+		"actor_seat": 0, "gang_type": "an_gang", "related_outcome": "", "payer_seats": [1, 2, 3],
+	}]
+	settlement_data["tui_gang_refunds"] = [{
+		"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3], "refund_reason": "draw_tui_gang",
+	}]
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
+	for seat in range(4):
+		if int(changes.get(seat, 99)) != 0:
+			return "expected multi-payer tui-gang to cancel all gang scores, got %s" % [changes]
+	return true
+
+
 func _build_test_game_state():
 	var game_state = GAME_STATE_SCRIPT.new()
 	game_state.rules = load("res://scripts/core/rule_config.gd").new()
@@ -1061,10 +1236,12 @@ func _hand_contains_tile_id(hand_tiles: Array, tile_id: int) -> bool:
 
 
 func _make_tile(id: int, suit: String, rank: int) -> Dictionary:
+	var suit_index := ["tiao", "tong", "wan"].find(suit)
 	return {
 		"id": id,
 		"suit": suit,
 		"rank": rank,
+		"sort_key": suit_index * 100 + rank,
 		"display_name": "%d%s" % [rank, _suit_name(suit)],
 	}
 

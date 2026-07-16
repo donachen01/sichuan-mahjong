@@ -2,12 +2,14 @@ extends Node2D
 
 class_name HandCanvas2D
 
-const TILE_FACE_SIZE := Vector2(136.0, 204.0)
+const TILE_STYLE := preload("res://scripts/ui/table/SichuanTileStyle.gd")
+
+const TILE_FACE_SIZE := Vector2(132.0, 198.0)
 const TILE_TOP_HEIGHT := 0.0
 const TILE_STEP_MAX := 136.0
-const TILE_STEP_MIN := 78.0
+const TILE_STEP_MIN := 136.0
 const SIDE_MARGIN := 28.0
-const BASELINE_BOTTOM := 12.0
+const BASELINE_BOTTOM := 34.0
 const ARC_MAX_LIFT := 0.0
 const ARC_MAX_ROTATION := 0.0
 const TOP_SKEW := Vector2(1.8, -2.2)
@@ -16,8 +18,9 @@ const WINNING_TILE_GAP := 24.0
 const SELECTED_LIFT := 10.0
 const NEW_DRAW_LIFT := 8.0
 const FRONT_INSET := Vector2(6.2, 6.4)
-const SHADOW_OFFSET := Vector2(0.0, 4.8)
-const SHADOW_ALPHA := 0.14
+const SHADOW_OFFSET := Vector2(1.0, 6.5)
+const SHADOW_ALPHA := 0.20
+const BODY_DEPTH := Vector2(9.0, 12.0)
 const SUIT_TEXTURE_Y_OFFSETS := {
 	"wan": 2.0,
 	"tiao": -2.0,
@@ -37,11 +40,11 @@ const SUIT_RANK_TEXTURE_SCALE_OVERRIDES := {
 	"tong_8": Vector2(0.70, 0.73),
 	"tong_9": Vector2(0.70, 0.73),
 }
-const TILE_BORDER_COLOR := Color8(102, 160, 122, 238)
-const TILE_FACE_COLOR := Color8(222, 246, 228, 255)
+const TILE_BORDER_COLOR := TILE_STYLE.FACE_BORDER
+const TILE_FACE_COLOR := TILE_STYLE.FACE_TOP
 const TILE_CORNER_RADIUS := 10
 const HIGHLIGHT_COLOR := Color8(195, 29, 56, 255)
-const SELECTED_FACE_TINT := Color8(193, 236, 211, 255)
+const SELECTED_FACE_TINT := Color("E8E0C5")
 const SELECTED_EDGE_LIGHT := Color8(195, 29, 56, 225)
 const TILE_INNER_BORDER := Color(0.96, 1.0, 0.98, 0.38)
 const TILE_INNER_SHADOW := Color(0.08, 0.18, 0.13, 0.14)
@@ -50,9 +53,6 @@ const TILE_SYMBOL_DIR := "res://res/art/ui_3d_cartoon/tile_symbols"
 const USE_SELF_TILE_SURFACE := false
 const DANGER_OUTLINE := Color(0.72, 0.28, 0.24, 0.92)
 const DANGER_BANNER := Color(0.50, 0.14, 0.12, 0.92)
-const BAO_GANG_OUTLINE := Color(1.0, 0.78, 0.34, 0.96)
-const BAO_GANG_GLOW := Color(1.0, 0.72, 0.26, 0.14)
-const BAO_GANG_BADGE := Color(0.08, 0.30, 0.20, 0.94)
 const RECOMMEND_MARKER_RADIUS := 10.5
 const RECOMMEND_MARKER_BOB_SPEED := 3.2
 const RECOMMEND_MARKER_TOP := Color(1.0, 0.90, 0.48, 0.90)
@@ -72,6 +72,7 @@ var embedded_right_width: float = 0.0
 var embedded_right_gap: float = 0.0
 var recommended_marker_contract: Dictionary = {}
 var configure_signature: String = ""
+var reduced_motion := false
 
 static var texture_cache: Dictionary = {}
 static var _face_stylebox: StyleBoxFlat = _build_face_stylebox()
@@ -98,13 +99,17 @@ func configure(tiles: Array, selected_id: int, new_id: int, canvas_size: Vector2
 	queue_redraw()
 
 
+func set_reduced_motion(enabled: bool) -> void:
+	reduced_motion = enabled
+	queue_redraw()
+
+
 func _build_configure_signature(tiles: Array, selected_id: int, new_id: int, canvas_size: Vector2, markers: Dictionary, layout_options: Dictionary) -> String:
 	var tile_ids: Array[int] = []
 	for tile in tiles:
 		var tile_data: Dictionary = tile
 		tile_ids.append(int(tile_data.get("id", -1)))
 	var marker_ids: Array = markers.get("danger_tile_ids", [])
-	var bao_gang_keys: Array = markers.get("bao_gang_keys", [])
 	return JSON.stringify({
 		"tiles": tile_ids,
 		"selected": selected_id,
@@ -112,7 +117,6 @@ func _build_configure_signature(tiles: Array, selected_id: int, new_id: int, can
 		"size": [int(round(canvas_size.x)), int(round(canvas_size.y))],
 		"recommended": int(markers.get("recommended_tile_id", -1)),
 		"danger": marker_ids.duplicate(),
-		"bao_gang": bao_gang_keys.duplicate(),
 		"winning": int(markers.get("winning_tile_id", -1)),
 		"winning_source": int(markers.get("winning_source_seat", -1)),
 		"left_width": int(round(float(layout_options.get("embedded_left_width", 0.0)))),
@@ -139,6 +143,10 @@ func get_layout_bounds() -> Rect2:
 		var layout: Dictionary = tile_layouts[index]
 		bounds = bounds.merge(layout.get("outer_rect", Rect2()))
 	return bounds
+
+
+func get_layout_contract() -> Array:
+	return tile_layouts.duplicate(true)
 
 
 func get_recommended_marker_contract() -> Dictionary:
@@ -171,31 +179,62 @@ func _draw_single_tile(layout: Dictionary) -> void:
 	var is_new_draw: bool = layout["new_draw"]
 	var is_recommended: bool = layout.get("recommended", false)
 	var is_danger: bool = layout.get("danger", false)
-	var is_bao_gang: bool = layout.get("bao_gang", false)
 	var is_winning_tile: bool = layout.get("winning", false)
 	var rotation_degrees: float = float(layout.get("rotation", 0.0))
 	var pivot := front_rect.get_center()
 
+	var geometry_scale := front_rect.size.x / TILE_FACE_SIZE.x
 	var shadow_rect := front_rect
-	shadow_rect.position += SHADOW_OFFSET
-	shadow_rect.position -= Vector2(2.0, 1.0)
-	shadow_rect.size += Vector2(4.0, 5.0)
-	var tile_draw_scale := Vector2.ONE * (1.05 if is_selected else 1.0)
+	shadow_rect.position += SHADOW_OFFSET * geometry_scale
+	shadow_rect.position -= Vector2(2.0, 1.0) * geometry_scale
+	shadow_rect.size += Vector2(4.0, 5.0) * geometry_scale
+	var tile_draw_scale := Vector2.ONE
 	draw_set_transform(pivot, deg_to_rad(rotation_degrees), tile_draw_scale)
 	var local_front_rect := Rect2(front_rect.position - pivot, front_rect.size)
 	var local_outer_rect := Rect2(outer_rect.position - pivot, outer_rect.size)
 	var local_shadow_rect := Rect2(shadow_rect.position - pivot, shadow_rect.size)
+	var depth := BODY_DEPTH * geometry_scale
+	var right_points := PackedVector2Array([
+		Vector2(local_front_rect.end.x - 1.0, local_front_rect.position.y + 3.0),
+		Vector2(local_front_rect.end.x + depth.x, local_front_rect.position.y + depth.y),
+		Vector2(local_front_rect.end.x + depth.x, local_front_rect.end.y + depth.y),
+		Vector2(local_front_rect.end.x - 1.0, local_front_rect.end.y),
+	])
+	var bottom_points := PackedVector2Array([
+		Vector2(local_front_rect.position.x + 3.0, local_front_rect.end.y - 1.0),
+		Vector2(local_front_rect.end.x - 1.0, local_front_rect.end.y - 1.0),
+		Vector2(local_front_rect.end.x + depth.x, local_front_rect.end.y + depth.y),
+		Vector2(local_front_rect.position.x + depth.x, local_front_rect.end.y + depth.y),
+	])
 
 	var surface_texture := _load_tile_surface() if USE_SELF_TILE_SURFACE else null
+	_draw_self_contact_shadow(local_shadow_rect, geometry_scale)
+	draw_colored_polygon(right_points, TILE_STYLE.SIDE_MID)
+	draw_colored_polygon(bottom_points, TILE_STYLE.BOTTOM_DEEP)
+	var right_glaze := PackedVector2Array([
+		right_points[0] + Vector2(1.5, 4.0) * geometry_scale,
+		right_points[1] + Vector2(-1.5, 1.5) * geometry_scale,
+		right_points[2] + Vector2(-1.5, -5.0) * geometry_scale,
+		right_points[3] + Vector2(1.5, -2.0) * geometry_scale,
+	])
+	var bottom_glaze := PackedVector2Array([
+		bottom_points[0] + Vector2(5.0, 1.5) * geometry_scale,
+		bottom_points[1] + Vector2(-2.0, 1.5) * geometry_scale,
+		bottom_points[2] + Vector2(-2.0, -1.5) * geometry_scale,
+		bottom_points[3] + Vector2(2.0, -1.5) * geometry_scale,
+	])
+	draw_colored_polygon(right_glaze, Color(TILE_STYLE.SIDE_LIGHT, 0.42))
+	draw_colored_polygon(bottom_glaze, Color(TILE_STYLE.SIDE_DARK, 0.40))
+	draw_line(right_points[0], right_points[1], TILE_STYLE.INNER_HIGHLIGHT, maxf(1.0, 1.4 * geometry_scale))
 	if surface_texture != null:
 		var surface_rect := local_front_rect.grow_individual(-4.0, -3.4, -4.0, -2.2)
 		draw_texture_rect(surface_texture, surface_rect, false)
 		_draw_asset_tile_warmth(local_front_rect)
 		_draw_asset_tile_depth(local_front_rect)
 	else:
-		draw_rect(local_shadow_rect, Color(0.0, 0.0, 0.0, SHADOW_ALPHA), true)
 		draw_style_box(_selected_stylebox if is_selected or is_new_draw else _face_stylebox, local_front_rect)
 		_draw_embedded_tile_depth(local_front_rect)
+	_draw_self_face_material(local_front_rect, geometry_scale)
 
 	var texture := _resolve_texture(tile)
 	if texture != null:
@@ -210,8 +249,6 @@ func _draw_single_tile(layout: Dictionary) -> void:
 		_draw_danger_hint(local_front_rect)
 	if is_recommended:
 		_draw_recommended_marker(local_front_rect)
-	if is_bao_gang:
-		_draw_bao_gang_highlight(local_front_rect, local_outer_rect)
 	if is_selected:
 		_draw_selected_accent(local_front_rect, local_outer_rect)
 	if is_winning_tile:
@@ -236,6 +273,34 @@ func _draw_danger_hint(front_rect: Rect2) -> void:
 		Vector2(front_rect.size.x * 0.64, 5.0)
 	)
 	draw_rect(glow_rect, Color(0.98, 0.38, 0.18, 0.32), true)
+
+
+func _draw_self_contact_shadow(shadow_rect: Rect2, geometry_scale: float) -> void:
+	var ambient := StyleBoxFlat.new()
+	ambient.bg_color = TILE_STYLE.AMBIENT_SHADOW
+	ambient.set_corner_radius_all(maxi(5, int(round(TILE_CORNER_RADIUS * geometry_scale))))
+	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.30)
+	ambient.shadow_size = maxi(4, int(round(8.0 * geometry_scale)))
+	ambient.shadow_offset = Vector2(4.0, 5.0) * geometry_scale
+	draw_style_box(ambient, shadow_rect.grow(2.0 * geometry_scale))
+	var contact := Rect2(
+		Vector2(shadow_rect.position.x + 7.0 * geometry_scale, shadow_rect.end.y - 8.0 * geometry_scale),
+		Vector2(maxf(3.0, shadow_rect.size.x - 14.0 * geometry_scale), maxf(3.0, 6.0 * geometry_scale))
+	)
+	draw_rect(contact, TILE_STYLE.CONTACT_SHADOW, true)
+
+
+func _draw_self_face_material(front_rect: Rect2, geometry_scale: float) -> void:
+	var inner := front_rect.grow(-2.5 * geometry_scale)
+	var top_wash := StyleBoxFlat.new()
+	top_wash.bg_color = Color(TILE_STYLE.FACE_HIGHLIGHT, 0.22)
+	top_wash.corner_radius_top_left = maxi(4, int(round(7.0 * geometry_scale)))
+	top_wash.corner_radius_top_right = maxi(4, int(round(7.0 * geometry_scale)))
+	draw_style_box(top_wash, Rect2(inner.position + Vector2(3.0, 3.0) * geometry_scale, Vector2(inner.size.x - 6.0 * geometry_scale, inner.size.y * 0.18)))
+	draw_rect(Rect2(inner.position + Vector2(4.0, 3.0) * geometry_scale, Vector2(inner.size.x - 8.0 * geometry_scale, maxf(2.0, 3.0 * geometry_scale))), Color(TILE_STYLE.FACE_HIGHLIGHT, 0.62), true)
+	draw_rect(Rect2(inner.position + Vector2(3.0, 7.0) * geometry_scale, Vector2(maxf(2.0, 3.0 * geometry_scale), inner.size.y - 14.0 * geometry_scale)), Color(TILE_STYLE.FACE_HIGHLIGHT, 0.40), true)
+	draw_rect(Rect2(inner.position + Vector2(inner.size.x - 6.0 * geometry_scale, 8.0 * geometry_scale), Vector2(maxf(2.0, 3.0 * geometry_scale), inner.size.y - 16.0 * geometry_scale)), Color(TILE_STYLE.FACE_INNER_SHADE, 0.34), true)
+	draw_rect(Rect2(inner.position + Vector2(6.0 * geometry_scale, inner.size.y * 0.72), Vector2(inner.size.x - 12.0 * geometry_scale, inner.size.y * 0.20)), Color(TILE_STYLE.FACE_WARMTH, 0.07), true)
 
 
 func _draw_asset_tile_depth(front_rect: Rect2) -> void:
@@ -327,14 +392,18 @@ func _rebuild_layout() -> void:
 	if hand_tiles.is_empty():
 		return
 
-	var step: float = _compute_step()
-	var row_width: float = TILE_FACE_SIZE.x
+	var layout_scale := _compute_layout_scale()
+	var face_size := TILE_FACE_SIZE * layout_scale
+	var step := TILE_STEP_MAX * layout_scale
+	var new_draw_gap := NEW_DRAW_GAP * layout_scale
+	var winning_tile_gap := WINNING_TILE_GAP * layout_scale
+	var row_width: float = face_size.x
 	if hand_tiles.size() > 1:
 		row_width += step * float(hand_tiles.size() - 1)
 	if _should_apply_new_draw_gap():
-		row_width += NEW_DRAW_GAP
+		row_width += new_draw_gap
 	if _should_apply_winning_tile_gap():
-		row_width += WINNING_TILE_GAP
+		row_width += winning_tile_gap
 	var left_reserved := embedded_left_width + (embedded_left_gap if embedded_left_width > 0.0 and row_width > 0.0 else 0.0)
 	var right_reserved := embedded_right_width + (embedded_right_gap if embedded_right_width > 0.0 and row_width > 0.0 else 0.0)
 	var has_embedded_hosts := left_reserved > 0.0 or right_reserved > 0.0
@@ -351,30 +420,30 @@ func _rebuild_layout() -> void:
 		start_x = group_left + left_reserved
 	else:
 		start_x = floor((viewport_size.x - row_width) * 0.5)
-	var front_top_y: float = viewport_size.y - BASELINE_BOTTOM - TILE_FACE_SIZE.y
+	var front_top_y: float = viewport_size.y - BASELINE_BOTTOM - face_size.y
 
 	for index in range(hand_tiles.size()):
 		var tile: Dictionary = hand_tiles[index]
 		var tile_id := int(tile.get("id", -1))
 		var x: float = start_x + float(index) * step
 		if _should_apply_new_draw_gap() and index == hand_tiles.size() - 1:
-			x += NEW_DRAW_GAP
+			x += new_draw_gap
 		if _should_apply_winning_tile_gap() and index == hand_tiles.size() - 1:
-			x += WINNING_TILE_GAP
+			x += winning_tile_gap
 
 		var arc_factor := 0.0
 		var arc_lift := 0.0
 		var lift := arc_lift
 		if tile_id == selected_tile_id:
-			lift = arc_lift + SELECTED_LIFT
+			lift = arc_lift + SELECTED_LIFT * layout_scale
 		elif tile_id == new_draw_tile_id:
-			lift = arc_lift + NEW_DRAW_LIFT
+			lift = arc_lift + NEW_DRAW_LIFT * layout_scale
 
 		var front_rect := Rect2(
 			Vector2(x, front_top_y - lift),
-			TILE_FACE_SIZE
+			face_size
 		)
-		var outer_rect := front_rect
+		var outer_rect := Rect2(front_rect.position, front_rect.size + BODY_DEPTH * layout_scale)
 		tile_layouts.append({
 			"tile": tile,
 			"tile_id": tile_id,
@@ -382,7 +451,6 @@ func _rebuild_layout() -> void:
 			"new_draw": tile_id == new_draw_tile_id,
 			"recommended": int(trainer_markers.get("recommended_tile_id", -1)) == tile_id,
 			"danger": trainer_markers.get("danger_tile_ids", []).has(tile_id),
-			"bao_gang": _is_bao_gang_tile(tile),
 			"winning": index == hand_tiles.size() - 1 and int(trainer_markers.get("winning_tile_id", -1)) == tile_id,
 			"rotation": 0.0,
 			"front_rect": front_rect,
@@ -405,36 +473,13 @@ func _has_recommended_tile() -> bool:
 	return int(trainer_markers.get("recommended_tile_id", -1)) != -1
 
 
-func _is_bao_gang_tile(tile: Dictionary) -> bool:
-	var bao_gang_keys: Array = trainer_markers.get("bao_gang_keys", [])
-	if bao_gang_keys.is_empty() or tile.is_empty():
-		return false
-	return bao_gang_keys.has(_tile_key(tile))
-
-
 func _tile_key(tile: Dictionary) -> String:
 	return "%s_%d" % [str(tile.get("suit", "")), int(tile.get("rank", 0))]
 
 
-func _draw_bao_gang_highlight(front_rect: Rect2, outer_rect: Rect2) -> void:
-	var glow := StyleBoxFlat.new()
-	glow.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-	glow.border_color = BAO_GANG_OUTLINE
-	glow.set_border_width_all(3)
-	glow.corner_radius_top_left = TILE_CORNER_RADIUS + 3
-	glow.corner_radius_top_right = TILE_CORNER_RADIUS + 3
-	glow.corner_radius_bottom_left = TILE_CORNER_RADIUS + 3
-	glow.corner_radius_bottom_right = TILE_CORNER_RADIUS + 3
-	glow.shadow_color = BAO_GANG_GLOW
-	glow.shadow_size = 8
-	glow.shadow_offset = Vector2.ZERO
-	draw_style_box(glow, outer_rect.grow(4.0))
-	_draw_banner(front_rect, "杠", BAO_GANG_BADGE)
-
-
 func _draw_recommended_marker(front_rect: Rect2) -> void:
 	var time := Time.get_ticks_msec() / 1000.0
-	var bob := sin(time * RECOMMEND_MARKER_BOB_SPEED) * 2.6
+	var bob := 0.0 if reduced_motion else sin(time * RECOMMEND_MARKER_BOB_SPEED) * 2.6
 	var center := _recommended_marker_center(front_rect, bob)
 	var radius := RECOMMEND_MARKER_RADIUS
 	var shadow_center := center + Vector2(0.0, 4.8)
@@ -475,9 +520,7 @@ func _arc_factor_for_index(index: int) -> float:
 	return (float(index) - center) / half_span
 
 
-func _compute_step() -> float:
-	if hand_tiles.size() <= 1:
-		return TILE_STEP_MAX
+func _compute_layout_scale() -> float:
 	var extra_gap := 0.0
 	if _should_apply_new_draw_gap():
 		extra_gap += NEW_DRAW_GAP
@@ -485,9 +528,13 @@ func _compute_step() -> float:
 		extra_gap += WINNING_TILE_GAP
 	var left_reserved := embedded_left_width + (embedded_left_gap if embedded_left_width > 0.0 else 0.0)
 	var right_reserved := embedded_right_width + (embedded_right_gap if embedded_right_width > 0.0 else 0.0)
-	var row_allowance := maxf(0.0, viewport_size.x - SIDE_MARGIN * 2.0 - TILE_FACE_SIZE.x - extra_gap - left_reserved - right_reserved)
-	var fit_step := row_allowance / float(hand_tiles.size() - 1)
-	return clampf(fit_step, TILE_STEP_MIN, TILE_STEP_MAX)
+	var available_width := maxf(0.0, viewport_size.x - SIDE_MARGIN * 2.0 - left_reserved - right_reserved)
+	var base_width := TILE_FACE_SIZE.x + extra_gap
+	if hand_tiles.size() > 1:
+		base_width += TILE_STEP_MAX * float(hand_tiles.size() - 1)
+	if base_width <= 0.0:
+		return 1.0
+	return clampf(available_width / base_width, 0.64, 1.0)
 
 
 func _should_apply_new_draw_gap() -> bool:

@@ -3,8 +3,6 @@
 [ext_resource type="Script" path="res://scripts/ui/MahjongTile.gd" id="1_8wgl5"]
 
 [node name="MahjongTile" type="Control"]
-custom_minimum_size = Vector2(95, 135)
-offset_right = 95.0
-offset_bottom = 135.0
+custom_minimum_size = Vector2(0, 0)
 mouse_filter = 1
 script = ExtResource("1_8wgl5")

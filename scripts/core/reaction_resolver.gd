@@ -69,9 +69,6 @@ func get_candidate_priority(candidate: Dictionary) -> int:
 func _can_peng_on_discard(player: Dictionary, discarded_tile: Dictionary, rules_config) -> bool:
 	if not rules_config.allow_peng:
 		return false
-	if bool(player.get("bao_jiao", false)):
-		# 旧锁听流程已禁用；四川按定缺、碰杠胡优先级处理。
-		return false
 	# Sichuan ding-que: only the missing suit itself is blocked from peng.
 	if _is_missing_suit_tile(player, discarded_tile, rules_config):
 		return false
@@ -81,10 +78,6 @@ func _can_peng_on_discard(player: Dictionary, discarded_tile: Dictionary, rules_
 func _can_gang_on_discard(player: Dictionary, discarded_tile: Dictionary, rules_config) -> bool:
 	if not rules_config.allow_gang:
 		return false
-	if bool(player.get("bao_jiao", false)):
-		# 旧锁听强制杠流程已禁用；四川明杠由常规杠牌规则处理。
-		if not _is_bao_gang_whitelisted(player, discarded_tile):
-			return false
 	# Sichuan ding-que: only the missing suit itself is blocked from gang.
 	if _is_missing_suit_tile(player, discarded_tile, rules_config):
 		return false
@@ -95,9 +88,7 @@ func _can_hu_on_discard_placeholder(player: Dictionary, discarded_tile: Dictiona
 	return hu_checker.can_hu_on_discard(player, discarded_tile, rules_config)
 
 
-func _is_missing_suit_tile(player: Dictionary, tile: Dictionary, rules_config = null) -> bool:
-	if rules_config != null and rules_config.has_method("is_neijiang_mode") and bool(rules_config.is_neijiang_mode()):
-		return false
+func _is_missing_suit_tile(player: Dictionary, tile: Dictionary, _rules_config = null) -> bool:
 	var ding_que: String = str(player.get("ding_que", ""))
 	if ding_que == "":
 		return false
@@ -110,11 +101,6 @@ func _count_same_tiles(hand_tiles: Array, target_tile: Dictionary) -> int:
 		if tile["suit"] == target_tile["suit"] and tile["rank"] == target_tile["rank"]:
 			count += 1
 	return count
-
-
-func _is_bao_gang_whitelisted(player: Dictionary, tile: Dictionary) -> bool:
-	var key := "%s_%d" % [str(tile.get("suit", "")), int(tile.get("rank", 0))]
-	return Array(player.get("bao_gang_tiles", [])).has(key)
 
 
 func _candidate_name(candidate: Dictionary) -> String:

@@ -4,6 +4,7 @@ class_name PlayerHandViewport
 
 const VIEWPORT_RENDER_SCALE := 1.0
 const TABLE_MATERIAL_OVERLAY_SCRIPT := preload("res://scripts/ui/TableMaterialOverlay.gd")
+const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const EMBEDDED_HOST_INSET := 8.0
 const EMBEDDED_HOST_MAX_HEIGHT := 204.0
 
@@ -32,6 +33,8 @@ func _ready() -> void:
 	viewport.transparent_bg = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	_style_tray()
+	if hand_canvas != null and hand_canvas.has_method("set_reduced_motion"):
+		hand_canvas.call("set_reduced_motion", bool(ProjectSettings.get_setting("accessibility/reduced_motion", false)))
 	_sync_viewport()
 	_refresh_canvas()
 
@@ -50,6 +53,23 @@ func configure_hand(tiles: Array, selected_id: int, new_id: int, interactive: bo
 	_refresh_canvas()
 	_layout_embedded_left_host()
 	_layout_embedded_right_host()
+
+
+func get_hand_layout_bounds() -> Rect2:
+	if hand_canvas == null or not hand_canvas.has_method("get_layout_bounds"):
+		return Rect2()
+	return hand_canvas.call("get_layout_bounds")
+
+
+func get_hand_layout_contract() -> Array:
+	if hand_canvas == null or not hand_canvas.has_method("get_layout_contract"):
+		return []
+	return hand_canvas.call("get_layout_contract")
+
+
+func set_reduced_motion(enabled: bool) -> void:
+	if hand_canvas != null and hand_canvas.has_method("set_reduced_motion"):
+		hand_canvas.call("set_reduced_motion", enabled)
 
 
 func embed_left_host(host: Control, width: float, gap: float = 0.0) -> void:
@@ -243,3 +263,19 @@ func _style_tray() -> void:
 	var overlay := tray_panel.get_node_or_null("SelfHandTraySoftLight") as Control
 	if overlay != null:
 		overlay.queue_free()
+	var rack := tray_panel.get_node_or_null("ShuBrocadeHandRack") as Panel
+	if rack == null:
+		rack = Panel.new()
+		rack.name = "ShuBrocadeHandRack"
+		rack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rack.anchor_left = 0.0
+		rack.anchor_right = 1.0
+		rack.anchor_top = 1.0
+		rack.anchor_bottom = 1.0
+		rack.offset_left = 18.0
+		rack.offset_right = -18.0
+		rack.offset_top = -98.0
+		rack.offset_bottom = -8.0
+		tray_panel.add_child(rack)
+		tray_panel.move_child(rack, 0)
+	rack.add_theme_stylebox_override("panel", TABLE_THEME.make_hand_rack_style())

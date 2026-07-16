@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SichuanMahjong.AI.Core.Codec;
+using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
@@ -471,6 +472,21 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
             reasons = result.RoutePlan.Reasons,
             targetSuit = result.RoutePlan.TargetSuit
         },
+        roundBrain = new
+        {
+            result.RoundBrain.RoundIndex,
+            result.RoundBrain.SeatIndex,
+            result.RoundBrain.Revision,
+            result.RoundBrain.Stage,
+            result.RoundBrain.PrimaryRoute,
+            result.RoundBrain.FallbackRoute,
+            result.RoundBrain.Commitment,
+            result.RoundBrain.TargetSuit,
+            ProtectedTriplets = result.RoundBrain.ProtectedTriplets.ToArray(),
+            ProtectedQuads = result.RoundBrain.ProtectedQuads.ToArray(),
+            BrokenTriplets = result.RoundBrain.BrokenTriplets.ToArray(),
+            Reasons = result.RoundBrain.Reasons.ToArray()
+        },
         strategyProfile = strategyProfile,
         beliefSummary = new
         {
@@ -561,6 +577,7 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
             tenpaiProbability = item.TenpaiProbability,
             selfDrawProbability = item.SelfDrawProbability,
             winProbability = item.WinProbability,
+            expectedFan = item.ExpectedFan,
             dealInProbability = item.DealInProbability,
             expectedValue = item.ExpectedValue,
             expectedNetScore = item.ExpectedNetScore,
@@ -701,12 +718,26 @@ static SichuanStateView BuildState(DiscardPayload payload)
         payload.VisibleVersion,
         payload.HandVersion,
         payload.StrategyContextVersion,
-        payload.DingQueSuits);
+        payload.DingQueSuits,
+		payload.HandCounts,
+		payload.LockedFans,
+		payload.LockTurns,
+		payload.UnlockOnOwnDraw,
+		payload.ActiveSeats,
+		payload.EventVersion,
+		payload.InformationMode);
 
     if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
     if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
     if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
     state.LastDrawTileType = payload.LastDrawTileType;
+	state.LastDrawOrigin = payload.LastDrawOrigin;
+	state.LastGangSeat = payload.LastGangSeat;
+	state.LastGangTileType = payload.LastGangTileType;
+	state.LastGangType = payload.LastGangType;
+	state.PublicEvents.AddRange(payload.PublicEvents.Where(item => item.TileType is >= -1 and < 27));
+	for (var seat = 0; seat < Math.Min(4, payload.MeldViews.Length); seat++)
+		state.MeldViews[seat].AddRange(payload.MeldViews[seat].Where(item => item.TileType is >= 0 and < 27));
     return state;
 }
 
@@ -978,11 +1009,20 @@ internal class DiscardPayload
     public int StrategyContextVersion { get; init; }
     public int[] Scores { get; init; } = Array.Empty<int>();
     public int[] DingQueSuits { get; init; } = Array.Empty<int>();
+	public int[] HandCounts { get; init; } = Array.Empty<int>();
+	public int[] LockedFans { get; init; } = Array.Empty<int>();
+	public int[] LockTurns { get; init; } = Array.Empty<int>();
+	public bool[] UnlockOnOwnDraw { get; init; } = Array.Empty<bool>();
+	public bool[] ActiveSeats { get; init; } = Array.Empty<bool>();
+	public long EventVersion { get; init; }
+	public string InformationMode { get; init; } = "public";
     public int[] Hand18 { get; init; } = Array.Empty<int>();
     public int[] Visible18 { get; init; } = Array.Empty<int>();
     public int[] Remaining18 { get; init; } = Array.Empty<int>();
     public List<int>[] Discards18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
     public List<int>[] Melds18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
+	public List<SichuanMeldView>[] MeldViews { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<SichuanMeldView>()).ToArray();
+	public List<SichuanPublicEvent> PublicEvents { get; init; } = new();
     public List<int>[] PassedHu18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
     public List<int>[] PassedPeng18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
     public List<int>[] PassedGang18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
@@ -990,6 +1030,10 @@ internal class DiscardPayload
     public bool[]? IsReady { get; init; }
     public bool[]? HasHu { get; init; }
     public int LastDrawTileType { get; init; } = -1;
+	public SichuanTileOrigin LastDrawOrigin { get; init; } = SichuanTileOrigin.Unknown;
+	public int LastGangSeat { get; init; } = -1;
+	public int LastGangTileType { get; init; } = -1;
+	public string LastGangType { get; init; } = string.Empty;
     public bool MobileSpeedMode { get; init; }
     public bool CompactResult { get; init; }
 }
