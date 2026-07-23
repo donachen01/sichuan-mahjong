@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/table/CenterTurnIndicator.gd" id="1_indicator"]
 [ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="2_craft"]
+[ext_resource type="Script" path="res://scripts/ui/table/CenterCompassVisual.gd" id="3_compass"]
 
 [node name="CenterTurnIndicator" type="Control"]
 custom_minimum_size = Vector2(210, 210)
@@ -12,6 +13,7 @@ script = ExtResource("1_indicator")
 
 [node name="CraftPanel" type="Control" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,6 +34,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="CompassVisual" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_compass")
 
 [node name="CaptionLabel" type="Label" parent="."]
 unique_name_in_owner = true
@@ -60,63 +73,24 @@ mouse_filter = 2
 [node name="StatusLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
-offset_left = 26.0
-offset_top = 154.0
-offset_right = 184.0
-offset_bottom = 190.0
-text = "当前：本家"
+offset_left = 18.0
+offset_top = 150.0
+offset_right = 192.0
+offset_bottom = 194.0
+text = "本家出牌中"
 horizontal_alignment = 1
 vertical_alignment = 1
 mouse_filter = 2
 
-[node name="NorthLabel" type="Label" parent="."]
+[node name="TurnChipLabel" type="Label" parent="."]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
-offset_left = 85.0
-offset_top = -18.0
-offset_right = 125.0
-offset_bottom = 22.0
-text = "北"
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
-
-[node name="EastLabel" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = 188.0
-offset_top = 85.0
-offset_right = 228.0
-offset_bottom = 125.0
-text = "东"
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
-
-[node name="SouthLabel" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = 85.0
-offset_top = 188.0
-offset_right = 125.0
-offset_bottom = 228.0
-text = "南"
-horizontal_alignment = 1
-vertical_alignment = 1
-mouse_filter = 2
-
-[node name="WestLabel" type="Label" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 0
-offset_left = -18.0
-offset_top = 85.0
-offset_right = 22.0
-offset_bottom = 125.0
-text = "西"
+offset_left = 142.0
+offset_top = 22.0
+offset_right = 198.0
+offset_bottom = 52.0
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 mouse_filter = 2

@@ -4661,9 +4661,8 @@ func _resolve_cha_jiao_detail(player: Dictionary, ting_tiles: Array) -> Dictiona
 
 
 func _resolve_basic_score_from_fan(capped_fan: int) -> int:
-	if capped_fan <= 0:
-		return 1
-	return int(pow(2.0, capped_fan - 1))
+	var bottom_score := 1 if rules == null else maxi(1, int(rules.base_score))
+	return bottom_score * int(pow(2.0, maxi(0, capped_fan)))
 
 
 func _count_distinct_suits(hand_tiles: Array) -> int:
@@ -4685,6 +4684,9 @@ func _contains_ding_que_tiles(player: Dictionary) -> bool:
 
 func _build_tui_gang_refunds(ting_seats: Array, no_ting_seats: Array, hua_zhu_seats: Array) -> Array:
 	var refunds: Array = []
+	# 本规则集的杠钱独立即时结算，流局不退税。
+	if rules == null or not bool(rules.enable_tui_shui):
+		return refunds
 	if no_ting_seats.is_empty() and hua_zhu_seats.is_empty():
 		return refunds
 
@@ -4792,11 +4794,12 @@ func _create_empty_settlement_data() -> Dictionary:
 		"draw_assessment": [],
 		"tui_gang_refunds": [],
 		"score_changes": {},
+		"preapplied_score_changes": {},
 		"scores_applied": false,
 		"notes": [
-			"当前结算已接入四川血战流程、抢杠胡、呼叫转移、退税与流局查叫主链。",
-			"杠分在存在未胡玩家时不计入最终分数，相关事件仍会保留在结算明细中。",
-			"如后续补充海底、查大叫加严版细则，可在此结构继续扩展。",
+			"胡牌分按底分×2^番数计算，累计最高 4 番；自摸每家固定另加 1 底分。",
+			"杠钱独立即时结算且不受封顶限制；杠上炮时该次全部杠钱从开杠者转给胡牌者。",
+			"流局执行花猪与查大叫；本规则集无海底捞月加番、无流局退税。",
 		],
 		"pending_features": [],
 		"summary_text": "",
@@ -4823,17 +4826,19 @@ func _append_settlement_win_event(winner_seat: int, source_seat: int, winning_ti
 
 func _append_settlement_gang_event(actor_seat: int, source_seat: int, tile: Dictionary, gang_type: String, payer_seats: Array) -> void:
 	var events: Array = settlement_data.get("gang_events", [])
-	events.append(
-		{
-			"actor_seat": actor_seat,
-			"source_seat": source_seat,
-			"tile": tile.duplicate(true),
-			"gang_type": gang_type,
-			"related_outcome": "",
-			"payer_seats": payer_seats.duplicate(),
-		}
-	)
+	var event := {
+		"actor_seat": actor_seat,
+		"source_seat": source_seat,
+		"tile": tile.duplicate(true),
+		"gang_type": gang_type,
+		"related_outcome": "",
+		"payer_seats": payer_seats.duplicate(),
+	}
+	events.append(event)
 	settlement_data["gang_events"] = events
+	_apply_immediate_settlement_score_changes(
+		score_resolver.build_gang_event_score_changes(players, event)
+	)
 	_append_kong_resolution_event(actor_seat, source_seat, tile, gang_type, "pending_review")
 	_rebuild_settlement_summary()
 
@@ -4901,28 +4906,36 @@ func _append_hu_jiao_zhuan_yi_event(from_seat: int, to_seat: int, tile: Dictiona
 	if gang_event.is_empty():
 		_append_transfer_event(from_seat, to_seat, tile, "hu_jiao_zhuan_yi", "杠后打出的补牌被胡，按呼叫转移处理。")
 		return
-	var transfer_payer_seats: Array = []
-	for payer in gang_event.get("payer_seats", []):
-		var payer_seat: int = int(payer)
-		if payer_seat == to_seat:
-			continue
-		transfer_payer_seats.append(payer_seat)
-
 	var events: Array = settlement_data.get("transfer_events", [])
-	events.append(
-		{
-			"from_seat": from_seat,
-			"to_seat": to_seat,
-			"tile": tile.duplicate(true),
-			"transfer_type": "hu_jiao_zhuan_yi",
-			"reason": "杠后打出的补牌被胡，按呼叫转移处理。",
-			"gang_type": str(gang_event.get("gang_type", "")),
-			"payer_seats": transfer_payer_seats,
-			"related_actor_seat": int(gang_event.get("actor_seat", -1)),
-		}
-	)
+	var event := {
+		"from_seat": from_seat,
+		"to_seat": to_seat,
+		"tile": tile.duplicate(true),
+		"transfer_type": "hu_jiao_zhuan_yi",
+		"reason": "杠上炮：该次开杠获得的全部杠钱从开杠者转给胡牌玩家。",
+		"gang_type": str(gang_event.get("gang_type", "")),
+		"payer_seats": Array(gang_event.get("payer_seats", [])).duplicate(),
+		"related_actor_seat": int(gang_event.get("actor_seat", -1)),
+		"transfer_score": score_resolver.resolve_gang_total_score(gang_event),
+	}
+	events.append(event)
 	settlement_data["transfer_events"] = events
+	_apply_immediate_settlement_score_changes(
+		score_resolver.build_transfer_event_score_changes(players, event)
+	)
 	_rebuild_settlement_summary()
+
+
+func _apply_immediate_settlement_score_changes(changes: Dictionary) -> void:
+	var preapplied: Dictionary = settlement_data.get("preapplied_score_changes", {})
+	for player in players:
+		var seat := int(player.get("seat", -1))
+		var delta := int(changes.get(seat, 0))
+		if delta == 0:
+			continue
+		player["score"] = int(player.get("score", STARTING_SCORE)) + delta
+		preapplied[seat] = int(preapplied.get(seat, 0)) + delta
+	settlement_data["preapplied_score_changes"] = preapplied
 
 
 func _append_qiang_gang_hu_placeholder(actor_seat: int, tile: Dictionary, placeholder_type: String) -> void:
@@ -5097,7 +5110,7 @@ func _rebuild_settlement_summary() -> void:
 				tags.append("未叫")
 			if bool(item.get("is_ting", false)):
 				tags.append("%d番/%d分" % [
-					maxi(1, int(item.get("cha_jiao_fan", 0))),
+					maxi(0, int(item.get("cha_jiao_fan", 0))),
 					maxi(1, int(item.get("cha_jiao_score", 0))),
 				])
 			var ting_tiles: Array = item.get("ting_tiles", [])
@@ -5131,9 +5144,11 @@ func _apply_settlement_scores_once() -> void:
 	if bool(settlement_data.get("scores_applied", false)):
 		return
 	var score_changes: Dictionary = settlement_data.get("score_changes", {})
+	var preapplied: Dictionary = settlement_data.get("preapplied_score_changes", {})
 	for player in players:
 		var seat: int = int(player.get("seat", -1))
-		player["score"] = int(player.get("score", STARTING_SCORE)) + int(score_changes.get(seat, 0))
+		var remaining_delta := int(score_changes.get(seat, 0)) - int(preapplied.get(seat, 0))
+		player["score"] = int(player.get("score", STARTING_SCORE)) + remaining_delta
 	settlement_data["scores_applied"] = true
 	_record_ai_analysis_event("round_end", {
 		"score_changes": score_changes.duplicate(true),
@@ -6129,10 +6144,18 @@ func _win_type_display_name(win_type: String) -> String:
 
 func _hand_type_display_name(hand_type: String) -> String:
 	match hand_type:
+		"shi_ba_luo_han":
+			return "十八罗汉"
+		"qing_jin_gou_diao":
+			return "清金钩钓"
+		"jin_gou_diao":
+			return "金钩钓"
+		"jiang_dui":
+			return "将对"
 		"qing_yi_se":
 			return "清一色"
 		"qi_dui":
-			return "暗七对"
+			return "小七对"
 		"long_qi_dui":
 			return "龙七对"
 		"qing_dui":
@@ -6140,7 +6163,7 @@ func _hand_type_display_name(hand_type: String) -> String:
 		"qing_qi_dui":
 			return "清七对"
 		"qing_long_qi_dui":
-			return "青龙七对"
+			return "清龙七对"
 		"da_dui_zi":
 			return "大对子"
 		"ping_hu":

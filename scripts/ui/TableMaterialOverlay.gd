@@ -17,6 +17,12 @@ const BRASS_LINE_WIDTH := 2.0
 const WOOD_DARK := TABLE_THEME.EBONY
 const WOOD_MID := TABLE_THEME.LACQUER_BROWN
 const BRASS := TABLE_THEME.AGED_COPPER
+const BROCADE_OPACITY := 0.065
+const WEAVE_OPACITY := 0.035
+const VIGNETTE_STRENGTH := 0.50
+const LIGHT_STRENGTH := 0.205
+const AMBIENT_FILL_STRENGTH := 0.080
+const BROCADE_RELIEF := 0.560
 
 @export var material_mode: MaterialMode = MaterialMode.FELT:
 	set(value):
@@ -82,58 +88,101 @@ func _draw_felt_texture() -> void:
 		draw_line(Vector2(offset, 0.0), Vector2(offset + size.y, size.y), Color(0.64, 0.76, 0.58, 0.014 * opacity), 1.0, true)
 		draw_line(Vector2(offset, size.y), Vector2(offset + size.y, 0.0), Color(0.0, 0.10, 0.06, 0.020 * opacity), 1.0, true)
 	_draw_brocade_field()
+	_draw_perspective_table_structure()
 	_draw_table_frame()
 
 
-func _draw_directional_spotlight() -> void:
-	# Warm, asymmetric upper-left light.  Concentric polygons stay reliable on
-	# the macOS Metal renderer while producing a clearly legible soft source.
-	var center := Vector2(size.x * 0.25, size.y * 0.19)
-	var radii := Vector2(size.x * 0.48, size.y * 0.56)
-	for band in range(9):
-		var t := float(band) / 8.0
-		var scale := lerpf(1.0, 0.18, t)
-		var alpha := lerpf(0.010, 0.040, t) * opacity
-		draw_colored_polygon(_ellipse_points(center, radii * scale, 72), Color(0.82, 0.92, 0.62, alpha))
-	# A cool lower-right falloff gives the felt depth rather than a flat green
-	# fill, without covering tile faces.
-	var shade_center := Vector2(size.x * 0.82, size.y * 0.78)
-	for band in range(5):
-		var t := float(band) / 4.0
-		draw_colored_polygon(
-			_ellipse_points(shade_center, Vector2(size.x * 0.40, size.y * 0.42) * lerpf(1.0, 0.28, t), 64),
-			Color(0.0, 0.055, 0.035, lerpf(0.010, 0.030, t) * opacity)
-		)
-
-
-func _ellipse_points(center: Vector2, radii: Vector2, segments: int) -> PackedVector2Array:
-	var points := PackedVector2Array()
-	for index in range(segments):
-		var angle := TAU * float(index) / float(segments)
-		points.append(center + Vector2(cos(angle) * radii.x, sin(angle) * radii.y))
-	return points
-
-
 func _draw_brocade_field() -> void:
-	var motif_color := Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.020 * opacity)
-	var shadow_color := Color(0.0, 0.10, 0.065, 0.032 * opacity)
+	var motif_color := Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.038 * opacity)
+	var shadow_color := Color(0.0, 0.10, 0.065, 0.046 * opacity)
 	var cell := maxf(76.0, minf(size.x, size.y) * 0.082)
 	var columns := int(size.x / cell) + 1
 	var rows := int(size.y / cell) + 1
 	for row in range(rows):
 		for column in range(columns):
+			# Remove the wallpaper-like cadence: some cells carry only the woven
+			# diamond base while the cloud/scroll accent appears irregularly.
+			if (row * 5 + column * 3) % 7 in [0, 1]:
+				continue
 			var center := Vector2((float(column) + 0.5) * cell, (float(row) + 0.5) * cell)
 			if row % 2 == 1:
 				center.x += cell * 0.5
-			var radius := cell * 0.16
-			draw_arc(center, radius, 0.16, PI - 0.16, 18, motif_color, 1.2, true)
-			draw_arc(center, radius, PI + 0.16, TAU - 0.16, 18, shadow_color, 1.0, true)
-			draw_arc(center, radius * 0.55, -PI * 0.34, PI * 0.34, 12, motif_color, 1.0, true)
+			var phase := float((row * 11 + column * 7) % 9) / 8.0
+			center += Vector2((phase - 0.5) * cell * 0.10, sin(phase * TAU) * cell * 0.035)
+			var radius := cell * (0.135 + phase * 0.035)
+			var local_motif := Color(motif_color, motif_color.a * (0.68 + phase * 0.28))
+			var local_shadow := Color(shadow_color, shadow_color.a * (0.70 + (1.0 - phase) * 0.24))
+			draw_arc(center, radius, 0.16, PI - 0.16, 18, local_motif, 1.0, true)
+			draw_arc(center, radius, PI + 0.16, TAU - 0.16, 18, local_shadow, 1.0, true)
+			draw_arc(center, radius * 0.55, -PI * 0.34, PI * 0.34, 12, local_motif, 1.0, true)
 
-	var playfield := Rect2(Vector2(size.x * 0.205, size.y * 0.155), Vector2(size.x * 0.59, size.y * 0.61))
-	if playfield.size.x > 60.0 and playfield.size.y > 60.0:
-		draw_rect(playfield, Color(TABLE_THEME.AGED_COPPER, 0.080 * opacity), false, 1.2, true)
-		draw_rect(playfield.grow(-8.0), Color(0.42, 0.56, 0.39, 0.034 * opacity), false, 1.0, true)
+
+
+func _draw_perspective_table_structure() -> void:
+	# The reference products feel spatial because the play surface, rails and
+	# seat zones share one fixed camera. Keep the perspective shallow so the
+	# existing large readable tiles remain geometrically stable.
+	var top_y := FRAME_THICKNESS + size.y * 0.018
+	var bottom_y := size.y - FRAME_THICKNESS - size.y * 0.018
+	var top_inset := maxf(FRAME_THICKNESS + 12.0, size.x * 0.075)
+	var bottom_inset := maxf(FRAME_THICKNESS + 8.0, size.x * 0.027)
+	var surface := PackedVector2Array([
+		Vector2(top_inset, top_y),
+		Vector2(size.x - top_inset, top_y),
+		Vector2(size.x - bottom_inset, bottom_y),
+		Vector2(bottom_inset, bottom_y),
+	])
+	draw_colored_polygon(surface, Color(TABLE_THEME.MALACHITE, 0.085 * opacity))
+	var surface_outline := surface.duplicate()
+	surface_outline.append(surface[0])
+	draw_polyline(surface_outline, Color(TABLE_THEME.COPPER_SHADOW, 0.28 * opacity), 1.4, true)
+
+	var left_rail := PackedVector2Array([
+		Vector2(FRAME_THICKNESS, top_y - 4.0),
+		Vector2(top_inset, top_y),
+		Vector2(bottom_inset, bottom_y),
+		Vector2(FRAME_THICKNESS, bottom_y + 4.0),
+	])
+	var right_rail := PackedVector2Array([
+		Vector2(size.x - top_inset, top_y),
+		Vector2(size.x - FRAME_THICKNESS, top_y - 4.0),
+		Vector2(size.x - FRAME_THICKNESS, bottom_y + 4.0),
+		Vector2(size.x - bottom_inset, bottom_y),
+	])
+	draw_colored_polygon(left_rail, Color(TABLE_THEME.EBONY, 0.26 * opacity))
+	draw_colored_polygon(right_rail, Color(TABLE_THEME.EBONY, 0.34 * opacity))
+	draw_line(left_rail[1], left_rail[2], Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.22 * opacity), 1.5, true)
+	draw_line(right_rail[0], right_rail[3], Color(TABLE_THEME.COPPER_SHADOW, 0.42 * opacity), 1.5, true)
+
+	# Four restrained seat seams organize the negative space without becoming
+	# a visible board grid. The center remains clear for discards and actions.
+	var center := Vector2(size.x * 0.5, size.y * 0.47)
+	var play_top_y := size.y * 0.145
+	var play_bottom_y := size.y * 0.77
+	var play_top_half := size.x * 0.285
+	var play_bottom_half := size.x * 0.335
+	var playfield := PackedVector2Array([
+		Vector2(center.x - play_top_half, play_top_y),
+		Vector2(center.x + play_top_half, play_top_y),
+		Vector2(center.x + play_bottom_half, play_bottom_y),
+		Vector2(center.x - play_bottom_half, play_bottom_y),
+		Vector2(center.x - play_top_half, play_top_y),
+	])
+	draw_polyline(playfield, Color(TABLE_THEME.AGED_COPPER, 0.10 * opacity), 1.0, true)
+	var inner_scale := 0.88
+	var inner := PackedVector2Array()
+	for point in playfield.slice(0, 4):
+		inner.append(center + (point - center) * inner_scale)
+	inner.append(inner[0])
+	draw_polyline(inner, Color(0.55, 0.72, 0.52, 0.046 * opacity), 1.0, true)
+
+	# These seams should be sensed as stitched compression in the felt, not read
+	# as a diagram. The rail and tile placement carry the spatial hierarchy.
+	var seam_color := Color(0.0, 0.09, 0.055, 0.11 * opacity)
+	draw_line(surface[0], center + Vector2(-size.x * 0.17, -size.y * 0.04), seam_color, 1.0, true)
+	draw_line(surface[1], center + Vector2(size.x * 0.17, -size.y * 0.04), seam_color, 1.0, true)
+	draw_line(surface[2], center + Vector2(size.x * 0.18, size.y * 0.09), seam_color, 1.0, true)
+	draw_line(surface[3], center + Vector2(-size.x * 0.18, size.y * 0.09), seam_color, 1.0, true)
 
 
 func _draw_table_frame() -> void:
@@ -186,10 +235,28 @@ func _sync_felt_shader_layer() -> void:
 	_felt_shader_layer.visible = true
 	var shader_material := _felt_shader_layer.material as ShaderMaterial
 	if shader_material != null:
-		shader_material.set_shader_parameter("brocade_opacity", 0.055 * opacity)
-		shader_material.set_shader_parameter("weave_opacity", 0.040 * opacity)
-		shader_material.set_shader_parameter("vignette_strength", 0.42 * opacity)
-		shader_material.set_shader_parameter("light_strength", 0.105 * opacity)
+		shader_material.set_shader_parameter("brocade_opacity", BROCADE_OPACITY * opacity)
+		shader_material.set_shader_parameter("weave_opacity", WEAVE_OPACITY * opacity)
+		shader_material.set_shader_parameter("vignette_strength", VIGNETTE_STRENGTH * opacity)
+		shader_material.set_shader_parameter("light_strength", LIGHT_STRENGTH * opacity)
+		shader_material.set_shader_parameter("ambient_fill_strength", AMBIENT_FILL_STRENGTH * opacity)
+		shader_material.set_shader_parameter("brocade_relief", BROCADE_RELIEF * opacity)
+
+
+func get_material_contract() -> Dictionary:
+	return {
+		"base_palette": ["052820", "062c28", "06382c", "0b3f34", "123f35"],
+		"brocade_opacity": BROCADE_OPACITY,
+		"brocade_relief": BROCADE_RELIEF,
+		"lighting_layers": ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"],
+		"light_direction": "upper_left_to_lower_right",
+		"motif_scale": "micro_repeat_only",
+		"large_motif": "none",
+		"circular_hotspot": false,
+		"spatial_structure": "fixed_camera_shallow_perspective",
+		"rail_depth": "ebony_side_rails_with_copper_inner_edge",
+		"seat_zones": 4,
+	}
 
 
 func _draw_carved_corner_caps() -> void:

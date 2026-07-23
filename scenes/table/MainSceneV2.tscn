@@ -715,13 +715,15 @@ z_index = 10
 [node name="DingQueOverlay" type="Control" parent="UILayer/RootUI"]
 unique_name_in_owner = true
 visible = false
+top_level = true
+z_index = 420
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 1
+mouse_filter = 0
 
 [node name="DingQueShade" type="ColorRect" parent="UILayer/RootUI/DingQueOverlay"]
 unique_name_in_owner = true
@@ -746,7 +748,7 @@ mouse_filter = 1
 [node name="DingQuePanel" type="Panel" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(760, 320)
+custom_minimum_size = Vector2(812, 292)
 
 [node name="DingQueMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel"]
 layout_mode = 1
@@ -756,9 +758,9 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 34
-theme_override_constants/margin_top = 28
+theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 34
-theme_override_constants/margin_bottom = 28
+theme_override_constants/margin_bottom = 12
 
 [node name="DingQueVBox" type="VBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin"]
 layout_mode = 2
@@ -770,6 +772,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="DingQueTitleBlock" type="VBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -786,6 +789,7 @@ horizontal_alignment = 1
 text = "缺一门才能胡牌"
 
 [node name="DingQueMiddleSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
+visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(0, 12)
 
@@ -793,7 +797,7 @@ custom_minimum_size = Vector2(0, 12)
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 252)
 
 [node name="DingQueButtonCardMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard"]
 layout_mode = 1
@@ -803,32 +807,35 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 26
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 26
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_bottom = 10
 
 [node name="DingQueButtons" type="HBoxContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 22
+theme_override_constants/separation = 34
 
 [node name="DingQueTiaoButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(176, 72)
-text = "缺条"
+custom_minimum_size = Vector2(230, 230)
+tooltip_text = "定缺条"
+text = "条"
 
 [node name="DingQueTongButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(176, 72)
-text = "缺筒"
+custom_minimum_size = Vector2(230, 230)
+tooltip_text = "定缺筒"
+text = "筒"
 
 [node name="DingQueWanButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(176, 72)
-text = "缺万"
+custom_minimum_size = Vector2(230, 230)
+tooltip_text = "定缺万"
+text = "万"
 
 [node name="DingQueBottomSpacer" type="Control" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox"]
 layout_mode = 2

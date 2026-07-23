@@ -8,8 +8,8 @@ const FACE_HIGHLIGHT := Color(1.0, 0.985, 0.90, 0.74)
 const FACE_INNER_SHADE := Color(0.24, 0.18, 0.10, 0.15)
 const SIDE_LIGHT := Color("E5D6AA")
 const SIDE_MID := Color("C4B386")
-const SIDE_DARK := Color("8F7D58")
-const BOTTOM_DEEP := Color("5E5039")
+const SIDE_DARK := Color("9A875F")
+const BOTTOM_DEEP := Color("6E6046")
 const BACK_TOP := Color("16704F")
 const BACK_MID := Color("0D5A3E")
 const BACK_BOTTOM := Color("0A4A3D")
@@ -37,6 +37,8 @@ static func material_contract() -> Dictionary:
 		"side_mid": SIDE_MID,
 		"bottom_deep": BOTTOM_DEEP,
 		"contact_shadow": CONTACT_SHADOW,
+		"face_palette": [FACE_TOP, FACE_WARMTH, FACE_BOTTOM],
+		"back_palette": [BACK_TOP, BACK_MID, BACK_BOTTOM],
 		"back_finish": "matte_malachite_brocade",
 		"depth_ratio": {"self": 0.064, "public": 0.052, "opponent": 0.044},
 		"layers": ["ambient_shadow", "contact_shadow", "bottom_body", "side_body", "ivory_face", "bevel_highlight"],

@@ -22,16 +22,16 @@ const BACK_SHADOW_COLOR := TILE_STYLE.CONTACT_SHADOW
 const FACE_INNER_RIM := Color(0.94, 1.0, 0.96, 0.24)
 const FACE_INNER_LIGHT := Color(1.0, 1.0, 1.0, 0.22)
 const FACE_RIGHT_GLAZE := Color(0.10, 0.24, 0.17, 0.12)
-const BACK_INNER_RIM := Color(0.82, 0.94, 0.84, 0.28)
-const BACK_INNER_LIGHT := Color(1.0, 1.0, 1.0, 0.18)
+const BACK_INNER_RIM := Color(0.82, 0.94, 0.84, 0.20)
+const BACK_INNER_LIGHT := Color(1.0, 1.0, 1.0, 0.11)
 const TILE_CORNER_RADIUS := 10
 const TILE_FACE_SURFACE_PATH := "res://res/art/ui_3d_cartoon/tile_face_table.png"
 const TILE_BACK_SURFACE_PATH := "res://res/art/ui_3d_cartoon/tile_back_table.png"
 const TILE_SYMBOL_DIR := "res://res/art/ui_3d_cartoon/tile_symbols"
-const HIGHLIGHT_COLOR := Color8(195, 29, 56, 255)
-const SELECT_COLOR := Color8(195, 29, 56, 225)
-const RECENT_DISCARD_PULSE_SPEED := 0.0064
-const RECENT_DISCARD_PULSE_RANGE := 0.010
+const HIGHLIGHT_COLOR := Color8(63, 134, 104, 235)
+const SELECT_COLOR := Color8(168, 121, 58, 235)
+const RECENT_DISCARD_PULSE_SPEED := 0.0048
+const RECENT_DISCARD_PULSE_RANGE := 0.018
 const INNER_BORDER_COLOR := Color(0.0, 0.0, 0.0, 0.0)
 const INNER_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.0)
 
@@ -42,6 +42,7 @@ var is_new_draw: bool = false
 var is_selected: bool = false
 var is_recent_discard: bool = false
 var is_winning: bool = false
+var reduced_motion := false
 
 static var texture_cache: Dictionary = {}
 static var face_stylebox: StyleBoxFlat = _build_face_stylebox()
@@ -64,8 +65,16 @@ func configure(tile: Dictionary, scale_factor: float, should_show_back: bool = f
 	queue_redraw()
 
 
+func set_reduced_motion(enabled: bool) -> void:
+	reduced_motion = enabled
+	if reduced_motion:
+		scale = Vector2.ONE * (1.05 if is_selected else 1.0)
+	set_process(is_recent_discard and not reduced_motion)
+	queue_redraw()
+
+
 func _process(_delta: float) -> void:
-	if is_recent_discard:
+	if is_recent_discard and not reduced_motion:
 		var pulse_phase := 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * RECENT_DISCARD_PULSE_SPEED)
 		var pulse_scale := 1.0 + pulse_phase * RECENT_DISCARD_PULSE_RANGE
 		scale = Vector2.ONE * (1.05 if is_selected else 1.0) * pulse_scale
@@ -154,6 +163,17 @@ func get_visual_contract() -> Dictionary:
 	}
 
 
+func get_feedback_contract() -> Dictionary:
+	return {
+		"latest_marker": "copper_diamond_and_chevron",
+		"latest_uses_shape": true,
+		"latest_uses_color": true,
+		"pulse_scale": RECENT_DISCARD_PULSE_RANGE,
+		"reduced_motion": reduced_motion,
+		"shadow_layers": ["ambient_soft", "contact_tight", "body_depth"],
+	}
+
+
 func _draw_tile_body_depth(front_rect: Rect2) -> void:
 	var depth := _body_depth()
 	var right_points := PackedVector2Array([
@@ -196,13 +216,13 @@ func _draw_contact_shadow(shadow_rect: Rect2) -> void:
 	var ambient := StyleBoxFlat.new()
 	ambient.bg_color = TILE_STYLE.AMBIENT_SHADOW
 	ambient.set_corner_radius_all(maxi(4, int(round(TILE_CORNER_RADIUS * tile_scale))))
-	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.24)
-	ambient.shadow_size = maxi(2, int(round(5.0 * tile_scale)))
-	ambient.shadow_offset = Vector2(3.0, 4.0) * tile_scale
-	draw_style_box(ambient, shadow_rect.grow(1.6 * tile_scale))
+	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.32)
+	ambient.shadow_size = maxi(3, int(round(7.0 * tile_scale)))
+	ambient.shadow_offset = Vector2(4.0, 5.5) * tile_scale
+	draw_style_box(ambient, shadow_rect.grow(2.2 * tile_scale))
 	var contact_rect := Rect2(
-		shadow_rect.position + Vector2(4.0, shadow_rect.size.y - 8.0) * tile_scale,
-		Vector2(maxf(2.0, shadow_rect.size.x - 8.0 * tile_scale), maxf(2.0, 6.0 * tile_scale))
+		shadow_rect.position + Vector2(5.0, shadow_rect.size.y - 8.0) * tile_scale,
+		Vector2(maxf(2.0, shadow_rect.size.x - 10.0 * tile_scale), maxf(2.0, 7.0 * tile_scale))
 	)
 	draw_rect(contact_rect, BACK_SHADOW_COLOR if show_back else SHADOW_COLOR, true)
 
@@ -242,6 +262,9 @@ func _draw_face_material(front_rect: Rect2) -> void:
 
 func _draw_matte_back_material(front_rect: Rect2) -> void:
 	var inner := front_rect.grow(-2.5 * tile_scale)
+	# Keep the requested jade palette while lowering the display luminance of
+	# concealed hands so ivory public tiles remain the first visual layer.
+	draw_rect(inner, Color(0.0, 0.055, 0.040, 0.13), true)
 	var upper := Rect2(
 		inner.position + Vector2(4.0, 4.0) * tile_scale,
 		Vector2(inner.size.x - 8.0 * tile_scale, inner.size.y * 0.34)
@@ -256,7 +279,7 @@ func _draw_matte_back_material(front_rect: Rect2) -> void:
 		inner.position + Vector2(7.0, 4.0) * tile_scale,
 		Vector2(inner.size.x - 14.0 * tile_scale, maxf(1.0, 1.5 * tile_scale))
 	)
-	draw_rect(top_line, Color(0.86, 0.96, 0.88, 0.18), true)
+	draw_rect(top_line, Color(0.86, 0.96, 0.88, 0.11), true)
 
 func _draw_inset_face_rim(front_rect: Rect2) -> void:
 	var radius := maxi(4, int(round((TILE_CORNER_RADIUS - 5) * tile_scale)))
@@ -292,17 +315,37 @@ func _draw_inset_face_rim(front_rect: Rect2) -> void:
 func _draw_recent_discard_accent(outer_rect: Rect2, pulse_phase: float) -> void:
 	var glow_rect := outer_rect.grow(4.0 * tile_scale)
 	var glow := StyleBoxFlat.new()
-	glow.bg_color = Color(0.76, 0.20, 0.30, 0.02 + pulse_phase * 0.015)
-	glow.border_color = Color(0.88, 0.28, 0.38, 0.22 + pulse_phase * 0.06)
-	glow.set_border_width_all(maxi(1, int(round(1.0 * tile_scale))))
+	glow.bg_color = Color(0.66, 0.44, 0.18, 0.012 + pulse_phase * 0.012)
+	glow.border_color = Color(0.78, 0.60, 0.34, 0.72 + pulse_phase * 0.16)
+	glow.set_border_width_all(maxi(2, int(round(2.2 * tile_scale))))
 	glow.corner_radius_top_left = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_top_right = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_bottom_left = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_bottom_right = TILE_CORNER_RADIUS + 2
-	glow.shadow_color = Color(0.76, 0.20, 0.30, 0.10 + pulse_phase * 0.04)
-	glow.shadow_size = maxi(3, int(round(5.0 * tile_scale)))
+	glow.shadow_color = Color(0.66, 0.45, 0.18, 0.15 + pulse_phase * 0.06)
+	glow.shadow_size = maxi(4, int(round(7.0 * tile_scale)))
 	glow.shadow_offset = Vector2.ZERO
 	draw_style_box(glow, glow_rect)
+
+	# Persistent geometric marker keeps “latest” readable without relying on
+	# red/amber color alone. It remains visible when reduced motion disables the
+	# pulse and when the tile is viewed in a side-seat rotation.
+	var marker_center := Vector2(outer_rect.get_center().x, outer_rect.position.y + 10.0 * tile_scale)
+	var marker_radius := maxf(4.0, 6.5 * tile_scale)
+	var diamond := PackedVector2Array([
+		marker_center + Vector2(0.0, -marker_radius),
+		marker_center + Vector2(marker_radius, 0.0),
+		marker_center + Vector2(0.0, marker_radius),
+		marker_center + Vector2(-marker_radius, 0.0),
+	])
+	draw_colored_polygon(diamond, Color(0.78, 0.60, 0.34, 0.98))
+	draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color(1.0, 0.94, 0.70, 0.94), maxf(1.0, 1.4 * tile_scale), true)
+	var chevron := PackedVector2Array([
+		marker_center + Vector2(-marker_radius * 0.52, marker_radius * 0.15),
+		marker_center + Vector2(0.0, marker_radius * 0.70),
+		marker_center + Vector2(marker_radius * 0.52, marker_radius * 0.15),
+	])
+	draw_polyline(chevron, Color(0.34, 0.09, 0.06, 0.92), maxf(1.0, 1.7 * tile_scale), true)
 
 
 func _draw_winning_accent(front_rect: Rect2, outer_rect: Rect2) -> void:

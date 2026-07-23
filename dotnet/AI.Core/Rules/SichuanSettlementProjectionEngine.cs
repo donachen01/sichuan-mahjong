@@ -18,13 +18,16 @@ public sealed record SichuanGangRefundEvent(
 public sealed record SichuanHuJiaoTransferEvent(
     int WinnerSeat,
     SichuanMeldType GangType,
-    IReadOnlyList<int> PayerSeats);
+    IReadOnlyList<int> PayerSeats,
+    int FromSeat = -1);
 
 public sealed record SichuanDrawAssessment(
     int Seat,
     bool IsTing,
     bool IsHuaZhu,
-    int ChaJiaoScore);
+    int ChaJiaoScore,
+    bool HasWon = false,
+    int WonScore = 0);
 
 public sealed record SichuanSettlementScenario(
     IReadOnlyList<SichuanGangScoreEvent>? GangEvents = null,
@@ -71,27 +74,41 @@ public sealed class SichuanSettlementProjectionEngine
         var transfers = new int[4];
         var chaJiao = new int[4];
         var huaZhu = new int[4];
-        if (scenario.IsRoundResolved)
+        // 杠钱独立即时结算：不等待本局结束，也不因杠上炮而跳过原杠分。
+        foreach (var item in scenario.GangEvents ?? Array.Empty<SichuanGangScoreEvent>())
+            ApplyPayments(gang, item.ActorSeat, item.PayerSeats, GangUnit(item.GangType));
+
+        if (SichuanRuleSnapshot.Frozen.EnableGangRefund)
         {
-            foreach (var item in scenario.GangEvents ?? Array.Empty<SichuanGangScoreEvent>())
-            {
-                if (item.IsGangDiscardWin) continue;
-                ApplyPayments(gang, item.ActorSeat, item.PayerSeats, GangUnit(item.GangType));
-            }
             foreach (var item in scenario.GangRefunds ?? Array.Empty<SichuanGangRefundEvent>())
                 ApplyPayments(refunds, item.ActorSeat, item.PayerSeats, -GangUnit(item.GangType));
-            foreach (var item in scenario.TransferEvents ?? Array.Empty<SichuanHuJiaoTransferEvent>())
+        }
+
+        foreach (var item in scenario.TransferEvents ?? Array.Empty<SichuanHuJiaoTransferEvent>())
+        {
+            var totalGangMoney = GangUnit(item.GangType) * item.PayerSeats.Count;
+            if (item.FromSeat is >= 0 and < 4)
+                ApplyPayment(transfers, item.WinnerSeat, item.FromSeat, totalGangMoney);
+            else
+                // 兼容旧调用：缺少开杠者时仍保留原付款人到赢家的投影。
                 ApplyPayments(transfers, item.WinnerSeat, item.PayerSeats, GangUnit(item.GangType));
         }
 
         var assessments = scenario.DrawAssessments ?? Array.Empty<SichuanDrawAssessment>();
-        var ting = assessments.Where(item => item.IsTing && !item.IsHuaZhu).ToArray();
-        foreach (var payer in assessments.Where(item => !item.IsTing && !item.IsHuaZhu))
+        var ting = assessments.Where(item => item.IsTing && !item.IsHuaZhu && !item.HasWon).ToArray();
+        var winners = assessments.Where(item => item.HasWon).ToArray();
+        foreach (var payer in assessments.Where(item => !item.IsTing && !item.IsHuaZhu && !item.HasWon))
+        {
             foreach (var receiver in ting)
                 ApplyPayment(chaJiao, receiver.Seat, payer.Seat, Math.Max(1, receiver.ChaJiaoScore));
+            foreach (var receiver in winners)
+                ApplyPayment(chaJiao, receiver.Seat, payer.Seat, Math.Max(1, receiver.WonScore));
+        }
+
+        var huaZhuPayment = SichuanRuleSnapshot.Frozen.BaseScore * (1 << SichuanRuleSnapshot.Frozen.FanCap);
         foreach (var payer in assessments.Where(item => item.IsHuaZhu))
             foreach (var receiver in ting)
-                ApplyPayment(huaZhu, receiver.Seat, payer.Seat, Math.Max(1, receiver.ChaJiaoScore));
+                ApplyPayment(huaZhu, receiver.Seat, payer.Seat, huaZhuPayment);
 
         var total = new int[4];
         for (var seat = 0; seat < 4; seat++)

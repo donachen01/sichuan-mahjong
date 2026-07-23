@@ -18,11 +18,12 @@ var enable_qi_dui: bool = true
 var require_missing_one_suit_to_win: bool = true
 var use_battle_to_end_flow: bool = true
 var max_winners_per_round: int = 3
-var fan_cap: int = 3
+var base_score: int = 1
+var fan_cap: int = 4
 
 var use_ding_que_phase: bool = true
 var enable_cha_jiao: bool = true
-var enable_tui_shui: bool = true
+var enable_tui_shui: bool = false
 var enable_hua_zhu: bool = true
 var self_draw_extra_base_score: int = 1
 
@@ -56,10 +57,11 @@ func _apply_sichuan_defaults() -> void:
 	require_missing_one_suit_to_win = true
 	use_battle_to_end_flow = true
 	max_winners_per_round = 3
-	fan_cap = 3
+	base_score = 1
+	fan_cap = 4
 	use_ding_que_phase = true
 	enable_cha_jiao = true
-	enable_tui_shui = true
+	enable_tui_shui = false
 	enable_hua_zhu = true
 	self_draw_extra_base_score = 1
 
@@ -78,6 +80,7 @@ func to_debug_dict() -> Dictionary:
 		"require_missing_one_suit_to_win": require_missing_one_suit_to_win,
 		"use_battle_to_end_flow": use_battle_to_end_flow,
 		"max_winners_per_round": max_winners_per_round,
+		"base_score": base_score,
 		"fan_cap": fan_cap,
 		"use_ding_que_phase": use_ding_que_phase,
 		"enable_cha_jiao": enable_cha_jiao,

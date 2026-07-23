@@ -45,7 +45,17 @@ if [[ ! -d "$DEVELOPER_DIR" ]]; then
   exit 1
 fi
 
-IOS_TEMPLATE="${GODOT_IOS_TEMPLATE:-/Users/chendong/Library/Application Support/Godot/export_templates/4.6.2.stable.mono/templates/ios.zip}"
+TEMPLATE_VERSION_DIR="/Users/chendong/Library/Application Support/Godot/export_templates/4.6.2.stable.mono"
+DEFAULT_IOS_TEMPLATE="$TEMPLATE_VERSION_DIR/ios.zip"
+NESTED_IOS_TEMPLATE="$TEMPLATE_VERSION_DIR/templates/ios.zip"
+IOS_TEMPLATE="${GODOT_IOS_TEMPLATE:-$DEFAULT_IOS_TEMPLATE}"
+
+# Some manually extracted .NET template archives retain an extra `templates/`
+# directory. Godot's preset exporter only probes the version directory itself,
+# so expose the existing archive at the canonical path without duplicating it.
+if [[ "$IOS_TEMPLATE" == "$DEFAULT_IOS_TEMPLATE" && ! -e "$IOS_TEMPLATE" && -f "$NESTED_IOS_TEMPLATE" ]]; then
+  ln -s "templates/ios.zip" "$IOS_TEMPLATE"
+fi
 if [[ ! -f "$IOS_TEMPLATE" ]]; then
   echo "Missing iOS export template: $IOS_TEMPLATE"
   exit 1
@@ -89,7 +99,7 @@ echo "Bundle ID: ${GODOT_IOS_BUNDLE_ID:-com.chendong.sichuanmahjong.iosdev}"
   --headless \
   --editor \
   --path "$PROJECT_DIR" \
-  --script "res://tools/export_ios_xcode_direct.gd"
+  --script res://tools/export_ios_xcode_direct.gd
 
 if [[ ! -f "$EXPORT_DIR/SichuanMahjongIOS.xcodeproj/project.pbxproj" ]]; then
   echo "iOS export did not produce an Xcode project at $EXPORT_DIR"

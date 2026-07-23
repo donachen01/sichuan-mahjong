@@ -1,3 +1,4 @@
+using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
 
 namespace SichuanMahjong.AI.Core.Engines;
@@ -7,6 +8,17 @@ public sealed class SichuanHellChallengeEngine
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanHandShapeEngine _shape = new();
+    private readonly SichuanAiFacade _oldHand;
+
+    public SichuanHellChallengeEngine()
+        : this(new SichuanAiFacade())
+    {
+    }
+
+    public SichuanHellChallengeEngine(SichuanAiFacade oldHand)
+    {
+        _oldHand = oldHand ?? throw new ArgumentNullException(nameof(oldHand));
+    }
 
     public SichuanHellOracleResult DecideDiscard(
         SichuanStateView state,
@@ -19,6 +31,17 @@ public sealed class SichuanHellChallengeEngine
 
         var hand = state.Hand18;
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var oldHandDecision = _oldHand.DecideDiscard(state);
+        var oldHandCandidates = oldHandDecision.Candidates
+            .OrderByDescending(candidate => candidate.Score)
+            .ThenBy(candidate => candidate.TileType)
+            .ToArray();
+        var oldHandByTile = oldHandCandidates.ToDictionary(candidate => candidate.TileType);
+        var oldHandRankByTile = oldHandCandidates
+            .Select((candidate, rank) => (candidate.TileType, rank))
+            .ToDictionary(item => item.TileType, item => item.rank);
+        var bestOldHandScore = oldHandCandidates.FirstOrDefault()?.Score ?? 0;
+        var enforceOldHandLegality = oldHandByTile.Count > 0;
         var teamPlan = SichuanHellChallengeTeamPlanner.BuildPlan(state, allHands18, exactWall18, currentScores);
         var seatPlan = teamPlan.ForSeat(state.SeatIndex);
         var humanPressureLevel = teamPlan.HumanPressureLevel;
@@ -43,8 +66,13 @@ public sealed class SichuanHellChallengeEngine
         {
             if (hand[tileType] <= 0)
                 continue;
+            if (enforceOldHandLegality && !oldHandByTile.ContainsKey(tileType))
+                continue;
 
             var remainingHand = RemoveOne(hand, tileType);
+            oldHandByTile.TryGetValue(tileType, out var oldHandCandidate);
+            var oldHandRank = oldHandRankByTile.GetValueOrDefault(tileType, -1);
+            var oldHandAdjustment = CalculateOldHandAdjustment(oldHandCandidate, oldHandRank, bestOldHandScore);
             var dealInTargetSeats = ResolveDealInTargetSeats(state, allHands18, tileType);
             var exactDealIn = dealInTargetSeats.Count > 0;
             var feedsHumanHu = dealInTargetSeats.Contains(0);
@@ -114,6 +142,7 @@ public sealed class SichuanHellChallengeEngine
                 + tempoPengAllowanceBonus
                 + pengOnlyInteractionBonus
                 + seatPlan.DiscardSafetyBias
+                + oldHandAdjustment
                 - (exactDealIn ? 12000 : 0)
                 - (feedsHumanHu ? humanHuPenalty : 0)
                 - (feedsHumanGang ? humanGangPenalty : 0)
@@ -123,7 +152,22 @@ public sealed class SichuanHellChallengeEngine
                 $"透视向听 {shanten}",
                 $"透视活张 {exactWallRemaining}",
                 $"牌理层级 {tier.Label}",
+                oldHandCandidate is null
+                    ? "老手主线：无合法候选诊断"
+                    : $"老手主线：排名 {oldHandRank + 1}，路线 {oldHandCandidate.RoutePlanPrimary}，净分期望 {oldHandCandidate.ExpectedNetScore:F2}",
             };
+            if (oldHandCandidate is not null)
+            {
+                foreach (var reason in oldHandCandidate.Reasons
+                    .Where(reason => reason.Contains("路线", StringComparison.Ordinal)
+                        || reason.Contains("连续大脑", StringComparison.Ordinal)
+                        || reason.Contains("净分期望", StringComparison.Ordinal)
+                        || reason.Contains("下叫", StringComparison.Ordinal))
+                    .Take(3))
+                {
+                    reasons.Add($"老手主线：{reason}");
+                }
+            }
             if (exactDealIn)
                 reasons.Add("透视：此张会点炮");
             if (feedsHumanHu)
@@ -171,6 +215,11 @@ public sealed class SichuanHellChallengeEngine
                 Tier = tier.Label,
                 TierRank = tier.Rank,
                 TierAdjustment = tierAdjustment,
+                OldHandScore = oldHandCandidate?.Score ?? int.MinValue,
+                OldHandRank = oldHandRank,
+                OldHandRoute = oldHandCandidate?.RoutePlanPrimary ?? "",
+                OldHandExpectedNetScore = oldHandCandidate?.ExpectedNetScore ?? 0.0,
+                OldHandBreaksTriplet = oldHandCandidate?.BreaksTriplet ?? false,
                 DealInTargetSeats = dealInTargetSeats.ToArray(),
                 Reasons = reasons.ToArray()
             });
@@ -222,6 +271,23 @@ public sealed class SichuanHellChallengeEngine
                 .ToArray(),
             Reasons = bestReasons.Concat(teamPlan.Reasons).Distinct().ToArray()
         };
+    }
+
+    private static int CalculateOldHandAdjustment(
+        SichuanCandidateDetail? candidate,
+        int rank,
+        int bestOldHandScore)
+    {
+        if (candidate is null || rank < 0)
+            return -5000;
+
+        var scoreGap = Math.Clamp(candidate.Score - bestOldHandScore, -10000, 0);
+        var scoreAlignment = scoreGap / 2;
+        var rankAlignment = Math.Max(0, 2400 - rank * 280);
+        var routeContinuity = SichuanRoutePlanEngine.IsFlushRoute(candidate.RoutePlanPrimary) ? 320 : 0;
+        var expectedNetAlignment = (int)Math.Round(Math.Clamp(candidate.ExpectedNetScore, -12.0, 12.0) * 45.0);
+        var tripletProtection = candidate.BreaksTriplet ? -1800 : 0;
+        return scoreAlignment + rankAlignment + routeContinuity + expectedNetAlignment + tripletProtection;
     }
 
     private static (string Label, int Rank) ResolveHellDiscardTier(

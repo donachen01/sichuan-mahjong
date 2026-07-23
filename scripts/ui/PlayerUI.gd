@@ -19,16 +19,16 @@ const TILE_VISUAL_BASE_WIDTH := 98.0
 const TILE_VISUAL_BASE_HEIGHT := 153.0
 const SELF_MELD_TILE_SCALE := SELF_ROW_TILE_VISUAL_HEIGHT / TILE_VISUAL_BASE_HEIGHT
 const SELF_MELD_TILE_STEP := 124.0
-const TOP_ROW_TILE_SCALE := 0.86
-const TOP_ROW_TILE_SEPARATION := 4
+const TOP_ROW_TILE_SCALE := 0.92
+const TOP_ROW_TILE_SEPARATION := 2
 const TOP_ROW_MAX_COMBINED_TILE_SLOTS := 18
-const TOP_ROW_MIN_TILE_SCALE := 0.56
+const TOP_ROW_MIN_TILE_SCALE := 0.72
 const TOP_ROW_MELD_TILE_SEPARATION := 2.0
 const TOP_ROW_MELD_GROUP_SEPARATION := 6
 const TOP_ROW_SLOT_PADDING := 30.0
-const SIDE_HAND_TILE_SCALE := 0.74
-const SIDE_MELD_TILE_SCALE := 0.78
-const SIDE_TILE_GAP := 5.0
+const SIDE_HAND_TILE_SCALE := 0.78
+const SIDE_MELD_TILE_SCALE := 0.82
+const SIDE_TILE_GAP := 2.0
 const SIDE_GROUP_GAP := 12.0
 const SIDE_TRACK_GAP := 10.0
 const SIDE_MAX_ROWS := 7
@@ -440,12 +440,17 @@ func _render_opponent_band(player: Dictionary, show_back: bool) -> void:
 	var hand_width := hand_tile_size.x * float(hand_columns) + SIDE_TILE_GAP * float(maxi(0, hand_columns - 1))
 	var meld_width := meld_tile_size.x * float(meld_columns) + SIDE_TILE_GAP * float(maxi(0, meld_columns - 1))
 	var hu_width := meld_tile_size.x if has_hu else 0.0
+	# Tiles fill the first vertical column before the second one, so the visual
+	# row count is capped by SIDE_MAX_ROWS rather than divided by column count.
+	var hand_rows := mini(SIDE_MAX_ROWS, visible_hand_count)
+	var hand_content_height := hand_tile_size.y * float(hand_rows) + SIDE_TILE_GAP * float(maxi(0, hand_rows - 1))
 	var total_width := hand_width + (SIDE_TRACK_GAP + meld_width if has_melds else 0.0) + (SIDE_TRACK_GAP + hu_width if has_hu else 0.0)
 	var start_x := maxf(0.0, floor((layout_width - total_width) * 0.5))
 	var hand_x := start_x if seat_dock == SeatDock.LEFT else start_x + meld_width + (SIDE_TRACK_GAP if has_melds else 0.0)
 	var meld_x := start_x + hand_width + SIDE_TRACK_GAP if seat_dock == SeatDock.LEFT else start_x
 	var hu_x := start_x + hand_width + (SIDE_TRACK_GAP + meld_width if has_melds else 0.0) + SIDE_TRACK_GAP if seat_dock == SeatDock.LEFT else start_x + meld_width + (SIDE_TRACK_GAP if has_melds else 0.0) + hand_width + SIDE_TRACK_GAP
 	var track_height := layout_height
+	var hand_content_y := maxf(0.0, floor((track_height - hand_content_height) * 0.5))
 	var hand_rect := Rect2(Vector2(hand_x, 0.0), Vector2(hand_width, track_height))
 	var meld_rect := Rect2(Vector2(meld_x, 0.0), Vector2(meld_width, track_height))
 	var hu_rect := Rect2(Vector2(hu_x, 0.0), Vector2(hu_width, meld_tile_size.y))
@@ -466,10 +471,15 @@ func _render_opponent_band(player: Dictionary, show_back: bool) -> void:
 	meld_column.visible = has_melds
 	hu_slot.visible = has_hu
 
-	var hand_grid := Control.new()
-	hand_grid.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var hand_grid := _create_fixed_slot(hand_width, hand_content_height)
+	hand_grid.name = "SideHandGrid"
+	hand_grid.clip_contents = false
 	hand_grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hand_column.add_child(hand_grid)
+	_place_rect_in_parent(
+		hand_column,
+		hand_grid,
+		Rect2(Vector2(0.0, hand_content_y), Vector2(hand_width, hand_content_height))
+	)
 	for index in range(visible_hand_count):
 		var source_tile_data: Dictionary = hand_tiles[index] if index < hand_tiles.size() else {}
 		var tile_data: Dictionary = source_tile_data if not show_back else {}

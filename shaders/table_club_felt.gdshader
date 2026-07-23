@@ -9,10 +9,12 @@ uniform vec4 jade_mid : source_color = vec4(0.0235, 0.2196, 0.1725, 1.0);  // #0
 uniform vec4 jade_lift : source_color = vec4(0.0431, 0.2471, 0.2039, 1.0); // #0b3f34
 uniform vec4 jade_highlight : source_color = vec4(0.0706, 0.2471, 0.2078, 1.0); // #123f35
 uniform vec4 warm_light : source_color = vec4(0.7765, 0.6039, 0.3451, 1.0); // old brass
-uniform float brocade_opacity : hint_range(0.0, 0.10) = 0.055;
-uniform float weave_opacity : hint_range(0.0, 0.10) = 0.040;
-uniform float vignette_strength : hint_range(0.0, 0.8) = 0.42;
-uniform float light_strength : hint_range(0.0, 0.25) = 0.105;
+uniform float brocade_opacity : hint_range(0.0, 0.12) = 0.065;
+uniform float weave_opacity : hint_range(0.0, 0.10) = 0.035;
+uniform float vignette_strength : hint_range(0.0, 0.8) = 0.50;
+uniform float light_strength : hint_range(0.0, 0.25) = 0.205;
+uniform float ambient_fill_strength : hint_range(0.0, 0.18) = 0.080;
+uniform float brocade_relief : hint_range(0.0, 1.0) = 0.560;
 
 float hash21(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -90,29 +92,35 @@ float shu_brocade_pattern(vec2 uv) {
 void fragment() {
 	vec2 uv = UV;
 
-	// 非对称线性光场替代中央圆形亮斑：左上略暖，右下自然沉降。
+	// 纯方向性光场：不使用任何位于桌面内部的径向光源，从根源上
+	// 避免中央/左侧出现大圆形亮斑。所有受光统一来自左上。
 	float diagonal = clamp((1.0 - uv.x) * 0.58 + (1.0 - uv.y) * 0.42, 0.0, 1.0);
-	float off_canvas_source = 1.0 - smoothstep(0.08, 1.10, length((uv - vec2(-0.08, -0.12)) * vec2(0.72, 0.92)));
-	float top_left_light = (pow(diagonal, 2.15) * 0.72 + off_canvas_source * 0.28) * light_strength;
-	float center_lift = (1.0 - smoothstep(0.0, 0.72, abs(uv.x - 0.50)))
-		* (1.0 - smoothstep(0.0, 0.58, abs(uv.y - 0.43))) * 0.026;
+	float top_left_light = pow(diagonal, 2.30) * light_strength;
+	float center_x = 1.0 - smoothstep(0.08, 0.54, abs(uv.x - 0.50));
+	float center_y = 1.0 - smoothstep(0.06, 0.46, abs(uv.y - 0.43));
+	float center_lift = center_x * center_y * 0.024;
+	float neutral_fill = center_x * center_y * ambient_fill_strength;
+	float upper_sheen = (1.0 - smoothstep(0.0, 0.22, uv.y)) * (0.45 + 0.55 * (1.0 - uv.x));
 	vec3 base = mix(jade_deep.rgb, jade_base.rgb, 0.58 + diagonal * 0.18);
 	base = mix(base, jade_mid.rgb, 0.24 + center_lift * 2.2);
-	base += warm_light.rgb * top_left_light * 0.12;
-	base += jade_highlight.rgb * center_lift;
+	base += warm_light.rgb * top_left_light * 0.25;
+	base += jade_highlight.rgb * (center_lift + neutral_fill * 0.22);
+	base += warm_light.rgb * upper_sheen * light_strength * 0.035;
 
 	// 高频经纬纱与低对比菱格锦纹；纹理只在近看时被感知。
 	float warp = line_mask(uv.x * 460.0 + sin(uv.y * 61.0) * 0.42, 0.010);
 	float weft = line_mask(uv.y * 410.0 + cos(uv.x * 53.0) * 0.38, 0.010);
 	float weave = (warp + weft) * 0.5;
-	base += jade_lift.rgb * weave * weave_opacity * 0.16;
+	base += jade_lift.rgb * weave * weave_opacity * 0.26;
 
 	// 4%-10% 的参数是整层“锦纹墨量”，明暗两次偏移形成织物/压纹，不像贴图浮在表面。
 	float brocade_high = shu_brocade_pattern(uv + vec2(-0.00055, -0.00048));
 	float brocade_shadow = shu_brocade_pattern(uv + vec2(0.00072, 0.00064));
-	float motif_gate = 0.72 + 0.28 * sin(uv.x * 17.0 + sin(uv.y * 9.0));
-	base += mix(jade_highlight.rgb, warm_light.rgb, 0.10) * brocade_high * motif_gate * brocade_opacity * 0.105;
-	base -= jade_deep.rgb * brocade_shadow * brocade_opacity * 0.072;
+	float motif_phase = 0.68 + 0.32 * sin(uv.x * 17.0 + sin(uv.y * 9.0));
+	float cell_variation = 0.58 + 0.42 * hash21(floor(uv * vec2(19.0, 13.0)));
+	float motif_gate = motif_phase * cell_variation;
+	base += mix(jade_highlight.rgb, warm_light.rgb, 0.16) * brocade_high * motif_gate * brocade_opacity * (0.34 + brocade_relief * 0.15);
+	base -= jade_deep.rgb * brocade_shadow * brocade_opacity * (0.18 + brocade_relief * 0.12);
 
 	// 极细皮革/绒面颗粒，避免均匀色块产生塑料感。
 	float grain = hash21(floor(uv * vec2(1280.0, 720.0))) - 0.5;

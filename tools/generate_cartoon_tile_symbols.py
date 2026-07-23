@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate bright jade Mahjong symbols for the 2D table.
+"""Generate high-contrast commercial Mahjong symbols for 2D and 3D tables.
 
 This version restores traditional Mahjong color language so the face symbols
 stay readable and recognizable on a bright green-jade tile body.
@@ -20,8 +20,8 @@ SYMBOL_SIZE = (196, 288)
 SUITS = ("tiao", "tong", "wan")
 SUIT_STYLES = {
     "tiao": {
-        "ink": (24, 115, 62),
-        "red": (204, 36, 48),
+        "ink": (3, 59, 6),
+        "red": (120, 16, 15),
         "shadow": (16, 28, 20, 18),
         "paper_glow": (252, 255, 250, 8),
         "contrast": 1.10,
@@ -32,9 +32,9 @@ SUIT_STYLES = {
         "thin_px": 0,
     },
     "tong": {
-        "ink": (70, 92, 88),
-        "red": (214, 34, 50),
-        "blue": (54, 106, 92),
+        "ink": (36, 55, 58),
+        "red": (120, 16, 15),
+        "blue": (3, 59, 6),
         "shadow": (16, 24, 20, 16),
         "paper_glow": (252, 255, 250, 6),
         "contrast": 1.10,
@@ -45,8 +45,8 @@ SUIT_STYLES = {
         "thin_px": 0,
     },
     "wan": {
-        "ink": (40, 40, 42),
-        "red": (205, 18, 32),
+        "ink": (22, 22, 22),
+        "red": (120, 16, 15),
         "shadow": (16, 16, 16, 14),
         "paper_glow": (252, 255, 250, 4),
         "contrast": 1.10,
@@ -99,8 +99,8 @@ def _fit_symbol(image: Image.Image, scale_xy: tuple[float, float]) -> Image.Imag
 
 
 def _soft_alpha(alpha: Image.Image) -> Image.Image:
-    alpha = alpha.filter(ImageFilter.GaussianBlur(0.35))
-    return alpha.point(lambda value: min(255, int(value * 0.92)))
+    alpha = alpha.filter(ImageFilter.GaussianBlur(0.25))
+    return alpha.point(lambda value: min(255, int(value * 0.98)))
 
 
 def _style_for(suit: str, rank: int) -> dict:
@@ -240,6 +240,12 @@ def _compose_symbol(symbol: Image.Image, suit: str, rank: int) -> Image.Image:
 
     canvas.alpha_composite(shadow, (x + 1, y + 2))
     canvas.alpha_composite(glow, (x, y - 1))
+    # At the 60-80 px mobile tile size, the old single-pass antialiasing left
+    # most strokes with only a translucent edge and blended red into pink. A
+    # two-source-pixel print spread creates roughly one extra physical screen
+    # pixel while preserving the original glyph silhouette.
+    for dx, dy in ((-2, 0), (2, 0), (0, -2), (0, 2)):
+        canvas.alpha_composite(fitted, (x + dx, y + dy))
     canvas.alpha_composite(fitted, (x, y))
     return canvas
 

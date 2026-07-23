@@ -17,8 +17,14 @@ public partial class SichuanCSharpRuntime : Node
     private readonly SichuanAiFacade _facade = new();
     private readonly SichuanLearningEngine _learningEngine = new();
     private readonly SichuanHellOracleEngine _hellOracle = new();
-    private readonly SichuanHellChallengeEngine _hellChallenge = new();
-    private readonly SichuanHellChallengeReactionEngine _hellChallengeReaction = new();
+    private readonly SichuanHellChallengeEngine _hellChallenge;
+    private readonly SichuanHellChallengeReactionEngine _hellChallengeReaction;
+
+    public SichuanCSharpRuntime()
+    {
+        _hellChallenge = new SichuanHellChallengeEngine(_facade);
+        _hellChallengeReaction = new SichuanHellChallengeReactionEngine(_facade);
+    }
     private sealed class AsyncAiRequest
     {
         public readonly object SyncRoot = new();
@@ -588,7 +594,17 @@ public partial class SichuanCSharpRuntime : Node
             dealInProbability = result.OracleExactDealIn ? 1.0 : 0.0,
             searchUsed = false,
             searchSimulations = 0,
-            currentRoutes = Array.Empty<string>(),
+            currentRoutes = result.Candidates
+                .Where(item => item.TileType == result.Action.TileType && !string.IsNullOrWhiteSpace(item.OldHandRoute))
+                .Select(item => item.OldHandRoute)
+                .Distinct()
+                .ToArray(),
+            routePlan = new
+            {
+                primaryRoute = result.Candidates
+                    .FirstOrDefault(item => item.TileType == result.Action.TileType)?.OldHandRoute ?? "",
+                reasons = result.Reasons
+            },
             strategyProfile = new
             {
                 mode_label = "地狱挑战",
@@ -649,6 +665,10 @@ public partial class SichuanCSharpRuntime : Node
             strategyTag = "hell_challenge",
             strategyMode = "地狱挑战",
             explanationHint = item.Reasons.FirstOrDefault() ?? "",
+            routePlanPrimary = item.OldHandRoute,
+            routePlanScore = item.OldHandScore,
+            expectedNetScore = item.OldHandExpectedNetScore,
+            breaksTriplet = item.OldHandBreaksTriplet,
             exactDealIn = item.ExactDealIn,
             feedsHumanHu = item.FeedsHumanHu,
             feedsHumanPeng = item.FeedsHumanPeng,
@@ -662,6 +682,11 @@ public partial class SichuanCSharpRuntime : Node
             tier = item.Tier,
             tierRank = item.TierRank,
             tierAdjustment = item.TierAdjustment,
+            oldHandScore = item.OldHandScore,
+            oldHandRank = item.OldHandRank,
+            oldHandRoute = item.OldHandRoute,
+            oldHandExpectedNetScore = item.OldHandExpectedNetScore,
+            oldHandBreaksTriplet = item.OldHandBreaksTriplet,
             dealInTargetSeats = item.DealInTargetSeats,
             reasons = item.Reasons
         };

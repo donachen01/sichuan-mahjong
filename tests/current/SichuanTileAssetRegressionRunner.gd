@@ -19,7 +19,7 @@ func _run() -> void:
 			if typeof(result) != TYPE_BOOL or not bool(result):
 				failures.append(str(result))
 	if failures.is_empty():
-		print("SICHUAN TILE ASSET REGRESSION OK: wan digits are black and wan glyphs are bright red")
+		print("SICHUAN TILE ASSET REGRESSION OK: wan digits are black and wan glyphs are deep red")
 		quit(0)
 		return
 	push_error("SICHUAN TILE ASSET REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -48,8 +48,11 @@ func _check_wan_symbol_color(path: String):
 	var bottom_red := float(bottom_stats.get("red", 0.0))
 	var bottom_green := float(bottom_stats.get("green", 0.0))
 	var bottom_blue := float(bottom_stats.get("blue", 0.0))
-	if bottom_red < 0.55 or bottom_red < bottom_green * 4.0 or bottom_red < bottom_blue * 4.0:
-		return "expected bright red wan glyph at %s, bottom avg=(%.3f, %.3f, %.3f)" % [path, bottom_red, bottom_green, bottom_blue]
+	# The commercial target uses a deep cinnabar red rather than the previous
+	# high-luminance pink-red. Saturation and separation from green/blue remain
+	# strict while the minimum red channel tracks the measured phone contrast.
+	if bottom_red < 0.40 or bottom_red < bottom_green * 4.0 or bottom_red < bottom_blue * 4.0:
+		return "expected deep red wan glyph at %s, bottom avg=(%.3f, %.3f, %.3f)" % [path, bottom_red, bottom_green, bottom_blue]
 	var red_center_x := _average_visible_red_x(image, split_y + 1, image.get_height() - 1)
 	var canvas_center_x := float(image.get_width() - 1) * 0.5
 	if absf(red_center_x - canvas_center_x) > 2.0:

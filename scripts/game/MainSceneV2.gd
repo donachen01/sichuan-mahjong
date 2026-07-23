@@ -13,7 +13,9 @@ const CENTER_TURN_INDICATOR_SCENE := preload("res://scenes/ui/table/CenterTurnIn
 const TABLE_DISCARD_LAYER_SCRIPT := preload("res://scripts/ui/table/TableDiscardLayer.gd")
 const TABLE_ACTION_BAR_SCENE := preload("res://scenes/ui/table/TableActionBar.tscn")
 const AI_ASSISTANT_SCENE := preload("res://scenes/ui/AIAssistant.tscn")
+const TABLE_STAGE_3D_SCRIPT := preload("res://scripts/ui/3d/SichuanTableStage3D.gd")
 const SICHUAN_TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
+const SICHUAN_TABLE_METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const SETTLEMENT_OVERLAY_SCENE := preload("res://scenes/ui/table/SettlementOverlay.tscn")
 const AUDIO_SFX_DIR := "res://res/audio/sfx"
 const AUDIO_TTS_DIR := "res://res/audio/tts"
@@ -33,7 +35,7 @@ const OPENING_ROLL_TICK := 0.04
 const OPENING_ROLL_TICKS := 10
 const BOARD_TARGET_RATIO := 1065.0 / 772.0
 const TABLE_SCREEN_MARGIN := 6
-const SELF_HAND_BOTTOM_HEIGHT := 190
+const SELF_HAND_BOTTOM_HEIGHT := 232
 const DESIGN_BASE_SIZE := Vector2(2048.0, 1152.0)
 const TOTAL_MAHJONG_TILE_COUNT := 108
 const MAX_PLAYER_HAND_BEFORE_DRAW := 13
@@ -77,6 +79,8 @@ const UI_PREFS_KEY_AI_GLASS_OPACITY := "ai_glass_opacity"
 const UI_PREFS_KEY_AI_GLASS_OPACITY_LEGACY := "ai_glass_opacity_index"
 const UI_PREFS_KEY_AI_DRAWER_POSITION := "ai_drawer_position_normalized"
 const UI_PREFS_KEY_AI_DRAWER_POSITIONED := "ai_drawer_positioned"
+const UI_PREFS_KEY_AI_DRAWER_LAYOUT_VERSION := "ai_drawer_layout_version"
+const AI_DRAWER_LAYOUT_VERSION := 2
 const TILE_VISUAL_BASE_SIZE := Vector2(92.0, 140.0)
 const SETTLEMENT_PANEL_SCREEN_RATIO := Vector2(0.985, 0.965)
 const SETTLEMENT_PANEL_MAX_SIZE := Vector2(4096.0, 4096.0)
@@ -93,6 +97,11 @@ const WOOD_MID := Color("2A2018")
 const WOOD_EDGE := Color("7A522C")
 const GOLD_SOFT := Color("B99655")
 const IVORY_SOFT := Color("F4E9C9")
+const TABLE_BLUE_DEEP := Color("101A2E")
+const TABLE_BLUE_PANEL := Color("172744")
+const TABLE_BLUE_CARD := Color("21385F")
+const TABLE_BLUE_ACTIVE := Color("2E4D7A")
+const TABLE_STEEL_EDGE := Color("5F789D")
 const ACTION_PRIMARY_CENTER := Color("FFF176")
 const ACTION_PRIMARY_EDGE := Color("FF8F00")
 const ACTION_PRIMARY_OUTLINE := Color("FFD54F")
@@ -107,6 +116,12 @@ const ACTION_PRIMARY_SIZE := Vector2(236.0, 236.0)
 const ACTION_SECONDARY_SIZE := Vector2(204.0, 204.0)
 const ACTION_PRIMARY_FONT_SIZE := 172
 const ACTION_SECONDARY_FONT_SIZE := 148
+const UTILITY_CROSS_INPUT_DEDUP_WINDOW_MSEC := 5000
+const ACTION_CROSS_INPUT_DEDUP_WINDOW_MSEC := 5000
+const TABLE_3D_PROJECT_SETTING := "ui/mahjong_3d_enabled"
+const TABLE_3D_CROSS_INPUT_DEDUP_WINDOW_MSEC := 5000
+const EMULATED_MOUSE_EVENT_WINDOW_MSEC := 1200
+const EMULATED_MOUSE_POSITION_TOLERANCE := 28.0
 const AI_PRESET_ORDER := ["intermediate", "bone_ash", "hell"]
 const AI_PRESET_LABELS := {
 	"intermediate": "中级",
@@ -334,6 +349,21 @@ var table_action_bar: Control
 var ai_assistant_drawer: Control
 var settlement_overlay_v2: Control
 var self_hu_tile_host: Control
+var exit_confirmation_dialog: ConfirmationDialog
+var last_utility_input_action := ""
+var last_utility_input_source := ""
+var last_utility_input_msec := -1
+var last_action_input_action := ""
+var last_action_input_source := ""
+var last_action_input_msec := -1
+var pending_emulated_mouse_press := false
+var pending_emulated_mouse_position := Vector2.ZERO
+var pending_emulated_mouse_msec := -1
+var table_stage_3d: SichuanTableStage3D
+var table_3d_enabled := true
+var last_table_3d_tile_id := -1
+var last_table_3d_input_source := ""
+var last_table_3d_input_msec := -1
 
 const SELF_ROW_MAX_SLOTS := 18
 const SELF_SLOT_STEP := 136.0
@@ -366,11 +396,12 @@ func _ready() -> void:
 	_setup_self_hu_tile_host()
 	game_manager.set_human_trainer_hint_enabled(ai_helper_enabled)
 	_apply_style()
+	_setup_3d_table_stage()
 	_mount_self_won_stamp_overlay()
 	_configure_board_lanes()
 	_bind_board_square_layout()
 	ding_que_overlay.top_level = true
-	ding_que_overlay.z_index = 260
+	ding_que_overlay.z_index = 420
 	ding_que_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	ding_que_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var ding_que_center := ding_que_overlay.get_node_or_null("DingQueCenter") as Control
@@ -403,16 +434,42 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		var touch_event := event as InputEventScreenTouch
 		if touch_event.pressed:
-			if _handle_table_utility_click(touch_event.position):
+			if ding_que_overlay != null and ding_que_overlay.visible:
+				_handle_ding_que_overlay_click(touch_event.position)
+				_arm_emulated_mouse_suppression(touch_event.position)
 				get_viewport().set_input_as_handled()
 				return
-			if _handle_table_action_click(touch_event.position):
+			if _handle_table_utility_click(touch_event.position, "touch"):
+				_arm_emulated_mouse_suppression(touch_event.position)
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_table_action_click(touch_event.position, "touch"):
+				_arm_emulated_mouse_suppression(touch_event.position)
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_left_floating_toggle_click(touch_event.position):
+				_arm_emulated_mouse_suppression(touch_event.position)
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_left_floating_action_click(touch_event.position):
+				_arm_emulated_mouse_suppression(touch_event.position)
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_3d_table_tile_click(touch_event.position, "touch"):
+				_arm_emulated_mouse_suppression(touch_event.position)
 				get_viewport().set_input_as_handled()
 				return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
-			if _handle_table_utility_click(mouse_event.position):
+			if _consume_emulated_mouse_press(mouse_event.position):
+				get_viewport().set_input_as_handled()
+				return
+			if ding_que_overlay != null and ding_que_overlay.visible:
+				_handle_ding_que_overlay_click(mouse_event.position)
+				get_viewport().set_input_as_handled()
+				return
+			if _handle_table_utility_click(mouse_event.position, "mouse"):
 				get_viewport().set_input_as_handled()
 				return
 			# Keep the decision buttons operable even when one of the full-table
@@ -420,10 +477,7 @@ func _input(event: InputEvent) -> void:
 			# already uses this explicit dispatch pattern for other floating UI.
 			# Marking the event handled also prevents the Button signal from firing
 			# the same claim twice.
-			if _handle_table_action_click(mouse_event.position):
-				get_viewport().set_input_as_handled()
-				return
-			if _handle_ding_que_overlay_click(mouse_event.position):
+			if _handle_table_action_click(mouse_event.position, "mouse"):
 				get_viewport().set_input_as_handled()
 				return
 			if _handle_left_floating_toggle_click(mouse_event.position):
@@ -438,6 +492,9 @@ func _input(event: InputEvent) -> void:
 			if _handle_ai_tuning_drag_press(mouse_event.position):
 				get_viewport().set_input_as_handled()
 				return
+			if _handle_3d_table_tile_click(mouse_event.position, "mouse"):
+				get_viewport().set_input_as_handled()
+				return
 		elif mouse_event.button_index == MOUSE_BUTTON_LEFT and not mouse_event.pressed:
 			ai_tuning_dragging = false
 	if not ai_tuning_dragging or ai_tuning_panel == null:
@@ -447,10 +504,62 @@ func _input(event: InputEvent) -> void:
 		_clamp_ai_tuning_panel_position()
 
 
-func _handle_table_utility_click(global_pos: Vector2) -> bool:
+func _arm_emulated_mouse_suppression(global_pos: Vector2) -> void:
+	pending_emulated_mouse_press = true
+	pending_emulated_mouse_position = global_pos
+	pending_emulated_mouse_msec = Time.get_ticks_msec()
+
+
+func _consume_emulated_mouse_press(global_pos: Vector2) -> bool:
+	if not pending_emulated_mouse_press:
+		return false
+	var elapsed_msec := Time.get_ticks_msec() - pending_emulated_mouse_msec
+	var is_same_physical_press := (
+		elapsed_msec >= 0
+		and elapsed_msec <= EMULATED_MOUSE_EVENT_WINDOW_MSEC
+		and pending_emulated_mouse_position.distance_to(global_pos) <= EMULATED_MOUSE_POSITION_TOLERANCE
+	)
+	pending_emulated_mouse_press = false
+	return is_same_physical_press
+
+
+func _handle_3d_table_tile_click(global_pos: Vector2, input_source: String) -> bool:
+	if not table_3d_enabled or table_stage_3d == null or not is_instance_valid(table_stage_3d):
+		return false
+	var tile_id := int(table_stage_3d.call("find_tile_at_screen", global_pos))
+	if tile_id < 0:
+		return false
+	var now_msec := Time.get_ticks_msec()
+	if input_source == "mouse":
+		var is_emulated_mouse := (
+			last_table_3d_tile_id == tile_id
+			and last_table_3d_input_source == "touch"
+			and now_msec - last_table_3d_input_msec >= 0
+			and now_msec - last_table_3d_input_msec <= TABLE_3D_CROSS_INPUT_DEDUP_WINDOW_MSEC
+		)
+		if is_emulated_mouse:
+			last_table_3d_input_source = "mouse_consumed"
+			last_table_3d_input_msec = now_msec
+			return true
+	last_table_3d_tile_id = tile_id
+	last_table_3d_input_source = input_source
+	last_table_3d_input_msec = now_msec
+	_on_hand_tile_pressed(tile_id)
+	return true
+
+
+func _handle_table_utility_click(global_pos: Vector2, input_source: String = "direct") -> bool:
 	if table_utility_bar == null or not is_instance_valid(table_utility_bar) or not table_utility_bar.visible:
 		return false
-	for action in ["ai", "settings", "opponent_hands", "settlement", "next_round", "exit"]:
+	# Snapshot a normalized layout before hit-testing. Several utility actions
+	# synchronously refresh the game snapshot and relayout this drawer; without
+	# normalization, the emulated half of an iOS tap can see transient overlapping
+	# rectangles and dispatch to the adjacent row.
+	table_utility_bar.call("_layout_buttons")
+	var matched_action := ""
+	var matched_button: Button
+	var matched_distance := INF
+	for action in ["toggle", "ai", "settings", "opponent_hands", "settlement", "next_round", "exit"]:
 		var button: Button = table_utility_bar.call("get_button", action)
 		if button == null or not is_instance_valid(button):
 			continue
@@ -458,12 +567,46 @@ func _handle_table_utility_click(global_pos: Vector2) -> bool:
 			continue
 		var rect := button.get_global_rect()
 		if rect.size.x > 1.0 and rect.size.y > 1.0 and rect.has_point(global_pos):
-			button.emit_signal("pressed")
+			var distance := rect.get_center().distance_squared_to(global_pos)
+			if distance < matched_distance:
+				matched_distance = distance
+				matched_action = action
+				matched_button = button
+	if matched_button == null:
+		return false
+	if _is_duplicate_utility_cross_input(matched_action, input_source):
+		# iOS emits a touch event and then an emulated mouse event for the same
+		# physical tap. Consume the second event without executing the action.
+		return true
+	matched_button.emit_signal("pressed")
+	return true
+
+
+func _is_duplicate_utility_cross_input(action: String, input_source: String) -> bool:
+	if input_source not in ["touch", "mouse"]:
+		return false
+	var now_msec := Time.get_ticks_msec()
+	if input_source == "mouse":
+		var elapsed_msec := now_msec - last_utility_input_msec
+		var is_emulated_mouse := (
+			last_utility_input_action == action
+			and last_utility_input_source == "touch"
+			and elapsed_msec >= 0
+			and elapsed_msec <= UTILITY_CROSS_INPUT_DEDUP_WINDOW_MSEC
+		)
+		if is_emulated_mouse:
+			# Consume exactly one emulated mouse event. Marking the pair as
+			# consumed prevents the next genuine touch from being suppressed.
+			last_utility_input_source = "mouse_consumed"
+			last_utility_input_msec = now_msec
 			return true
+	last_utility_input_action = action
+	last_utility_input_source = input_source
+	last_utility_input_msec = now_msec
 	return false
 
 
-func _handle_table_action_click(global_pos: Vector2) -> bool:
+func _handle_table_action_click(global_pos: Vector2, input_source: String = "direct") -> bool:
 	if table_action_bar == null or not is_instance_valid(table_action_bar) or not table_action_bar.visible:
 		return false
 	for action in ["hu", "gang", "peng", "pass"]:
@@ -474,10 +617,34 @@ func _handle_table_action_click(global_pos: Vector2) -> bool:
 			continue
 		var rect := button.get_global_rect()
 		if rect.size.x > 1.0 and rect.size.y > 1.0 and rect.has_point(global_pos):
+			if _is_duplicate_action_cross_input(action, input_source):
+				return true
 			# Emit the real Button signal so pressed feedback and the action-bar
 			# dispatch path are identical to a normal GUI hit.
 			button.emit_signal("pressed")
 			return true
+	return false
+
+
+func _is_duplicate_action_cross_input(action: String, input_source: String) -> bool:
+	if input_source not in ["touch", "mouse"]:
+		return false
+	var now_msec := Time.get_ticks_msec()
+	if input_source == "mouse":
+		var elapsed_msec := now_msec - last_action_input_msec
+		var is_emulated_mouse := (
+			last_action_input_action == action
+			and last_action_input_source == "touch"
+			and elapsed_msec >= 0
+			and elapsed_msec <= ACTION_CROSS_INPUT_DEDUP_WINDOW_MSEC
+		)
+		if is_emulated_mouse:
+			last_action_input_source = "mouse_consumed"
+			last_action_input_msec = now_msec
+			return true
+	last_action_input_action = action
+	last_action_input_source = input_source
+	last_action_input_msec = now_msec
 	return false
 
 
@@ -780,7 +947,10 @@ func _setup_v17_plus_menu() -> void:
 	floating_right_buttons_collapsed = true
 	_setup_left_floating_buttons()
 	if floating_left_button_bar != null:
-		floating_left_button_bar.visible = true
+		# The shared TableUtilityBar now owns the public AI / difficulty / reveal
+		# drawer.  Keep this legacy group instantiated for compatibility with old
+		# diagnostics, but never stack duplicate hit targets over the release UI.
+		floating_left_button_bar.visible = false
 	if floating_right_button_bar != null:
 		floating_right_button_bar.visible = false
 
@@ -903,7 +1073,7 @@ func _v17_board_rect() -> Rect2:
 
 
 func _compact_board_rect() -> Rect2:
-	return _scale_design_rect(304.0, 160.0, 1440.0, 710.0)
+	return SICHUAN_TABLE_METRICS.board_rect(root_ui.size if root_ui != null else DESIGN_BASE_SIZE)
 
 
 func _v17_top_dynamic_rect() -> Rect2:
@@ -931,19 +1101,11 @@ func _v17_self_hand_rect() -> Rect2:
 
 
 func _self_hand_rect() -> Rect2:
-	return _scale_design_rect(20.0, 884.0, 2008.0, 262.0)
+	return SICHUAN_TABLE_METRICS.self_hand_rect(root_ui.size if root_ui != null else DESIGN_BASE_SIZE)
 
 
 func _opponent_host_rect(seat: int) -> Rect2:
-	match seat:
-		1:
-			return _scale_design_rect(126.0, 160.0, 390.0, 700.0)
-		2:
-			return _scale_design_rect(330.0, 12.0, 1388.0, 144.0)
-		3:
-			return _scale_design_rect(1532.0, 160.0, 390.0, 700.0)
-		_:
-			return Rect2()
+	return SICHUAN_TABLE_METRICS.opponent_track_rect(seat, root_ui.size if root_ui != null else DESIGN_BASE_SIZE)
 
 
 func _v17_self_hu_rect() -> Rect2:
@@ -951,17 +1113,7 @@ func _v17_self_hu_rect() -> Rect2:
 
 
 func _seat_hud_rect(seat: int) -> Rect2:
-	match seat:
-		0:
-			return _scale_design_rect(20.0, 724.0, 232.0, 112.0)
-		1:
-			return _scale_design_rect(18.0, 250.0, 144.0, 132.0)
-		2:
-			return _scale_design_rect(1748.0, 34.0, 252.0, 96.0)
-		3:
-			return _scale_design_rect(1886.0, 250.0, 144.0, 132.0)
-		_:
-			return Rect2(Vector2.ZERO, Vector2.ZERO)
+	return SICHUAN_TABLE_METRICS.seat_hud_rect(seat, root_ui.size if root_ui != null else DESIGN_BASE_SIZE)
 
 
 func _apply_v17_absolute_layout() -> void:
@@ -1004,6 +1156,71 @@ func _setup_table_discard_layer() -> void:
 	board_square.add_child(table_discard_layer)
 
 
+func _setup_3d_table_stage() -> void:
+	table_3d_enabled = bool(ProjectSettings.get_setting(TABLE_3D_PROJECT_SETTING, true))
+	if not table_3d_enabled:
+		return
+	var game_scene := get_node_or_null("GameScene") as Node2D
+	if game_scene == null:
+		push_warning("[MainSceneV2] GameScene missing; keeping the 2D table fallback.")
+		table_3d_enabled = false
+		return
+	table_stage_3d = TABLE_STAGE_3D_SCRIPT.new() as SichuanTableStage3D
+	table_stage_3d.name = "SichuanTableStage3D"
+	game_scene.add_child(table_stage_3d)
+	table_stage_3d.set_reduced_motion(bool(ProjectSettings.get_setting("accessibility/reduced_motion", false)))
+	if center_turn_indicator != null and root_ui != null and center_turn_indicator.get_parent() != root_ui:
+		center_turn_indicator.reparent(root_ui)
+		center_turn_indicator.top_level = true
+		center_turn_indicator.z_index = 82
+	_apply_3d_presentation_visibility()
+	_layout_3d_center_indicator()
+
+
+func _apply_3d_presentation_visibility() -> void:
+	if not table_3d_enabled:
+		return
+	if background_rect != null:
+		background_rect.visible = false
+	if table_discard_layer != null:
+		table_discard_layer.visible = false
+	for legacy_host in [player_self_host, player_top_host, player_left_host, player_right_host, self_hand_host]:
+		if legacy_host != null:
+			legacy_host.visible = false
+
+
+func _update_3d_table(snapshot: Dictionary) -> void:
+	if not table_3d_enabled or table_stage_3d == null or game_manager == null or game_manager.game_state == null:
+		return
+	var all_hands: Array = []
+	for seat in range(4):
+		all_hands.append(game_manager.game_state.call("get_player_hand_tiles", seat))
+	var trainer_hint: Dictionary = snapshot.get("trainer_hint", {}) if ai_helper_enabled else {}
+	var markers := {
+		"recommended_tile_id": int(trainer_hint.get("recommended_tile_id", -1)),
+		"danger_tile_ids": Array(trainer_hint.get("danger_tile_ids", [])).duplicate(),
+	}
+	table_stage_3d.render_snapshot(snapshot, all_hands, opponent_hands_enabled, selected_tile_id, markers)
+	_apply_3d_presentation_visibility()
+	_layout_3d_center_indicator()
+
+
+func _layout_3d_center_indicator() -> void:
+	if table_stage_3d == null or center_turn_indicator == null or root_ui == null:
+		return
+	var stage_camera := table_stage_3d.get_camera()
+	if stage_camera == null:
+		return
+	var center_world_z := float(TABLE_STAGE_3D_SCRIPT.CENTER_INDICATOR_WORLD_Z)
+	var center_screen := stage_camera.unproject_position(Vector3(0.0, 0.10, center_world_z))
+	var compact := get_viewport_rect().size.y < 820.0
+	center_turn_indicator.call("set_compact", compact)
+	var indicator_size := center_turn_indicator.size
+	if indicator_size.x <= 1.0 or indicator_size.y <= 1.0:
+		indicator_size = center_turn_indicator.custom_minimum_size
+	_place_overlay_box(center_turn_indicator, Vector2.ZERO, center_screen - indicator_size * 0.5, indicator_size)
+
+
 func _setup_center_turn_indicator() -> void:
 	if board_square == null:
 		return
@@ -1021,6 +1238,9 @@ func _layout_table_center_components(board_width: float, board_height: float) ->
 	if table_discard_layer != null:
 		table_discard_layer.call("set_board_rect", board_rect)
 	if center_turn_indicator != null:
+		if table_stage_3d != null:
+			_layout_3d_center_indicator()
+			return
 		var compact := get_viewport_rect().size.y < 820.0
 		center_turn_indicator.call("set_compact", compact)
 		center_turn_indicator.position = (board_rect.size - center_turn_indicator.size) * 0.5
@@ -1333,8 +1553,25 @@ func _layout_ai_assistant_drawer() -> void:
 	var target_x := (root_ui.size.x - desired_size.x) * 0.5
 	var target_y := root_ui.size.y - margins.w - desired_size.y - 224.0
 	if hand_rect.size.y > 1.0:
-		target_x = hand_rect.get_center().x - root_origin.x - desired_size.x * 0.5
-		target_y = hand_rect.position.y - root_origin.y - desired_size.y - 16.0
+		var drawer_expanded := bool(ai_assistant_drawer.call("is_expanded"))
+		# The expanded inspector is wider than the vertical gap between the centre
+		# counter and the player's rack. Dock it to the rack's left edge so the
+		# persistent 余牌/turn state stays unobstructed at every phone aspect.
+		target_x = root_ui.size.x * 0.14 if drawer_expanded else hand_rect.get_center().x - root_origin.x - desired_size.x * 0.5
+		if not drawer_expanded and root_ui.size.y >= 820.0:
+			# Use the rendered tile bounds, not the much taller hand host. The host
+			# starts inside the table and previously placed the rail over the second
+			# discard row even though a clear gap existed above the tile faces.
+			var hand_content_bounds: Rect2 = self_hand_host.call("get_hand_layout_bounds")
+			var tile_top := hand_rect.position.y - root_origin.y + hand_content_bounds.position.y
+			target_y = tile_top - desired_size.y - 10.0
+		else:
+			target_y = hand_rect.position.y - root_origin.y - desired_size.y - 16.0
+		if not drawer_expanded:
+			# Preserve a clean air gap above the actual 3D rack. The fallback hand
+			# host is taller than the rendered tiles on some aspects, so the former
+			# anchor could visually press the compact AI rail into the tile faces.
+			target_y -= 96.0
 	ai_assistant_drawer.call("place_default_position", Vector2(
 		clampf(target_x, margins.x + 8.0, root_ui.size.x - margins.z - desired_size.x - 8.0),
 		clampf(target_y, margins.y + 104.0, root_ui.size.y - margins.w - desired_size.y - 12.0)
@@ -1346,11 +1583,11 @@ func _on_ai_drawer_toggle_requested(_expanded: bool) -> void:
 
 
 func _on_ai_glass_opacity_changed(opacity: float) -> void:
-	ai_glass_opacity = clampf(opacity, 0.40, 0.92)
+	ai_glass_opacity = clampf(opacity, 0.0, 1.0)
 
 
 func _on_ai_glass_opacity_change_finished(opacity: float) -> void:
-	ai_glass_opacity = clampf(opacity, 0.40, 0.92)
+	ai_glass_opacity = clampf(opacity, 0.0, 1.0)
 	_save_ui_preferences()
 
 
@@ -1958,10 +2195,15 @@ func _layout_table_action_bar() -> void:
 		margins = safe_area.call("get_safe_margins")
 	var desired_size := table_action_bar.custom_minimum_size
 	table_action_bar.size = desired_size
-	var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2()
 	var target_y := root_ui.size.y - desired_size.y - margins.w - 220.0
-	if hand_rect.size.y > 1.0:
-		target_y = hand_rect.position.y - desired_size.y - 18.0
+	if table_3d_enabled:
+		# The legacy 2D hand host is deliberately hidden in 3D mode; using its stale
+		# rectangle could place Hu/Cancel behind the real 3D hand on some phones.
+		target_y = root_ui.size.y - desired_size.y - margins.w - maxf(150.0, root_ui.size.y * 0.19)
+	else:
+		var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2()
+		if hand_rect.size.y > 1.0:
+			target_y = hand_rect.position.y - desired_size.y - 18.0
 	table_action_bar.position = Vector2(
 		maxf(margins.x, root_ui.size.x - margins.z - desired_size.x - 46.0),
 		clampf(target_y, margins.y + 82.0, root_ui.size.y - margins.w - desired_size.y)
@@ -2082,6 +2324,7 @@ func _setup_left_floating_buttons() -> void:
 	root_ui.add_child(floating_left_button_bar)
 
 	floating_left_toggle_button = _create_floating_circle_button("➕")
+	floating_left_toggle_button.pressed.connect(_toggle_left_floating_buttons)
 	floating_left_button_bar.add_child(floating_left_toggle_button)
 	floating_preset_button = _create_floating_circle_button("难度")
 	floating_ai_tuning_button = _create_floating_circle_button("调")
@@ -2706,11 +2949,12 @@ func _update_center_area(snapshot: Dictionary, players: Array, self_player: Dict
 			Rect2(Vector2.ZERO, board_square.size)
 		)
 	if center_turn_indicator != null:
+		var interaction_seat := _active_interaction_seat(snapshot)
 		center_turn_indicator.call(
 			"render",
 			int(snapshot.get("wall_count", 0)),
-			int(snapshot.get("current_turn_seat", 0)),
-			"当前：%s" % _seat_name(int(snapshot.get("current_turn_seat", 0)))
+			interaction_seat,
+			_center_interaction_status(snapshot)
 		)
 
 	self_meld_summary.text = _meld_summary_text("本家", _player_by_seat(players, 0))
@@ -2733,11 +2977,12 @@ func _refresh_opening_roll_ui(snapshot: Dictionary) -> void:
 		center_turn_indicator.visible = ding_que_done
 	if ding_que_done:
 		if center_turn_indicator != null:
+			var interaction_seat := _active_interaction_seat(snapshot)
 			center_turn_indicator.call(
 				"render",
 				int(snapshot.get("wall_count", 0)),
-				int(snapshot.get("current_turn_seat", 0)),
-				"当前：%s" % _seat_name(int(snapshot.get("current_turn_seat", 0)))
+				interaction_seat,
+				_center_interaction_status(snapshot)
 			)
 		return
 
@@ -2862,7 +3107,8 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 	self_won_stamp.visible = self_has_won
 	_position_self_won_stamp_overlay()
 	self_info_bar.visible = false
-	self_hand_host.modulate = Color(0.72, 0.72, 0.72, 0.95) if self_has_won else Color.WHITE
+	# 已胡只降低少量活跃度，仍保持暖象牙牌面作为第一视觉层级。
+	self_hand_host.modulate = Color(0.94, 0.92, 0.86, 0.98) if self_has_won else Color.WHITE
 	self_ding_que_label.modulate = self_hand_host.modulate
 	self_score_label.modulate = self_hand_host.modulate
 	if self_dealer_badge != null:
@@ -2881,9 +3127,11 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 	if self_has_won and not self_winning_tile.is_empty():
 		self_winning_tile_id = int(self_winning_tile.get("id", -1))
 		self_winning_source_seat = int(self_player.get("winning_source_seat", -1))
-		display_hand_tiles = display_hand_tiles.filter(func(tile: Dictionary) -> bool:
-			return int(tile.get("id", -1)) != self_winning_tile_id
-		)
+		# 自摸牌是完整手牌的一部分，只有点炮胡才从手牌去重后单独附加来源牌。
+		if self_winning_source_seat != 0:
+			display_hand_tiles = display_hand_tiles.filter(func(tile: Dictionary) -> bool:
+				return int(tile.get("id", -1)) != self_winning_tile_id
+			)
 
 	var self_trainer_markers := {
 		"winning_tile_id": -1,
@@ -2900,8 +3148,12 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 		can_discard,
 		self_trainer_markers
 	)
-	_update_self_hu_tile_display(self_winning_tile, self_winning_source_seat)
+	_update_self_hu_tile_display(
+		self_winning_tile if self_winning_source_seat != 0 else {},
+		self_winning_source_seat
+	)
 	_update_discard_helper_panel(snapshot, trainer_hint, can_discard)
+	_update_3d_table(snapshot)
 
 
 func _update_seat_huds(snapshot: Dictionary) -> void:
@@ -2912,6 +3164,8 @@ func _update_seat_huds(snapshot: Dictionary) -> void:
 	var use_ding_que := bool(snapshot.get("rules", {}).get("use_ding_que_phase", true))
 	var self_player := _player_by_seat(players, 0)
 	var reveal_ding_que := not use_ding_que or not str(self_player.get("ding_que", "")).is_empty()
+	var interaction_seat := _active_interaction_seat(snapshot)
+	var self_interaction_label := "响应" if _has_human_reaction(snapshot) else "操作"
 	for seat in [0, 1, 2, 3]:
 		var seat_hud: Control = seat_huds.get(seat)
 		if seat_hud == null:
@@ -2922,7 +3176,35 @@ func _update_seat_huds(snapshot: Dictionary) -> void:
 		var player := _player_by_seat(players, seat)
 		var player_view := player.duplicate(true)
 		player_view["_is_dealer"] = seat == current_dealer_seat
-		seat_hud.render(player_view, int(snapshot.get("current_turn_seat", -1)), reveal_ding_que)
+		player_view["_interaction_label"] = self_interaction_label if seat == 0 and interaction_seat == 0 and _has_human_action(snapshot) else "出牌"
+		seat_hud.render(player_view, interaction_seat, reveal_ding_que)
+
+
+func _has_human_reaction(snapshot: Dictionary) -> bool:
+	var reaction_options: Dictionary = snapshot.get("human_reaction_options", {})
+	for key in ["can_hu", "can_gang", "can_peng", "can_pass"]:
+		if bool(reaction_options.get(key, false)):
+			return true
+	return false
+
+
+func _has_human_action(snapshot: Dictionary) -> bool:
+	return _has_human_reaction(snapshot) \
+		or bool(snapshot.get("human_can_self_hu", false)) \
+		or bool(snapshot.get("human_can_add_gang", false)) \
+		or bool(snapshot.get("human_can_an_gang", false))
+
+
+func _active_interaction_seat(snapshot: Dictionary) -> int:
+	return 0 if _has_human_action(snapshot) else int(snapshot.get("current_turn_seat", 0))
+
+
+func _center_interaction_status(snapshot: Dictionary) -> String:
+	if _has_human_reaction(snapshot):
+		return "等待本家响应"
+	if _has_human_action(snapshot):
+		return "本家操作中"
+	return "%s出牌中" % _seat_name(int(snapshot.get("current_turn_seat", 0)))
 
 
 func _update_self_hu_tile_display(winning_tile: Dictionary, winning_source_seat: int) -> void:
@@ -3601,7 +3883,9 @@ func _refresh_table_action_bar(snapshot: Dictionary) -> void:
 		gang_label = "暗杠"
 	table_action_bar.call("set_action_label", "gang", gang_label)
 	table_action_bar.call("set_action_label", "peng", "碰")
-	table_action_bar.call("set_action_label", "pass", "过")
+	# 自摸和响应胡的次要选项都是“取消本次胡”，避免 3D
+	# 重构后仍显示语义含糊的“过”。
+	table_action_bar.call("set_action_label", "pass", "取消")
 	var status_text := _build_action_panel_status_text(
 		reaction_options,
 		can_self_hu,
@@ -3684,21 +3968,34 @@ func _refresh_ding_que_panel(snapshot: Dictionary) -> void:
 		return
 	if action_panel != null:
 		action_panel.visible = false
+	# 定缺是唯一的开局模态决策。AI 提示窗即使在上一局被用户开启，
+	# 也不能在圆印后方形成第二个可读/可拖焦点；定缺结束后的下一份
+	# 快照会由 _update_ai_assistant_drawer 按原偏好恢复。
+	if ai_assistant_drawer != null:
+		ai_assistant_drawer.visible = false
 	ding_que_overlay.top_level = true
-	ding_que_overlay.z_index = 260
+	ding_que_overlay.z_index = 420
 	ding_que_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	ding_que_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var ding_que_center := ding_que_overlay.get_node_or_null("DingQueCenter") as Control
 	if ding_que_center != null:
 		ding_que_center.mouse_filter = Control.MOUSE_FILTER_PASS
 	ding_que_overlay.move_to_front()
-	ding_que_status_label.text = "请选择缺门"
-	ding_que_hint_label.text = "选择一门作为本局缺门"
-	ding_que_hint_label.visible = true
+	# 开局只呈现三枚可选花色印章。规则说明已在玩法中建立，不再用标题、
+	# 副标题或外层提示卡重复遮住牌桌。
+	ding_que_status_label.visible = false
+	ding_que_hint_label.visible = false
+	var title_block := ding_que_status_label.get_parent() as Control
+	if title_block != null:
+		title_block.visible = false
 	var options: Array = game_manager.game_state.call("get_human_ding_que_options", 0)
 	ding_que_tiao_button.disabled = not options.has("tiao")
 	ding_que_tong_button.disabled = not options.has("tong")
 	ding_que_wan_button.disabled = not options.has("wan")
+	for button in [ding_que_tiao_button, ding_que_tong_button, ding_que_wan_button]:
+		if not button.disabled:
+			button.call_deferred("grab_focus")
+			break
 
 
 func _apply_self_ding_que_style(suit: String = "") -> void:
@@ -3943,19 +4240,23 @@ func _layout_reference_self_info_bar() -> void:
 
 
 func _apply_ding_que_overlay_style() -> void:
-	ding_que_shade.color = Color(0.015, 0.045, 0.035, 0.34)
+	ding_que_overlay.top_level = true
+	ding_que_overlay.z_index = 420
+	ding_que_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	ding_que_shade.color = Color(0.04, 0.08, 0.16, 0.18)
+	ding_que_panel.custom_minimum_size = Vector2(812, 292)
 
 	var panel_style := StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.025, 0.13, 0.105, 0.98)
-	panel_style.border_color = Color(SICHUAN_TABLE_THEME.BRASS, 0.88)
-	panel_style.set_border_width_all(3)
-	panel_style.corner_radius_top_left = 28
-	panel_style.corner_radius_top_right = 28
-	panel_style.corner_radius_bottom_left = 28
-	panel_style.corner_radius_bottom_right = 28
-	panel_style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
-	panel_style.shadow_size = 20
-	panel_style.shadow_offset = Vector2(0, 10)
+	panel_style.bg_color = Color(0.06, 0.11, 0.20, 0.0)
+	panel_style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	panel_style.set_border_width_all(0)
+	panel_style.corner_radius_top_left = 34
+	panel_style.corner_radius_top_right = 34
+	panel_style.corner_radius_bottom_left = 34
+	panel_style.corner_radius_bottom_right = 34
+	panel_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
+	panel_style.shadow_size = 0
+	panel_style.shadow_offset = Vector2.ZERO
 	panel_style.content_margin_left = 8
 	panel_style.content_margin_right = 8
 	panel_style.content_margin_top = 8
@@ -3963,27 +4264,32 @@ func _apply_ding_que_overlay_style() -> void:
 	ding_que_panel.add_theme_stylebox_override("panel", panel_style)
 
 	var button_card_style := StyleBoxFlat.new()
-	button_card_style.bg_color = Color(0.04, 0.22, 0.17, 0.74)
-	button_card_style.border_color = Color(SICHUAN_TABLE_THEME.BRASS, 0.34)
-	button_card_style.set_border_width_all(2)
+	button_card_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	button_card_style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	button_card_style.set_border_width_all(0)
 	button_card_style.corner_radius_top_left = 24
 	button_card_style.corner_radius_top_right = 24
 	button_card_style.corner_radius_bottom_left = 24
 	button_card_style.corner_radius_bottom_right = 24
-	button_card_style.shadow_color = Color(0.0, 0.0, 0.0, 0.24)
-	button_card_style.shadow_size = 12
-	button_card_style.shadow_offset = Vector2(0, 5)
+	button_card_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
+	button_card_style.shadow_size = 0
+	button_card_style.shadow_offset = Vector2.ZERO
 	ding_que_button_card.add_theme_stylebox_override("panel", button_card_style)
 
-	ding_que_status_label.add_theme_font_size_override("font_size", 34)
+	ding_que_status_label.add_theme_font_size_override("font_size", 44)
 	ding_que_status_label.add_theme_color_override("font_color", IVORY_SOFT)
 	ding_que_status_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.28))
 	ding_que_status_label.add_theme_constant_override("shadow_outline_size", 1)
 
-	ding_que_hint_label.add_theme_font_size_override("font_size", 15)
+	ding_que_hint_label.add_theme_font_size_override("font_size", 22)
 	ding_que_hint_label.add_theme_color_override("font_color", Color(0.86, 0.84, 0.76, 0.90))
 	ding_que_hint_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.18))
 	ding_que_hint_label.add_theme_constant_override("shadow_outline_size", 1)
+	ding_que_status_label.visible = false
+	ding_que_hint_label.visible = false
+	var title_block := ding_que_status_label.get_parent() as Control
+	if title_block != null:
+		title_block.visible = false
 
 	_apply_ding_que_button_style(
 		ding_que_tiao_button,
@@ -4006,37 +4312,35 @@ func _apply_ding_que_overlay_style() -> void:
 
 
 func _apply_ding_que_button_style(button: Button, neon_color: Color, hover_color: Color, base_fill: Color) -> void:
-	button.custom_minimum_size = Vector2(182, 74)
-	button.add_theme_font_size_override("font_size", 25)
+	button.custom_minimum_size = Vector2(230, 230)
+	button.focus_mode = Control.FOCUS_ALL
+	button.add_theme_font_size_override("font_size", 78)
 	button.add_theme_color_override("font_color", Color(0.96, 1.0, 0.98, 1.0))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(0.94, 1.0, 0.98, 1.0))
 	button.add_theme_color_override("font_disabled_color", Color(0.72, 0.72, 0.66, 0.52))
-	button.add_theme_color_override("font_outline_color", Color(0.02, 0.06, 0.05, 0.96))
-	button.add_theme_constant_override("outline_size", 2)
+	button.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.08, 0.98))
+	button.add_theme_constant_override("outline_size", 4)
 
 	var normal := StyleBoxFlat.new()
-	normal.bg_color = base_fill.lerp(neon_color, 0.16)
-	normal.border_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.92)
-	normal.set_border_width_all(3)
-	normal.corner_radius_top_left = 20
-	normal.corner_radius_top_right = 18
-	normal.corner_radius_bottom_left = 18
-	normal.corner_radius_bottom_right = 18
+	normal.bg_color = base_fill.lerp(neon_color, 0.84).lightened(0.04)
+	normal.border_color = Color("F5E6B0")
+	normal.set_border_width_all(7)
+	normal.set_corner_radius_all(115)
 	normal.content_margin_left = 16
 	normal.content_margin_right = 16
 	normal.content_margin_top = 10
 	normal.content_margin_bottom = 10
-	normal.shadow_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.40)
-	normal.shadow_size = 18
-	normal.shadow_offset = Vector2(0, 2)
+	normal.shadow_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.52)
+	normal.shadow_size = 22
+	normal.shadow_offset = Vector2(0, 9)
 	normal.anti_aliasing = true
 	normal.anti_aliasing_size = 1.6
 
 	var hover := normal.duplicate()
-	hover.bg_color = base_fill.lerp(hover_color, 0.34)
-	hover.border_color = Color(hover_color.r, hover_color.g, hover_color.b, 1.0)
-	hover.set_border_width_all(3)
+	hover.bg_color = base_fill.lerp(hover_color, 0.72).lightened(0.08)
+	hover.border_color = Color("FFF4C7")
+	hover.set_border_width_all(8)
 	hover.shadow_color = Color(hover_color.r, hover_color.g, hover_color.b, 0.54)
 	hover.shadow_size = 22
 	hover.shadow_offset = Vector2(0, 2)
@@ -5107,7 +5411,7 @@ func _format_fan_and_basic_score(fan_detail: Dictionary, win_type: String = "") 
 	var basic_score := int(fan_detail.get("per_payer_score", hand_score))
 	if (win_type == "self_draw" or win_type == "gang_self_draw") and not fan_detail.has("per_payer_score"):
 		basic_score += 1
-	var fan_text := "%d番（封顶）" % capped_fan if capped_fan >= 3 else "%d番" % capped_fan
+	var fan_text := "%d番（封顶）" % capped_fan if capped_fan >= 4 else "%d番" % capped_fan
 	if basic_score != hand_score and (win_type == "self_draw" or win_type == "gang_self_draw"):
 		return "%s / %d+自摸1=%d分" % [fan_text, hand_score, basic_score]
 	return "%s / %d分" % [fan_text, basic_score]
@@ -5120,9 +5424,7 @@ func _build_event_factor_text(event: Dictionary, _players: Array) -> String:
 
 
 func _resolve_basic_score_from_fan(capped_fan: int) -> int:
-	if capped_fan <= 0:
-		return 1
-	return int(pow(2.0, capped_fan - 1))
+	return int(pow(2.0, maxi(0, capped_fan)))
 
 
 func _current_players() -> Array:
@@ -5167,7 +5469,7 @@ func _resolve_gang_unit_score(gang_type: String) -> int:
 
 func _apply_settlement_visuals(round_delta: int) -> void:
 	var scale := _settlement_content_scale()
-	settlement_shade.color = Color(0.03, 0.07, 0.05, 0.72)
+	settlement_shade.color = Color(0.025, 0.055, 0.11, 0.76)
 	settlement_panel.add_theme_stylebox_override("panel", _build_settlement_panel_style())
 	settlement_hero_card.add_theme_stylebox_override("panel", _build_settlement_hero_style(round_delta))
 	settlement_breakdown_card.add_theme_stylebox_override("panel", _build_settlement_detail_style())
@@ -5217,20 +5519,20 @@ func _apply_settlement_label_style(label: Control, dark_text: bool = false, larg
 	STYLE_CONFIG.apply_label(label, use_aux, large)
 	if not dark_text:
 		return
-	var font_color := Color(0.95, 0.92, 0.84, 1.0) if not use_aux else Color(0.92, 0.88, 0.78, 1.0)
+	var font_color := Color(0.95, 0.96, 0.99, 1.0) if not use_aux else Color(0.82, 0.87, 0.95, 1.0)
 	if label is Label:
 		var typed := label as Label
 		typed.add_theme_color_override("font_color", font_color)
-		typed.add_theme_color_override("font_outline_color", Color(0.07, 0.11, 0.09, 0.88))
+		typed.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.92))
 	elif label is Button:
 		var button := label as Button
 		button.add_theme_color_override("font_color", font_color)
-		button.add_theme_color_override("font_outline_color", Color(0.07, 0.11, 0.09, 0.88))
+		button.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.92))
 
 
 func _apply_settlement_focus_row_text_style(label: Control, aux: bool = false) -> void:
 	var font_color := Color(1.0, 0.98, 0.93, 1.0) if not aux else Color(0.99, 0.96, 0.90, 1.0)
-	var outline_color := Color(0.14, 0.08, 0.04, 0.96)
+	var outline_color := Color(0.03, 0.07, 0.15, 0.96)
 	if label is Label:
 		var typed := label as Label
 		typed.add_theme_color_override("font_color", font_color)
@@ -5246,8 +5548,8 @@ func _apply_settlement_focus_row_text_style(label: Control, aux: bool = false) -
 func _apply_settlement_breakdown_label_style(label: Label, is_header: bool = false, is_score: bool = false) -> void:
 	var scale := _settlement_content_scale()
 	label.add_theme_font_size_override("font_size", int(round((28 if is_header else 25) * scale)))
-	label.add_theme_color_override("font_color", Color(0.96, 0.93, 0.84, 1.0))
-	label.add_theme_color_override("font_outline_color", Color(0.07, 0.11, 0.09, 0.84))
+	label.add_theme_color_override("font_color", Color(0.94, 0.96, 1.0, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.88))
 	label.add_theme_constant_override("outline_size", 1)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	if is_score:
@@ -5256,7 +5558,7 @@ func _apply_settlement_breakdown_label_style(label: Label, is_header: bool = fal
 
 func _build_settlement_side_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("092923")
+	style.bg_color = TABLE_BLUE_PANEL
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.58)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5271,7 +5573,7 @@ func _build_settlement_side_style() -> StyleBoxFlat:
 
 func _build_settlement_detail_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("061F1B")
+	style.bg_color = TABLE_BLUE_DEEP
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.62)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5286,13 +5588,13 @@ func _build_settlement_detail_style() -> StyleBoxFlat:
 
 func _build_settlement_hand_style() -> StyleBoxFlat:
 	var style := _build_settlement_detail_style()
-	style.bg_color = Color("082B24")
+	style.bg_color = TABLE_BLUE_PANEL
 	return style
 
 
 func _build_settlement_hand_row_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0B3F34") if is_focus else Color(0.027, 0.145, 0.122, 0.94)
+	style.bg_color = TABLE_BLUE_ACTIVE if is_focus else Color(TABLE_BLUE_CARD, 0.94)
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.82) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.34)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 12
@@ -5340,11 +5642,11 @@ func _build_settlement_group_tag_style() -> StyleBoxFlat:
 func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	if is_header:
-		style.bg_color = Color("0B3F34")
+		style.bg_color = TABLE_BLUE_ACTIVE
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.70)
 		style.set_border_width_all(2)
 	else:
-		style.bg_color = Color(0.035, 0.161, 0.137, 0.94) if alternate else Color(0.024, 0.122, 0.102, 0.94)
+		style.bg_color = Color(TABLE_BLUE_CARD.lightened(0.045), 0.96) if alternate else Color(TABLE_BLUE_PANEL, 0.96)
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.16)
 		style.set_border_width_all(1)
 	style.corner_radius_top_left = 10
@@ -5356,7 +5658,7 @@ func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> 
 
 func _build_settlement_hero_style(round_delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0B3F34") if round_delta >= 0 else Color("092923")
+	style.bg_color = TABLE_BLUE_ACTIVE if round_delta >= 0 else TABLE_BLUE_PANEL
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.90)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 24
@@ -5371,9 +5673,9 @@ func _build_settlement_hero_style(round_delta: int) -> StyleBoxFlat:
 
 func _build_settlement_list_row_style(is_focus: bool, delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0B3F34") if is_focus else Color(0.024, 0.122, 0.102, 0.94)
+	style.bg_color = TABLE_BLUE_ACTIVE if is_focus else Color(TABLE_BLUE_PANEL, 0.94)
 	if delta < 0 and not is_focus:
-		style.bg_color = Color(0.075, 0.105, 0.091, 0.94)
+		style.bg_color = Color("202A43")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.92) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.30)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 14
@@ -5392,7 +5694,7 @@ func _build_settlement_list_row_hover_style(is_focus: bool, delta: int) -> Style
 
 func _build_settlement_avatar_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("3B2B1B") if is_focus else Color("211A14")
+	style.bg_color = Color("334F78") if is_focus else Color("1D2D49")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.86)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 14
@@ -5442,8 +5744,8 @@ func _build_settlement_hero_badge_style() -> StyleBoxFlat:
 
 func _build_settlement_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("031815")
-	style.border_color = Color(WOOD_EDGE.r, WOOD_EDGE.g, WOOD_EDGE.b, 0.98)
+	style.bg_color = TABLE_BLUE_DEEP
+	style.border_color = Color(TABLE_STEEL_EDGE, 0.98)
 	style.set_border_width_all(4)
 	style.corner_radius_top_left = 32
 	style.corner_radius_top_right = 32
@@ -5457,7 +5759,7 @@ func _build_settlement_panel_style() -> StyleBoxFlat:
 
 func _build_settlement_utility_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("092923")
+	style.bg_color = TABLE_BLUE_PANEL
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.74)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 18
@@ -5490,7 +5792,7 @@ func _build_settlement_utility_button_pressed_style() -> StyleBoxFlat:
 
 func _build_settlement_primary_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0D5A3E")
+	style.bg_color = Color("315F86")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.96)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 20
@@ -6761,7 +7063,9 @@ func _on_top_ai_helper_button_pressed() -> void:
 	if ai_assistant_drawer != null:
 		ai_assistant_drawer.visible = ai_helper_enabled
 		if ai_helper_enabled:
-			ai_assistant_drawer.call("set_expanded", true)
+			# Default to the one-line decision rail that fits between the table and
+			# the hand. Detailed reasons remain one explicit tap away.
+			ai_assistant_drawer.call("set_expanded", false)
 	game_manager.set_human_trainer_hint_enabled(ai_helper_enabled)
 	_save_ui_preferences()
 	if not ai_helper_enabled and discard_helper_panel != null:
@@ -6852,6 +7156,31 @@ func _build_diagnostic_export_message(result: Dictionary) -> String:
 
 
 func _on_top_exit_pressed() -> void:
+	if exit_confirmation_dialog == null or not is_instance_valid(exit_confirmation_dialog):
+		exit_confirmation_dialog = ConfirmationDialog.new()
+		exit_confirmation_dialog.name = "ExitGameConfirmation"
+		exit_confirmation_dialog.title = "退出游戏"
+		exit_confirmation_dialog.dialog_text = "确定退出四川麻将吗？\n当前这一局将不会继续。"
+		exit_confirmation_dialog.exclusive = true
+		exit_confirmation_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+		root_ui.add_child(exit_confirmation_dialog)
+		exit_confirmation_dialog.get_ok_button().text = "退出游戏"
+		exit_confirmation_dialog.get_cancel_button().text = "继续游戏"
+		STYLE_CONFIG.apply_button(exit_confirmation_dialog.get_ok_button(), true)
+		STYLE_CONFIG.apply_button(exit_confirmation_dialog.get_cancel_button(), false)
+		exit_confirmation_dialog.confirmed.connect(_confirm_exit_game)
+	exit_confirmation_dialog.popup_centered(Vector2(620.0, 280.0))
+
+
+func _confirm_exit_game() -> void:
+	_save_ui_preferences()
+	await get_tree().process_frame
+	if OS.has_feature("ios"):
+		# SceneTree.quit() 在 iOS 上会被平台生命周期忽略。Godot 4.6 的
+		# OS.kill() 明确实现了 iOS 后端，用自身 PID 结束本应用，保证用户
+		# 已确认的“退出游戏”动作真正生效。
+		OS.kill(OS.get_process_id())
+		return
 	get_tree().quit()
 
 
@@ -6863,7 +7192,7 @@ func _load_ui_preferences() -> void:
 	ai_helper_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_HELPER, false))
 	opponent_hands_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_OPPONENT_HANDS, false))
 	if config.has_section_key(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY):
-		ai_glass_opacity = clampf(float(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, 0.70)), 0.40, 0.92)
+		ai_glass_opacity = clampf(float(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, 0.70)), 0.0, 1.0)
 	else:
 		var legacy_index := clampi(int(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY_LEGACY, 1)), 0, 2)
 		ai_glass_opacity = [0.48, 0.70, 0.90][legacy_index]
@@ -6873,7 +7202,9 @@ func _load_ui_preferences() -> void:
 			clampf((stored_position as Vector2).x, 0.0, 1.0),
 			clampf((stored_position as Vector2).y, 0.0, 1.0)
 		)
-	ai_drawer_positioned = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, false))
+	var stored_drawer_layout_version := int(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_LAYOUT_VERSION, 0))
+	ai_drawer_positioned = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, false)) \
+		and stored_drawer_layout_version >= AI_DRAWER_LAYOUT_VERSION
 
 
 func _save_ui_preferences() -> void:
@@ -6883,6 +7214,7 @@ func _save_ui_preferences() -> void:
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, ai_glass_opacity)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITION, ai_drawer_position_normalized)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, ai_drawer_positioned)
+	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_LAYOUT_VERSION, AI_DRAWER_LAYOUT_VERSION)
 	config.save(UI_PREFS_PATH)
 
 

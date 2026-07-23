@@ -12,6 +12,16 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_bar")
 
+[node name="ToggleButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 100.0
+offset_bottom = 94.0
+text = "☰"
+tooltip_text = "展开左上角牌桌工具；难度：骨灰；明牌：关；AI提示：关"
+
 [node name="AIButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
@@ -66,5 +76,5 @@ offset_left = 1772.0
 offset_top = 18.0
 offset_right = 1848.0
 offset_bottom = 94.0
-text = "×"
-tooltip_text = "退出牌局"
+text = "退出游戏"
+tooltip_text = "确认后退出四川麻将"

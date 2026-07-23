@@ -41,21 +41,30 @@ public sealed class SichuanFanProjectionEngine
         var isQing = suits.Length == 1;
         var isDaDuiZi = decompositions.Any(item => !item.IsSevenPairs && item.Groups.All(group => group.Type != SichuanGroupType.Sequence));
         var isJinGouDiao = melds.Count == 4 && hand.Sum() == 2;
-        var genCount = allTiles.Sum(count => count / 4);
-        var isDragonSevenPairs = isSevenPairs && genCount > 0;
+        var concealedQuadCount = hand.Sum(count => count / 4);
+        var isDragonSevenPairs = isSevenPairs && concealedQuadCount > 0;
+        var genCount = Math.Max(0, concealedQuadCount - (isDragonSevenPairs ? 1 : 0));
+        var isJiangDui = isDaDuiZi && Enumerable.Range(0, 27)
+            .Where(tile => allTiles[tile] > 0)
+            .All(tile => tile % 9 is 1 or 4 or 7);
+        var isShiBaLuoHan = melds.Count == 4 && melds.All(item => item.Type != SichuanMeldType.Peng);
 
-        var handType = isQing ? "qing_yi_se" : isSevenPairs ? "qi_dui" : isDaDuiZi ? "da_dui_zi" : "ping_hu";
-        var baseFan = handType switch { "qing_yi_se" => 4, "qi_dui" => 4, "da_dui_zi" => 2, _ => 1 };
-        var multiplier = 1;
-        if (winType is SichuanWinType.GangSelfDraw or SichuanWinType.GangDiscard or SichuanWinType.RobAddedGang) multiplier *= 2;
-        if (isJinGouDiao) multiplier *= 2;
-        multiplier *= 1 << Math.Min(genCount, 20);
-        var uncapped = baseFan * multiplier;
+        var (handType, baseFan) = ResolveBaseHand(
+            isQing,
+            isSevenPairs,
+            isDragonSevenPairs,
+            isDaDuiZi,
+            isJinGouDiao,
+            isJiangDui,
+            isShiBaLuoHan);
+        var bonusFan = genCount;
+        if (winType is SichuanWinType.GangSelfDraw or SichuanWinType.GangDiscard or SichuanWinType.RobAddedGang)
+            bonusFan++;
+        var uncapped = baseFan + bonusFan;
         var capped = rules.FanCap <= 0 ? uncapped : Math.Min(uncapped, rules.FanCap);
-        var handScore = capped <= 0 ? rules.BaseScore : rules.BaseScore * (1 << Math.Max(0, capped - 1));
+        var handScore = rules.BaseScore * (1 << Math.Max(0, capped));
         var selfDraw = winType is SichuanWinType.SelfDraw or SichuanWinType.GangSelfDraw;
-        var labels = new List<string> { handType switch { "qing_yi_se" => "清一色", "qi_dui" => "暗七对", "da_dui_zi" => "大对子", _ => "平胡" } };
-        if (isJinGouDiao) labels.Add("金钩钓");
+        var labels = new List<string> { HandTypeLabel(handType) };
         for (var i = 0; i < genCount; i++) labels.Add("带根");
         if (winType == SichuanWinType.GangSelfDraw) labels.Add("杠上花");
         if (winType == SichuanWinType.GangDiscard) labels.Add("杠上炮");
@@ -66,6 +75,8 @@ public sealed class SichuanFanProjectionEngine
         if (isSevenPairs) qualifyingPatterns.Add(isDragonSevenPairs ? "long_qi_dui" : "qi_dui");
         if (isDaDuiZi) qualifyingPatterns.Add("da_dui_zi");
         if (isJinGouDiao) qualifyingPatterns.Add("jin_gou_diao");
+        if (isJiangDui) qualifyingPatterns.Add("jiang_dui");
+        if (isShiBaLuoHan) qualifyingPatterns.Add("shi_ba_luo_han");
         if (genCount > 0) qualifyingPatterns.Add("dai_gen");
         return new SichuanFanProjection(
             handType,
@@ -86,4 +97,41 @@ public sealed class SichuanFanProjectionEngine
 
     private static int[] Normalize(IReadOnlyList<int> source)
         => Enumerable.Range(0, 27).Select(index => index < source.Count ? Math.Clamp(source[index], 0, 4) : 0).ToArray();
+
+    private static (string HandType, int BaseFan) ResolveBaseHand(
+        bool isQing,
+        bool isSevenPairs,
+        bool isDragonSevenPairs,
+        bool isDaDuiZi,
+        bool isJinGouDiao,
+        bool isJiangDui,
+        bool isShiBaLuoHan)
+    {
+        if (isShiBaLuoHan) return ("shi_ba_luo_han", 4);
+        if (isQing && isSevenPairs) return ("qing_qi_dui", 4);
+        if (isQing && isJinGouDiao) return ("qing_jin_gou_diao", 4);
+        if (isJiangDui) return ("jiang_dui", 3);
+        if (isQing && isDaDuiZi) return ("qing_dui", 3);
+        if (isDragonSevenPairs) return ("long_qi_dui", 3);
+        if (isQing) return ("qing_yi_se", 2);
+        if (isSevenPairs) return ("qi_dui", 2);
+        if (isJinGouDiao) return ("jin_gou_diao", 2);
+        if (isDaDuiZi) return ("da_dui_zi", 1);
+        return ("ping_hu", 0);
+    }
+
+    private static string HandTypeLabel(string handType) => handType switch
+    {
+        "shi_ba_luo_han" => "十八罗汉",
+        "qing_qi_dui" => "清七对",
+        "qing_jin_gou_diao" => "清金钩钓",
+        "jiang_dui" => "将对",
+        "qing_dui" => "清对",
+        "long_qi_dui" => "龙七对",
+        "qing_yi_se" => "清一色",
+        "qi_dui" => "小七对",
+        "jin_gou_diao" => "金钩钓",
+        "da_dui_zi" => "大对子",
+        _ => "平胡"
+    };
 }

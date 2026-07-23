@@ -37,24 +37,32 @@ func _run() -> void:
 
 func _verify_brand_language_contract(failures: Array[String]) -> void:
 	var contract: Dictionary = TABLE_THEME.brand_contract()
-	if str(contract.get("name", "")) != "蜀锦玉案":
-		failures.append("牌桌主题必须使用蜀锦玉案品牌语言")
+	if str(contract.get("name", "")) != "锦夏蓝庭":
+		failures.append("牌桌主题必须使用锦夏蓝庭参考蓝桌品牌语言")
+	if str(contract.get("direction", "")) != "bright_summer_blue_mobile_mahjong":
+		failures.append("牌桌主题方向必须锁定明亮夏季蓝色移动麻将")
 	if str(contract.get("shape_motif", "")) != "shu_courtyard_cut_corner":
 		failures.append("核心轮廓必须使用蜀院切角母题")
 	var materials: Array = contract.get("materials", [])
 	for material in ["ink_jade_felt", "ebony_lacquer", "warm_ceramic_and_jade"]:
 		if not materials.has(material):
 			failures.append("蜀锦玉案材质合同缺少 %s" % material)
+	var hierarchy: Array = contract.get("visual_hierarchy", [])
+	var expected_hierarchy := ["tiles", "actions_and_key_text", "player_panels", "brocade_frame_ornament"]
+	if hierarchy != expected_hierarchy:
+		failures.append("视觉权重必须依次为牌、动作、玩家面板、暗纹装饰")
+	if str(contract.get("background_role", "")) != "atmosphere_only":
+		failures.append("桌面背景只能承担氛围，不得与牌面竞争")
 
 
 func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 	var expected_colors := {
-		"ink_jade": Color("052820"),
-		"malachite": Color("0B3F34"),
-		"ebony": Color("031815"),
-		"aged_copper": Color("A8793A"),
-		"copper_highlight": Color("C59A58"),
-		"ivory": Color("F4E9C9"),
+		"ink_jade": Color("293C64"),
+		"malachite": Color("4F70A3"),
+		"ebony": Color("182238"),
+		"aged_copper": Color("B98B49"),
+		"copper_highlight": Color("E0BA70"),
+		"ivory": Color("E9E8EB"),
 	}
 	var actual_colors := {
 		"ink_jade": TABLE_THEME.INK_JADE_DEEP,
@@ -68,7 +76,7 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 		var expected: Color = expected_colors[color_name]
 		var actual: Color = actual_colors[color_name]
 		if not actual.is_equal_approx(expected):
-			failures.append("会所主题色 %s 偏离指定色值" % color_name)
+			failures.append("参考蓝桌主题色 %s 偏离指定色值" % color_name)
 
 	var overlay := MATERIAL_OVERLAY.new() as Control
 	overlay.size = Vector2(2048.0, 1152.0)
@@ -87,13 +95,41 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 				failures.append("ClubFeltShader 使用了错误的 shader: %s" % shader_path)
 			var brocade_opacity := float(shader_material.get_shader_parameter("brocade_opacity"))
 			if brocade_opacity < 0.04 or brocade_opacity > 0.10:
-				failures.append("蜀锦暗纹透明度必须保持在 4%-10%，当前 %.3f" % brocade_opacity)
+				failures.append("蜀锦暗纹必须保持在不抢牌面的 4%-10%，当前 %.3f" % brocade_opacity)
+			var light_strength := float(shader_material.get_shader_parameter("light_strength"))
+			if light_strength < 0.18 or light_strength > 0.25:
+				failures.append("左上暖光强度必须达到可辨识的 18%-25%，当前 %.3f" % light_strength)
+			var ambient_fill := float(shader_material.get_shader_parameter("ambient_fill_strength"))
+			if ambient_fill < 0.05 or ambient_fill > 0.10:
+				failures.append("环境中性补光必须保持在克制的 5%-10%，当前 %.3f" % ambient_fill)
+			var brocade_relief := float(shader_material.get_shader_parameter("brocade_relief"))
+			if brocade_relief < 0.50 or brocade_relief > 0.75:
+				failures.append("蜀锦压纹层次必须保持在 50%-75%，当前 %.3f" % brocade_relief)
 			var shader_source := FileAccess.get_file_as_string("res://shaders/table_club_felt.gdshader")
 			for motif_name in ["huiwen_motif", "yunlei_motif", "diamond_brocade", "scroll_grass_motif", "intertwined_branch_motif"]:
 				if not shader_source.contains(motif_name):
 					failures.append("蜀锦暗纹缺少程序化纹样 %s" % motif_name)
-			if shader_source.contains("centered_spotlight"):
-				failures.append("牌桌不得恢复中央大圆形亮斑")
+			for forbidden_source in ["centered_spotlight", "shu_medallion_motif", "off_canvas_source"]:
+				if shader_source.contains(forbidden_source):
+					failures.append("牌桌不得包含大团花或径向圆形亮斑实现 %s" % forbidden_source)
+	if not overlay.has_method("get_material_contract"):
+		failures.append("牌桌材质层必须暴露蜀锦与环境灯光合同")
+	else:
+		var overlay_contract: Dictionary = overlay.call("get_material_contract")
+		var base_palette: Array = overlay_contract.get("base_palette", [])
+		for color_hex in ["052820", "062c28", "06382c", "0b3f34", "123f35"]:
+			if not base_palette.has(color_hex):
+				failures.append("墨玉桌面基础色缺少 #%s" % color_hex)
+		var lighting_layers: Array = overlay_contract.get("lighting_layers", [])
+		for layer_name in ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"]:
+			if not lighting_layers.has(layer_name):
+				failures.append("环境灯光合同缺少 %s" % layer_name)
+		if str(overlay_contract.get("motif_scale", "")) != "micro_repeat_only":
+			failures.append("蜀锦桌面只能使用小尺度重复暗纹")
+		if str(overlay_contract.get("large_motif", "")) != "none":
+			failures.append("蜀锦桌面不得包含大尺度团花")
+		if bool(overlay_contract.get("circular_hotspot", true)):
+			failures.append("牌桌光照合同必须明确禁止圆形亮斑")
 	overlay.free()
 
 
@@ -102,6 +138,8 @@ func _verify_tile_material_contract(failures: Array[String]) -> void:
 		failures.append("麻将牌面必须使用暖玉白 #FFF4D8")
 	if not TILE_STYLE.FACE_BOTTOM.is_equal_approx(Color("F2E4BD")):
 		failures.append("麻将牌底色必须使用 #F2E4BD")
+	if TILE_STYLE.FACE_TOP.is_equal_approx(Color.WHITE):
+		failures.append("麻将牌不得使用纯白色")
 	if not TILE_STYLE.BACK_TOP.is_equal_approx(Color("16704F")) or not TILE_STYLE.BACK_BOTTOM.is_equal_approx(Color("0A4A3D")):
 		failures.append("麻将牌背必须使用指定深玉绿渐变")
 	var style := TILE_STYLE.new()
@@ -109,7 +147,7 @@ func _verify_tile_material_contract(failures: Array[String]) -> void:
 		failures.append("shared tile style must expose a material contract")
 	else:
 		var material: Dictionary = style.call("material_contract")
-		for key in ["light_source", "face_highlight", "face_warmth", "side_mid", "bottom_deep", "contact_shadow", "back_finish", "depth_ratio"]:
+		for key in ["light_source", "face_highlight", "face_warmth", "side_mid", "bottom_deep", "contact_shadow", "face_palette", "back_palette", "back_finish", "depth_ratio"]:
 			if not material.has(key):
 				failures.append("tile material contract missing %s" % key)
 		if str(material.get("back_finish", "")) != "matte_malachite_brocade":
@@ -121,7 +159,27 @@ func _verify_tile_material_contract(failures: Array[String]) -> void:
 	for key in ["bevel_top_rect", "bevel_left_rect", "face_inner_rect", "body_depth"]:
 		if not contract.has(key):
 			failures.append("shared tile depth contract missing %s" % key)
+	tile.call("configure", _tile(2, 5), 1.0, false, false, false, true)
+	if not tile.has_method("get_feedback_contract"):
+		failures.append("public tile must expose latest-discard feedback contract")
+	else:
+		var feedback: Dictionary = tile.call("get_feedback_contract")
+		if not bool(feedback.get("latest_uses_shape", false)) or not bool(feedback.get("latest_uses_color", false)):
+			failures.append("latest discard must use both a persistent shape and color")
+		if float(feedback.get("pulse_scale", 0.0)) > 0.025:
+			failures.append("latest-discard pulse must remain subtle")
 	tile.free()
+	var selection_canvas := HAND_CANVAS.new()
+	var selection_contract: Dictionary = selection_canvas.call("get_selection_feedback_contract")
+	if float(selection_contract.get("lift", 0.0)) < 16.0:
+		failures.append("selected self tile needs a clearly readable lift")
+	if str(selection_contract.get("ground_shadow", "")) != "stays_on_rack_when_tile_lifts":
+		failures.append("selected tile shadow must remain grounded on the rack")
+	if not bool(selection_contract.get("states_are_visually_distinct", false)):
+		failures.append("选中、刚摸、危险和 AI 推荐牌必须使用互不混淆的状态语言")
+	if str(selection_contract.get("new_draw", "")) != "jade_corner_notch_and_physical_gap":
+		failures.append("刚摸牌不得继续复用红色选中态")
+	selection_canvas.free()
 
 
 func _verify_self_hand_clearance(failures: Array[String]) -> void:
@@ -189,14 +247,19 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("action bar must expose tactile tile-button visual contract")
 	else:
 		var action_contract: Dictionary = action_bar.call("get_visual_contract")
-		if str(action_contract.get("primary_shape", "")) != "shu_cut_corner_tile":
-			failures.append("action bar primary controls must use Shu cut-corner tile geometry")
+		if str(action_contract.get("primary_shape", "")) != "round_jade_seal":
+			failures.append("action bar primary controls must use large round jade-seal geometry")
 		if str(action_contract.get("pass_hierarchy", "")) != "secondary":
 			failures.append("pass must remain visually secondary")
-		if str(action_contract.get("context_surface", "")) != "decision_tile_group":
-			failures.append("action bar must present reactions as a contextual decision tile group")
+		if str(action_contract.get("context_surface", "")) != "floating_decision_seals":
+			failures.append("action bar must present reactions as separate floating decision seals")
 		if str(action_contract.get("auxiliary_text", "")) != "hidden":
 			failures.append("右下角碰杠胡操作区只能显示边框和按钮，不得显示提示文字")
+		if str(action_contract.get("motion_language", "")) != "short_scale_and_light_response":
+			failures.append("动作按钮必须使用短促缩放与受光反馈")
+	var motion_contract: Dictionary = action_bar.call("get_motion_contract")
+	if float(motion_contract.get("entrance_duration", 1.0)) > 0.20 or float(motion_contract.get("press_duration", 1.0)) > 0.20:
+		failures.append("动作按钮动画必须控制在 200ms 内")
 	action_bar.free()
 
 

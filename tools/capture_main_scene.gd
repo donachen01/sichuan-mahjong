@@ -35,10 +35,25 @@ func _capture() -> void:
 	await process_frame
 	await process_frame
 	_force_tabletop_polish_preview(root_node)
+	_force_3d_full_table_preview(root_node)
 	_force_self_hand_preview(root_node)
 	_force_table_overlays_hidden(root_node)
 	if _capture_mode() == "settlement":
 		_force_settlement_preview(root_node)
+	elif _capture_mode() == "ding-que":
+		_force_ding_que_preview(root_node)
+	elif _capture_mode() in ["won", "self-draw", "ai-discard-win", "max-meld", "right-meld", "discard-pressure"]:
+		_force_clean_table_preview(root_node)
+	elif _capture_mode() in ["response-hu", "self-hu"]:
+		_force_clean_table_preview(root_node)
+		_force_action_bar_preview(root_node)
+	elif _capture_mode() == "utility-expanded":
+		_force_clean_table_preview(root_node)
+		_force_utility_expanded_preview(root_node)
+	elif _capture_mode() in ["clean", "camera"]:
+		_force_clean_table_preview(root_node)
+		if _capture_mode() == "clean":
+			_force_action_bar_preview(root_node)
 	else:
 		_force_ai_helper_preview(root_node)
 		_force_action_bar_preview(root_node)
@@ -51,13 +66,44 @@ func _capture() -> void:
 		_force_settlement_preview(root_node)
 		for _frame in range(4):
 			await process_frame
+	elif _capture_mode() == "ding-que":
+		_force_ding_que_preview(root_node)
+		for _frame in range(2):
+			await process_frame
+	elif _capture_mode() in ["clean", "camera"]:
+		_force_clean_table_preview(root_node)
+		if _capture_mode() == "clean":
+			_force_action_bar_preview(root_node)
+		for _frame in range(2):
+			await process_frame
+	elif _capture_mode() in ["won", "self-draw", "ai-discard-win", "max-meld", "right-meld", "discard-pressure"]:
+		_force_clean_table_preview(root_node)
+		for _frame in range(2):
+			await process_frame
+	elif _capture_mode() in ["response-hu", "self-hu"]:
+		_force_clean_table_preview(root_node)
+		_force_action_bar_preview(root_node)
+		for _frame in range(2):
+			await process_frame
+	elif _capture_mode() == "utility-expanded":
+		_force_clean_table_preview(root_node)
+		_force_utility_expanded_preview(root_node)
+		for _frame in range(2):
+			await process_frame
 	else:
 		_force_ai_helper_preview(root_node)
 		_force_action_bar_preview(root_node)
 		for _frame in range(2):
 			await process_frame
+	_force_3d_full_table_preview(root_node)
+	if _capture_mode() == "camera":
+		_force_clean_table_preview(root_node)
 	RenderingServer.force_draw()
 	await process_frame
+	if _capture_mode() == "perf":
+		await _profile_real_metal_frame_pacing(root_node)
+		quit()
+		return
 
 	var image: Image = await _capture_stable_image()
 	if image == null:
@@ -74,6 +120,68 @@ func _capture() -> void:
 
 	print(path)
 	quit()
+
+
+func _profile_real_metal_frame_pacing(root_node: Node) -> void:
+	# Measure the same dense 3D scene used by the screenshot runner in a real
+	# window/Metal process.  Frame deltas include presentation pacing, so a 60 Hz
+	# VSync build should settle close to 60 rather than reporting an artificial
+	# uncapped headless number.
+	for _warm_frame in range(60):
+		await process_frame
+	var frame_times_ms: Array[float] = []
+	var previous_usec := Time.get_ticks_usec()
+	for _sample in range(600):
+		await process_frame
+		var current_usec := Time.get_ticks_usec()
+		frame_times_ms.append(float(current_usec - previous_usec) / 1000.0)
+		previous_usec = current_usec
+	frame_times_ms.sort()
+	var total_ms := 0.0
+	for frame_ms in frame_times_ms:
+		total_ms += frame_ms
+	var slow_count := maxi(1, int(ceil(float(frame_times_ms.size()) * 0.01)))
+	var slow_total_ms := 0.0
+	for index in range(frame_times_ms.size() - slow_count, frame_times_ms.size()):
+		slow_total_ms += frame_times_ms[index]
+	var average_frame_ms := total_ms / float(maxi(1, frame_times_ms.size()))
+	var one_percent_frame_ms := slow_total_ms / float(slow_count)
+	var profile := {
+		"renderer": RenderingServer.get_current_rendering_driver_name(),
+		"viewport": [get_root().size.x, get_root().size.y],
+		"frames": frame_times_ms.size(),
+		"average_fps": 1000.0 / maxf(0.001, average_frame_ms),
+		"one_percent_low_fps": 1000.0 / maxf(0.001, one_percent_frame_ms),
+		"median_frame_ms": frame_times_ms[frame_times_ms.size() / 2],
+		"p99_frame_ms": frame_times_ms[frame_times_ms.size() - slow_count],
+		"maximum_frame_ms": frame_times_ms.back(),
+		"static_memory_mb": Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0,
+		"static_memory_peak_mb": Performance.get_monitor(Performance.MEMORY_STATIC_MAX) / 1048576.0,
+		"table_stage_present": root_node.get("table_stage_3d") != null,
+		"passed": 1000.0 / maxf(0.001, average_frame_ms) >= 55.0 \
+			and 1000.0 / maxf(0.001, one_percent_frame_ms) >= 45.0 \
+			and Performance.get_monitor(Performance.MEMORY_STATIC_MAX) / 1048576.0 <= 1200.0,
+	}
+	var output_path := _profile_output_path()
+	var absolute_path := ProjectSettings.globalize_path(output_path)
+	DirAccess.make_dir_recursive_absolute(absolute_path.get_base_dir())
+	var file := FileAccess.open(absolute_path, FileAccess.WRITE)
+	if file == null:
+		push_error("Failed to write performance profile: %s" % absolute_path)
+		return
+	file.store_string(JSON.stringify(profile, "  ") + "\n")
+	file.close()
+	print(JSON.stringify(profile))
+	print(absolute_path)
+
+
+func _profile_output_path() -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--profile-output="):
+			var value := argument.trim_prefix("--profile-output=")
+			if not value.is_empty():
+				return value
+	return "user://sichuan_stage7_performance.json"
 
 
 func _capture_stable_image() -> Image:
@@ -206,8 +314,14 @@ func _force_ai_helper_preview(root_node: Node) -> void:
 	root_node.set("ai_helper_enabled", true)
 	var drawer: Control = root_node.get("ai_assistant_drawer") as Control
 	if drawer != null:
-		drawer.call("set_glass_opacity_index", 1)
-		drawer.call("set_expanded", true)
+		# Evidence capture must not inherit a developer-machine drag preference;
+		# use the product's deterministic default position for every resolution.
+		root_node.set("ai_drawer_positioned", false)
+		drawer.call("restore_user_position", Vector2(0.5, 0.5), false)
+		# Capture the shipped default (70%).  The 50% setting remains covered by
+		# the interaction contract, but it is not the product's first impression.
+		drawer.call("set_glass_opacity", 0.70)
+		drawer.call("set_expanded", _capture_mode() == "ai-expanded")
 	root_node.call("_update_discard_helper_panel", {
 		"players": [
 			{
@@ -244,6 +358,22 @@ func _force_ai_helper_preview(root_node: Node) -> void:
 	if utility_bar != null:
 		utility_bar.call("render", true, false, false, "骨灰", false)
 	root_node.call_deferred("_layout_ai_assistant_drawer")
+
+
+func _force_clean_table_preview(root_node: Node) -> void:
+	# Presentation capture only: keep the real AI drawer implementation intact,
+	# but remove it from the beauty shot so the table/tiles hierarchy is visible.
+	if root_node == null:
+		return
+	var drawer: Control = root_node.get("ai_assistant_drawer") as Control
+	if drawer != null:
+		drawer.visible = false
+	var helper_panel: Control = root_node.get("discard_helper_panel") as Control
+	if helper_panel != null:
+		helper_panel.visible = false
+	var utility_bar: Control = root_node.get("table_utility_bar") as Control
+	if utility_bar != null:
+		utility_bar.call("render", false, false, false)
 
 
 func _force_settlement_preview(root_node: Node) -> void:
@@ -366,17 +496,60 @@ func _force_table_overlays_hidden(root_node: Node) -> void:
 		utility_bar.call("render", false, false, false)
 
 
+func _force_ding_que_preview(root_node: Node) -> void:
+	if root_node == null:
+		return
+	var drawer: Control = root_node.get("ai_assistant_drawer") as Control
+	if drawer != null:
+		drawer.visible = false
+	var overlay: Control = root_node.get("ding_que_overlay") as Control
+	if overlay != null:
+		overlay.visible = true
+		overlay.move_to_front()
+	var action_bar: Control = root_node.get("table_action_bar") as Control
+	if action_bar != null:
+		action_bar.call("hide_actions")
+
+
 func _force_action_bar_preview(root_node: Node) -> void:
 	if root_node == null:
 		return
 	var action_bar: Control = root_node.get("table_action_bar") as Control
 	if action_bar == null:
 		return
-	action_bar.call("set_action_label", "peng", "碰")
-	action_bar.call("set_action_label", "pass", "过")
-	var preview_actions: Array[String] = ["peng", "pass"]
-	action_bar.call("render", preview_actions, "响应 3筒 · 可选：碰 / 过")
+	var preview_actions: Array[String]
+	var status_text := "响应 3筒 · 可选：碰 / 取消"
+	match _capture_mode():
+		"response-hu":
+			action_bar.call("set_action_label", "hu", "胡")
+			action_bar.call("set_action_label", "pass", "取消")
+			preview_actions = ["hu", "pass"]
+			status_text = "响应 9筒 · 可选：胡 / 取消"
+		"self-hu":
+			action_bar.call("set_action_label", "hu", "自摸")
+			action_bar.call("set_action_label", "pass", "取消")
+			preview_actions = ["hu", "pass"]
+			status_text = "轮到你 · 可选：自摸 / 取消"
+		_:
+			action_bar.call("set_action_label", "peng", "碰")
+			action_bar.call("set_action_label", "pass", "取消")
+			preview_actions = ["peng", "pass"]
+	action_bar.call("render", preview_actions, status_text)
+	var center_indicator: Control = root_node.get("center_turn_indicator") as Control
+	if center_indicator != null:
+		center_indicator.call("render", 40, 0, "等待本家响应")
 	root_node.call_deferred("_layout_table_action_bar")
+
+
+func _force_utility_expanded_preview(root_node: Node) -> void:
+	if root_node == null:
+		return
+	var utility_bar: Control = root_node.get("table_utility_bar") as Control
+	if utility_bar == null:
+		return
+	utility_bar.call("render", true, false, false, "骨灰", true)
+	utility_bar.call("set_collapsed", false)
+	root_node.call_deferred("_layout_table_utility_bar")
 
 
 func _force_tabletop_polish_preview(root_node: Node) -> void:
@@ -466,6 +639,7 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 		"current_dealer_seat": 0,
 		"rules": {"use_ding_que_phase": true},
 		"human_can_discard": true,
+		"human_reaction_options": {"can_peng": true, "can_pass": true},
 		"human_last_draw_tile_id": -1,
 	}
 	if root_node.get("self_ui") != null:
@@ -478,6 +652,147 @@ func _force_tabletop_polish_preview(root_node: Node) -> void:
 		root_node.get("right_ui").apply_snapshot(players[3], true, 0, 0, true)
 	root_node.call("_update_seat_huds", snapshot)
 	root_node.call("_update_self_area", snapshot, players[0]["hand_tiles"])
+
+
+func _force_3d_full_table_preview(root_node: Node) -> void:
+	if root_node == null:
+		return
+	var stage := root_node.get("table_stage_3d") as Node3D
+	if stage == null or not stage.has_method("render_snapshot"):
+		return
+	if _capture_mode() == "camera":
+		root_node.set("opponent_hands_enabled", false)
+		root_node.set("ai_helper_enabled", false)
+	var hand_counts := [14, 13, 13, 13] if _capture_mode() == "camera" else [11, 10, 10, 10]
+	# The camera-reference frame mirrors the supplied ding-que screenshot: four
+	# concealed hands, no discards and no melds. Dense gameplay remains covered
+	# by the contract runner and the normal beauty-shot modes.
+	var discard_counts := [0, 0, 0, 0] if _capture_mode() == "camera" else ([18, 18, 18, 18] if _capture_mode() == "discard-pressure" else [10, 9, 10, 9])
+	var all_hands: Array = []
+	var players: Array = []
+	for seat in range(4):
+		var hand := _make_3d_demo_tiles(10000 + seat * 100, hand_counts[seat], seat)
+		var discards := _make_3d_demo_tiles(20000 + seat * 100, discard_counts[seat], seat + 1)
+		var meld_tile_count := 12 if seat == 0 and _capture_mode() == "max-meld" else (7 if seat == 3 and _capture_mode() == "right-meld" else (4 if seat == 2 else 3))
+		var meld_tiles := _make_3d_demo_tiles(30000 + seat * 100, meld_tile_count, seat + 2)
+		all_hands.append(hand)
+		var preview_melds: Array = []
+		if _capture_mode() != "camera":
+			if seat == 0 and _capture_mode() == "max-meld":
+				# Four exposed groups exercise the widest legal lower-left rail and
+				# prove that the shifted concealed hand still remains unobstructed.
+				for group_index in range(4):
+					var group_tiles: Array = []
+					for tile_index in range(group_index * 3, group_index * 3 + 3):
+						group_tiles.append(meld_tiles[tile_index])
+					preview_melds.append({
+						"type": "peng",
+						"tiles": group_tiles,
+						"from_seat": (seat + group_index + 1) % 4,
+					})
+			elif seat == 3 and _capture_mode() == "right-meld":
+				preview_melds = [
+					{
+						"type": "peng",
+						"tiles": meld_tiles.slice(0, 3),
+						"from_seat": 0,
+					},
+					{
+						"type": "gang",
+						"gang_subtype": "ming_gang",
+						"tiles": meld_tiles.slice(3, 7),
+						"from_seat": 2,
+					},
+				]
+			else:
+				preview_melds = [{
+					"type": "gang" if seat == 2 else "peng",
+					"gang_subtype": "an_gang" if seat == 2 else "",
+					"tiles": meld_tiles,
+					"from_seat": (seat + 1) % 4,
+				}]
+		players.append({
+			"seat": seat,
+			"nickname": ["本家", "舒小燕", "陈东", "舒玲"][seat],
+			"score": [3, -5, 6, 2][seat],
+			"hand_count": hand_counts[seat],
+			"hand_tiles": hand if seat == 0 else [],
+			"melds": preview_melds,
+			"discards": discards,
+			"ding_que": ["tong", "wan", "tong", "wan"][seat],
+			"has_won": false,
+		})
+	if _capture_mode() == "won":
+		players[0]["has_won"] = true
+		players[0]["winning_tile"] = all_hands[0].back()
+		players[0]["winning_source_seat"] = 1
+	elif _capture_mode() == "self-draw":
+		players[0]["has_won"] = true
+		players[0]["winning_tile"] = all_hands[0].back()
+		players[0]["winning_source_seat"] = 0
+	elif _capture_mode() == "ai-discard-win":
+		players[1]["has_won"] = true
+		players[1]["winning_tile"] = all_hands[1].back()
+		players[1]["winning_source_seat"] = 0
+	var recent_tile: Dictionary = {}
+	if not (players[3]["discards"] as Array).is_empty():
+		recent_tile = players[3]["discards"].back()
+	var snapshot := {
+		"players": players,
+		"wall_count": 40,
+		"current_turn_seat": 2 if _capture_mode() == "ai-discard-win" else (1 if _capture_mode() == "won" else 0),
+		"current_dealer_seat": 0,
+		"human_can_discard": _capture_mode() not in ["won", "self-draw", "ai-discard-win"],
+		"human_last_draw_tile_id": int(all_hands[0].back().get("id", -1)),
+		"recent_discard_tile_id": int(recent_tile.get("id", -1)),
+	}
+	# Evidence states must obey the same interaction contract as runtime state.
+	# Previously the action bar was forced after the HUD snapshot, producing
+	# impossible frames such as 已胡 + 本家出牌中 or 响应按钮 + 出牌徽章.
+	match _capture_mode():
+		"response-hu":
+			snapshot["human_can_discard"] = false
+			snapshot["human_reaction_options"] = {"can_hu": true, "can_pass": true}
+		"self-hu":
+			snapshot["human_can_discard"] = false
+			snapshot["human_can_self_hu"] = true
+		"ai-expanded", "table":
+			snapshot["human_can_discard"] = false
+			snapshot["human_reaction_options"] = {"can_peng": true, "can_pass": true}
+	var reveal_opponents := _capture_mode() == "3d-reveal"
+	var selected_tile_id := int(all_hands[0][4].get("id", -1)) if _capture_mode() == "selection" else -1
+	stage.call("set_reduced_motion", true)
+	stage.call("render_snapshot", snapshot, all_hands, reveal_opponents, selected_tile_id, {
+		"recommended_tile_id": int(all_hands[0][2].get("id", -1)),
+		"danger_tile_ids": [int(all_hands[0][8].get("id", -1))],
+	})
+	if root_node.has_method("_update_seat_huds"):
+		root_node.call("_update_seat_huds", snapshot)
+	var center_indicator := root_node.get("center_turn_indicator") as Control
+	if center_indicator != null and center_indicator.has_method("render"):
+		if _capture_mode() == "won":
+			center_indicator.call("render", 40, 1, "上家出牌中")
+		elif _capture_mode() == "self-draw":
+			center_indicator.call("render", 40, 0, "本家已自摸")
+		elif _capture_mode() == "ai-discard-win":
+			center_indicator.call("render", 40, 2, "对家出牌中")
+		elif _capture_mode() in ["response-hu", "self-hu", "ai-expanded", "table"]:
+			center_indicator.call("render", 40, 0, "等待本家响应" if _capture_mode() != "self-hu" else "本家操作中")
+		else:
+			center_indicator.call("render", 40, int(snapshot.get("current_turn_seat", 0)))
+	root_node.call("_layout_3d_center_indicator")
+
+
+func _make_3d_demo_tiles(start_id: int, count: int, offset: int) -> Array:
+	var result: Array = []
+	var suits := ["tiao", "tong", "wan"]
+	for index in range(count):
+		result.append({
+			"id": start_id + index,
+			"suit": suits[(index + offset) % suits.size()],
+			"rank": (index * 2 + offset) % 9 + 1,
+		})
+	return result
 
 
 func _take_tile_from_wall(wall: Array, suit: String, rank: int) -> Dictionary:

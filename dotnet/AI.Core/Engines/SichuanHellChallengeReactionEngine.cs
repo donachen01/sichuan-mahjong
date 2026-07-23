@@ -1,15 +1,25 @@
 using System.Collections.ObjectModel;
+using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
 public sealed class SichuanHellChallengeReactionEngine
 {
-    private readonly SichuanReactionDecisionEngine _fair = new();
+    private readonly SichuanAiFacade _oldHand;
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanHellChallengeEngine _followUpDiscard = new();
-    private readonly SichuanRoundBrainEngine _roundBrain = new();
+
+    public SichuanHellChallengeReactionEngine()
+        : this(new SichuanAiFacade())
+    {
+    }
+
+    public SichuanHellChallengeReactionEngine(SichuanAiFacade oldHand)
+    {
+        _oldHand = oldHand ?? throw new ArgumentNullException(nameof(oldHand));
+    }
 
     public SichuanReactionDecisionResult DecideReaction(
         SichuanStateView state,
@@ -26,8 +36,7 @@ public sealed class SichuanHellChallengeReactionEngine
     {
         allHands18 = NormalizeHands(allHands18);
         exactWall18 = NormalizeCounts(exactWall18);
-        var roundBrain = _roundBrain.Observe(state);
-        var fair = _fair.DecideReaction(
+        var fair = _oldHand.DecideReaction(
             state,
             reactionTileType,
             canHu,
@@ -35,9 +44,8 @@ public sealed class SichuanHellChallengeReactionEngine
             canGang,
             sourceSeat,
             reactionType,
-            forceLightweight: true,
-            mandatoryGang,
-            roundBrain);
+            forceLightweight: false,
+            mandatoryGang);
         if (mandatoryGang && fair.Action.ActionType == SichuanActionType.Gang)
             return fair;
         var scores = new Dictionary<string, int>(fair.ActionScores);
@@ -75,7 +83,7 @@ public sealed class SichuanHellChallengeReactionEngine
                 }.Concat(teamPlan.Reasons).Distinct().ToArray());
         }
 
-        var passResult = BuildPassResult(reactionTileType, currentShanten, currentLive, humanPressure, scores);
+        var passResult = BuildPassResult(reactionTileType, currentShanten, currentLive, humanPressure, scores, fair.Reasons);
         var best = passResult;
         var bestKey = "pass";
         var directMeldedGangAvailable = canGang
@@ -193,7 +201,8 @@ public sealed class SichuanHellChallengeReactionEngine
         int currentShanten,
         int currentLive,
         int humanPressure,
-        Dictionary<string, int> scores)
+        Dictionary<string, int> scores,
+        IReadOnlyList<string> oldHandReasons)
     {
         var score = scores.GetValueOrDefault("pass", -20 + currentLive * 4)
             + Math.Clamp(currentLive - 8, -12, 12)
@@ -213,7 +222,10 @@ public sealed class SichuanHellChallengeReactionEngine
             {
                 "地狱挑战：过牌保留当前路径",
                 $"当前活张 {currentLive}"
-            });
+            }
+                .Concat(oldHandReasons.Select(reason => $"老手主线：{reason}"))
+                .Distinct()
+                .ToArray());
     }
 
     private SichuanReactionDecisionResult EvaluateCall(

@@ -34,9 +34,13 @@ var user_position_normalized := Vector2(0.5, 0.5)
 var has_user_position := false
 var dragging := false
 var drag_offset := Vector2.ZERO
-const GLASS_OPACITY_MIN := 0.40
-const GLASS_OPACITY_MAX := 0.92
-const GLASS_OPACITY_LEVELS := [0.48, 0.70, 0.90]
+const GLASS_OPACITY_MIN := 0.0
+const GLASS_OPACITY_MAX := 1.0
+const GLASS_OPACITY_LEVELS := [0.0, 0.50, 1.0]
+const COLLAPSED_SIZE := Vector2(560.0, 76.0)
+const EXPANDED_SIZE := Vector2(760.0, 264.0)
+const LOW_OPACITY_READABILITY_THRESHOLD := 0.22
+const MEDIUM_OPACITY_READABILITY_THRESHOLD := 0.55
 
 
 func _ready() -> void:
@@ -55,10 +59,10 @@ func _ready() -> void:
 	title_label.add_theme_font_size_override("font_size", 28)
 	title_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 	for label in [summary_label, reason_label, danger_label, routes_label]:
-		label.add_theme_font_size_override("font_size", 23)
+		label.add_theme_font_size_override("font_size", 24)
 		label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY if label == summary_label else TABLE_THEME.TEXT_SECONDARY)
 		label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.04, 0.94))
-		label.add_theme_constant_override("outline_size", 2)
+		label.add_theme_constant_override("outline_size", 3)
 	toggle_button.custom_minimum_size = Vector2(88.0, 52.0)
 	toggle_button.add_theme_font_size_override("font_size", 22)
 	opacity_label.add_theme_font_size_override("font_size", 19)
@@ -73,10 +77,17 @@ func _ready() -> void:
 	recommendation_button.add_theme_stylebox_override("focus", recommendation_hover)
 	recommendation_button.add_theme_stylebox_override("pressed", _make_recommendation_style(true))
 	recommendation_button.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
+	for focus_control in [toggle_button, opacity_slider, recommendation_button]:
+		focus_control.focus_mode = Control.FOCUS_ALL
 	toggle_button.pressed.connect(_on_toggle_pressed)
 	opacity_slider.value_changed.connect(_on_opacity_value_changed)
 	opacity_slider.drag_ended.connect(_on_opacity_drag_ended)
-	drag_header.gui_input.connect(_on_drag_header_gui_input)
+	# Only the title is a drag handle.  The old full-header handler also caught
+	# events bubbling from the toggle and slider, leaving both controls in a
+	# half-drag state after moving the drawer.
+	drag_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	title_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	title_label.gui_input.connect(_on_drag_header_gui_input)
 	recommendation_button.pressed.connect(_on_recommendation_pressed)
 	_apply_glass_opacity()
 	set_process_input(false)
@@ -92,6 +103,7 @@ func apply_hint(trainer_hint: Dictionary, can_discard: bool, selected_tile_id: i
 		reason_label.text = ""
 		danger_label.text = ""
 		routes_label.text = ""
+		_update_header_text()
 		return
 
 	var recommended_tile_id := int(recommended.get("tile", {}).get("id", -1))
@@ -142,10 +154,11 @@ func apply_hint(trainer_hint: Dictionary, can_discard: bool, selected_tile_id: i
 		route_text = "先顾速度，也顾安全"
 	routes_label.text = "方向：%s" % route_text
 	if not selected_option.is_empty() and selected_tile_id != recommended_tile_id:
-		routes_label.text += "\n为什么不先打%s：%s" % [
+			routes_label.text += "\n为什么不先打%s：%s" % [
 			str(selected_option.get("tile_name", "?")),
 			_build_selected_option_delta_text(recommended, selected_option),
 		]
+	_update_header_text()
 
 
 func _format_routes(routes: Array) -> String:
@@ -175,9 +188,12 @@ func set_expanded(value: bool) -> void:
 	var recommended: Dictionary = last_hint.get("recommended", {})
 	recommendation_button.visible = expanded and int(recommended.get("tile", {}).get("id", -1)) != -1
 	content.visible = expanded
+	opacity_label.visible = expanded
+	opacity_slider.visible = expanded
 	toggle_button.text = "收起" if expanded else "展开"
-	custom_minimum_size = Vector2(860.0, 286.0) if expanded else Vector2(620.0, 82.0)
+	custom_minimum_size = EXPANDED_SIZE if expanded else COLLAPSED_SIZE
 	size = custom_minimum_size
+	_update_header_text()
 	if has_user_position:
 		_apply_normalized_position()
 	else:
@@ -186,6 +202,18 @@ func set_expanded(value: bool) -> void:
 
 func is_expanded() -> bool:
 	return expanded
+
+
+func _update_header_text() -> void:
+	if title_label == null:
+		return
+	if expanded:
+		title_label.text = "AI 对局提示"
+		return
+	var recommended: Dictionary = last_hint.get("recommended", {})
+	var tile_name := str(recommended.get("tile_name", ""))
+	var risk_text := _plain_risk_label(str(recommended.get("risk_label", "低危")))
+	title_label.text = "AI建议：%s · %s" % [tile_name, risk_text] if not tile_name.is_empty() else "AI 对局提示"
 
 
 func set_glass_opacity_index(value: int) -> void:
@@ -228,8 +256,46 @@ func _apply_glass_opacity() -> void:
 		return
 	root_panel.add_theme_stylebox_override("panel", _make_drawer_style())
 	opacity_slider.set_value_no_signal(glass_opacity)
-	opacity_label.text = "清透 %d%%" % int(round(glass_opacity * 100.0))
-	opacity_slider.tooltip_text = "拖动调节 AI 建议框清透比例"
+	opacity_label.text = "透明度 %d%%" % int(round(glass_opacity * 100.0))
+	opacity_slider.tooltip_text = "拖动调节 AI 建议框背景透明度（0%–100%）"
+	_apply_readability_styles()
+
+
+func get_readability_contract() -> Dictionary:
+	return {
+		"background_only_opacity": true,
+		"text_remains_opaque": true,
+		"low_opacity_threshold": LOW_OPACITY_READABILITY_THRESHOLD,
+		"medium_opacity_threshold": MEDIUM_OPACITY_READABILITY_THRESHOLD,
+		"low_opacity_text_scrim": true,
+		"medium_opacity_text_scrim": true,
+		"collapsed_size": COLLAPSED_SIZE,
+		"expanded_size": EXPANDED_SIZE,
+		"collapsed_summary_contains_risk": true,
+	}
+
+
+func _apply_readability_styles() -> void:
+	var low_opacity := glass_opacity <= LOW_OPACITY_READABILITY_THRESHOLD
+	var medium_opacity := glass_opacity <= MEDIUM_OPACITY_READABILITY_THRESHOLD
+	# A 50% drawer is frequently positioned above a busy discard river. Keep a
+	# local dark reading strip behind text through the medium setting; this does
+	# not alter the user-controlled panel opacity or fade any text/control.
+	var scrim_alpha := 0.60 if low_opacity else (0.34 if medium_opacity else 0.0)
+	for label in [title_label, summary_label, reason_label, danger_label, routes_label, opacity_label]:
+		if label == null:
+			continue
+		label.self_modulate = Color.WHITE
+		label.add_theme_color_override("font_outline_color", Color(0.008, 0.025, 0.020, 0.99))
+		label.add_theme_constant_override("outline_size", 4 if low_opacity else (3 if label != opacity_label else 2))
+		var scrim := StyleBoxFlat.new()
+		scrim.bg_color = Color(0.008, 0.055, 0.046, scrim_alpha)
+		scrim.set_corner_radius_all(5)
+		scrim.content_margin_left = 5.0 if medium_opacity else 0.0
+		scrim.content_margin_right = 5.0 if medium_opacity else 0.0
+		scrim.content_margin_top = 2.0 if medium_opacity else 0.0
+		scrim.content_margin_bottom = 2.0 if medium_opacity else 0.0
+		label.add_theme_stylebox_override("normal", scrim)
 
 
 func set_drag_bounds(bounds: Rect2) -> void:
@@ -273,7 +339,7 @@ func _on_drag_header_gui_input(event: InputEvent) -> void:
 			return
 		if mouse_event.pressed:
 			_begin_drag(_pointer_position_in_parent())
-			drag_header.accept_event()
+			title_label.accept_event()
 		else:
 			_finish_drag()
 		return
@@ -281,7 +347,7 @@ func _on_drag_header_gui_input(event: InputEvent) -> void:
 		var touch_event := event as InputEventScreenTouch
 		if touch_event.pressed:
 			_begin_drag(_viewport_to_parent(touch_event.position))
-			drag_header.accept_event()
+			title_label.accept_event()
 		else:
 			_finish_drag()
 
@@ -472,15 +538,17 @@ func _humanize_reason_text(text: String) -> String:
 func _make_drawer_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	var alpha := glass_opacity
-	style.bg_color = Color(0.018, 0.105, 0.086, alpha)
-	style.border_color = Color(TABLE_THEME.BRASS, minf(0.92, alpha + 0.18))
+	# Match the navy lacquer used by SeatHUD and the utility rail so the helper
+	# feels like part of the table system, not a separate green debug overlay.
+	style.bg_color = Color(TABLE_THEME.PANEL_JADE_BLACK, alpha)
+	style.border_color = Color(TABLE_THEME.BRASS, minf(0.92, 0.12 + alpha * 0.80))
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 5
 	style.corner_radius_top_right = 16
 	style.corner_radius_bottom_left = 16
 	style.corner_radius_bottom_right = 5
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	style.shadow_size = 18
+	style.shadow_color = Color(0.0, 0.0, 0.0, alpha * 0.42)
+	style.shadow_size = int(round(18.0 * alpha))
 	style.shadow_offset = Vector2(7.0, 9.0)
 	style.content_margin_left = 2
 	style.content_margin_top = 2

@@ -41,6 +41,9 @@ func _verify_seat_motion_and_text(failures: Array[String]) -> void:
 	var ding_text := ding_badge.get_node_or_null("%TextLabel") as Label
 	if dealer_badge == null or dealer_badge.text != "庄" or not dealer_badge.visible:
 		failures.append("dealer state must include the 庄 text")
+	var turn_badge := seat_hud.get_node_or_null("%TurnBadge") as Label
+	if turn_badge == null or turn_badge.text != "出牌" or not turn_badge.visible:
+		failures.append("current turn must include the 出牌 text badge")
 	if ding_text == null or ding_text.text != "缺万":
 		failures.append("ding-que state must include text, not color only")
 	seat_hud.call("render", {"nickname": "本家", "score": 100, "ding_que": "wan", "_is_dealer": false, "has_won": true}, 2, true)
@@ -62,9 +65,15 @@ func _verify_action_motion(failures: Array[String]) -> void:
 	get_root().add_child(action_bar)
 	var actions: Array[String] = ["hu", "gang", "peng", "pass"]
 	action_bar.call("render", actions, "请选择操作")
-	await process_frame
+	await create_timer(0.26).timeout
 	var before_size := action_bar.get_global_rect().size
 	var hu_button: Button = action_bar.call("get_button", "hu")
+	if hu_button.focus_mode != Control.FOCUS_ALL:
+		failures.append("action buttons must support controller/keyboard focus")
+	var motion_contract: Dictionary = action_bar.call("get_motion_contract")
+	for duration_name in ["entrance_duration", "hover_duration", "press_duration"]:
+		if float(motion_contract.get(duration_name, 1.0)) > 0.20:
+			failures.append("%s must stay within the 200ms motion-safe limit" % duration_name)
 	hu_button.emit_signal("pressed")
 	await create_timer(0.18).timeout
 	if not action_bar.get_global_rect().size.is_equal_approx(before_size):
@@ -73,6 +82,8 @@ func _verify_action_motion(failures: Array[String]) -> void:
 	hu_button.emit_signal("pressed")
 	if not action_bar.get_global_rect().size.is_equal_approx(before_size):
 		failures.append("reduced-motion action feedback changed layout size")
+	if not hu_button.scale.is_equal_approx(Vector2.ONE) or not hu_button.modulate.is_equal_approx(Color.WHITE):
+		failures.append("reduced motion must reset action button transforms")
 	action_bar.queue_free()
 	await process_frame
 
@@ -106,6 +117,15 @@ func _verify_hand_motion(failures: Array[String]) -> void:
 	var new_draw_y := float((layouts[13].get("front_rect", Rect2()) as Rect2).position.y)
 	if new_draw_y >= regular_y:
 		failures.append("newly drawn tile must keep a subtle lift")
+	canvas.call("configure", tiles, 6, 13, Vector2(1600.0, 240.0), {"recommended_tile_id": 6})
+	layouts = canvas.call("get_layout_contract")
+	var neighbor_y := float((layouts[5].get("front_rect", Rect2()) as Rect2).position.y)
+	var selected_y := float((layouts[6].get("front_rect", Rect2()) as Rect2).position.y)
+	if neighbor_y - selected_y < 16.0:
+		failures.append("selected tile needs at least a 16px lift at standard scale")
+	var selection_contract: Dictionary = canvas.call("get_selection_feedback_contract")
+	if str(selection_contract.get("shape_backup", "")) != "bottom_copper_keyline":
+		failures.append("selected tile needs a non-color-only shape cue")
 	var before_bounds: Rect2 = canvas.call("get_layout_bounds")
 	canvas.call("set_reduced_motion", true)
 	if canvas.call("get_layout_bounds") != before_bounds:
@@ -116,9 +136,9 @@ func _verify_hand_motion(failures: Array[String]) -> void:
 func _verify_center_text(failures: Array[String]) -> void:
 	var center := CENTER_SCENE.instantiate() as Control
 	get_root().add_child(center)
-	center.call("render", 22, 1, "当前：上家")
+	center.call("render", 22, 1, "上家出牌中")
 	var status_label := center.get_node_or_null("%StatusLabel") as Label
-	if status_label == null or not status_label.text.contains("当前：上家"):
+	if status_label == null or not status_label.text.contains("上家出牌中"):
 		failures.append("current turn must include a text status, not color only")
 	center.queue_free()
 

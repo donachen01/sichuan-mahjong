@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MAIN_SCENE := preload("res://scenes/table/MainSceneV2.tscn")
+const AI_PRESET_ORDER := ["intermediate", "bone_ash", "hell"]
 
 
 func _init() -> void:
@@ -16,7 +17,9 @@ func _run() -> void:
 		await process_frame
 
 	await _verify_top_left_controls(scene, failures)
+	await _verify_ios_utility_dual_event_stability(scene, failures)
 	await _verify_glass_ai_hint(scene, failures)
+	await _verify_interaction_status(scene, failures)
 	await _verify_rich_settlement(scene, failures)
 
 	scene.queue_free()
@@ -38,12 +41,23 @@ func _verify_top_left_controls(scene: Node, failures: Array[String]) -> void:
 	var snapshot: Dictionary = manager.call("get_snapshot")
 	var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
 	utility_bar.call("render", bool(scene.get("ai_helper_enabled")), false, false, "骨灰", bool(scene.get("opponent_hands_enabled")))
+	var toggle_button: Button = utility_bar.call("get_button", "toggle")
+	if toggle_button == null or not bool(utility_bar.call("is_collapsed")):
+		failures.append("左上角工具栏默认必须处于缩进状态并保留入口")
+	else:
+		var toggle_rect := toggle_button.get_global_rect()
+		if not bool(scene.call("_handle_table_utility_click", toggle_rect.get_center())):
+			failures.append("左上角展开按钮的真实点击区没有响应")
+		await process_frame
+		if bool(utility_bar.call("is_collapsed")):
+			failures.append("点击展开后左上角工具栏仍处于缩进状态")
 	var difficulty_button: Button = utility_bar.call("get_button", "settings")
 	var reveal_button: Button = utility_bar.call("get_button", "opponent_hands")
 	if difficulty_button == null or not difficulty_button.visible or not difficulty_button.text.contains("难度"):
 		failures.append("左上角必须显示可点击的 AI 难度")
 	else:
-		difficulty_button.emit_signal("pressed")
+		if not bool(scene.call("_handle_table_utility_click", difficulty_button.get_global_rect().get_center())):
+			failures.append("难度按钮的真实点击区没有响应")
 		await process_frame
 		var changed_name := str(manager.call("get_snapshot").get("ai_tuning_config", {}).get("preset_name", ""))
 		if changed_name == preset_name:
@@ -62,10 +76,143 @@ func _verify_top_left_controls(scene: Node, failures: Array[String]) -> void:
 		else:
 			scene.call("_handle_table_utility_click", reveal_rect.get_center())
 			await process_frame
+	var ai_button: Button = utility_bar.call("get_button", "ai")
+	var ai_before := bool(scene.get("ai_helper_enabled"))
+	if ai_button == null or not bool(scene.call("_handle_table_utility_click", ai_button.get_global_rect().get_center())):
+		failures.append("AI 提示按钮的真实点击区没有响应")
+	else:
+		await process_frame
+		if bool(scene.get("ai_helper_enabled")) == ai_before:
+			failures.append("点击 AI 提示后开关状态没有切换")
+		else:
+			scene.call("_handle_table_utility_click", ai_button.get_global_rect().get_center())
+			await process_frame
 	for action in ["ai", "settings", "opponent_hands", "exit"]:
 		var rect: Rect2 = utility_bar.call("get_touch_rect", action)
 		if rect.size.x < 64.0 or rect.size.y < 64.0:
 			failures.append("左上角 %s 点击区过小" % action)
+	if toggle_button != null:
+		var expanded_toggle_rect := toggle_button.get_global_rect()
+		scene.call("_handle_table_utility_click", expanded_toggle_rect.get_center())
+		await process_frame
+		if not bool(utility_bar.call("is_collapsed")):
+			failures.append("点击收起后左上角工具栏没有缩进")
+
+
+func _verify_ios_utility_dual_event_stability(scene: Node, failures: Array[String]) -> void:
+	var utility_bar: Control = scene.get("table_utility_bar")
+	var manager: Node = scene.get("game_manager")
+	if utility_bar == null or manager == null:
+		failures.append("iOS 双事件压力回归缺少左上工具栏或 GameManager")
+		return
+	var initial_preset := str(manager.call("get_snapshot").get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
+	var initial_ai := bool(scene.get("ai_helper_enabled"))
+	var initial_reveal := bool(scene.get("opponent_hands_enabled"))
+	utility_bar.call("set_collapsed", true)
+	for cycle in range(12):
+		var toggle_button: Button = utility_bar.call("get_button", "toggle")
+		await _send_ios_dual_press(scene, toggle_button.get_global_rect().get_center())
+		if bool(utility_bar.call("is_collapsed")):
+			failures.append("iOS 双事件第 %d 轮：展开按钮被同一触摸执行两次" % [cycle + 1])
+			break
+
+		var ai_before := bool(scene.get("ai_helper_enabled"))
+		var ai_button: Button = utility_bar.call("get_button", "ai")
+		await _send_ios_dual_press(scene, ai_button.get_global_rect().get_center())
+		if bool(scene.get("ai_helper_enabled")) == ai_before:
+			failures.append("iOS 双事件第 %d 轮：AI 提示按钮被同一触摸执行两次" % [cycle + 1])
+			break
+
+		var preset_before := str(manager.call("get_snapshot").get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
+		var preset_index := AI_PRESET_ORDER.find(preset_before)
+		var expected_preset := str(AI_PRESET_ORDER[(preset_index + 1) % AI_PRESET_ORDER.size()])
+		var settings_button: Button = utility_bar.call("get_button", "settings")
+		await _send_ios_dual_press(scene, settings_button.get_global_rect().get_center())
+		var preset_after := str(manager.call("get_snapshot").get("ai_tuning_config", {}).get("preset_name", ""))
+		if preset_after != expected_preset:
+			failures.append("iOS 双事件第 %d 轮：难度应只切换一次，实际 %s -> %s" % [cycle + 1, preset_before, preset_after])
+			break
+
+		var reveal_before := bool(scene.get("opponent_hands_enabled"))
+		var reveal_button: Button = utility_bar.call("get_button", "opponent_hands")
+		await _send_ios_dual_press(scene, reveal_button.get_global_rect().get_center())
+		if bool(scene.get("opponent_hands_enabled")) == reveal_before:
+			failures.append("iOS 双事件第 %d 轮：明牌按钮被同一触摸执行两次" % [cycle + 1])
+			break
+
+		toggle_button = utility_bar.call("get_button", "toggle")
+		await _send_ios_dual_press(scene, toggle_button.get_global_rect().get_center())
+		if not bool(utility_bar.call("is_collapsed")):
+			failures.append("iOS 双事件第 %d 轮：缩进按钮被同一触摸执行两次" % [cycle + 1])
+			break
+
+	# 去重只允许拦截同一次物理点击产生的跨来源事件；连续的真实触摸
+	# 必须仍然逐次生效，否则快速展开/缩进仍会表现为“偶尔按不动”。
+	var touch_only_toggle: Button = utility_bar.call("get_button", "toggle")
+	await _send_touch_press(scene, touch_only_toggle.get_global_rect().get_center())
+	if bool(utility_bar.call("is_collapsed")):
+		failures.append("连续真实触摸第 1 次没有展开左上工具栏")
+	touch_only_toggle = utility_bar.call("get_button", "toggle")
+	await _send_touch_press(scene, touch_only_toggle.get_global_rect().get_center())
+	if not bool(utility_bar.call("is_collapsed")):
+		failures.append("连续真实触摸第 2 次没有缩进左上工具栏")
+
+	manager.call("set_ai_preset", initial_preset)
+	if bool(scene.get("ai_helper_enabled")) != initial_ai:
+		scene.call("_on_top_ai_helper_button_pressed")
+	if bool(scene.get("opponent_hands_enabled")) != initial_reveal:
+		scene.call("_on_top_opponent_hand_button_pressed")
+	utility_bar.call("set_collapsed", true)
+
+
+func _send_ios_dual_press(scene: Node, position: Vector2) -> void:
+	# This stress case targets the normal-round utility drawer. The live scene's
+	# opening timers can enter the modal DingQue phase while the 12-cycle loop is
+	# running; hide that modal here so a correct modal block is not misreported
+	# as an intermittent utility-button failure.
+	var ding_que_overlay: Control = scene.get("ding_que_overlay")
+	if ding_que_overlay != null:
+		ding_que_overlay.visible = false
+	var touch_press := InputEventScreenTouch.new()
+	touch_press.index = 0
+	touch_press.position = position
+	touch_press.pressed = true
+	scene.call("_input", touch_press)
+	var mouse_press := InputEventMouseButton.new()
+	mouse_press.button_index = MOUSE_BUTTON_LEFT
+	mouse_press.position = position
+	mouse_press.global_position = position
+	mouse_press.pressed = true
+	scene.call("_input", mouse_press)
+	var touch_release := InputEventScreenTouch.new()
+	touch_release.index = 0
+	touch_release.position = position
+	touch_release.pressed = false
+	scene.call("_input", touch_release)
+	var mouse_release := InputEventMouseButton.new()
+	mouse_release.button_index = MOUSE_BUTTON_LEFT
+	mouse_release.position = position
+	mouse_release.global_position = position
+	mouse_release.pressed = false
+	scene.call("_input", mouse_release)
+	await process_frame
+
+
+func _send_touch_press(scene: Node, position: Vector2) -> void:
+	var ding_que_overlay: Control = scene.get("ding_que_overlay")
+	if ding_que_overlay != null:
+		ding_que_overlay.visible = false
+	var touch_press := InputEventScreenTouch.new()
+	touch_press.index = 0
+	touch_press.position = position
+	touch_press.pressed = true
+	scene.call("_input", touch_press)
+	var touch_release := InputEventScreenTouch.new()
+	touch_release.index = 0
+	touch_release.position = position
+	touch_release.pressed = false
+	scene.call("_input", touch_release)
+	await process_frame
 
 
 func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
@@ -76,8 +223,32 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 		failures.append("AI 提示面板或本家手牌区不存在")
 		return
 	var previous_ai_helper := bool(scene.get("ai_helper_enabled"))
+	var previous_visible := drawer.visible
+	var previous_expanded := bool(drawer.call("is_expanded"))
+	var previous_positioned := bool(drawer.call("is_user_positioned"))
+	var previous_normalized := drawer.call("get_user_position_normalized") as Vector2
 	scene.set("ai_helper_enabled", true)
 	drawer.visible = true
+	# Preferences are intentionally persistent in production.  Reset them here
+	# so this assertion verifies the designed default placement, not whichever
+	# location a developer last dragged to on their machine.
+	drawer.call("restore_user_position", Vector2(0.5, 0.5), false)
+	drawer.call("set_expanded", false)
+	drawer.call("apply_hint", _trainer_hint(), true, -1)
+	var readability_contract: Dictionary = drawer.call("get_readability_contract")
+	if not bool(readability_contract.get("background_only_opacity", false)) or not bool(readability_contract.get("text_remains_opaque", false)):
+		failures.append("AI 透明度只能作用于背景，文字和控件必须保持可读")
+	if not bool(readability_contract.get("collapsed_summary_contains_risk", false)):
+		failures.append("AI 紧凑提示必须同时显示推荐牌和风险摘要")
+	var collapsed_size: Vector2 = readability_contract.get("collapsed_size", Vector2.ZERO)
+	if collapsed_size.y > 76.0 or collapsed_size.x > 580.0:
+		failures.append("AI 紧凑提示条仍然过大")
+	var collapsed_opacity_label: Label = drawer.get_node_or_null("RootPanel/Margin/VBox/Header/OpacityLabel") as Label
+	var collapsed_opacity_slider: HSlider = drawer.get_node_or_null("RootPanel/Margin/VBox/Header/OpacitySlider") as HSlider
+	if collapsed_opacity_label == null or collapsed_opacity_slider == null:
+		failures.append("AI 提示面板缺少透明度控件")
+	elif collapsed_opacity_label.visible or collapsed_opacity_slider.visible:
+		failures.append("AI 提示面板缩进后只应保留摘要和展开入口")
 	drawer.call("set_expanded", true)
 	drawer.call("apply_hint", _trainer_hint(), true, -1)
 	scene.call("_layout_ai_assistant_drawer")
@@ -88,15 +259,29 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 		failures.append("AI 玻璃提示面板不得遮挡本家手牌")
 	if drawer_rect.end.y > hand_rect.position.y + 1.0:
 		failures.append("AI 提示面板必须位于本家手牌上方")
-	if absf(drawer_rect.get_center().x - hand_rect.get_center().x) > 160.0:
-		failures.append("AI 提示面板应与本家手牌居中对齐")
+	var center_indicator: Control = scene.get("center_indicator")
+	if center_indicator != null and drawer_rect.intersects(center_indicator.get_global_rect()):
+		failures.append("AI 展开面板不得遮挡中央余牌与回合状态")
 	var opacity_slider: HSlider = drawer.get_node_or_null("RootPanel/Margin/VBox/Header/OpacitySlider") as HSlider
 	var old_opacity := float(drawer.call("get_glass_opacity"))
 	if opacity_slider == null:
 		failures.append("AI 玻璃提示缺少可任意拖动的清透比例条")
 	else:
-		if opacity_slider.min_value > 0.40 or opacity_slider.max_value < 0.90 or opacity_slider.step > 0.01:
-			failures.append("AI 清透比例条可调范围或精度不足")
+		if not opacity_slider.visible:
+			failures.append("AI 提示面板展开后透明度滑杆必须恢复显示")
+		if opacity_slider.min_value > 0.0 or opacity_slider.max_value < 1.0 or opacity_slider.step > 0.01:
+			failures.append("AI 背景透明度必须支持 0%-100% 连续调节")
+		opacity_slider.value = 0.0
+		await process_frame
+		if absf(float(drawer.call("get_glass_opacity"))) > 0.001:
+			failures.append("AI 背景透明度无法调到 0%")
+		var title_label := drawer.get_node_or_null("RootPanel/Margin/VBox/Header/Title") as Label
+		if title_label == null or title_label.get_theme_constant("outline_size") < 4:
+			failures.append("AI 背景低透明度时文字没有进入高对比可读模式")
+		opacity_slider.value = 1.0
+		await process_frame
+		if absf(float(drawer.call("get_glass_opacity")) - 1.0) > 0.001:
+			failures.append("AI 背景透明度无法调到 100%")
 		opacity_slider.value = 0.57
 		await process_frame
 		if absf(float(drawer.call("get_glass_opacity")) - 0.57) > 0.001:
@@ -108,6 +293,14 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 	scene.call("_layout_ai_assistant_drawer")
 	await process_frame
 	var drag_start := drawer.position
+	var changed_callback := Callable(scene, "_on_ai_drawer_position_changed")
+	var finished_callback := Callable(scene, "_on_ai_drawer_position_change_finished")
+	var changed_was_connected := drawer.is_connected("position_changed", changed_callback)
+	var finished_was_connected := drawer.is_connected("position_change_finished", finished_callback)
+	if changed_was_connected:
+		drawer.disconnect("position_changed", changed_callback)
+	if finished_was_connected:
+		drawer.disconnect("position_change_finished", finished_callback)
 	drawer.call("_begin_drag", drag_start + Vector2(80.0, 24.0))
 	drawer.call("_drag_to", drag_start + Vector2(200.0, 104.0))
 	drawer.call("_finish_drag")
@@ -120,6 +313,24 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 		failures.append("AI 决策建议框拖动后被布局刷新强制复位")
 	if not root_ui.get_global_rect().encloses(drawer.get_global_rect()):
 		failures.append("AI 决策建议框拖动后超出可见桌面")
+	drawer.call("set_expanded", false)
+	drawer.call("_on_toggle_pressed")
+	await process_frame
+	if not bool(drawer.call("is_expanded")):
+		failures.append("AI 决策建议框拖动后无法再次展开")
+	if opacity_slider != null:
+		opacity_slider.value = 0.33
+		await process_frame
+		if absf(float(drawer.call("get_glass_opacity")) - 0.33) > 0.001:
+			failures.append("AI 决策建议框拖动后透明度滑杆失效")
+	if changed_was_connected:
+		drawer.connect("position_changed", changed_callback)
+	if finished_was_connected:
+		drawer.connect("position_change_finished", finished_callback)
+	drawer.call("set_glass_opacity", old_opacity)
+	drawer.call("set_expanded", previous_expanded)
+	drawer.call("restore_user_position", previous_normalized, previous_positioned)
+	drawer.visible = previous_visible
 	scene.set("ai_helper_enabled", previous_ai_helper)
 
 
@@ -150,6 +361,47 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var root_ui: Control = scene.get("root_ui")
 	if panel != null and root_ui != null and (panel.size.x > root_ui.size.x + 1.0 or panel.size.y > root_ui.size.y + 1.0):
 		failures.append("结算面板不得超出屏幕")
+	var panel_style := panel.get_theme_stylebox("panel") as StyleBoxFlat if panel != null else null
+	if panel_style == null:
+		failures.append("结算面板缺少桌面主题样式")
+	elif panel_style.bg_color.b <= panel_style.bg_color.g or panel_style.bg_color.b <= panel_style.bg_color.r:
+		failures.append("结算页仍是旧绿色系，必须与主桌的深蓝灰色统一")
+	elif panel_style.border_color.b <= panel_style.border_color.r:
+		failures.append("结算页边框没有采用主桌的冷钢蓝边框")
+
+
+func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:
+	var players: Array = []
+	for seat in range(4):
+		players.append({
+			"seat": seat,
+			"nickname": ["本家", "上家", "对家", "下家"][seat],
+			"score": 0,
+			"ding_que": "wan",
+			"has_won": false,
+		})
+	var reaction_snapshot := {
+		"players": players,
+		"current_turn_seat": 1,
+		"current_dealer_seat": 3,
+		"human_reaction_options": {"can_peng": true, "can_pass": true},
+		"rules": {"use_ding_que_phase": true},
+	}
+	if int(scene.call("_active_interaction_seat", reaction_snapshot)) != 0:
+		failures.append("碰/杠/胡响应阶段必须把本家标为当前操作方")
+	if str(scene.call("_center_interaction_status", reaction_snapshot)) != "等待本家响应":
+		failures.append("响应阶段中央状态不得继续显示上家出牌中")
+	scene.call("_update_seat_huds", reaction_snapshot)
+	await process_frame
+	var seat_huds: Dictionary = scene.get("seat_huds")
+	var self_hud: Control = seat_huds.get(0)
+	var upper_hud: Control = seat_huds.get(1)
+	var self_turn_badge := self_hud.get_node_or_null("%TurnBadge") as Label if self_hud != null else null
+	var upper_turn_badge := upper_hud.get_node_or_null("%TurnBadge") as Label if upper_hud != null else null
+	if self_turn_badge == null or not self_turn_badge.visible or self_turn_badge.text != "响应":
+		failures.append("响应阶段本家信息框必须显示响应文字徽标")
+	if upper_turn_badge != null and upper_turn_badge.visible:
+		failures.append("响应阶段不得同时把上家和本家都标成当前操作方")
 
 
 func _trainer_hint() -> Dictionary:

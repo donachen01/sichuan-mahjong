@@ -28,6 +28,7 @@ func _run() -> void:
 		_verify_normal_round(root_node, utility_bar, failures)
 		_verify_settlement_visibility(utility_bar, failures)
 	await _verify_action_bar(root_node, failures)
+	_verify_summer_ding_que_controls(root_node, failures)
 	await _verify_hand_layout_pressure(failures)
 
 	root_node.queue_free()
@@ -43,6 +44,24 @@ func _run() -> void:
 
 func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array[String]) -> void:
 	utility_bar.call("render", false, false, false)
+	if not utility_bar.has_method("set_collapsed") or not utility_bar.has_method("is_collapsed"):
+		failures.append("左上角工具栏必须支持展开/缩进")
+		return
+	utility_bar.call("set_collapsed", true)
+	if not bool(utility_bar.call("is_collapsed")):
+		failures.append("左上角工具栏必须能缩进")
+	var collapsed_toggle: Button = utility_bar.call("get_button", "toggle")
+	if collapsed_toggle == null or not collapsed_toggle.visible:
+		failures.append("缩进后必须保留可点击的展开按钮")
+	elif collapsed_toggle.text != "☰":
+		failures.append("缩进入口必须使用单一菜单图标")
+	elif not collapsed_toggle.tooltip_text.contains("难度：骨灰") or not collapsed_toggle.tooltip_text.contains("明牌：关"):
+		failures.append("缩进入口 tooltip 必须保留当前难度和明牌状态")
+	elif collapsed_toggle.size.x < 76.0 or collapsed_toggle.size.y < 76.0:
+		failures.append("缩进图标点击区必须至少为 76x76")
+	elif collapsed_toggle.focus_mode != Control.FOCUS_ALL:
+		failures.append("缩进入口必须支持键盘/手柄焦点")
+	utility_bar.call("set_collapsed", false)
 	utility_bar.call("_layout_buttons")
 	for legacy_name in ["top_ai_helper_button", "top_settlement_info_button", "top_next_round_button", "top_exit_button"]:
 		var legacy_button: Button = root_node.get(legacy_name)
@@ -60,6 +79,22 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		if rect.size.x < MIN_TOUCH_SIZE.x or rect.size.y < MIN_TOUCH_SIZE.y:
 			failures.append("%s touch target is smaller than 76x76" % action)
 		visible_rects.append(rect)
+	var exit_button: Button = utility_bar.call("get_button", "exit")
+	if exit_button == null or exit_button.text != "退出游戏":
+		failures.append("退出入口必须使用友好的“退出游戏”文字按钮")
+	elif exit_button.size.x < 140.0:
+		failures.append("退出游戏按钮必须保留清楚的横向文字点击区")
+	if not root_node.has_method("_confirm_exit_game"):
+		failures.append("iOS 退出入口缺少确认后的平台退出实现")
+	else:
+		root_node.call("_on_top_exit_pressed")
+		var exit_dialog: ConfirmationDialog = root_node.get("exit_confirmation_dialog")
+		if exit_dialog == null or exit_dialog.title != "退出游戏" \
+				or exit_dialog.get_ok_button().text != "退出游戏" \
+				or exit_dialog.get_cancel_button().text != "继续游戏":
+			failures.append("退出游戏必须先显示友好的确认对话框")
+		elif exit_dialog.visible:
+			exit_dialog.hide()
 
 	for first_index in range(visible_rects.size()):
 		for second_index in range(first_index + 1, visible_rects.size()):
@@ -118,11 +153,92 @@ func _verify_action_bar(root_node: Node, failures: Array[String]) -> void:
 			if action_rects[first_index].intersects(action_rects[second_index]):
 				failures.append("action button touch targets overlap")
 	var self_hand: Control = root_node.get("self_hand_host")
-	if self_hand != null and action_bar.get_global_rect().intersects(self_hand.get_global_rect()):
+	if self_hand != null and self_hand.visible and action_bar.get_global_rect().intersects(self_hand.get_global_rect()):
 		failures.append("action bar overlaps the self hand")
 	if not action_bar.is_connected("action_selected", Callable(root_node, "_on_table_action_selected")):
 		failures.append("action bar must dispatch through the existing MainScene callbacks")
 	action_bar.call("hide_actions")
+
+	var players := [
+		{"seat": 0, "has_won": false},
+		{"seat": 1, "has_won": false},
+		{"seat": 2, "has_won": false},
+		{"seat": 3, "has_won": false},
+	]
+	var self_hu_snapshot := {
+		"players": players,
+		"current_phase": 3,
+		"human_can_self_hu": true,
+		"human_reaction_options": {},
+	}
+	root_node.call("_refresh_table_action_bar", self_hu_snapshot)
+	await process_frame
+	if action_bar.call("get_visible_actions") != ["hu", "pass"]:
+		failures.append("自摸快照必须同时显示胡与取消")
+	var self_hu_button: Button = action_bar.call("get_button", "hu")
+	var self_cancel_button: Button = action_bar.call("get_button", "pass")
+	if self_hu_button == null or self_hu_button.text != "自摸" or self_hu_button.disabled:
+		failures.append("自摸权限未映射为可用的自摸按钮")
+	if self_cancel_button == null or self_cancel_button.text != "取消" or self_cancel_button.disabled:
+		failures.append("自摸权限缺少可用的取消按钮")
+	if not root_node.get("root_ui").get_global_rect().encloses(action_bar.get_global_rect()):
+		failures.append("3D 模式胡/取消按钮超出手机可见区")
+
+	var reaction_hu_snapshot := self_hu_snapshot.duplicate(true)
+	reaction_hu_snapshot["human_can_self_hu"] = false
+	reaction_hu_snapshot["human_reaction_options"] = {"can_hu": true, "can_pass": true}
+	root_node.call("_refresh_table_action_bar", reaction_hu_snapshot)
+	await process_frame
+	if action_bar.call("get_visible_actions") != ["hu", "pass"]:
+		failures.append("点炮胡响应必须同时显示胡与取消")
+	if (action_bar.call("get_button", "hu") as Button).text != "胡" or (action_bar.call("get_button", "pass") as Button).text != "取消":
+		failures.append("点炮胡响应的按钮文案回归")
+	root_node.set("last_action_input_action", "")
+	root_node.set("last_action_input_source", "")
+	root_node.set("last_action_input_msec", -1)
+	if bool(root_node.call("_is_duplicate_action_cross_input", "hu", "touch")):
+		failures.append("第一个胡触摸不得被当作重复事件")
+	if not bool(root_node.call("_is_duplicate_action_cross_input", "hu", "mouse")):
+		failures.append("iOS 同一次胡的模拟鼠标事件必须被去重")
+	action_bar.call("hide_actions")
+
+
+func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) -> void:
+	var overlay: Control = root_node.get("ding_que_overlay")
+	if overlay == null or not overlay.top_level or overlay.z_index < 400 or overlay.mouse_filter != Control.MOUSE_FILTER_STOP:
+		failures.append("定缺层必须是高于牌桌工具的真正模态层")
+	var buttons: Array[Button] = [
+		root_node.get("ding_que_tiao_button"),
+		root_node.get("ding_que_tong_button"),
+		root_node.get("ding_que_wan_button"),
+	]
+	var expected_texts := ["条", "筒", "万"]
+	for index in range(buttons.size()):
+		var button := buttons[index]
+		if button == null:
+			failures.append("定缺大圆印按钮缺失")
+			continue
+		if button.text != expected_texts[index] or not button.tooltip_text.begins_with("定缺"):
+			failures.append("定缺圆印文案或辅助说明不完整")
+		if button.custom_minimum_size.x < 220.0 or button.custom_minimum_size.y < 220.0:
+			failures.append("定缺圆印的手机触控面积过小")
+		var normal := button.get_theme_stylebox("normal") as StyleBoxFlat
+		if normal == null or normal.corner_radius_top_left < 108 or normal.get_border_width(SIDE_TOP) < 4:
+			failures.append("定缺选择未实现圆形玻璃印与高光外环")
+		if button.focus_mode != Control.FOCUS_ALL:
+			failures.append("定缺圆印必须保留原生焦点与可点击性")
+	var utility_bar: Control = root_node.get("table_utility_bar")
+	if overlay != null and utility_bar != null:
+		utility_bar.call("set_collapsed", true)
+		overlay.visible = true
+		var utility_toggle: Button = utility_bar.call("get_button", "toggle")
+		var blocked_touch := InputEventScreenTouch.new()
+		blocked_touch.position = utility_toggle.get_global_rect().get_center()
+		blocked_touch.pressed = true
+		root_node.call("_input", blocked_touch)
+		if not bool(utility_bar.call("is_collapsed")):
+			failures.append("定缺模态层期间左上工具不得穿透点击")
+		overlay.visible = false
 
 
 func _verify_hand_layout_pressure(failures: Array[String]) -> void:
@@ -140,6 +256,9 @@ func _verify_hand_layout_pressure(failures: Array[String]) -> void:
 	if layouts.size() != 14:
 		failures.append("14-tile hand layout count mismatch")
 	else:
+		var first_rect: Rect2 = layouts[0].get("front_rect", Rect2())
+		if first_rect.size.x < 100.0 or first_rect.size.y < 150.0:
+			failures.append("compact self-hand tiles must remain readable at at least 100x150")
 		var previous_rect: Rect2 = layouts[12].get("front_rect", Rect2())
 		var draw_rect: Rect2 = layouts[13].get("front_rect", Rect2())
 		var normal_step := float(layouts[12].get("front_rect", Rect2()).position.x - layouts[11].get("front_rect", Rect2()).position.x)

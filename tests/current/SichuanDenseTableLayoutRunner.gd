@@ -81,8 +81,24 @@ func _verify_player_contract(player_ui: Control, label: String, failures: Array[
 	var host_rect := player_ui.get_global_rect().grow(1.0)
 	for index in range(tile_rects.size()):
 		var rect: Rect2 = tile_rects[index]
+		var minimum_edge := minf(rect.size.x, rect.size.y)
+		var required_edge := 70.0 if label == "top" else 76.0
+		if minimum_edge < required_edge:
+			failures.append("%s tile %d is too small for phone readability: %.1f < %.1f" % [label, index, minimum_edge, required_edge])
 		if not host_rect.encloses(rect):
 			failures.append("%s tile %d escaped player host: %s not in %s" % [label, index, rect, host_rect])
+	if label.begins_with("left") or label.begins_with("right"):
+		var side_hand_grid := player_ui.find_child("SideHandGrid", true, false) as Control
+		if side_hand_grid == null:
+			failures.append("%s missing centered SideHandGrid" % label)
+		elif absf(side_hand_grid.get_global_rect().get_center().y - player_ui.get_global_rect().get_center().y) > 1.0:
+			failures.append(
+				"%s hand must be vertically centered: hand=%.2f host=%.2f" % [
+					label,
+					side_hand_grid.get_global_rect().get_center().y,
+					player_ui.get_global_rect().get_center().y,
+				]
+			)
 	if not player_ui.has_method("get_track_rects"):
 		failures.append("%s PlayerUI missing get_track_rects" % label)
 		return

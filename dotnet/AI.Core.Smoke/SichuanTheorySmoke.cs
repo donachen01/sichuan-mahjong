@@ -114,9 +114,25 @@ internal static class SichuanTheorySmoke
     public static bool ScoringProjectionMatchesFrozenRules()
     {
         var hand = SichuanTileCodec.BuildCount18(new[] { 18,18,18,19,20,21,22,23,24,25,25,25,26,26 });
-        var projection = new SichuanFanProjectionEngine().Project(hand, Array.Empty<SichuanMeldView>(), SichuanWinType.SelfDraw);
+        var engine = new SichuanFanProjectionEngine();
+        var projection = engine.Project(hand, Array.Empty<SichuanMeldView>(), SichuanWinType.SelfDraw);
+        var sevenPairs = engine.Project(
+            SichuanTileCodec.BuildCount18(new[] { 0,0,1,1,2,2,12,12,13,13,14,14,15,15 }),
+            Array.Empty<SichuanMeldView>(),
+            SichuanWinType.SelfDraw);
+        var qingSevenPairs = engine.Project(
+            SichuanTileCodec.BuildCount18(new[] { 0,0,1,1,2,2,3,3,4,4,5,5,6,6 }),
+            Array.Empty<SichuanMeldView>(),
+            SichuanWinType.SelfDraw);
+        var bigPairs = engine.Project(
+            SichuanTileCodec.BuildCount18(new[] { 0,0,0,2,2,2,13,13,13,15,15,15,8,8 }),
+            Array.Empty<SichuanMeldView>(),
+            SichuanWinType.SelfDraw);
         Console.WriteLine($"scoring_projection type={projection.HandType} uncapped={projection.UncappedFan} capped={projection.CappedFan} score={projection.PerPayerScore}");
-        return projection.HandType == "qing_yi_se" && projection.CappedFan == 3 && projection.PerPayerScore == 5;
+        return projection.HandType == "qing_yi_se" && projection.CappedFan == 2 && projection.PerPayerScore == 5
+            && sevenPairs.HandType == "qi_dui" && sevenPairs.CappedFan == 2 && sevenPairs.PerPayerScore == 5
+            && qingSevenPairs.HandType == "qing_qi_dui" && qingSevenPairs.CappedFan == 4 && qingSevenPairs.PerPayerScore == 17
+            && bigPairs.HandType == "da_dui_zi" && bigPairs.CappedFan == 1 && bigPairs.PerPayerScore == 3;
     }
 
     public static bool PdfSixExpectedValueExampleIsExact()
@@ -393,7 +409,7 @@ internal static class SichuanTheorySmoke
         var scenario = new SichuanSettlementScenario(
             GangEvents: new[] { new SichuanGangScoreEvent(0, SichuanMeldType.ConcealedGang, new[] { 1, 2, 3 }) },
             GangRefunds: new[] { new SichuanGangRefundEvent(0, SichuanMeldType.ConcealedGang, new[] { 1, 2, 3 }) },
-            TransferEvents: new[] { new SichuanHuJiaoTransferEvent(2, SichuanMeldType.AddedGang, new[] { 0, 1, 3 }) },
+            TransferEvents: new[] { new SichuanHuJiaoTransferEvent(2, SichuanMeldType.AddedGang, new[] { 0, 1, 3 }, FromSeat: 0) },
             DrawAssessments: new[]
             {
                 new SichuanDrawAssessment(0, true, false, 2),
@@ -405,12 +421,12 @@ internal static class SichuanTheorySmoke
         Console.WriteLine($"exact_scored_waits={scored.Count} settlement={string.Join(',', settlement.ScoreChanges)} cha={string.Join(',', settlement.ChaJiaoChanges)} hua={string.Join(',', settlement.HuaZhuChanges)}");
         return scored.Count == 3
             && scored.All(item => item.FanProjections.Count > 0 && item.MaximumSettlement >= item.MinimumSettlement)
-            && settlement.ScoreChanges.SequenceEqual(new[] { 3, -7, -3, 7 })
+            && settlement.ScoreChanges.SequenceEqual(new[] { 21, -8, -31, 18 })
             && settlement.GangChanges.SequenceEqual(new[] { 6, -2, -2, -2 })
-            && settlement.RefundChanges.SequenceEqual(new[] { -6, 2, 2, 2 })
-            && settlement.TransferChanges.SequenceEqual(new[] { -1, -1, 3, -1 })
+            && settlement.RefundChanges.SequenceEqual(new[] { 0, 0, 0, 0 })
+            && settlement.TransferChanges.SequenceEqual(new[] { -3, 0, 3, 0 })
             && settlement.ChaJiaoChanges.SequenceEqual(new[] { 2, -6, 0, 4 })
-            && settlement.HuaZhuChanges.SequenceEqual(new[] { 2, 0, -6, 4 });
+            && settlement.HuaZhuChanges.SequenceEqual(new[] { 16, 0, -32, 16 });
     }
 
     public static bool PublicEventsRebuildThePublicTableExactly()

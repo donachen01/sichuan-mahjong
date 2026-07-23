@@ -1,20 +1,21 @@
 class_name SichuanTableTheme
 extends RefCounted
 
-const INK_JADE_DEEP := Color("052820")
-const MALACHITE := Color("0B3F34")
-const MOSS_GLOW := Color("123F35")
-const EBONY := Color("031815")
-const LACQUER_BROWN := Color("0A2B24")
-const WARM_CERAMIC := Color("F4E9C9")
-const JADE_SIDE := Color("0D5A3E")
-const AGED_COPPER := Color("A8793A")
-const COPPER_HIGHLIGHT := Color("C59A58")
-const COPPER_MID := Color("B99655")
-const COPPER_SHADOW := Color("7A522C")
-const CINNABAR := Color("7A2B25")
-const INDIGO := Color("122B36")
-const MIST_GREEN := Color("82948A")
+const INK_JADE_DEEP := Color("293C64")
+const MALACHITE := Color("4F70A3")
+const MOSS_GLOW := Color("5B80AF")
+const EBONY := Color("182238")
+const LACQUER_BROWN := Color("273550")
+const PANEL_JADE_BLACK := Color("263955")
+const WARM_CERAMIC := Color("E9E8EB")
+const JADE_SIDE := Color("2B9131")
+const AGED_COPPER := Color("B98B49")
+const COPPER_HIGHLIGHT := Color("E0BA70")
+const COPPER_MID := Color("D2A85B")
+const COPPER_SHADOW := Color("8E6635")
+const CINNABAR := Color("C95850")
+const INDIGO := Color("315E76")
+const MIST_GREEN := Color("B7D8CE")
 
 const FELT_DEEP := INK_JADE_DEEP
 const FELT_BASE := MALACHITE
@@ -23,11 +24,11 @@ const WOOD_DARK := EBONY
 const WOOD_MID := LACQUER_BROWN
 const BRASS := AGED_COPPER
 const IVORY := WARM_CERAMIC
-const TEXT_PRIMARY := Color("F4E9C9")
-const TEXT_SECONDARY := Color("D8C49A")
-const WAN_QUE := Color("8E2F33")
-const TONG_QUE := Color("315A8C")
-const TIAO_QUE := Color("247A68")
+const TEXT_PRIMARY := Color("F7F5EE")
+const TEXT_SECONDARY := Color("D9E0EC")
+const WAN_QUE := Color("EA5146")
+const TONG_QUE := Color("F6B73B")
+const TIAO_QUE := Color("24B87A")
 
 const RADIUS_STATUS := 4
 const RADIUS_CHIP := 8
@@ -37,12 +38,14 @@ const RADIUS_SURFACE := 20
 
 static func brand_contract() -> Dictionary:
 	return {
-		"name": "蜀锦玉案",
-		"direction": "modern_oriental_craftsmanship",
+		"name": "锦夏蓝庭",
+		"direction": "bright_summer_blue_mobile_mahjong",
 		"shape_motif": "shu_courtyard_cut_corner",
 		"materials": ["ink_jade_felt", "ebony_lacquer", "warm_ceramic_and_jade"],
 		"accent_material": "aged_copper",
 		"light_direction": "top_left_315_degrees",
+		"visual_hierarchy": ["tiles", "actions_and_key_text", "player_panels", "brocade_frame_ornament"],
+		"background_role": "atmosphere_only",
 		"radius_tokens": [RADIUS_STATUS, RADIUS_CHIP, RADIUS_NAMEPLATE, RADIUS_SURFACE],
 	}
 
@@ -95,17 +98,17 @@ static func font_size(role: String, compact: bool = false) -> int:
 
 static func make_panel_style(active: bool = false) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(EBONY, 0.10 if active else 0.06)
-	style.border_color = Color(COPPER_SHADOW, 0.18 if active else 0.10)
-	style.set_border_width_all(1)
+	style.bg_color = Color(PANEL_JADE_BLACK, 0.94 if active else 0.84)
+	style.border_color = Color(COPPER_HIGHLIGHT if active else COPPER_SHADOW, 0.88 if active else 0.52)
+	style.set_border_width_all(2 if active else 1)
 	style.set_corner_radius_all(RADIUS_NAMEPLATE)
 	style.content_margin_left = 14.0
 	style.content_margin_right = 14.0
 	style.content_margin_top = 10.0
 	style.content_margin_bottom = 10.0
-	style.shadow_color = Color(0.0, 0.015, 0.010, 0.20)
-	style.shadow_size = 4
-	style.shadow_offset = Vector2(3.0, 4.0)
+	style.shadow_color = Color(0.0, 0.015, 0.010, 0.48 if active else 0.36)
+	style.shadow_size = 9 if active else 6
+	style.shadow_offset = Vector2(4.0, 6.0)
 	style.anti_aliasing = true
 	return style
 
@@ -163,10 +166,10 @@ static func make_action_style(action: String, pressed: bool = false) -> StyleBox
 			style.border_color = Color(AGED_COPPER, 0.82)
 	if pressed:
 		style.bg_color = style.bg_color.darkened(0.18)
-	style.border_width_top = 3 if action != "pass" else 2
-	style.border_width_left = 3 if action != "pass" else 2
+	style.border_width_top = 2
+	style.border_width_left = 2
 	style.border_width_right = 2
-	style.border_width_bottom = 3
+	style.border_width_bottom = 2
 	style.corner_radius_top_left = RADIUS_NAMEPLATE
 	style.corner_radius_top_right = RADIUS_STATUS
 	style.corner_radius_bottom_left = RADIUS_STATUS

@@ -7,7 +7,7 @@ const TILE_STYLE := preload("res://scripts/ui/table/SichuanTileStyle.gd")
 const TILE_FACE_SIZE := Vector2(132.0, 198.0)
 const TILE_TOP_HEIGHT := 0.0
 const TILE_STEP_MAX := 136.0
-const TILE_STEP_MIN := 136.0
+const TILE_STEP_MIN := 52.0
 const SIDE_MARGIN := 28.0
 const BASELINE_BOTTOM := 34.0
 const ARC_MAX_LIFT := 0.0
@@ -15,7 +15,7 @@ const ARC_MAX_ROTATION := 0.0
 const TOP_SKEW := Vector2(1.8, -2.2)
 const NEW_DRAW_GAP := 22.0
 const WINNING_TILE_GAP := 24.0
-const SELECTED_LIFT := 10.0
+const SELECTED_LIFT := 18.0
 const NEW_DRAW_LIFT := 8.0
 const FRONT_INSET := Vector2(6.2, 6.4)
 const SHADOW_OFFSET := Vector2(1.0, 6.5)
@@ -43,9 +43,9 @@ const SUIT_RANK_TEXTURE_SCALE_OVERRIDES := {
 const TILE_BORDER_COLOR := TILE_STYLE.FACE_BORDER
 const TILE_FACE_COLOR := TILE_STYLE.FACE_TOP
 const TILE_CORNER_RADIUS := 10
-const HIGHLIGHT_COLOR := Color8(195, 29, 56, 255)
-const SELECTED_FACE_TINT := Color("E8E0C5")
-const SELECTED_EDGE_LIGHT := Color8(195, 29, 56, 225)
+const HIGHLIGHT_COLOR := Color("3F8668")
+const SELECTED_FACE_TINT := Color("FFF1D4")
+const SELECTED_EDGE_LIGHT := Color("A8793A")
 const TILE_INNER_BORDER := Color(0.96, 1.0, 0.98, 0.38)
 const TILE_INNER_SHADOW := Color(0.08, 0.18, 0.13, 0.14)
 const TILE_FACE_SURFACE_PATH := "res://res/art/ui_3d_cartoon/tile_face_table.png"
@@ -153,6 +153,20 @@ func get_recommended_marker_contract() -> Dictionary:
 	return recommended_marker_contract.duplicate(true)
 
 
+func get_selection_feedback_contract() -> Dictionary:
+	return {
+		"lift": SELECTED_LIFT,
+		"edge": "aged_copper_double_edge",
+		"ground_shadow": "stays_on_rack_when_tile_lifts",
+		"shape_backup": "bottom_copper_keyline",
+		"new_draw": "jade_corner_notch_and_physical_gap",
+		"danger": "cinnabar_bottom_warning",
+		"recommendation": "hovering_jade_marker",
+		"states_are_visually_distinct": true,
+		"reduced_motion_safe": true,
+	}
+
+
 func _draw() -> void:
 	if tile_layouts.is_empty():
 		return
@@ -208,7 +222,8 @@ func _draw_single_tile(layout: Dictionary) -> void:
 	])
 
 	var surface_texture := _load_tile_surface() if USE_SELF_TILE_SURFACE else null
-	_draw_self_contact_shadow(local_shadow_rect, geometry_scale)
+	var ground_lift := SELECTED_LIFT if is_selected else (NEW_DRAW_LIFT if is_new_draw else 0.0)
+	_draw_self_contact_shadow(local_shadow_rect, geometry_scale, ground_lift)
 	draw_colored_polygon(right_points, TILE_STYLE.SIDE_MID)
 	draw_colored_polygon(bottom_points, TILE_STYLE.BOTTOM_DEEP)
 	var right_glaze := PackedVector2Array([
@@ -244,7 +259,7 @@ func _draw_single_tile(layout: Dictionary) -> void:
 	if surface_texture != null:
 		_draw_asset_tile_rim(local_front_rect)
 	if is_new_draw:
-		_draw_selected_accent(local_front_rect, local_outer_rect)
+		_draw_new_draw_accent(local_front_rect)
 	if is_danger:
 		_draw_danger_hint(local_front_rect)
 	if is_recommended:
@@ -275,19 +290,21 @@ func _draw_danger_hint(front_rect: Rect2) -> void:
 	draw_rect(glow_rect, Color(0.98, 0.38, 0.18, 0.32), true)
 
 
-func _draw_self_contact_shadow(shadow_rect: Rect2, geometry_scale: float) -> void:
+func _draw_self_contact_shadow(shadow_rect: Rect2, geometry_scale: float, ground_lift: float = 0.0) -> void:
+	var grounded_shadow_rect := shadow_rect
+	grounded_shadow_rect.position.y += ground_lift * geometry_scale
 	var ambient := StyleBoxFlat.new()
 	ambient.bg_color = TILE_STYLE.AMBIENT_SHADOW
 	ambient.set_corner_radius_all(maxi(5, int(round(TILE_CORNER_RADIUS * geometry_scale))))
-	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.30)
-	ambient.shadow_size = maxi(4, int(round(8.0 * geometry_scale)))
+	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.34 if ground_lift <= 0.0 else 0.25)
+	ambient.shadow_size = maxi(4, int(round((8.0 if ground_lift <= 0.0 else 11.0) * geometry_scale)))
 	ambient.shadow_offset = Vector2(4.0, 5.0) * geometry_scale
-	draw_style_box(ambient, shadow_rect.grow(2.0 * geometry_scale))
+	draw_style_box(ambient, grounded_shadow_rect.grow((2.0 if ground_lift <= 0.0 else 3.5) * geometry_scale))
 	var contact := Rect2(
-		Vector2(shadow_rect.position.x + 7.0 * geometry_scale, shadow_rect.end.y - 8.0 * geometry_scale),
-		Vector2(maxf(3.0, shadow_rect.size.x - 14.0 * geometry_scale), maxf(3.0, 6.0 * geometry_scale))
+		Vector2(grounded_shadow_rect.position.x + 7.0 * geometry_scale, grounded_shadow_rect.end.y - 8.0 * geometry_scale),
+		Vector2(maxf(3.0, grounded_shadow_rect.size.x - 14.0 * geometry_scale), maxf(3.0, 6.0 * geometry_scale))
 	)
-	draw_rect(contact, TILE_STYLE.CONTACT_SHADOW, true)
+	draw_rect(contact, Color(TILE_STYLE.CONTACT_SHADOW, 0.38 if ground_lift > 0.0 else TILE_STYLE.CONTACT_SHADOW.a), true)
 
 
 func _draw_self_face_material(front_rect: Rect2, geometry_scale: float) -> void:
@@ -394,7 +411,10 @@ func _rebuild_layout() -> void:
 
 	var layout_scale := _compute_layout_scale()
 	var face_size := TILE_FACE_SIZE * layout_scale
-	var step := TILE_STEP_MAX * layout_scale
+	# Preserve a readable tile face on phones and fit wide hands by overlapping
+	# their horizontal footprints, as a physical rack does.  Scaling the whole
+	# face down made the symbols illegible even though there was ample height.
+	var step := _compute_tile_step(layout_scale)
 	var new_draw_gap := NEW_DRAW_GAP * layout_scale
 	var winning_tile_gap := WINNING_TILE_GAP * layout_scale
 	var row_width: float = face_size.x
@@ -521,20 +541,26 @@ func _arc_factor_for_index(index: int) -> float:
 
 
 func _compute_layout_scale() -> float:
+	# Height controls visual size. Width pressure is handled independently by
+	# `_compute_tile_step`, so a 14-tile hand does not become miniature.
+	var lifted_height := TILE_FACE_SIZE.y + BODY_DEPTH.y + maxf(SELECTED_LIFT, NEW_DRAW_LIFT)
+	var height_fit := maxf(0.0, viewport_size.y - BASELINE_BOTTOM) / maxf(1.0, lifted_height)
+	return clampf(height_fit, 0.76, 1.0)
+
+
+func _compute_tile_step(layout_scale: float) -> float:
 	var extra_gap := 0.0
 	if _should_apply_new_draw_gap():
-		extra_gap += NEW_DRAW_GAP
+		extra_gap += NEW_DRAW_GAP * layout_scale
 	if _should_apply_winning_tile_gap():
-		extra_gap += WINNING_TILE_GAP
+		extra_gap += WINNING_TILE_GAP * layout_scale
 	var left_reserved := embedded_left_width + (embedded_left_gap if embedded_left_width > 0.0 else 0.0)
 	var right_reserved := embedded_right_width + (embedded_right_gap if embedded_right_width > 0.0 else 0.0)
 	var available_width := maxf(0.0, viewport_size.x - SIDE_MARGIN * 2.0 - left_reserved - right_reserved)
-	var base_width := TILE_FACE_SIZE.x + extra_gap
-	if hand_tiles.size() > 1:
-		base_width += TILE_STEP_MAX * float(hand_tiles.size() - 1)
-	if base_width <= 0.0:
-		return 1.0
-	return clampf(available_width / base_width, 0.64, 1.0)
+	if hand_tiles.size() <= 1:
+		return TILE_STEP_MAX * layout_scale
+	var fit_step := (available_width - TILE_FACE_SIZE.x * layout_scale - extra_gap) / float(hand_tiles.size() - 1)
+	return clampf(fit_step, TILE_STEP_MIN * layout_scale, TILE_STEP_MAX * layout_scale)
 
 
 func _should_apply_new_draw_gap() -> bool:
@@ -745,12 +771,28 @@ func _draw_selected_accent(front_rect: Rect2, outer_rect: Rect2) -> void:
 	var glow := StyleBoxFlat.new()
 	glow.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	glow.border_color = SELECTED_EDGE_LIGHT
-	glow.set_border_width_all(2)
+	glow.set_border_width_all(3)
 	glow.corner_radius_top_left = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_top_right = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_bottom_left = TILE_CORNER_RADIUS + 2
 	glow.corner_radius_bottom_right = TILE_CORNER_RADIUS + 2
-	glow.shadow_color = Color(0.76, 0.20, 0.30, 0.08)
-	glow.shadow_size = 4
+	glow.shadow_color = Color(0.55, 0.36, 0.12, 0.16)
+	glow.shadow_size = 6
 	glow.shadow_offset = Vector2.ZERO
 	draw_style_box(glow, outer_rect.grow(3.0))
+	var keyline := Rect2(
+		front_rect.position + Vector2(front_rect.size.x * 0.18, front_rect.size.y - 6.0),
+		Vector2(front_rect.size.x * 0.64, 5.0)
+	)
+	draw_rect(keyline, Color(0.78, 0.60, 0.34, 0.94), true)
+	draw_rect(keyline.grow(1.0), Color(0.48, 0.32, 0.17, 0.78), false, 1.5)
+
+
+func _draw_new_draw_accent(front_rect: Rect2) -> void:
+	var marker_size := Vector2(18.0, 9.0)
+	var marker_rect := Rect2(
+		front_rect.end - Vector2(marker_size.x + 7.0, front_rect.size.y - 7.0),
+		marker_size
+	)
+	draw_rect(marker_rect, Color(0.25, 0.53, 0.41, 0.90), true)
+	draw_line(marker_rect.position, marker_rect.end, Color(0.82, 0.72, 0.46, 0.84), 1.5, true)

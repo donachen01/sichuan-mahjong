@@ -116,7 +116,7 @@ func _fill_color() -> Color:
 		"action":
 			return Color("031815", 0.975)
 		_:
-			return Color("092923", 0.965)
+			return Color(TABLE_THEME.PANEL_JADE_BLACK, 0.965)
 
 
 func _border_color() -> Color:

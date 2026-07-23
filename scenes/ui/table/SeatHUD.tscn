@@ -1,11 +1,12 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/table/SeatHUD.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/table/DingQueBadge.tscn" id="2_badge"]
 [ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="3_craft"]
+[ext_resource type="Script" path="res://scripts/ui/table/SeatAvatarMedallion.gd" id="4_avatar"]
 
 [node name="SeatHUD" type="Control"]
-custom_minimum_size = Vector2(176, 178)
+custom_minimum_size = Vector2(196, 146)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
@@ -48,6 +49,28 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="AvatarMedallion" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 10.0
+offset_top = 38.0
+offset_right = 70.0
+offset_bottom = 98.0
+mouse_filter = 2
+script = ExtResource("4_avatar")
+
+[node name="AvatarGlyph" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 10.0
+offset_top = 38.0
+offset_right = 70.0
+offset_bottom = 98.0
+text = "川"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
+
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -55,23 +78,31 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 mouse_filter = 2
 
 [node name="Content" type="VBoxContainer" parent="ContentMargin"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 3
+theme_override_constants/separation = 0
 mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="ContentMargin/Content"]
+[node name="NameSafeMargin" type="MarginContainer" parent="ContentMargin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/margin_left = 62
+theme_override_constants/margin_right = 40
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="ContentMargin/Content/NameSafeMargin"]
 unique_name_in_owner = true
 layout_mode = 2
 horizontal_alignment = 1
 vertical_alignment = 1
+text_overrun_behavior = 3
 text = "本家"
 
 [node name="ScoreLabel" type="Label" parent="ContentMargin/Content"]
@@ -113,4 +144,17 @@ offset_bottom = 44.0
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "已胡"
+mouse_filter = 2
+
+[node name="TurnBadge" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 66.0
+offset_bottom = 40.0
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "出牌"
 mouse_filter = 2

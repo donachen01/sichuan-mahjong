@@ -12,12 +12,22 @@ const FIT_PADDING := 4.0
 const MAX_DISCARDS_PER_SEAT := 14
 
 const LANE_RECTS := {
-	0: Rect2(80.0, 565.0, 1280.0, 145.0),
-	1: Rect2(230.0, 175.0, 340.0, 380.0),
-	2: Rect2(80.0, 30.0, 1280.0, 145.0),
-	3: Rect2(870.0, 175.0, 340.0, 380.0),
+	# The four public-history rails now form one deliberate ring around the
+	# decision core. Top/bottom use two seven-tile rows; side seats use five
+	# compact columns of up to three tiles. This keeps every seat scan-able
+	# without turning fourteen discards into one long ribbon.
+	0: Rect2(280.0, 460.0, 880.0, 250.0),
+	1: Rect2(20.0, 245.0, 550.0, 220.0),
+	2: Rect2(280.0, 0.0, 880.0, 250.0),
+	3: Rect2(870.0, 245.0, 550.0, 220.0),
 }
 const CENTER_RECT := Rect2(590.0, 250.0, 260.0, 210.0)
+const LANE_ITEMS_PER_ROW := {
+	0: 7,
+	1: 3,
+	2: 7,
+	3: 3,
+}
 
 var lanes: Dictionary = {}
 var latest_marker_count := 0
@@ -48,6 +58,9 @@ func set_board_rect(board_rect: Rect2) -> void:
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
+	for lane_value in lanes.values():
+		for child in (lane_value as Control).get_children():
+			_apply_reduced_motion_recursive(child, enabled)
 
 
 func get_lane(seat: int) -> Control:
@@ -78,6 +91,18 @@ func get_tile_rects(seat: int) -> Array:
 
 func get_latest_marker_count() -> int:
 	return latest_marker_count
+
+
+func get_lane_contract(seat: int) -> Dictionary:
+	var safe_seat := clampi(seat, 0, 3)
+	return {
+		"seat": safe_seat,
+		"reference_rect": LANE_RECTS[safe_seat],
+		"items_per_row": int(LANE_ITEMS_PER_ROW[safe_seat]),
+		"max_visible": MAX_DISCARDS_PER_SEAT,
+		"stable_origin": true,
+		"flow": ["left_to_right", "top_to_bottom", "right_to_left", "bottom_to_top"][safe_seat],
+	}
 
 
 func _draw() -> void:
@@ -129,7 +154,7 @@ func _render_lane(seat: int, discards: Array, latest_id: int) -> void:
 	var visible_discards := discards.slice(maxi(0, discards.size() - MAX_DISCARDS_PER_SEAT), discards.size())
 	if visible_discards.is_empty():
 		return
-	var items_per_row := 5 if seat in [1, 3] else 14
+	var items_per_row := int(LANE_ITEMS_PER_ROW.get(seat, 7))
 	var render_scale := _fit_scale(seat, lane.size, visible_discards.size(), items_per_row)
 	var face_size := TILE_BASE_SIZE * render_scale
 	var visual_size := (TILE_BASE_SIZE + TILE_VISUAL_EXTRA) * render_scale
@@ -210,15 +235,16 @@ func _row_step(seat: int, visual_size: Vector2) -> Vector2:
 
 
 func _origin(seat: int, container_size: Vector2, visual_size: Vector2, discard_count: int, items_per_row: int, col_step: Vector2) -> Vector2:
-	var first_row_count := mini(discard_count, items_per_row)
-	var first_row_width := absf(col_step.x) * float(maxi(0, first_row_count - 1)) + visual_size.x
+	# Anchor every seat to a fixed grid origin. Centering the partial row on each
+	# discard made the whole river jump and obscured which seat owned a tile.
+	var fixed_row_width := absf(col_step.x) * float(maxi(0, items_per_row - 1)) + visual_size.x
 	match seat:
 		0:
-			return Vector2(maxf(FIT_PADDING, (container_size.x - first_row_width) * 0.5), FIT_PADDING)
+			return Vector2(maxf(FIT_PADDING, (container_size.x - fixed_row_width) * 0.5), FIT_PADDING)
 		1:
 			return Vector2(container_size.x - visual_size.x - FIT_PADDING, FIT_PADDING)
 		2:
-			return Vector2(minf(container_size.x - visual_size.x - FIT_PADDING, maxf(FIT_PADDING, (container_size.x + first_row_width) * 0.5 - visual_size.x)), container_size.y - visual_size.y - FIT_PADDING)
+			return Vector2(minf(container_size.x - visual_size.x - FIT_PADDING, maxf(FIT_PADDING, (container_size.x + fixed_row_width) * 0.5 - visual_size.x)), container_size.y - visual_size.y - FIT_PADDING)
 		3:
 			return Vector2(FIT_PADDING, container_size.y - visual_size.y - FIT_PADDING)
 		_:
@@ -237,6 +263,8 @@ func _horizontal_step(visual_size: Vector2, container_size: Vector2, discard_cou
 func _create_tile_host(tile_data: Dictionary, scale: float, rotation_degrees: float, is_latest: bool) -> Control:
 	var tile := TILE_SCENE.instantiate()
 	tile.call("configure", tile_data, scale, false, false, false, is_latest)
+	if tile.has_method("set_reduced_motion"):
+		tile.call("set_reduced_motion", reduced_motion)
 	var host: Control = tile
 	if absf(rotation_degrees) >= 0.01:
 		var tile_size: Vector2 = tile.custom_minimum_size
@@ -251,6 +279,13 @@ func _create_tile_host(tile_data: Dictionary, scale: float, rotation_degrees: fl
 		host = wrapper
 	host.set_meta("latest_discard", is_latest)
 	return host
+
+
+func _apply_reduced_motion_recursive(node: Node, enabled: bool) -> void:
+	if node.has_method("set_reduced_motion"):
+		node.call("set_reduced_motion", enabled)
+	for child in node.get_children():
+		_apply_reduced_motion_recursive(child, enabled)
 
 
 func _player_by_seat(players: Array, seat: int) -> Dictionary:

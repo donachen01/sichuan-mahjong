@@ -1152,7 +1152,7 @@ func _build_compact_settlement_text(settlement_data: Dictionary) -> String:
 		var winner_seat: int = int(event.get("winner_seat", -1))
 		var fan_detail: Dictionary = event.get("fan_detail", {})
 		var fan_value := int(fan_detail.get("capped_fan", 0))
-		var basic_score := 1 if fan_value <= 0 else int(pow(2.0, fan_value - 1))
+		var basic_score := int(pow(2.0, maxi(0, fan_value)))
 		var fan_text := "%d番/%d分" % [fan_value, basic_score]
 		var labels: Array = fan_detail.get("labels", [])
 		lines.append("胡牌：%s | %s | %s" % [_seat_name(winner_seat), fan_text, "/".join(labels)])

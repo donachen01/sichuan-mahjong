@@ -8,36 +8,14 @@ var fan_resolver = FanResolverScript.new()
 
 
 func build_score_changes(players: Array, settlement_data: Dictionary, rules_config) -> Dictionary:
-	var changes := {}
-	for player in players:
-		changes[player["seat"]] = 0
-
-	var unresolved_players := 0
-	for player in players:
-		if not bool(player.get("has_won", false)):
-			unresolved_players += 1
-	var is_draw_settlement := str(settlement_data.get("end_reason", "")) == "draw_wall_empty"
-	var is_battle_end_settlement := str(settlement_data.get("end_reason", "")) == "battle_end"
-	var should_count_gang_scores: bool = unresolved_players == 0 or is_draw_settlement or is_battle_end_settlement
+	var changes := _blank_score_changes(players)
 
 	var gang_events: Array = settlement_data.get("gang_events", [])
-	if should_count_gang_scores:
-		for event in gang_events:
-			var actor_seat: int = int(event.get("actor_seat", -1))
-			var gang_type: String = str(event.get("gang_type", ""))
-			var related_outcome: String = str(event.get("related_outcome", ""))
-			if related_outcome == "gang_discard_win":
-				continue
-			var payer_seats: Array = event.get("payer_seats", [])
-			var unit_score: int = _resolve_gang_unit_score(gang_type)
-			for payer in payer_seats:
-				var payer_seat: int = int(payer)
-				if changes.has(actor_seat) and changes.has(payer_seat):
-					changes[actor_seat] += unit_score
-					changes[payer_seat] -= unit_score
+	for event in gang_events:
+		_merge_score_changes(changes, build_gang_event_score_changes(players, event))
 
 	var tui_gang_refunds: Array = settlement_data.get("tui_gang_refunds", [])
-	if should_count_gang_scores:
+	if rules_config != null and bool(rules_config.enable_tui_shui):
 		for refund in tui_gang_refunds:
 			var actor_seat: int = int(refund.get("actor_seat", -1))
 			var gang_type: String = str(refund.get("gang_type", ""))
@@ -50,20 +28,8 @@ func build_score_changes(players: Array, settlement_data: Dictionary, rules_conf
 					changes[payer_seat] += refund_unit
 
 	var transfer_events: Array = settlement_data.get("transfer_events", [])
-	if should_count_gang_scores:
-		for event in transfer_events:
-			var transfer_type: String = str(event.get("transfer_type", ""))
-			if transfer_type != "hu_jiao_zhuan_yi":
-				continue
-			var winner_seat: int = int(event.get("to_seat", -1))
-			var gang_type: String = str(event.get("gang_type", ""))
-			var payer_seats: Array = event.get("payer_seats", [])
-			var transfer_unit: int = _resolve_gang_unit_score(gang_type)
-			for payer in payer_seats:
-				var payer_seat: int = int(payer)
-				if changes.has(winner_seat) and changes.has(payer_seat):
-					changes[winner_seat] += transfer_unit
-					changes[payer_seat] -= transfer_unit
+	for event in transfer_events:
+		_merge_score_changes(changes, build_transfer_event_score_changes(players, event))
 
 	var win_events: Array = settlement_data.get("win_events", [])
 	for event in win_events:
@@ -82,15 +48,14 @@ func build_score_changes(players: Array, settlement_data: Dictionary, rules_conf
 			changes[winner_seat] += payment
 			changes[payer_seat] -= payment
 
-	_apply_draw_adjustments(changes, settlement_data)
+	_apply_draw_adjustments(changes, settlement_data, rules_config)
 
 	return changes
 
 
 func _resolve_hand_basic_score(capped_fan: int, rules_config = null) -> int:
-	if capped_fan <= 0:
-		return 1
-	return int(pow(2.0, capped_fan - 1))
+	var bottom_score := 1 if rules_config == null else maxi(1, int(rules_config.base_score))
+	return bottom_score * int(pow(2.0, maxi(0, capped_fan)))
 
 
 func _resolve_self_draw_bottom_score(win_type: String, rules_config) -> int:
@@ -109,17 +74,42 @@ func _resolve_gang_unit_score(gang_type: String) -> int:
 			return 1
 
 
+func resolve_gang_total_score(event: Dictionary) -> int:
+	return _resolve_gang_unit_score(str(event.get("gang_type", ""))) * Array(event.get("payer_seats", [])).size()
+
+
+func build_gang_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
+	var changes := _blank_score_changes(players)
+	var actor_seat := int(event.get("actor_seat", -1))
+	var unit_score := _resolve_gang_unit_score(str(event.get("gang_type", "")))
+	for payer in event.get("payer_seats", []):
+		_apply_payment(changes, actor_seat, int(payer), unit_score)
+	return changes
+
+
+func build_transfer_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
+	var changes := _blank_score_changes(players)
+	if str(event.get("transfer_type", "")) != "hu_jiao_zhuan_yi":
+		return changes
+	var from_seat := int(event.get("from_seat", event.get("related_actor_seat", -1)))
+	var winner_seat := int(event.get("to_seat", -1))
+	var transfer_score := int(event.get("transfer_score", 0))
+	if transfer_score <= 0:
+		transfer_score = _resolve_gang_unit_score(str(event.get("gang_type", ""))) * Array(event.get("payer_seats", [])).size()
+	_apply_payment(changes, winner_seat, from_seat, transfer_score)
+	return changes
+
+
 func build_event_fan_detail(player: Dictionary, winning_tile: Dictionary, win_type: String, rules_config) -> Dictionary:
 	return fan_resolver.resolve_win_fans(player, winning_tile, win_type, rules_config)
 
 
-func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary) -> void:
+func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary, rules_config) -> void:
 	var draw_assessment: Array = settlement_data.get("draw_assessment", [])
 	if draw_assessment.is_empty():
 		return
 
 	var ting_items: Array[Dictionary] = []
-	var ting_items_by_seat: Dictionary = {}
 	var no_ting_seats: Array[int] = []
 	var hua_zhu_seats: Array[int] = []
 	for item in draw_assessment:
@@ -129,25 +119,67 @@ func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary) -
 			hua_zhu_seats.append(seat)
 		elif is_ting:
 			ting_items.append(item)
-			ting_items_by_seat[seat] = item
 		else:
 			no_ting_seats.append(seat)
 
+	# 花猪统一按封顶 4 番（底分 1 时即 16 分）赔付所有仍处于下叫状态的玩家。
+	var hua_zhu_payment := _resolve_hand_basic_score(4, rules_config)
 	for hua_zhu_seat in hua_zhu_seats:
 		for item in ting_items:
 			var target: int = int(item.get("seat", -1))
-			var payment := _resolve_draw_assessment_payment(item)
-			if changes.has(hua_zhu_seat) and changes.has(target):
-				changes[hua_zhu_seat] -= payment
-				changes[target] += payment
+			_apply_payment(changes, target, hua_zhu_seat, hua_zhu_payment)
 
+	# 查大叫：未下叫者分别向每位下叫者、以及本局已经胡牌的玩家赔付。
+	# 下叫者使用其最大可胡分；已胡者使用其本局最高实际胡牌基础分。
 	for no_ting_seat in no_ting_seats:
 		for item in ting_items:
 			var target: int = int(item.get("seat", -1))
 			var payment := _resolve_draw_assessment_payment(item)
-			if changes.has(no_ting_seat) and changes.has(target):
-				changes[no_ting_seat] -= payment
-				changes[target] += payment
+			_apply_payment(changes, target, no_ting_seat, payment)
+		for target in _build_winner_draw_targets(settlement_data, rules_config):
+			_apply_payment(
+				changes,
+				int(target.get("seat", -1)),
+				no_ting_seat,
+				int(target.get("score", 0))
+			)
+
+
+func _build_winner_draw_targets(settlement_data: Dictionary, rules_config) -> Array[Dictionary]:
+	var by_seat := {}
+	for event in settlement_data.get("win_events", []):
+		var seat := int(event.get("winner_seat", -1))
+		var fan_detail: Dictionary = event.get("fan_detail", {})
+		var fan := int(fan_detail.get("capped_fan", 0))
+		var score := int(fan_detail.get("hand_score", _resolve_hand_basic_score(fan, rules_config)))
+		if score > int(by_seat.get(seat, 0)):
+			by_seat[seat] = score
+	var result: Array[Dictionary] = []
+	for seat in by_seat.keys():
+		result.append({"seat": int(seat), "score": int(by_seat[seat])})
+	return result
 
 func _resolve_draw_assessment_payment(item: Dictionary) -> int:
 	return maxi(1, int(item.get("cha_jiao_score", 1)))
+
+
+func _blank_score_changes(players: Array) -> Dictionary:
+	var changes := {}
+	for player in players:
+		changes[int(player.get("seat", -1))] = 0
+	return changes
+
+
+func _merge_score_changes(target: Dictionary, source: Dictionary) -> void:
+	for seat in source.keys():
+		if target.has(seat):
+			target[seat] = int(target.get(seat, 0)) + int(source.get(seat, 0))
+
+
+func _apply_payment(changes: Dictionary, receiver_seat: int, payer_seat: int, score: int) -> void:
+	if score <= 0 or receiver_seat == payer_seat:
+		return
+	if not changes.has(receiver_seat) or not changes.has(payer_seat):
+		return
+	changes[receiver_seat] = int(changes.get(receiver_seat, 0)) + score
+	changes[payer_seat] = int(changes.get(payer_seat, 0)) - score

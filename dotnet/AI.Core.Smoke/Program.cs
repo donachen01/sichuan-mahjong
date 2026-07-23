@@ -165,6 +165,30 @@ if (!SmokeHellChallengeReportsSelectedShape())
     return 3901;
 }
 
+if (!SmokeHellChallengeInheritsOldHandFlushRoute())
+{
+    Console.Error.WriteLine("hell_challenge_old_hand_flush_route_smoke_failed");
+    return 3903;
+}
+
+if (!SmokeHellChallengeInheritsOldHandTripletProtection())
+{
+    Console.Error.WriteLine("hell_challenge_old_hand_triplet_protection_smoke_failed");
+    return 3904;
+}
+
+if (!SmokeHellChallengeEnforcesDingQueLegality())
+{
+    Console.Error.WriteLine("hell_challenge_ding_que_legality_smoke_failed");
+    return 3905;
+}
+
+if (!SmokeHellChallengeSharesContinuousBrainWithReaction())
+{
+    Console.Error.WriteLine("hell_challenge_shared_continuous_brain_smoke_failed");
+    return 3906;
+}
+
 if (!SmokeHellChallengeTierKeepsOneAwayOverWideTwoAway())
 {
     Console.Error.WriteLine("hell_challenge_tier_one_away_smoke_failed");
@@ -2292,6 +2316,131 @@ static bool SmokeHellChallengeReportsSelectedShape()
         && result.SelectedLiveUkeire == selected.LiveUkeire
         && result.SelectedWaitCount == selected.WaitCount
         && result.SelectedTier == selected.Tier;
+}
+
+static bool SmokeHellChallengeInheritsOldHandFlushRoute()
+{
+    var hand18 = SichuanTileCodec.BuildCount18(new[]
+    {
+        0, 1, 2, 3, 4, 5, 6, 7, 7, 8, 8,
+        9, 13, 16
+    });
+    var state = SichuanStateCodec.FromRaw(1, 0, 1, 18, hand18, new int[27], roundIndex: 920);
+    var allHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    allHands[1] = hand18;
+    var exactWall = Enumerable.Repeat(2, 27).ToArray();
+
+    var result = new SichuanHellChallengeEngine().DecideDiscard(
+        state,
+        allHands,
+        exactWall,
+        currentScores: new[] { 0, 0, 0, 0 });
+    var selected = result.Candidates.First(candidate => candidate.TileType == result.Action.TileType);
+
+    Console.WriteLine($"hell_old_hand_flush tile={result.Action.TileType} old={selected.OldHandScore}/{selected.OldHandRank}/{selected.OldHandRoute} reasons={string.Join('|', result.Reasons)}");
+    return result.Action.TileType >= 9
+        && selected.OldHandRank == 0
+        && SichuanRoutePlanEngine.IsFlushRoute(selected.OldHandRoute)
+        && result.Reasons.Any(reason => reason.Contains("老手主线", StringComparison.Ordinal));
+}
+
+static bool SmokeHellChallengeInheritsOldHandTripletProtection()
+{
+    var hand18 = new[] { 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 2, 1, 1, 3 };
+    var visible18 = new[] { 2, 1, 1, 0, 1, 0, 1, 0, 2, 2, 1, 0, 1, 4, 2, 1, 2, 3 };
+    var remaining18 = new[] { 2, 3, 3, 4, 3, 4, 3, 4, 2, 2, 3, 4, 3, 0, 2, 3, 2, 1 };
+    var discards = new[]
+    {
+        new[] { 16 },
+        new[] { 9, 0 },
+        new[] { 9, 8 },
+        new[] { 10, 8 },
+    };
+    var melds = new[]
+    {
+        Array.Empty<int>(),
+        Array.Empty<int>(),
+        Array.Empty<int>(),
+        new[] { 13, 13, 13 },
+    };
+    var state = SichuanStateCodec.FromRaw(2, 2, 2, 12, hand18, visible18, remaining18, discards, melds, roundIndex: 921);
+    var allHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    allHands[2] = hand18;
+
+    var result = new SichuanHellChallengeEngine().DecideDiscard(
+        state,
+        allHands,
+        remaining18,
+        currentScores: new[] { 0, 0, 0, 0 });
+    var selected = result.Candidates.First(candidate => candidate.TileType == result.Action.TileType);
+    var tripletCandidate = result.Candidates.First(candidate => candidate.TileType == 17);
+
+    Console.WriteLine($"hell_old_hand_triplet tile={result.Action.TileType} breaks={selected.OldHandBreaksTriplet} triplet={tripletCandidate.Score}/{tripletCandidate.OldHandScore}/{tripletCandidate.OldHandRank} reasons={string.Join('|', result.Reasons)}");
+    return result.Action.TileType != 17
+        && !selected.OldHandBreaksTriplet
+        && tripletCandidate.OldHandBreaksTriplet
+        && result.Reasons.Any(reason => reason.Contains("老手主线", StringComparison.Ordinal));
+}
+
+static bool SmokeHellChallengeEnforcesDingQueLegality()
+{
+    var hand18 = SichuanTileCodec.BuildCount18(new[]
+    {
+        0, 1, 2, 3, 4,
+        9, 10, 11, 12, 13,
+        18, 20, 22, 24,
+    });
+    var state = SichuanStateCodec.FromRaw(
+        2,
+        0,
+        2,
+        38,
+        hand18,
+        new int[27],
+        dingQueSuits: new[] { 0, 1, 2, 0 },
+        roundIndex: 922);
+    var allHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    allHands[2] = hand18;
+    var exactWall = Enumerable.Repeat(2, 27).ToArray();
+
+    var result = new SichuanHellChallengeEngine().DecideDiscard(state, allHands, exactWall);
+    var onlyDingQueCandidates = result.Candidates.Count > 0
+        && result.Candidates.All(candidate => candidate.TileType is >= 18 and <= 26);
+    Console.WriteLine($"hell_ding_que action={result.Action.TileType} candidates={string.Join(',', result.Candidates.Select(candidate => candidate.TileType))}");
+    return result.Action.TileType is >= 18 and <= 26 && onlyDingQueCandidates;
+}
+
+static bool SmokeHellChallengeSharesContinuousBrainWithReaction()
+{
+    var sharedOldHand = new SichuanAiFacade();
+    var discardEngine = new SichuanHellChallengeEngine(sharedOldHand);
+    var reactionEngine = new SichuanHellChallengeReactionEngine(sharedOldHand);
+    var beforeHand = SichuanTileCodec.BuildCount18(new[] { 4, 4, 4, 0, 1, 2, 9, 10, 11, 18, 19, 20, 6, 7 });
+    var before = SichuanStateCodec.FromRaw(1, 0, 1, 24, beforeHand, new int[27], roundIndex: 923);
+    var allHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    allHands[1] = beforeHand;
+    _ = discardEngine.DecideDiscard(before, allHands, Enumerable.Repeat(2, 27).ToArray());
+
+    var afterHand = (int[])beforeHand.Clone();
+    afterHand[4]--;
+    var discards = new[] { new List<int>(), new List<int> { 4 }, new List<int>(), new List<int>() };
+    var after = SichuanStateCodec.FromRaw(1, 0, 1, 23, afterHand, new int[27], discards18: discards, roundIndex: 923);
+    allHands[1] = afterHand;
+    var reaction = reactionEngine.DecideReaction(
+        after,
+        reactionTileType: 4,
+        canHu: false,
+        canPeng: true,
+        canGang: false,
+        sourceSeat: 0,
+        reactionType: "discard",
+        allHands18: allHands,
+        exactWall18: Enumerable.Repeat(2, 27).ToArray());
+
+    Console.WriteLine($"hell_shared_brain action={reaction.Action.ActionType} pass={reaction.ActionScores.GetValueOrDefault("pass")} peng={reaction.ActionScores.GetValueOrDefault("peng")} reasons={string.Join('|', reaction.Reasons)}");
+    return reaction.Action.ActionType == SichuanActionType.Pass
+        && reaction.ActionScores.GetValueOrDefault("peng") < reaction.ActionScores.GetValueOrDefault("pass")
+        && reaction.Reasons.Any(reason => reason.Contains("主动拆刻", StringComparison.Ordinal));
 }
 
 static bool SmokeHellChallengeTierKeepsOneAwayOverWideTwoAway()

@@ -53,6 +53,11 @@ public sealed class SichuanHellChallengeCandidate
     public string Tier { get; init; } = "";
     public int TierRank { get; init; }
     public int TierAdjustment { get; init; }
+    public int OldHandScore { get; init; }
+    public int OldHandRank { get; init; } = -1;
+    public string OldHandRoute { get; init; } = "";
+    public double OldHandExpectedNetScore { get; init; }
+    public bool OldHandBreaksTriplet { get; init; }
     public IReadOnlyList<int> DealInTargetSeats { get; init; } = Array.Empty<int>();
     public IReadOnlyList<string> Reasons { get; init; } = Array.Empty<string>();
 }
