@@ -17,12 +17,12 @@ const BRASS_LINE_WIDTH := 2.0
 const WOOD_DARK := TABLE_THEME.EBONY
 const WOOD_MID := TABLE_THEME.LACQUER_BROWN
 const BRASS := TABLE_THEME.AGED_COPPER
-const BROCADE_OPACITY := 0.065
-const WEAVE_OPACITY := 0.035
+const PLUSH_STRENGTH := 0.112
+const FIBER_DENSITY := 148.0
+const NAP_VARIATION := 0.034
 const VIGNETTE_STRENGTH := 0.50
 const LIGHT_STRENGTH := 0.205
 const AMBIENT_FILL_STRENGTH := 0.080
-const BROCADE_RELIEF := 0.560
 
 @export var material_mode: MaterialMode = MaterialMode.FELT:
 	set(value):
@@ -61,60 +61,12 @@ func _draw() -> void:
 
 func _draw_felt_texture() -> void:
 	# The opaque procedural shader below this draw pass owns the base color,
-	# directional light and vignette.  This translucent wash binds the vector
-	# brocade and frame to the same ink-jade material without recreating the old
-	# circular hotspot.
+	# directional light, continuous short plush fibers and vignette. This
+	# translucent wash only binds the frame and perspective seams to the same
+	# material; geometric brocade motifs are intentionally absent.
 	draw_rect(Rect2(Vector2.ZERO, size), Color(TABLE_THEME.INK_JADE_DEEP, 0.10 * opacity), true)
-
-	var line_gap := maxf(12.0, minf(size.x, size.y) / 76.0)
-	var horizontal_count := int(size.y / line_gap)
-	for index in range(horizontal_count + 1):
-		var y := float(index) * line_gap
-		var alpha := (0.0008 + 0.0005 * sin(float(index) * 1.37)) * opacity
-		draw_line(Vector2(0.0, y), Vector2(size.x, y + sin(float(index) * 0.61) * 1.2), Color(0.60, 0.92, 0.66, alpha), 1.0, true)
-	var vertical_count := int(size.x / (line_gap * 1.35))
-	for index in range(vertical_count + 1):
-		var x := float(index) * line_gap * 1.35
-		var alpha := (0.0006 + 0.0004 * cos(float(index) * 1.19)) * opacity
-		draw_line(Vector2(x, 0.0), Vector2(x + cos(float(index) * 0.57) * 1.0, size.y), Color(0.0, 0.10, 0.05, alpha), 1.0, true)
-
-	# A restrained woven diamond field breaks up the large empty green areas
-	# without competing with tiles or HUD text.
-	var weave_gap := maxf(54.0, minf(size.x, size.y) * 0.065)
-	var diagonal_extent := size.x + size.y
-	var diagonal_count := int(diagonal_extent / weave_gap)
-	for index in range(-diagonal_count, diagonal_count + 1):
-		var offset := float(index) * weave_gap
-		draw_line(Vector2(offset, 0.0), Vector2(offset + size.y, size.y), Color(0.64, 0.76, 0.58, 0.014 * opacity), 1.0, true)
-		draw_line(Vector2(offset, size.y), Vector2(offset + size.y, 0.0), Color(0.0, 0.10, 0.06, 0.020 * opacity), 1.0, true)
-	_draw_brocade_field()
 	_draw_perspective_table_structure()
 	_draw_table_frame()
-
-
-func _draw_brocade_field() -> void:
-	var motif_color := Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.038 * opacity)
-	var shadow_color := Color(0.0, 0.10, 0.065, 0.046 * opacity)
-	var cell := maxf(76.0, minf(size.x, size.y) * 0.082)
-	var columns := int(size.x / cell) + 1
-	var rows := int(size.y / cell) + 1
-	for row in range(rows):
-		for column in range(columns):
-			# Remove the wallpaper-like cadence: some cells carry only the woven
-			# diamond base while the cloud/scroll accent appears irregularly.
-			if (row * 5 + column * 3) % 7 in [0, 1]:
-				continue
-			var center := Vector2((float(column) + 0.5) * cell, (float(row) + 0.5) * cell)
-			if row % 2 == 1:
-				center.x += cell * 0.5
-			var phase := float((row * 11 + column * 7) % 9) / 8.0
-			center += Vector2((phase - 0.5) * cell * 0.10, sin(phase * TAU) * cell * 0.035)
-			var radius := cell * (0.135 + phase * 0.035)
-			var local_motif := Color(motif_color, motif_color.a * (0.68 + phase * 0.28))
-			var local_shadow := Color(shadow_color, shadow_color.a * (0.70 + (1.0 - phase) * 0.24))
-			draw_arc(center, radius, 0.16, PI - 0.16, 18, local_motif, 1.0, true)
-			draw_arc(center, radius, PI + 0.16, TAU - 0.16, 18, local_shadow, 1.0, true)
-			draw_arc(center, radius * 0.55, -PI * 0.34, PI * 0.34, 12, local_motif, 1.0, true)
 
 
 
@@ -235,23 +187,26 @@ func _sync_felt_shader_layer() -> void:
 	_felt_shader_layer.visible = true
 	var shader_material := _felt_shader_layer.material as ShaderMaterial
 	if shader_material != null:
-		shader_material.set_shader_parameter("brocade_opacity", BROCADE_OPACITY * opacity)
-		shader_material.set_shader_parameter("weave_opacity", WEAVE_OPACITY * opacity)
+		shader_material.set_shader_parameter("plush_strength", PLUSH_STRENGTH * opacity)
+		shader_material.set_shader_parameter("fiber_density", FIBER_DENSITY)
+		shader_material.set_shader_parameter("nap_variation", NAP_VARIATION * opacity)
 		shader_material.set_shader_parameter("vignette_strength", VIGNETTE_STRENGTH * opacity)
 		shader_material.set_shader_parameter("light_strength", LIGHT_STRENGTH * opacity)
 		shader_material.set_shader_parameter("ambient_fill_strength", AMBIENT_FILL_STRENGTH * opacity)
-		shader_material.set_shader_parameter("brocade_relief", BROCADE_RELIEF * opacity)
 
 
 func get_material_contract() -> Dictionary:
 	return {
 		"base_palette": ["052820", "062c28", "06382c", "0b3f34", "123f35"],
-		"brocade_opacity": BROCADE_OPACITY,
-		"brocade_relief": BROCADE_RELIEF,
+		"plush_strength": PLUSH_STRENGTH,
+		"fiber_density": FIBER_DENSITY,
+		"nap_variation": NAP_VARIATION,
 		"lighting_layers": ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"],
 		"light_direction": "upper_left_to_lower_right",
-		"motif_scale": "micro_repeat_only",
-		"large_motif": "none",
+		"surface_finish": "dense_short_plush",
+		"texture_coverage": "full_surface",
+		"fiber_directions": "crossed_irregular_nap",
+		"geometric_motifs": "none",
 		"circular_hotspot": false,
 		"spatial_structure": "fixed_camera_shallow_perspective",
 		"rail_depth": "ebony_side_rails_with_copper_inner_edge",

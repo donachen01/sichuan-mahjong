@@ -93,27 +93,33 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 			var shader_path := shader_material.shader.resource_path
 			if shader_path != "res://shaders/table_club_felt.gdshader":
 				failures.append("ClubFeltShader 使用了错误的 shader: %s" % shader_path)
-			var brocade_opacity := float(shader_material.get_shader_parameter("brocade_opacity"))
-			if brocade_opacity < 0.04 or brocade_opacity > 0.10:
-				failures.append("蜀锦暗纹必须保持在不抢牌面的 4%-10%，当前 %.3f" % brocade_opacity)
+			var plush_strength := float(shader_material.get_shader_parameter("plush_strength"))
+			if plush_strength < 0.10 or plush_strength > 0.13:
+				failures.append("整桌短绒强度必须保持在清晰但不抢牌面的 10%-13%，当前 %.3f" % plush_strength)
+			var fiber_density := float(shader_material.get_shader_parameter("fiber_density"))
+			if fiber_density < 120.0 or fiber_density > 180.0:
+				failures.append("短绒密度必须保持在细密毛绒范围，当前 %.1f" % fiber_density)
+			var nap_variation := float(shader_material.get_shader_parameter("nap_variation"))
+			if nap_variation < 0.02 or nap_variation > 0.045:
+				failures.append("绒向明暗变化必须保持在 2%-4.5%，避免形成云雾脏斑，当前 %.3f" % nap_variation)
 			var light_strength := float(shader_material.get_shader_parameter("light_strength"))
 			if light_strength < 0.18 or light_strength > 0.25:
 				failures.append("左上暖光强度必须达到可辨识的 18%-25%，当前 %.3f" % light_strength)
 			var ambient_fill := float(shader_material.get_shader_parameter("ambient_fill_strength"))
 			if ambient_fill < 0.05 or ambient_fill > 0.10:
 				failures.append("环境中性补光必须保持在克制的 5%-10%，当前 %.3f" % ambient_fill)
-			var brocade_relief := float(shader_material.get_shader_parameter("brocade_relief"))
-			if brocade_relief < 0.50 or brocade_relief > 0.75:
-				failures.append("蜀锦压纹层次必须保持在 50%-75%，当前 %.3f" % brocade_relief)
 			var shader_source := FileAccess.get_file_as_string("res://shaders/table_club_felt.gdshader")
-			for motif_name in ["huiwen_motif", "yunlei_motif", "diamond_brocade", "scroll_grass_motif", "intertwined_branch_motif"]:
-				if not shader_source.contains(motif_name):
-					failures.append("蜀锦暗纹缺少程序化纹样 %s" % motif_name)
+			for fiber_source in ["short_fiber", "full_surface_fiber", "value_noise", "plush_nap"]:
+				if not shader_source.contains(fiber_source):
+					failures.append("全面毛绒桌布缺少程序化纤维实现 %s" % fiber_source)
+			for removed_motif in ["huiwen_motif", "yunlei_motif", "diamond_brocade", "scroll_grass_motif", "intertwined_branch_motif"]:
+				if shader_source.contains(removed_motif):
+					failures.append("全面毛绒桌布不得保留旧暗纹 %s" % removed_motif)
 			for forbidden_source in ["centered_spotlight", "shu_medallion_motif", "off_canvas_source"]:
 				if shader_source.contains(forbidden_source):
 					failures.append("牌桌不得包含大团花或径向圆形亮斑实现 %s" % forbidden_source)
 	if not overlay.has_method("get_material_contract"):
-		failures.append("牌桌材质层必须暴露蜀锦与环境灯光合同")
+		failures.append("牌桌材质层必须暴露毛绒与环境灯光合同")
 	else:
 		var overlay_contract: Dictionary = overlay.call("get_material_contract")
 		var base_palette: Array = overlay_contract.get("base_palette", [])
@@ -124,10 +130,14 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 		for layer_name in ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"]:
 			if not lighting_layers.has(layer_name):
 				failures.append("环境灯光合同缺少 %s" % layer_name)
-		if str(overlay_contract.get("motif_scale", "")) != "micro_repeat_only":
-			failures.append("蜀锦桌面只能使用小尺度重复暗纹")
-		if str(overlay_contract.get("large_motif", "")) != "none":
-			failures.append("蜀锦桌面不得包含大尺度团花")
+		if str(overlay_contract.get("surface_finish", "")) != "dense_short_plush":
+			failures.append("桌面必须使用细密短绒质感")
+		if str(overlay_contract.get("texture_coverage", "")) != "full_surface":
+			failures.append("毛绒纹理必须覆盖完整桌面")
+		if str(overlay_contract.get("fiber_directions", "")) != "crossed_irregular_nap":
+			failures.append("毛绒必须使用交错且不规则的绒向")
+		if str(overlay_contract.get("geometric_motifs", "")) != "none":
+			failures.append("毛绒桌面不得包含菱格、云纹或回纹")
 		if bool(overlay_contract.get("circular_hotspot", true)):
 			failures.append("牌桌光照合同必须明确禁止圆形亮斑")
 	overlay.free()

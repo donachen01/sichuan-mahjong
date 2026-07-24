@@ -389,7 +389,7 @@ func _force_settlement_preview(root_node: Node) -> void:
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
 		player["nickname"] = ["陈旭", "舒小燕", "陈东", "舒玲"][index]
-		player["score"] = [18, -4, -8, -6][index]
+		player["score"] = [15, 3, -11, -7][index]
 		player["has_won"] = index == 0
 		players[index] = player
 	var winning_tile: Dictionary = players[0].get("hand_tiles", [{}]).back() if not players[0].get("hand_tiles", []).is_empty() else {"id": 9999, "suit": "wan", "rank": 9}
@@ -397,22 +397,24 @@ func _force_settlement_preview(root_node: Node) -> void:
 	snapshot["current_dealer_seat"] = 1
 	snapshot["players"] = players
 	snapshot["settlement_data"] = {
-		"round_index": 3,
+		"round_index": 5,
 		"dealer_seat": 1,
-		"end_reason": "battle_end",
+		"end_reason": "draw_wall_empty",
 		"winner_seats": [0],
-		"score_changes": {0: 18, 1: -4, 2: -8, 3: -6},
+		"score_changes": {0: 11, 1: -2, 2: -2, 3: -7},
 		"win_events": [{
 			"winner_seat": 0,
-			"source_seat": 2,
-			"payer_seats": [2],
-			"win_type": "discard_win",
+			"source_seat": 0,
+			"payer_seats": [2, 3],
+			"win_type": "self_draw",
 			"winning_tile": winning_tile,
-			"fan_detail": {"capped_fan": 3, "hand_score": 8, "labels": ["清一色", "平胡"]},
+			"fan_detail": {"capped_fan": 0, "hand_score": 1, "per_payer_score": 2, "labels": ["平胡", "自摸"]},
 		}],
-		"gang_events": [{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]}],
-		"tui_gang_refunds": [{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]}],
-		"transfer_events": [{"transfer_type": "hu_jiao_zhuan_yi", "to_seat": 0, "gang_type": "melded_gang", "payer_seats": [2]}],
+		"gang_events": [{"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3]}],
+		"draw_assessment": [
+			{"seat": 2, "is_ting": true, "hua_zhu": false, "cha_jiao_fan": 1, "cha_jiao_score": 2},
+			{"seat": 3, "is_ting": false, "hua_zhu": false, "cha_jiao_fan": 0, "cha_jiao_score": 0},
+		],
 	}
 	root_node.set("last_snapshot", {"current_phase": 6})
 	root_node.call("_refresh_settlement", snapshot)

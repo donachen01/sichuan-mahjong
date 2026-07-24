@@ -369,6 +369,51 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	elif panel_style.border_color.b <= panel_style.border_color.r:
 		failures.append("结算页边框没有采用主桌的冷钢蓝边框")
 
+	var wall_draw_after_win := {
+		"end_reason": "draw_wall_empty",
+		"winner_seats": [0],
+		"win_events": [{
+			"winner_seat": 0,
+			"source_seat": 0,
+			"payer_seats": [2, 3],
+			"win_type": "self_draw",
+			"fan_detail": {
+				"capped_fan": 0,
+				"hand_score": 1,
+				"per_payer_score": 2,
+				"labels": ["平胡", "自摸"],
+			},
+		}],
+		"gang_events": [{
+			"actor_seat": 0,
+			"gang_type": "an_gang",
+			"payer_seats": [1, 2, 3],
+		}],
+		"draw_assessment": [
+			{"seat": 2, "is_ting": true, "hua_zhu": false, "cha_jiao_score": 2},
+			{"seat": 3, "is_ting": false, "hua_zhu": false, "cha_jiao_score": 0},
+		],
+	}
+	var wall_draw_lines: Array[Dictionary] = scene.call(
+		"_build_settlement_breakdown_lines",
+		snapshot.get("players", []),
+		wall_draw_after_win,
+		0,
+		11
+	)
+	var wall_draw_total := int(scene.call("_sum_settlement_breakdown_scores", wall_draw_lines))
+	if wall_draw_total != 11:
+		failures.append("结算明细合计必须严格等于最终收分：期望 +11，实际 %+d" % wall_draw_total)
+	var has_winner_cha_jiao := false
+	var has_generic_reconciliation := false
+	for line in wall_draw_lines:
+		has_winner_cha_jiao = has_winner_cha_jiao or str(line.get("reason", "")).contains("查大叫收益（已胡）")
+		has_generic_reconciliation = has_generic_reconciliation or str(line.get("reason", "")) == "其他结算调整"
+	if not has_winner_cha_jiao:
+		failures.append("牌墙流局后已胡玩家收到的查大叫必须作为独立明细显示")
+	if has_generic_reconciliation:
+		failures.append("已知查大叫收益不得退化成无法解释的其他结算调整")
+
 
 func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:
 	var players: Array = []

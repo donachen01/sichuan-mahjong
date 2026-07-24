@@ -884,7 +884,7 @@ func _verify_ai_discard_win_stress(
 
 
 func _verify_assets(failures: Array[String]) -> void:
-	for path in ["res://res/art/3d/mahjong_tile_body.glb", "res://res/art/3d/sichuan_table.glb", "res://shaders/table_brocade_3d.gdshader"]:
+	for path in ["res://res/art/3d/mahjong_tile_body.glb", "res://res/art/3d/sichuan_table.glb", "res://shaders/table_plush_felt_3d.gdshader"]:
 		if not ResourceLoader.exists(path):
 			failures.append("missing 3D core asset: %s" % path)
 	for suit in ["tiao", "tong", "wan"]:

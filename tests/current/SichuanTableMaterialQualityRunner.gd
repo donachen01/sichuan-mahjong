@@ -26,23 +26,24 @@ func _run() -> void:
 		for inset_name in ["CopperTop", "CopperBottom", "CopperLeft", "CopperRight"]:
 			_verify_inset(table, inset_name)
 
-	var brocade := stage.get_node_or_null("PressedShuBrocade") as MeshInstance3D
-	_check(brocade != null, "pressed brocade layer exists")
-	if brocade != null:
-		var plane := brocade.mesh as PlaneMesh
-		_check(plane != null, "brocade uses a real plane mesh")
+	var plush_felt := stage.get_node_or_null("FullSurfacePlushFelt") as MeshInstance3D
+	_check(plush_felt != null, "full-surface plush felt layer exists")
+	if plush_felt != null:
+		var plane := plush_felt.mesh as PlaneMesh
+		_check(plane != null, "plush felt uses a real plane mesh")
 		if plane != null:
-			_check_vector2(plane.size, Vector2(13.55, 13.40), "brocade coverage remains inside the felt")
-		_check(brocade.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "brocade never casts shadows")
-		_check(absf(brocade.position.y - 0.051) <= 0.002, "brocade sits above the felt without z-fighting")
-		var material := brocade.material_override as ShaderMaterial
-		_check(material != null and material.shader != null, "brocade shader material exists")
+			_check_vector2(plane.size, Vector2(13.55, 13.40), "plush texture covers the complete felt")
+		_check(plush_felt.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "plush overlay never casts shadows")
+		_check(absf(plush_felt.position.y - 0.051) <= 0.002, "plush overlay sits above the felt without z-fighting")
+		var material := plush_felt.material_override as ShaderMaterial
+		_check(material != null and material.shader != null, "plush felt shader material exists")
 		if material != null and material.shader != null:
 			var code := material.shader.code
-			_check("clamp(0.90" in code and "0.86, 0.94" in code, "felt roughness remains inside the 0.86-0.94 gate")
-			_check("weave * 0.035" in code, "pressed pattern contribution remains 3.5 percent")
-			_check("dark_pattern * 0.10" in code and "lozenge_distance" in code and "cloud_wave" in code, "tabletop carries a restrained dark brocade motif")
-			_check("microfiber_uv" in code and "microfiber - 0.5" in code, "tabletop carries a subtle high-frequency microfiber texture")
+			_check("clamp(0.925" in code and "0.88, 0.96" in code, "plush roughness remains inside the 0.88-0.96 gate")
+			_check("short_fiber" in code and "full_surface_fiber" in code, "tabletop uses dense procedural short fibers")
+			_check("vec3(0.34, 0.37, 0.44)" in code and "plush_strength" in code, "short fibers retain readable highlights after perspective shrink")
+			_check("value_noise" in code and "plush_nap" in code and "crossed_nap" in code, "tabletop carries crossed irregular nap variation")
+			_check("lozenge_distance" not in code and "cloud_wave" not in code and "seal_ring" not in code, "tabletop removes geometric brocade motifs")
 			_check("smoothstep(0.02, 0.76, UV.y)" in code, "table depth gradient is continuous")
 
 	stage.queue_free()

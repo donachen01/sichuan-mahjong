@@ -5216,9 +5216,71 @@ func _build_settlement_breakdown_lines(players: Array, settlement_data: Dictiona
 				"score": score_text,
 			})
 
+	# 已胡玩家通常不会再进入 draw_assessment，但牌墙流局时仍按规则参与
+	# 查大叫收付。过去总账已经计入这笔钱，明细却漏掉，造成画面上
+	# “自摸 +4、暗杠 +6，最终却 +11”的假象。这里逐项镜像计分器的
+	# winner draw targets，让最终收分严格等于用户能看到的明细合计。
+	var winner_draw_targets := _build_settlement_winner_draw_targets(settlement_data)
+	var focus_winner_draw_score := int(winner_draw_targets.get(focus_seat, 0))
+	if focus_winner_draw_score > 0:
+		for item in settlement_data.get("draw_assessment", []):
+			if bool(item.get("hua_zhu", false)) or bool(item.get("is_ting", false)):
+				continue
+			lines.append({
+				"reason": "查大叫收益（已胡）",
+				"source": _seat_name(int(item.get("seat", -1))),
+				"factor": "已胡最大牌分",
+				"score": "+%d" % focus_winner_draw_score,
+			})
+	elif not focus_assessment.is_empty() and not bool(focus_assessment.get("hua_zhu", false)) and not bool(focus_assessment.get("is_ting", false)):
+		for winner_seat in winner_draw_targets.keys():
+			var winner_score := int(winner_draw_targets.get(winner_seat, 0))
+			if winner_score <= 0 or int(winner_seat) == focus_seat:
+				continue
+			lines.append({
+				"reason": "查大叫赔付（对方已胡）",
+				"source": _seat_name(int(winner_seat)),
+				"factor": "已胡最大牌分",
+				"score": "-%d" % winner_score,
+			})
+
 	if lines.is_empty():
 		lines.append({"reason": "本局暂无细分事件", "source": _seat_name(focus_seat), "factor": "-", "score": "%s%d" % ["+" if round_delta > 0 else "", round_delta]})
+	else:
+		# 账本始终是最终权威值；若未来新增计分事件而明细构建尚未同步，
+		# 也必须把差额作为可见行列出，禁止再次出现“明细相加不等于顶部”。
+		var visible_total := _sum_settlement_breakdown_scores(lines)
+		var undisplayed_delta := round_delta - visible_total
+		if undisplayed_delta != 0:
+			lines.append({
+				"reason": "其他结算调整",
+				"source": _seat_name(focus_seat),
+				"factor": "账本对齐",
+				"score": "%+d" % undisplayed_delta,
+			})
 	return lines
+
+
+func _build_settlement_winner_draw_targets(settlement_data: Dictionary) -> Dictionary:
+	var targets := {}
+	for event in settlement_data.get("win_events", []):
+		var winner_seat := int(event.get("winner_seat", -1))
+		var fan_detail: Dictionary = event.get("fan_detail", {})
+		var capped_fan := int(fan_detail.get("capped_fan", 0))
+		# 查大叫对已胡玩家只取胡牌基础分；自摸固定加底已经包含在自摸
+		# 明细中，不在这里重复放大或重复支付。
+		var hand_score := int(fan_detail.get("hand_score", _resolve_basic_score_from_fan(capped_fan)))
+		targets[winner_seat] = maxi(int(targets.get(winner_seat, 0)), hand_score)
+	return targets
+
+
+func _sum_settlement_breakdown_scores(lines: Array[Dictionary]) -> int:
+	var total := 0
+	for item in lines:
+		var score_text := str(item.get("score", "0")).strip_edges()
+		if score_text.is_valid_int():
+			total += int(score_text)
+	return total
 
 
 func _build_cha_jiao_reason_text(item: Dictionary) -> String:

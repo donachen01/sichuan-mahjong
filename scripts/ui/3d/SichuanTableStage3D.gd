@@ -5,7 +5,7 @@ signal tile_pressed(tile_id: int)
 
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
 const TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
-const BROCADE_SHADER := preload("res://shaders/table_brocade_3d.gdshader")
+const PLUSH_FELT_SHADER := preload("res://shaders/table_plush_felt_3d.gdshader")
 const RAIL_TEXTURE_SHADER := preload("res://shaders/table_rail_texture_3d.gdshader")
 
 const HAND_STEP_SELF := 0.80
@@ -213,17 +213,17 @@ func _setup_table() -> void:
 	add_child(table)
 	_apply_table_materials(table)
 
-	var brocade := MeshInstance3D.new()
-	brocade.name = "PressedShuBrocade"
+	var plush_felt := MeshInstance3D.new()
+	plush_felt.name = "FullSurfacePlushFelt"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(13.55, 13.40)
-	brocade.mesh = plane
-	brocade.position = Vector3(0.0, 0.051, -2.30)
-	brocade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	plush_felt.mesh = plane
+	plush_felt.position = Vector3(0.0, 0.051, -2.30)
+	plush_felt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := ShaderMaterial.new()
-	material.shader = BROCADE_SHADER
-	brocade.material_override = material
-	add_child(brocade)
+	material.shader = PLUSH_FELT_SHADER
+	plush_felt.material_override = material
+	add_child(plush_felt)
 
 
 func _apply_table_materials(node: Node) -> void:
