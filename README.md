@@ -190,7 +190,8 @@ Release 脚本会读取本机签名文件：
 - 四川计分专项、四川规则 `32/32`、结算 UI、恢复 UI、桌体材质、高端视觉及 3D 桌面聚焦合同均通过；C# Release 构建为 `0 warning / 0 error`。
 - Android `2.6.7` Release APK 已通过 `zipalign`、v2/v3 签名、压缩完整性、版本及 ARM64 Mono 原生库校验；SHA-256 为 `785be42d19502863fc461d2a33baad3be436994679d0e86eda86a9bba7acb56f`。
 - iOS `2.6.7/2.6.7` 已完成 Xcode/NativeAOT Release 开发签名构建；主程序和 C# framework 均为 `arm64`，`codesign --deep --strict` 通过，PCK SHA-256 为 `1231b54870b4741a0b4a0448215649d7d134d5281c61f17f54ec8a304b523852`。
-- 当前没有 Android 设备连接；Android 最强证据到已签名安装包完整性。iPhone 安装与启动结果见本节后续更新。
+- `2.6.7/2.6.7` 已覆盖安装到 `dona‘s iPhone`（iPhone 15）；设备安装数据库确认版本正确，应用启动成功，延时检查时进程 PID `41393` 仍然存活。
+- 当前没有 Android 设备连接；Android 最强证据到已签名安装包完整性。iOS 自动化证据已到真机安装、设备版本查询、启动和进程存活；完整一局、真实触控手感与长时性能仍由用户在手机上人工验收。
 
 2.6.6 对手明暗牌、自摸展示、退出交互与副露箭头修正：
 
