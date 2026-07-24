@@ -130,9 +130,14 @@ Debug APK：
 /bin/zsh '/Volumes/AI/Codex/四川麻将工程_20260701_v2/tools/export_android_debug.sh'
 ```
 
-最近已保留的 Android 产物（`2.2.2`，本轮未重新导出）：
+当前 Android Release 产物（`2.6.6`）：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.2.2-direct-debug.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.6.6-release.apk`
+- 包名：`com.chendong.sichuanmahjong`
+- 版本：`versionCode=266`、`versionName=2.6.6`
+- ABI：`arm64-v8a`
+- 文件大小：`358,790,331` bytes
+- SHA-256：`3a5a611fe230a797fb820c6873a57de69cb79eafa1c0fd93278a70d2c85e84cf`
 
 Release APK：
 
@@ -142,7 +147,7 @@ Release APK：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.2.2-release.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-<版本>-release.apk`
 
 Release 脚本会读取本机签名文件：
 
@@ -186,6 +191,8 @@ Release 脚本会读取本机签名文件：
 - 3D 桌面、明暗牌、自摸归属、箭头定位和退出触控聚焦合同均通过。
 - iOS `2.6.6/2.6.6` 已完成 Xcode/NativeAOT Release 开发签名构建；主程序和 C# framework 均为 `arm64`，`codesign --deep --strict` 通过，PCK SHA-256 为 `f7adb184bfaf0423d92cc35cb8b3cd90e95c9364eeef14c63cf4e79ca838a4b6`。
 - `2.6.6/2.6.6` 已覆盖安装到 `dona‘s iPhone`（iPhone 15），设备安装数据库确认版本正确，并成功启动 `com.chendong.sichuanmahjong.iosdev`，进程 PID 为 `37060`。
+- Android `2.6.6` Release APK 已完成导出、zipalign 校验、v2/v3 签名验证和压缩结构校验；包名 `com.chendong.sichuanmahjong`，`versionCode=266`，仅包含 `arm64-v8a` 原生架构。
+- Android APK SHA-256 为 `3a5a611fe230a797fb820c6873a57de69cb79eafa1c0fd93278a70d2c85e84cf`；当前没有 Android 设备连接，因此本轮最强证据到已签名安装包完整性，未包含 Android 真机安装、启动和完整牌局。
 
 2.6.5 暗纹、自摸扣牌、碰杠来源与计分重构：
 
