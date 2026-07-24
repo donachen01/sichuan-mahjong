@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.6.7`
+- 版本：`2.6.8`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -87,7 +87,7 @@
 
 ## 参考蓝桌 3D 与旧功能恢复
 
-`2.6.7` 修复结算总分与可见明细不一致：牌墙流局时已胡玩家收到的查大叫会单独列明，所有明细相加严格等于最终收分；桌面同时移除旧菱格、云纹、回纹，3D 主桌与 2D 回退桌统一改为全面、细密、无规则交错的短绒毛毡质感。`2.6.6` 的三家暗手牌背、明牌、自摸展示、退出交互和副露箭头继续保留。
+`2.6.8` 对杠上花与自摸结算链进行逐层复核：新增暗杠后补到牌墙最后一张、合法完成牌型并出现胡牌入口的真实状态回归；0–4 番普通自摸与杠上花逐档验证“基础分 + 每家固定 1 底”。暗杠四张牌现在全部以清晰分离的翡翠牌背显示。3D 主桌与 2D 回退桌统一改为参考图的翡翠绿色、细密交叉织纹和边缘低浮雕云纹，不生成品牌文字。
 
 `2.6.2` 依据最终目标图完成第二次空间校准：中央余牌和四家弃牌整体上移，本家碰杠移至手牌左侧并按副露数量动态调整手牌，三家 AI 字面方向统一旋转 180°；AI 点炮胡牌保留原手牌，只在旁边增加胡牌张与唯一来源箭头。四家姓名框按外围轨道重排，左上缩进态改成 76×76 加粗汉堡图标，展开为不遮挡牌局的横向工具条。最终 4 状态×4 分辨率 Metal 矩阵、全量回归和独立设计复核记录见 `docs/ui_rework/四川麻将目标图布局二次校准验收报告_V1.md`。
 
@@ -130,14 +130,14 @@ Debug APK：
 /bin/zsh '/Volumes/AI/Codex/四川麻将工程_20260701_v2/tools/export_android_debug.sh'
 ```
 
-当前 Android Release 产物（`2.6.7`）：
+当前 Android Release 产物（`2.6.8`）：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.6.7-release.apk`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/android/SichuanMahjong-2.6.8-release.apk`
 - 包名：`com.chendong.sichuanmahjong`
-- 版本：`versionCode=267`、`versionName=2.6.7`
+- 版本：`versionCode=268`、`versionName=2.6.8`
 - ABI：`arm64-v8a`
-- 文件大小：`361,678,400` bytes
-- SHA-256：`785be42d19502863fc461d2a33baad3be436994679d0e86eda86a9bba7acb56f`
+- 文件大小：`366,913,475` bytes
+- SHA-256：`19625dbbd28936dd02006e7eb3f5facc3ca1d2f00203f06ac6a4697c8f69cacb`
 
 Release APK：
 
@@ -165,8 +165,8 @@ Release 脚本会读取本机签名文件：
 
 输出：
 
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.7-ios-xcode/SichuanMahjongIOS.xcodeproj`
-- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/DerivedData-2.6.7/Build/Products/Release-iphoneos/SichuanMahjongIOS.app`（完成个人开发签名构建后生成）
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.8-ios-xcode/SichuanMahjongIOS.xcodeproj`
+- `/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/DerivedData-2.6.8/Build/Products/Release-iphoneos/SichuanMahjongIOS.app`（完成个人开发签名构建后生成）
 
 自用安装流程：
 
@@ -181,6 +181,17 @@ Release 脚本会读取本机签名文件：
 该流程用于个人自用安装，不走 App Store，不需要购买开发者年费；免费个人签名通常需要定期重新安装。
 
 ## 当前已验证
+
+2.6.8 杠上花、暗杠四背与参考翡翠织纹桌布：
+
+- 使用真实 `GameState` 状态覆盖“本家暗杠二条、补到牌墙最后一张一条、合法完成牌型”的完整链路：余牌变为 0 后，公开快照仍提供自摸入口，执行结果为 `gang_self_draw`。
+- 该用例的胡牌直接结算为杠上花 1 番：基础 2 分、每家固定另加 1 分，即每家付 3 分；暗杠钱另算，每家再付 2 分。普通自摸与杠上花的 0–4 番逐档付款表也全部通过。
+- 暗杠四张牌全部以分离的翡翠牌背展示；3D 主桌与 2D 回退桌统一使用参考翡翠绿、细密交叉织纹与边缘低浮雕云纹，不生成品牌文字。Metal 视觉证据位于 `evidence/ui_reference_green_20260724/`。
+- 四川规则 `33/33`、四川计分、胡/取消触控、HUD 状态、结算 UI、恢复 UI、桌体材质、高端视觉和 3D 桌面合同均通过；C# Release 构建为 `0 warning / 0 error`。
+- Android `2.6.8` Release APK 已通过 `zipalign`、v2/v3 签名、压缩完整性、版本及 ARM64 Mono 原生库校验；SHA-256 为 `19625dbbd28936dd02006e7eb3f5facc3ca1d2f00203f06ac6a4697c8f69cacb`。
+- iOS `2.6.8/2.6.8` 已完成 Xcode/NativeAOT Release 开发签名构建；主程序和 C# framework 均为 `arm64`，`codesign --deep --strict` 通过，PCK SHA-256 为 `bcd3ef0782ec4abe31ae6e00036ff0006fa21b4f77ea3f104a3c3ddebfed2464`。
+- `2.6.8/2.6.8` 已覆盖安装到 `dona‘s iPhone`（iPhone 15）；设备安装数据库确认版本正确，应用启动成功，延时检查时进程 PID `41785` 仍然存活。
+- 当前没有 Android 设备连接；Android 最强证据到已签名安装包完整性。iOS 自动化证据已到真机安装、设备版本查询、启动和进程存活；完整一局与真实触控手感仍由用户在手机上人工验收。
 
 2.6.7 结算明细对齐与全面毛绒桌布：
 

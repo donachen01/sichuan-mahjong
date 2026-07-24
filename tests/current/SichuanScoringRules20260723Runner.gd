@@ -145,15 +145,24 @@ func _verify_payment_table() -> void:
 			}],
 		}, rules)
 		_check(int(discard.get(0, 0)) == (1 << fan) and int(discard.get(1, 0)) == -(1 << fan), "discard payment table failed at %d fan" % fan)
-	var self_draw: Dictionary = score_resolver.build_score_changes(players, {
-		"win_events": [{
-			"winner_seat": 0, "payer_seats": [1, 2, 3], "win_type": "self_draw",
-			"fan_detail": {"capped_fan": 4},
-		}],
-	}, rules)
-	_check(int(self_draw.get(0, 0)) == 51, "self-draw winner must receive (16+1) from all three players")
-	for seat in [1, 2, 3]:
-		_check(int(self_draw.get(seat, 0)) == -17, "self-draw payer %d must pay fixed 17" % seat)
+	for fan in range(5):
+		for win_type in ["self_draw", "gang_self_draw"]:
+			var per_payer := (1 << fan) + 1
+			var self_draw: Dictionary = score_resolver.build_score_changes(players, {
+				"win_events": [{
+					"winner_seat": 0, "payer_seats": [1, 2, 3], "win_type": win_type,
+					"fan_detail": {"capped_fan": fan},
+				}],
+			}, rules)
+			_check(
+				int(self_draw.get(0, 0)) == per_payer * 3,
+				"%s winner payment table failed at %d fan" % [win_type, fan]
+			)
+			for seat in [1, 2, 3]:
+				_check(
+					int(self_draw.get(seat, 0)) == -per_payer,
+					"%s payer %d must pay 2^%d + fixed 1" % [win_type, seat, fan]
+				)
 
 	var gang: Dictionary = score_resolver.build_score_changes(players, {
 		"gang_events": [

@@ -1,8 +1,8 @@
 shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_disabled;
 
-uniform vec4 base_color : source_color = vec4(0.090, 0.122, 0.204, 1.0);
-uniform vec4 thread_highlight : source_color = vec4(0.205, 0.286, 0.443, 1.0);
+uniform vec4 base_color : source_color = vec4(0.018, 0.160, 0.126, 1.0);
+uniform vec4 thread_highlight : source_color = vec4(0.055, 0.310, 0.240, 1.0);
 
 varying vec3 rail_local_position;
 

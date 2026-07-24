@@ -5,7 +5,7 @@ signal tile_pressed(tile_id: int)
 
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
 const TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
-const PLUSH_FELT_SHADER := preload("res://shaders/table_plush_felt_3d.gdshader")
+const REFERENCE_GREEN_FELT_SHADER := preload("res://shaders/table_plush_felt_3d.gdshader")
 const RAIL_TEXTURE_SHADER := preload("res://shaders/table_rail_texture_3d.gdshader")
 
 const HAND_STEP_SELF := 0.80
@@ -213,17 +213,17 @@ func _setup_table() -> void:
 	add_child(table)
 	_apply_table_materials(table)
 
-	var plush_felt := MeshInstance3D.new()
-	plush_felt.name = "FullSurfacePlushFelt"
+	var woven_felt := MeshInstance3D.new()
+	woven_felt.name = "FullSurfaceReferenceGreenFelt"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(13.55, 13.40)
-	plush_felt.mesh = plane
-	plush_felt.position = Vector3(0.0, 0.051, -2.30)
-	plush_felt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	woven_felt.mesh = plane
+	woven_felt.position = Vector3(0.0, 0.051, -2.30)
+	woven_felt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := ShaderMaterial.new()
-	material.shader = PLUSH_FELT_SHADER
-	plush_felt.material_override = material
-	add_child(plush_felt)
+	material.shader = REFERENCE_GREEN_FELT_SHADER
+	woven_felt.material_override = material
+	add_child(woven_felt)
 
 
 func _apply_table_materials(node: Node) -> void:
@@ -235,15 +235,15 @@ func _apply_table_materials(node: Node) -> void:
 			rail_material.shader = RAIL_TEXTURE_SHADER
 			mesh_instance.material_override = rail_material
 		else:
-			var color := Color("3A5787")
+			var color := Color("08705A")
 			var roughness := 0.86
 			var metallic := 0.0
 			if "copper" in node_name:
-				color = Color("52647F")
+				color = Color("075845")
 				roughness = 0.38
 				metallic = 0.42
 			elif "felt" not in node_name:
-				color = Color("3A5787")
+				color = Color("08705A")
 			var table_material := StandardMaterial3D.new()
 			table_material.albedo_color = color
 			table_material.roughness = roughness
@@ -377,9 +377,10 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 			var tile_value = meld_tiles[tile_index]
 			var tile: Dictionary = tile_value
 			var tile_id := int(tile.get("id", flat_index))
-			var position := _meld_position(seat, tile_index, meld_index, flat_index)
+			var concealed_gang := _is_concealed_gang(meld)
+			var position := _meld_position(seat, tile_index, meld_index, flat_index, concealed_gang)
 			var key := "meld_%d_%d_%d" % [seat, meld_index, tile_id]
-			var show_face := not _is_concealed_gang(meld)
+			var show_face := not concealed_gang
 			var is_claim_tile := show_face and source_seat != seat and tile_index == claim_index
 			desired[key] = _entry(
 				tile,
@@ -397,7 +398,7 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				180.0 if seat != 0 else 0.0,
 				false,
 				not show_face,
-				false,
+				concealed_gang,
 				source_seat if is_claim_tile else -1,
 				seat,
 				meld_type if is_claim_tile else ""
@@ -590,27 +591,34 @@ func _self_hand_center_x() -> float:
 	return clampf(0.25 + float(self_meld_tile_count) * 0.38, 0.25, 3.10)
 
 
-func _meld_position(seat: int, _tile_index: int, meld_index: int, flat_index: int) -> Vector3:
+func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int, concealed_gang: bool = false) -> Vector3:
 	# Exposed sets use a slightly tighter physical pitch than river tiles. This
 	# mirrors the commercial target's compact lower-left set rail and keeps four
 	# complete groups inside the left 27% without touching the concealed rack.
 	match seat:
 		0:
-			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.04
+			# 暗杠四张牌必须逐张看清。普通副露沿用紧凑 0.40 节距；
+			# 暗杠组内额外拉开 0.08，最终 0.48 大于 1.12 倍牌宽，
+			# 中间两张不会再熔成一整块无边界的浅色长条。
+			var concealed_spacing := float(tile_index) * 0.08 if concealed_gang else 0.0
+			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.04 + concealed_spacing
 			return Vector3(-5.95 + self_offset, 0.09, 3.20)
 		1:
 			# 侧家所有碰杠沿同一条手牌方向的副露导轨连续摆放；组间加 0.10 缝。
 			# 这样第二至第四组不会横向侵入对家副露带，座位归属始终清楚。
-			return Vector3(-4.85, 0.09, -5.25 + float(flat_index) * 0.50 + float(meld_index) * 0.10)
+			var concealed_spacing := float(tile_index) * 0.06 if concealed_gang else 0.0
+			return Vector3(-4.85, 0.09, -5.25 + float(flat_index) * 0.50 + float(meld_index) * 0.10 + concealed_spacing)
 		2:
-			var far_offset := float(flat_index) * 0.46 + float(meld_index) * 0.08
+			var concealed_spacing := float(tile_index) * 0.06 if concealed_gang else 0.0
+			var far_offset := float(flat_index) * 0.46 + float(meld_index) * 0.08 + concealed_spacing
 			# 对家副露上移到对家手牌带下方，并收进中上部。旧锚点从 X=5.45
 			# 开始，会与下家 X=4.85 的竖向碰杠列真实相交，视觉上像一组错误的横杠。
 			return Vector3(3.90 - far_offset, 0.09, -5.45)
 		3:
 			# 下家碰/杠与下家手牌共用右侧竖向轨道；多组继续沿 Z 方向排列，
 			# 不向对家区域横向展开。
-			return Vector3(4.85, 0.09, -5.25 + float(flat_index) * 0.50 + float(meld_index) * 0.10)
+			var concealed_spacing := float(tile_index) * 0.06 if concealed_gang else 0.0
+			return Vector3(4.85, 0.09, -5.25 + float(flat_index) * 0.50 + float(meld_index) * 0.10 + concealed_spacing)
 	return Vector3.ZERO
 
 
@@ -752,7 +760,9 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
 		"meld_source_feedback": "compact_blue_second_tile_arrow_and_seat_label",
-		"season_theme": "reference_blue_mobile",
+		"season_theme": "reference_emerald_mobile",
+		"table_surface_finish": "fine_crosswoven_emerald_with_peripheral_cloud_relief",
+		"concealed_gang_presentation": "four_distinct_face_down_jade_tiles",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
 		"physics_tiles": 0,

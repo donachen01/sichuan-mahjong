@@ -16,6 +16,7 @@ func _init() -> void:
 	_run_test("cannot_hu_with_missing_suit_still_in_hand", _test_cannot_hu_with_missing_suit_still_in_hand, failures)
 	_run_test("qi_dui_is_blocked_when_exposed_meld_exists", _test_qi_dui_is_blocked_when_exposed_meld_exists, failures)
 	_run_test("self_draw_hu_with_exposed_meld_is_detected", _test_self_draw_hu_with_exposed_meld_is_detected, failures)
+	_run_test("concealed_gang_last_wall_draw_exposes_gang_self_draw_hu", _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu, failures)
 	_run_test("multi_win_on_discard_keeps_other_hu_candidates", _test_multi_win_on_discard_keeps_other_hu_candidates, failures)
 	_run_test("fan_cap_limits_high_value_hands_to_four_fan", _test_fan_cap_limits_high_value_hands_to_four_fan, failures)
 	_run_test("shun_he_lock_blocks_same_fan_but_allows_higher_fan", _test_shun_he_lock_blocks_same_fan_but_allows_higher_fan, failures)
@@ -41,7 +42,7 @@ func _init() -> void:
 	_run_test("multi_payer_gang_is_never_refunded", _test_multi_payer_gang_is_never_refunded, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 32/32")
+		print("RULE REGRESSION OK: 33/33")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -346,6 +347,109 @@ func _test_self_draw_hu_with_exposed_meld_is_detected():
 	}
 	if not bool(game_state.can_human_self_hu(0)):
 		return "expected self-draw hu to be detected even with an exposed peng"
+	return true
+
+
+func _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu():
+	var game_state = _build_test_game_state()
+	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
+	game_state.current_turn_seat = 0
+	var existing_melds := [
+		{
+			"type": "peng",
+			"from_seat": 1,
+			"tiles": [
+				_make_tile(680, "tong", 7),
+				_make_tile(681, "tong", 7),
+				_make_tile(682, "tong", 7),
+			],
+		},
+		{
+			"type": "peng",
+			"from_seat": 3,
+			"tiles": [
+				_make_tile(683, "tong", 8),
+				_make_tile(684, "tong", 8),
+				_make_tile(685, "tong", 8),
+			],
+		},
+	]
+	var players: Array[Dictionary] = [
+		_make_player(
+			0,
+			"wan",
+			[
+				_make_tile(686, "tiao", 2),
+				_make_tile(687, "tiao", 2),
+				_make_tile(688, "tiao", 2),
+				_make_tile(689, "tiao", 2),
+				_make_tile(690, "tiao", 1),
+				_make_tile(691, "tiao", 3),
+				_make_tile(692, "tiao", 4),
+				_make_tile(693, "tiao", 5),
+			],
+			existing_melds
+		),
+		_make_player(1, "wan", []),
+		_make_player(2, "wan", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	# pop_back() makes this the last physical wall tile. The zero wall count
+	# after the supplement draw must not suppress the player's Hu action.
+	var wall: Array[Dictionary] = [_make_tile(694, "tiao", 1)]
+	game_state.wall = wall
+	game_state.wall_count = 1
+	game_state.settlement_data = game_state._create_empty_settlement_data()
+	game_state.last_draw_tile = {
+		"seat": 0,
+		"tile": _make_tile(689, "tiao", 2),
+	}
+	game_state.last_turn_context = {
+		"seat": 0,
+		"draw_reason": "normal_draw",
+	}
+
+	if not bool(game_state.can_human_an_gang(0)):
+		return "expected concealed 2-tiao gang to be actionable before the supplement draw"
+	if not bool(game_state.execute_human_an_gang(0)):
+		return "expected concealed gang execution to succeed"
+	if int(game_state.wall_count) != 0:
+		return "expected supplement draw to consume the final wall tile"
+	if str(game_state.last_turn_context.get("draw_reason", "")) != "gang_draw":
+		return "expected supplement draw to preserve gang_draw context"
+	if not bool(game_state.can_human_self_hu(0)):
+		return "expected Hu action after last-wall gang supplement completed 1-1 / 3-4-5"
+	var snapshot: Dictionary = game_state.get_debug_snapshot()
+	if not bool(snapshot.get("human_can_self_hu", false)):
+		return "expected emitted/public snapshot to expose the Hu action after gang supplement"
+	if not bool(game_state.execute_human_self_hu(0)):
+		return "expected gang supplement self-draw action to execute"
+	if str(game_state.players[0].get("win_type", "")) != "gang_self_draw":
+		return "expected the resolved win type to be gang_self_draw"
+	var win_events: Array = game_state.settlement_data.get("win_events", [])
+	if win_events.size() != 1:
+		return "expected one gang-self-draw settlement event"
+	var fan_detail: Dictionary = win_events[0].get("fan_detail", {})
+	if int(fan_detail.get("capped_fan", -1)) != 1 \
+		or int(fan_detail.get("hand_score", -1)) != 2 \
+		or int(fan_detail.get("per_payer_score", -1)) != 3:
+		return "expected ping-hu gang-shang-hua to be 1 fan, 2 base + fixed 1 per payer, got %s" % fan_detail
+	# The physical last wall tile also triggers the separate draw audit for
+	# unresolved players. Strip that audit here to verify the Hu and gang
+	# transactions themselves: +9 self-draw and independent +6 gang money.
+	var direct_event_data: Dictionary = game_state.settlement_data.duplicate(true)
+	direct_event_data["draw_assessment"] = []
+	var direct_score_changes: Dictionary = game_state.score_resolver.build_score_changes(
+		game_state.players,
+		direct_event_data,
+		game_state.rules
+	)
+	if int(direct_score_changes.get(0, 0)) != 15:
+		return "expected +9 gang-self-draw and independent +6 concealed-gang money, got %s" % direct_score_changes
+	for payer_seat in [1, 2, 3]:
+		if int(direct_score_changes.get(payer_seat, 0)) != -5:
+			return "expected each payer to pay 3 for Hu plus 2 concealed-gang money, got %s" % direct_score_changes
 	return true
 
 

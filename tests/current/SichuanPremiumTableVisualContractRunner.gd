@@ -93,28 +93,19 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 			var shader_path := shader_material.shader.resource_path
 			if shader_path != "res://shaders/table_club_felt.gdshader":
 				failures.append("ClubFeltShader 使用了错误的 shader: %s" % shader_path)
-			var plush_strength := float(shader_material.get_shader_parameter("plush_strength"))
-			if plush_strength < 0.10 or plush_strength > 0.13:
-				failures.append("整桌短绒强度必须保持在清晰但不抢牌面的 10%-13%，当前 %.3f" % plush_strength)
-			var fiber_density := float(shader_material.get_shader_parameter("fiber_density"))
-			if fiber_density < 120.0 or fiber_density > 180.0:
-				failures.append("短绒密度必须保持在细密毛绒范围，当前 %.1f" % fiber_density)
-			var nap_variation := float(shader_material.get_shader_parameter("nap_variation"))
-			if nap_variation < 0.02 or nap_variation > 0.045:
-				failures.append("绒向明暗变化必须保持在 2%-4.5%，避免形成云雾脏斑，当前 %.3f" % nap_variation)
+			var weave_strength := float(shader_material.get_shader_parameter("weave_strength"))
+			if weave_strength < 0.035 or weave_strength > 0.060:
+				failures.append("交叉织纹强度必须保持在 3.5%-6%，当前 %.3f" % weave_strength)
+			var relief_strength := float(shader_material.get_shader_parameter("relief_strength"))
+			if relief_strength < 0.015 or relief_strength > 0.028:
+				failures.append("边缘云纹浮雕强度必须保持克制，当前 %.3f" % relief_strength)
 			var light_strength := float(shader_material.get_shader_parameter("light_strength"))
-			if light_strength < 0.18 or light_strength > 0.25:
-				failures.append("左上暖光强度必须达到可辨识的 18%-25%，当前 %.3f" % light_strength)
-			var ambient_fill := float(shader_material.get_shader_parameter("ambient_fill_strength"))
-			if ambient_fill < 0.05 or ambient_fill > 0.10:
-				failures.append("环境中性补光必须保持在克制的 5%-10%，当前 %.3f" % ambient_fill)
+			if light_strength < 0.05 or light_strength > 0.09:
+				failures.append("左上柔光强度必须保持在 5%-9%，当前 %.3f" % light_strength)
 			var shader_source := FileAccess.get_file_as_string("res://shaders/table_club_felt.gdshader")
-			for fiber_source in ["short_fiber", "full_surface_fiber", "value_noise", "plush_nap"]:
-				if not shader_source.contains(fiber_source):
-					failures.append("全面毛绒桌布缺少程序化纤维实现 %s" % fiber_source)
-			for removed_motif in ["huiwen_motif", "yunlei_motif", "diamond_brocade", "scroll_grass_motif", "intertwined_branch_motif"]:
-				if shader_source.contains(removed_motif):
-					failures.append("全面毛绒桌布不得保留旧暗纹 %s" % removed_motif)
+			for texture_source in ["fine_weave", "cloud_scroll", "ring_line", "centre_lift"]:
+				if not shader_source.contains(texture_source):
+					failures.append("参考绿桌材质缺少程序化实现 %s" % texture_source)
 			for forbidden_source in ["centered_spotlight", "shu_medallion_motif", "off_canvas_source"]:
 				if shader_source.contains(forbidden_source):
 					failures.append("牌桌不得包含大团花或径向圆形亮斑实现 %s" % forbidden_source)
@@ -123,21 +114,23 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 	else:
 		var overlay_contract: Dictionary = overlay.call("get_material_contract")
 		var base_palette: Array = overlay_contract.get("base_palette", [])
-		for color_hex in ["052820", "062c28", "06382c", "0b3f34", "123f35"]:
+		for color_hex in ["043c2d", "056e54", "07916f", "1eb08c"]:
 			if not base_palette.has(color_hex):
 				failures.append("墨玉桌面基础色缺少 #%s" % color_hex)
 		var lighting_layers: Array = overlay_contract.get("lighting_layers", [])
-		for layer_name in ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"]:
+		for layer_name in ["broad_center_lift", "upper_left_soft_light", "edge_vignette"]:
 			if not lighting_layers.has(layer_name):
 				failures.append("环境灯光合同缺少 %s" % layer_name)
-		if str(overlay_contract.get("surface_finish", "")) != "dense_short_plush":
-			failures.append("桌面必须使用细密短绒质感")
+		if str(overlay_contract.get("surface_finish", "")) != "fine_crosswoven_emerald_felt":
+			failures.append("桌面必须使用参考图的细密交叉织纹")
 		if str(overlay_contract.get("texture_coverage", "")) != "full_surface":
 			failures.append("毛绒纹理必须覆盖完整桌面")
-		if str(overlay_contract.get("fiber_directions", "")) != "crossed_irregular_nap":
-			failures.append("毛绒必须使用交错且不规则的绒向")
-		if str(overlay_contract.get("geometric_motifs", "")) != "none":
-			failures.append("毛绒桌面不得包含菱格、云纹或回纹")
+		if str(overlay_contract.get("fiber_directions", "")) != "retina_diagonal_crossweave":
+			failures.append("织纹必须使用 Retina 细度的斜向交叉结构")
+		if str(overlay_contract.get("geometric_motifs", "")) != "peripheral_embossed_cloud_scrolls":
+			failures.append("桌面边缘必须包含参考图同类的低对比云纹浮雕")
+		if str(overlay_contract.get("reference_target", "")) != "emerald_mobile_table_without_logo":
+			failures.append("桌面参考合同必须明确为无商标文字的绿色麻将桌")
 		if bool(overlay_contract.get("circular_hotspot", true)):
 			failures.append("牌桌光照合同必须明确禁止圆形亮斑")
 	overlay.free()

@@ -22,29 +22,28 @@ func _run() -> void:
 		_check_vector3(table.scale, Vector3(1.0, 1.0, 1.60), "accepted elongated table scale")
 		_check(absf(table.position.z + 2.30) <= EPSILON, "accepted table depth position")
 		_verify_textured_frame(table, "TableFrame", Vector3(14.8, 0.56, 9.6))
-		_verify_mesh(table, "TableFelt", Vector3(13.9, 0.34, 8.7), Color("3A5787"), 0.86, 0.0)
+		_verify_mesh(table, "TableFelt", Vector3(13.9, 0.34, 8.7), Color("08705A"), 0.86, 0.0)
 		for inset_name in ["CopperTop", "CopperBottom", "CopperLeft", "CopperRight"]:
 			_verify_inset(table, inset_name)
 
-	var plush_felt := stage.get_node_or_null("FullSurfacePlushFelt") as MeshInstance3D
-	_check(plush_felt != null, "full-surface plush felt layer exists")
-	if plush_felt != null:
-		var plane := plush_felt.mesh as PlaneMesh
-		_check(plane != null, "plush felt uses a real plane mesh")
+	var woven_felt := stage.get_node_or_null("FullSurfaceReferenceGreenFelt") as MeshInstance3D
+	_check(woven_felt != null, "full-surface reference-green woven felt layer exists")
+	if woven_felt != null:
+		var plane := woven_felt.mesh as PlaneMesh
+		_check(plane != null, "woven felt uses a real plane mesh")
 		if plane != null:
-			_check_vector2(plane.size, Vector2(13.55, 13.40), "plush texture covers the complete felt")
-		_check(plush_felt.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "plush overlay never casts shadows")
-		_check(absf(plush_felt.position.y - 0.051) <= 0.002, "plush overlay sits above the felt without z-fighting")
-		var material := plush_felt.material_override as ShaderMaterial
-		_check(material != null and material.shader != null, "plush felt shader material exists")
+			_check_vector2(plane.size, Vector2(13.55, 13.40), "woven texture covers the complete felt")
+		_check(woven_felt.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "woven overlay never casts shadows")
+		_check(absf(woven_felt.position.y - 0.051) <= 0.002, "woven overlay sits above the felt without z-fighting")
+		var material := woven_felt.material_override as ShaderMaterial
+		_check(material != null and material.shader != null, "reference-green felt shader material exists")
 		if material != null and material.shader != null:
 			var code := material.shader.code
-			_check("clamp(0.925" in code and "0.88, 0.96" in code, "plush roughness remains inside the 0.88-0.96 gate")
-			_check("short_fiber" in code and "full_surface_fiber" in code, "tabletop uses dense procedural short fibers")
-			_check("vec3(0.34, 0.37, 0.44)" in code and "plush_strength" in code, "short fibers retain readable highlights after perspective shrink")
-			_check("value_noise" in code and "plush_nap" in code and "crossed_nap" in code, "tabletop carries crossed irregular nap variation")
-			_check("lozenge_distance" not in code and "cloud_wave" not in code and "seal_ring" not in code, "tabletop removes geometric brocade motifs")
-			_check("smoothstep(0.02, 0.76, UV.y)" in code, "table depth gradient is continuous")
+			_check("0.86, 0.94" in code, "woven felt roughness remains inside the 0.86-0.94 gate")
+			_check("fine_weave" in code and "warp" in code and "weft" in code, "tabletop uses crossed Retina-scale threads")
+			_check("cloud_scroll" in code and "ring_line" in code and "edge_mask" in code, "tabletop includes restrained peripheral embossed cloud scrolls")
+			_check("centre_lift" in code and "edge_emerald" in code and "center_emerald" in code, "reference emerald centre-to-edge colour model is present")
+			_check("微乐" not in code, "reference material must not contain the source logo text")
 
 	stage.queue_free()
 	await process_frame
@@ -91,7 +90,7 @@ func _verify_textured_frame(root: Node, mesh_name: String, expected_size: Vector
 		var code := material.shader.code
 		_check("rail_local_position * vec3(46.0, 62.0, 46.0)" in code, "%s texture density is resolution-independent" % mesh_name)
 		_check("leather_grain" in code and "crossed_thread" in code, "%s combines grain and woven-thread relief" % mesh_name)
-		_check("0.090, 0.122, 0.204" in code, "%s preserves the calibrated deep-blue source color" % mesh_name)
+		_check("0.018, 0.160, 0.126" in code, "%s preserves the calibrated deep-emerald source color" % mesh_name)
 
 
 func _verify_inset(root: Node, mesh_name: String) -> void:
@@ -102,7 +101,7 @@ func _verify_inset(root: Node, mesh_name: String) -> void:
 	var material := mesh_instance.material_override as StandardMaterial3D
 	_check(material != null, "%s material override exists" % mesh_name)
 	if material != null:
-		_check_color(material.albedo_color, Color("52647F"), "%s restrained cool-metal color" % mesh_name)
+		_check_color(material.albedo_color, Color("075845"), "%s restrained emerald-metal color" % mesh_name)
 		_check(material.metallic >= 0.25 and material.metallic <= 0.55, "%s metallic is restrained" % mesh_name)
 		_check(absf(material.roughness - 0.38) <= 0.01, "%s roughness" % mesh_name)
 

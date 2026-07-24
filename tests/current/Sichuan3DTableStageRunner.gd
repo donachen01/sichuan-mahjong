@@ -233,8 +233,10 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("far-player meld ownership zone contract is missing")
 	if str(contract.get("meld_source_feedback", "")) != "compact_blue_second_tile_arrow_and_seat_label":
 		failures.append("peng/gang source feedback must use the compact blue centre-arrow contract")
-	if str(contract.get("season_theme", "")) != "reference_blue_mobile":
-		failures.append("3D stage did not expose the reference-blue visual contract")
+	if str(contract.get("season_theme", "")) != "reference_emerald_mobile":
+		failures.append("3D stage did not expose the reference-emerald visual contract")
+	if str(contract.get("concealed_gang_presentation", "")) != "four_distinct_face_down_jade_tiles":
+		failures.append("concealed kong contract must guarantee four distinct face-down tiles")
 	if str(contract.get("camera_profile", "")) != "commercial_reference_perspective_v2":
 		failures.append("3D stage camera profile contract mismatch")
 	if str(contract.get("camera_projection", "")) != "perspective_3d":
@@ -413,14 +415,24 @@ func _verify_human_orientation(stage: SichuanTableStage3D, failures: Array[Strin
 
 func _verify_concealed_gang(stage: SichuanTableStage3D, failures: Array[String]) -> void:
 	var concealed_count := 0
+	var positions: Array[float] = []
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		if not str(key_value).begins_with("meld_2_0_"):
 			continue
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
 		if not tile.showing_face:
 			concealed_count += 1
+			positions.append(tile.position.x)
+			if not tile.flat_concealed_result:
+				failures.append("concealed kong tile must use the stable jade-back surface")
 	if concealed_count != 4:
 		failures.append("concealed kong must be the face-down meld, count=%d" % concealed_count)
+	positions.sort()
+	if positions.size() == 4:
+		for index in range(1, positions.size()):
+			if positions[index] - positions[index - 1] < 0.50:
+				failures.append("concealed kong middle tiles still overlap instead of showing four boundaries")
+				break
 
 
 func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures: Array[String]) -> void:

@@ -14,15 +14,13 @@ enum MaterialMode {
 
 const FRAME_THICKNESS := 28.0
 const BRASS_LINE_WIDTH := 2.0
-const WOOD_DARK := TABLE_THEME.EBONY
-const WOOD_MID := TABLE_THEME.LACQUER_BROWN
-const BRASS := TABLE_THEME.AGED_COPPER
-const PLUSH_STRENGTH := 0.112
-const FIBER_DENSITY := 148.0
-const NAP_VARIATION := 0.034
-const VIGNETTE_STRENGTH := 0.50
-const LIGHT_STRENGTH := 0.205
-const AMBIENT_FILL_STRENGTH := 0.080
+const WOOD_DARK := Color("063B30")
+const WOOD_MID := Color("075C49")
+const BRASS := Color("4BA386")
+const WEAVE_STRENGTH := 0.046
+const RELIEF_STRENGTH := 0.020
+const VIGNETTE_STRENGTH := 0.83
+const LIGHT_STRENGTH := 0.070
 
 @export var material_mode: MaterialMode = MaterialMode.FELT:
 	set(value):
@@ -60,11 +58,10 @@ func _draw() -> void:
 
 
 func _draw_felt_texture() -> void:
-	# The opaque procedural shader below this draw pass owns the base color,
-	# directional light, continuous short plush fibers and vignette. This
-	# translucent wash only binds the frame and perspective seams to the same
-	# material; geometric brocade motifs are intentionally absent.
-	draw_rect(Rect2(Vector2.ZERO, size), Color(TABLE_THEME.INK_JADE_DEEP, 0.10 * opacity), true)
+	# The opaque procedural shader owns the reference-green base, crossed weave,
+	# broad centre lift, edge vignette and embossed peripheral cloud scrolls.
+	# This translucent wash only binds the rails to the same emerald family.
+	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.32, 0.24, 0.08 * opacity), true)
 	_draw_perspective_table_structure()
 	_draw_table_frame()
 
@@ -84,10 +81,10 @@ func _draw_perspective_table_structure() -> void:
 		Vector2(size.x - bottom_inset, bottom_y),
 		Vector2(bottom_inset, bottom_y),
 	])
-	draw_colored_polygon(surface, Color(TABLE_THEME.MALACHITE, 0.085 * opacity))
+	draw_colored_polygon(surface, Color(0.04, 0.58, 0.43, 0.075 * opacity))
 	var surface_outline := surface.duplicate()
 	surface_outline.append(surface[0])
-	draw_polyline(surface_outline, Color(TABLE_THEME.COPPER_SHADOW, 0.28 * opacity), 1.4, true)
+	draw_polyline(surface_outline, Color(0.01, 0.22, 0.16, 0.32 * opacity), 1.4, true)
 
 	var left_rail := PackedVector2Array([
 		Vector2(FRAME_THICKNESS, top_y - 4.0),
@@ -103,8 +100,8 @@ func _draw_perspective_table_structure() -> void:
 	])
 	draw_colored_polygon(left_rail, Color(TABLE_THEME.EBONY, 0.26 * opacity))
 	draw_colored_polygon(right_rail, Color(TABLE_THEME.EBONY, 0.34 * opacity))
-	draw_line(left_rail[1], left_rail[2], Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.22 * opacity), 1.5, true)
-	draw_line(right_rail[0], right_rail[3], Color(TABLE_THEME.COPPER_SHADOW, 0.42 * opacity), 1.5, true)
+	draw_line(left_rail[1], left_rail[2], Color(0.18, 0.64, 0.49, 0.22 * opacity), 1.5, true)
+	draw_line(right_rail[0], right_rail[3], Color(0.00, 0.16, 0.11, 0.42 * opacity), 1.5, true)
 
 	# Four restrained seat seams organize the negative space without becoming
 	# a visible board grid. The center remains clear for discards and actions.
@@ -187,26 +184,24 @@ func _sync_felt_shader_layer() -> void:
 	_felt_shader_layer.visible = true
 	var shader_material := _felt_shader_layer.material as ShaderMaterial
 	if shader_material != null:
-		shader_material.set_shader_parameter("plush_strength", PLUSH_STRENGTH * opacity)
-		shader_material.set_shader_parameter("fiber_density", FIBER_DENSITY)
-		shader_material.set_shader_parameter("nap_variation", NAP_VARIATION * opacity)
+		shader_material.set_shader_parameter("weave_strength", WEAVE_STRENGTH * opacity)
+		shader_material.set_shader_parameter("relief_strength", RELIEF_STRENGTH * opacity)
 		shader_material.set_shader_parameter("vignette_strength", VIGNETTE_STRENGTH * opacity)
 		shader_material.set_shader_parameter("light_strength", LIGHT_STRENGTH * opacity)
-		shader_material.set_shader_parameter("ambient_fill_strength", AMBIENT_FILL_STRENGTH * opacity)
 
 
 func get_material_contract() -> Dictionary:
 	return {
-		"base_palette": ["052820", "062c28", "06382c", "0b3f34", "123f35"],
-		"plush_strength": PLUSH_STRENGTH,
-		"fiber_density": FIBER_DENSITY,
-		"nap_variation": NAP_VARIATION,
-		"lighting_layers": ["warm_key", "neutral_ambient_fill", "lower_right_falloff", "edge_vignette"],
+		"base_palette": ["043c2d", "056e54", "07916f", "1eb08c"],
+		"weave_strength": WEAVE_STRENGTH,
+		"relief_strength": RELIEF_STRENGTH,
+		"lighting_layers": ["broad_center_lift", "upper_left_soft_light", "edge_vignette"],
 		"light_direction": "upper_left_to_lower_right",
-		"surface_finish": "dense_short_plush",
+		"surface_finish": "fine_crosswoven_emerald_felt",
 		"texture_coverage": "full_surface",
-		"fiber_directions": "crossed_irregular_nap",
-		"geometric_motifs": "none",
+		"fiber_directions": "retina_diagonal_crossweave",
+		"geometric_motifs": "peripheral_embossed_cloud_scrolls",
+		"reference_target": "emerald_mobile_table_without_logo",
 		"circular_hotspot": false,
 		"spatial_structure": "fixed_camera_shallow_perspective",
 		"rail_depth": "ebony_side_rails_with_copper_inner_edge",
