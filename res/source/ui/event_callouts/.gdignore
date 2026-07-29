@@ -1,0 +1,2 @@
+# Editable Blender source is build evidence, not a runtime-imported scene.
+# The deterministic generator exports the six runtime PNGs separately.
