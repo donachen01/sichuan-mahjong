@@ -49,7 +49,10 @@ func _ready() -> void:
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_filter = Control.MOUSE_FILTER_STOP
 		STYLE_CONFIG.apply_button(button, false)
-		button.add_theme_font_size_override("font_size", 26)
+		# The bar has a single 184px text column in both layout modes. Keep the
+		# standard 32px token; compact mode may tighten spacing but must not shrink
+		# utility labels below the 28px mobile floor.
+		button.add_theme_font_size_override("font_size", TABLE_THEME.font_size("utility", false))
 	# The compact entry is an icon, not body copy. Give its three strokes enough
 	# visual weight to remain immediately recognisable on a phone.
 	toggle_button.add_theme_font_size_override("font_size", 40)

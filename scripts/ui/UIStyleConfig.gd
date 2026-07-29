@@ -8,25 +8,25 @@ const BODY_FONT_PATH := "res://res/fonts/NotoSansCJKsc-Regular.otf"
 static var _cached_nameplate_font: Font
 static var _cached_body_font: Font
 
-@export var table_bg: Color = Color("052820")
-@export var panel_bg: Color = Color(0.035, 0.161, 0.137, 0.94)
-@export var panel_bg_emphasized: Color = Color(0.012, 0.094, 0.082, 0.98)
-@export var panel_border: Color = Color(0.659, 0.475, 0.227, 0.56)
-@export var panel_highlight_border: Color = Color(0.773, 0.604, 0.345, 0.82)
-@export var cream_panel_bg: Color = Color(0.039, 0.169, 0.141, 0.97)
-@export var cream_panel_border: Color = Color(0.725, 0.588, 0.333, 0.58)
+@export var table_bg: Color = Color("0A4B41")
+@export var panel_bg: Color = Color(0.063, 0.184, 0.161, 0.94)
+@export var panel_bg_emphasized: Color = Color(0.039, 0.118, 0.102, 0.98)
+@export var panel_border: Color = Color(0.616, 0.455, 0.227, 0.56)
+@export var panel_highlight_border: Color = Color(0.769, 0.604, 0.333, 0.82)
+@export var cream_panel_bg: Color = Color(0.063, 0.184, 0.161, 0.97)
+@export var cream_panel_border: Color = Color(0.616, 0.455, 0.227, 0.66)
 @export var warm_panel_bg: Color = Color(0.129, 0.090, 0.074, 0.98)
 @export var warm_panel_border: Color = Color(0.659, 0.475, 0.227, 0.72)
-@export var primary_button_bg: Color = Color("0A4A3D")
-@export var primary_button_bg_2: Color = Color("0D5A3E")
-@export var primary_button_text: Color = Color("F4E9C9")
+@export var primary_button_bg: Color = Color("0A4B41")
+@export var primary_button_bg_2: Color = Color("0F6957")
+@export var primary_button_text: Color = Color("F2EBDD")
 @export var secondary_button_bg: Color = Color(0.012, 0.094, 0.082, 0.96)
-@export var secondary_button_text: Color = Color("F4E9C9")
-@export var highlight_fill: Color = Color("B99655")
+@export var secondary_button_text: Color = Color("F2EBDD")
+@export var highlight_fill: Color = Color("C49A55")
 @export var highlight_stroke: Color = Color("7A522C")
-@export var text_primary: Color = Color("F4E9C9")
-@export var text_secondary: Color = Color("D8C49A")
-@export var text_muted: Color = Color(0.78, 0.81, 0.72, 0.94)
+@export var text_primary: Color = Color("F2EBDD")
+@export var text_secondary: Color = Color("C9C6BC")
+@export var text_muted: Color = Color(0.72, 0.76, 0.70, 0.94)
 @export var text_outline: Color = Color(0.012, 0.055, 0.047, 0.96)
 @export var danger: Color = Color("FF3333")
 @export var font_title_size: int = 26
@@ -231,16 +231,28 @@ func _body_font() -> Font:
 func _apply_font_to_node(node: Node) -> void:
 	var font := _body_font()
 	if node is Label:
-		(node as Label).add_theme_font_override("font", font)
+		var label := node as Label
+		if not label.has_theme_font_override("font"):
+			label.add_theme_font_override("font", font)
 	elif node is Button:
-		(node as Button).add_theme_font_override("font", font)
+		var button := node as Button
+		if not button.has_theme_font_override("font"):
+			button.add_theme_font_override("font", font)
 	elif node is RichTextLabel:
 		var rich_label := node as RichTextLabel
-		rich_label.add_theme_font_override("normal_font", font)
-		rich_label.add_theme_font_override("bold_font", font)
-		rich_label.add_theme_font_override("italics_font", font)
-		rich_label.add_theme_font_override("bold_italics_font", font)
+		if not rich_label.has_theme_font_override("normal_font"):
+			rich_label.add_theme_font_override("normal_font", font)
+		if not rich_label.has_theme_font_override("bold_font"):
+			rich_label.add_theme_font_override("bold_font", font)
+		if not rich_label.has_theme_font_override("italics_font"):
+			rich_label.add_theme_font_override("italics_font", font)
+		if not rich_label.has_theme_font_override("bold_italics_font"):
+			rich_label.add_theme_font_override("bold_italics_font", font)
 	elif node is LineEdit:
-		(node as LineEdit).add_theme_font_override("font", font)
+		var line_edit := node as LineEdit
+		if not line_edit.has_theme_font_override("font"):
+			line_edit.add_theme_font_override("font", font)
 	elif node is TextEdit:
-		(node as TextEdit).add_theme_font_override("font", font)
+		var text_edit := node as TextEdit
+		if not text_edit.has_theme_font_override("font"):
+			text_edit.add_theme_font_override("font", font)

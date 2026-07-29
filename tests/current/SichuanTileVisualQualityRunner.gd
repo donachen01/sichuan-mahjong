@@ -105,7 +105,7 @@ func _run() -> void:
 	var bright_face_material := face.get_active_material(0) as StandardMaterial3D
 	_check(bright_face_material != null, "bright human face material exists")
 	if bright_face_material != null:
-		_check_color(bright_face_material.albedo_color, Color("E4E2DE"), "bright human face matches the discard-white source target")
+		_check_color(bright_face_material.albedo_color, SichuanTile3D.SELF_HAND_FACE_WHITE, "bright human face matches the discard-white source target")
 		_check(bright_face_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "bright human face is independent of the rack incidence angle")
 
 	var jade_mesh := _mesh_named(body_root, "back")
@@ -167,9 +167,10 @@ func _run() -> void:
 	var state_marker := tile.get("state_marker") as MeshInstance3D
 	var new_draw_marker := tile.get("new_draw_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "new draw no longer paints a full-tile color plane")
-	_check(new_draw_marker != null and new_draw_marker.visible, "new draw uses one visible 3D gold cone marker")
+	_check(new_draw_marker != null and new_draw_marker.visible, "new draw uses one visible themed marker")
 	if new_draw_marker != null:
 		_check(new_draw_marker.position.z < -0.36, "new draw cone stays beyond the tile glyph area")
+		_check(tile.get("draw_marker_style_variant") == 1, "new-draw marker defaults to the selected emerald-ring variant")
 		tile.call("set_reduced_motion", false)
 		var rotation_before := new_draw_marker.rotation.y
 		tile.call("_process", 0.5)
@@ -195,20 +196,31 @@ func _run() -> void:
 	await process_frame
 	var selected_marker := tile.get("selected_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "selected tile suppresses every full-tile color plane")
-	_check(selected_marker != null and selected_marker.visible, "selected tile uses one visible warm-jade hand pointer")
-	_check(new_draw_marker != null and not new_draw_marker.visible, "selection hand is independent from the new-draw diamond")
+	_check(selected_marker != null and selected_marker.visible, "selected tile uses one visible jade check marker")
+	_check(new_draw_marker != null and not new_draw_marker.visible, "selection marker is independent from the new-draw diamond")
 	if selected_marker != null:
-		_check(selected_marker.name == "SelectedHandPointerMarker", "selection marker has a hand-specific node contract")
+		_check(selected_marker.name == "SelectedTileMarker", "selection marker has a generic selected-tile node contract")
+		_check(tile.get("selected_marker_style_variant") == 1, "selection marker defaults to the jade check variant")
 		var selected_mesh := selected_marker.mesh as PlaneMesh
-		_check(selected_mesh != null and selected_mesh.size.x >= 0.33, "selection hand uses a high-resolution vector plane instead of a geometric arrow")
+		_check(selected_mesh != null and selected_mesh.size.x >= 0.31, "selection marker uses a selectable themed vector plane")
 		var selected_material := selected_marker.get_active_material(0) as StandardMaterial3D
-		_check(selected_material != null and selected_material.albedo_texture != null, "selection hand has an independent vector texture")
+		_check(selected_material != null and selected_material.albedo_texture != null, "selection marker has an independent vector texture")
+		if selected_material != null and selected_material.albedo_texture != null:
+			_check(selected_material.albedo_texture.resource_path.ends_with("selected_jade_halo.svg"), "default selection marker must use the simple jade check graphic")
+		var selection_texture_paths: Dictionary = {}
+		for variant in range(5):
+			tile.call("set_selected_marker_style_variant", variant)
+			var variant_material := selected_marker.get_active_material(0) as StandardMaterial3D
+			if variant_material != null and variant_material.albedo_texture != null:
+				selection_texture_paths[variant_material.albedo_texture.resource_path] = true
+		_check(selection_texture_paths.size() == 5, "five selection styles must use five distinct vector graphics")
+		tile.call("set_selected_marker_style_variant", 1)
 		tile.call("set_reduced_motion", false)
 		var selected_scale_before := selected_marker.scale.x
 		tile.call("_process", 0.25)
-		_check(absf(selected_marker.scale.x - selected_scale_before) >= 0.005, "selection hand uses a subtle breathing pulse")
+		_check(absf(selected_marker.scale.x - selected_scale_before) >= 0.005, "selection marker uses a subtle breathing pulse")
 		tile.call("set_reduced_motion", true)
-		_check(absf(selected_marker.scale.x - 1.0) <= EPSILON, "reduced motion freezes the selection hand at its base scale")
+		_check(absf(selected_marker.scale.x - 1.0) <= EPSILON, "reduced motion freezes the selection marker at its base scale")
 
 	tile.call(
 		"configure",
@@ -225,16 +237,16 @@ func _run() -> void:
 	)
 	await process_frame
 	var latest_marker := tile.get("latest_marker") as MeshInstance3D
-	_check(latest_marker != null and latest_marker.visible, "latest discard uses one visible green diamond")
+	_check(latest_marker != null and latest_marker.visible, "latest discard uses one visible solid golden diamond")
 	if latest_marker != null:
-		_check(latest_marker.name == "LatestDiscardRotatingJadeDiamond", "latest discard exposes the rotating-jade-diamond contract")
+		_check(latest_marker.name == "LatestDiscardRotatingGoldenDiamond", "latest discard exposes the rotating-golden-diamond contract")
 		_check(latest_marker.position.z == 0.0 and latest_marker.position.y >= 0.33, "latest diamond floats directly above the tile center")
 		var latest_mesh := latest_marker.mesh as ImmediateMesh
 		_check(latest_mesh != null and latest_mesh.get_aabb().size.x >= 0.33, "latest diamond is substantially larger than the old yellow chip")
 		tile.call("set_reduced_motion", false)
 		var latest_rotation_before := latest_marker.rotation.y
 		tile.call("_process", 0.5)
-		_check(absf(rad_to_deg(latest_marker.rotation.y - latest_rotation_before) - 45.0) <= 0.2, "latest diamond rotates at 90 degrees per second")
+		_check(absf(rad_to_deg(latest_marker.rotation.y - latest_rotation_before) - 63.0) <= 0.2, "latest diamond rotates at 126 degrees per second")
 
 	tile.call(
 		"configure",
@@ -250,7 +262,7 @@ func _run() -> void:
 		-1
 	)
 	await process_frame
-	_check(selected_marker.visible and new_draw_marker.visible, "selection hand and new-draw markers can coexist")
+	_check(selected_marker.visible and new_draw_marker.visible, "selection and new-draw markers can coexist")
 	_check(selected_marker.position.x < -0.10 and new_draw_marker.position.x > 0.10, "coexisting markers split cleanly without overlap")
 
 	if failures.is_empty():

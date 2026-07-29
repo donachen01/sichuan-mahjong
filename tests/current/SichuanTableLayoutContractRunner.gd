@@ -62,8 +62,11 @@ func _verify_metrics(metrics_script: Script, failures: Array[String]) -> void:
 	if not standard_board.is_equal_approx(Rect2(304.0, 160.0, 1440.0, 710.0)):
 		failures.append("standard board rect drifted from the shared reference contract")
 	var compact_self_hud: Rect2 = metrics_script.call("seat_hud_rect", 0, Vector2(1365.0, 768.0))
-	if compact_self_hud.size.x < 176.0 or compact_self_hud.size.y < 112.0:
-		failures.append("compact SeatHUD must retain the 176x112 readability token")
+	if compact_self_hud.size.x < 196.0 or compact_self_hud.size.y < 146.0:
+		failures.append("compact SeatHUD must retain the locked 196x146 readability token")
+	var standard_self_hud: Rect2 = metrics_script.call("seat_hud_rect", 0, Vector2(2048.0, 1152.0))
+	if standard_self_hud.size.x < 230.0 or standard_self_hud.size.y < 156.0:
+		failures.append("standard SeatHUD must retain the locked 230x156 readability token")
 	var compact_hand: Rect2 = metrics_script.call("self_hand_rect", Vector2(1365.0, 768.0))
 	if compact_self_hud.end.y > compact_hand.position.y + 0.1:
 		failures.append("compact self SeatHUD must stay above the self hand")
@@ -168,6 +171,41 @@ func _verify_live_scene(failures: Array[String]) -> void:
 		var normalized_top_x: float = top_hud.get_global_rect().get_center().x / maxf(1.0, root_ui.get_global_rect().size.x)
 		if normalized_top_x < 0.68 or normalized_top_x > 0.83:
 			failures.append("top SeatHUD must use the target-reference upper-right anchor")
+		var locked_rect := self_hud.get_global_rect()
+		players[0]["score"] = 124
+		scene.call("_update_seat_huds", {
+			"players": players,
+			"current_dealer_seat": 2,
+			"current_turn_seat": 0,
+			"rules": {"use_ding_que_phase": true},
+		})
+		await process_frame
+		var delta_label := self_hud.get_node_or_null("%ScoreDeltaLabel") as Label
+		if delta_label == null or not delta_label.visible or delta_label.text != "+4":
+			failures.append("SeatHUD score changes must show a signed nearby delta before total-score highlight")
+		if not self_hud.get_global_rect().is_equal_approx(locked_rect):
+			failures.append("SeatHUD score feedback must not move or resize the panel")
+		players[0]["has_won"] = true
+		scene.call("_update_seat_huds", {
+			"players": players,
+			"current_dealer_seat": 2,
+			"current_turn_seat": 0,
+			"rules": {"use_ding_que_phase": true},
+		})
+		await process_frame
+		var won_badge := self_hud.get_node_or_null("%WonBadge") as Label
+		var turn_badge := self_hud.get_node_or_null("%TurnBadge") as Label
+		var material_shell := self_hud.get_node_or_null("%MaterialShell") as TextureRect
+		var name_label := self_hud.get_node_or_null("%NameLabel") as Label
+		var score_label := self_hud.get_node_or_null("%ScoreLabel") as Label
+		if won_badge == null or not won_badge.visible or turn_badge == null or turn_badge.visible:
+			failures.append("won SeatHUD must show 已胡 and suppress the active-turn badge")
+		if material_shell == null or material_shell.visible:
+			failures.append("won SeatHUD must keep the legacy horizontal-bar shell hidden")
+		if name_label == null or name_label.text.is_empty() or score_label == null or score_label.text.is_empty():
+			failures.append("won SeatHUD must keep name and score readable")
+		if not self_hud.get_global_rect().is_equal_approx(locked_rect):
+			failures.append("won state must not move or resize SeatHUD")
 	await _verify_center_and_discard_layer(scene, failures)
 	scene.queue_free()
 	await process_frame
@@ -183,8 +221,8 @@ func _verify_center_and_discard_layer(scene: Node, failures: Array[String]) -> v
 		indicator.call("render", 55, 3, "下家出牌中")
 		if indicator.size.x < 190.0 or indicator.size.x > 220.0 or indicator.size.y < 190.0 or indicator.size.y > 220.0:
 			failures.append("center indicator must stay within 190x190 and 220x220")
-		if str(indicator.call("get_active_direction_text")) != "下":
-			failures.append("中心四向风盘必须用本上对下标明当前下家")
+		if not str(indicator.call("get_active_direction_text")).is_empty():
+			failures.append("中心四向风盘不应再暴露本上对下文字")
 
 	var discard_layer: Control = scene.get("table_discard_layer")
 	if discard_layer == null or discard_layer.get_script() == null or discard_layer.get_script().resource_path != DISCARD_LAYER_PATH:

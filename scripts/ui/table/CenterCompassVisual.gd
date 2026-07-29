@@ -1,34 +1,33 @@
 class_name CenterCompassVisual
 extends Control
 
-# 旧版中央余牌牌匾的程序化复刻：深青黑底、暗金双线、克制切角。
-# 方向和回合只由下方状态文字表达，不再绘制东南西北、彩色角块或放射分区。
+const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 
 var active_seat := 0
+var reduced_motion := false
 
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
-	set_process(false)
 	queue_redraw()
 
 
-func configure(seat: int, _reduce_motion: bool = false) -> void:
+func configure(seat: int, reduce_motion: bool = false) -> void:
 	active_seat = clampi(seat, 0, 3)
+	reduced_motion = reduce_motion
 	queue_redraw()
 
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"form": "dark_cut_corner_remaining_plaque",
-		"active_encoding": ["status_text"],
-		"center_material": "deep_teal_black",
-		"radial_divisions": 0,
-		"corner_accents": 0,
-		"direction_labels": "none",
-		"border_lines": 2,
-		"motion": "static",
+		"form": "blender_pbr_low_profile_four_way_compass",
+		"asset": "res://res/art/3d/sichuan_center_compass_v2.glb",
+		"active_encoding": ["direction_text", "copper_wedge_light"],
+		"center_material": "physical_pbr_asset_below_control_overlay",
+		"radial_divisions": 4,
+		"direction_labels": "live_godot_text",
+		"motion": "static_when_reduced_motion",
 		"motion_safe": true,
 	}
 
@@ -36,51 +35,20 @@ func get_visual_contract() -> Dictionary:
 func _draw() -> void:
 	if size.x <= 8.0 or size.y <= 8.0:
 		return
+	# The physical jade/walnut/copper body comes from Blender. This transparent
+	# Control paints only the current-seat light so the PBR asset stays visible.
 	var center := size * 0.5
-	var radius := minf(size.x, size.y) * 0.5 - 3.0
-	var cut := radius * 0.115
-
-	# 右下接触影只负责把牌匾压在桌面上，不制造发光或浮夸光晕。
-	var shadow := _cut_corner_points(center + Vector2(4.0, 6.0), radius, cut)
-	draw_colored_polygon(shadow, Color(0.01, 0.025, 0.026, 0.44))
-
-	var outer := _cut_corner_points(center, radius, cut)
-	draw_colored_polygon(outer, Color("8E6731"))
-
-	var outer_inset := _cut_corner_points(center, radius - 3.0, maxf(2.0, cut - 1.0))
-	draw_colored_polygon(outer_inset, Color("071F1B"))
-
-	var middle := _cut_corner_points(center, radius - 7.0, maxf(2.0, cut - 2.0))
-	_draw_outline(middle, Color("BC8D48"), 1.8)
-
-	var inner := _cut_corner_points(center, radius - 12.0, maxf(2.0, cut - 3.0))
-	draw_colored_polygon(inner, Color("031512"))
-	_draw_outline(inner, Color(0.38, 0.27, 0.13, 0.78), 1.1)
-
-	# 左上极轻玉色反光，保持旧面板的厚度和统一光源方向。
-	var highlight := PackedVector2Array([
-		outer[0] + Vector2(3.0, 4.0),
-		outer[1] + Vector2(-2.0, 4.0),
-		outer[1] + Vector2(-2.0, 5.8),
-		outer[0] + Vector2(3.0, 5.8),
+	var inner_radius := minf(size.x, size.y) * 0.18
+	var outer_radius := minf(size.x, size.y) * 0.37
+	var angle: float = [PI * 0.5, PI, -PI * 0.5, 0.0][active_seat]
+	var spread := 0.48
+	var points := PackedVector2Array([
+		center + Vector2(cos(angle - spread), sin(angle - spread)) * inner_radius,
+		center + Vector2(cos(angle - spread * 0.62), sin(angle - spread * 0.62)) * outer_radius,
+		center + Vector2(cos(angle + spread * 0.62), sin(angle + spread * 0.62)) * outer_radius,
+		center + Vector2(cos(angle + spread), sin(angle + spread)) * inner_radius,
 	])
-	draw_colored_polygon(highlight, Color(0.96, 0.78, 0.42, 0.22))
-
-
-func _cut_corner_points(center: Vector2, radius: float, cut: float) -> PackedVector2Array:
-	return PackedVector2Array([
-		center + Vector2(-radius + cut, -radius),
-		center + Vector2(radius - cut, -radius),
-		center + Vector2(radius, -radius + cut),
-		center + Vector2(radius, radius - cut),
-		center + Vector2(radius - cut, radius),
-		center + Vector2(-radius + cut, radius),
-		center + Vector2(-radius, radius - cut),
-		center + Vector2(-radius, -radius + cut),
-	])
-
-
-func _draw_outline(points: PackedVector2Array, color: Color, width: float) -> void:
-	var closed := points.duplicate()
-	closed.append(points[0])
-	draw_polyline(closed, color, width, true)
+	draw_colored_polygon(points, Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.23))
+	var outline := points.duplicate()
+	outline.append(points[0])
+	draw_polyline(outline, Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.72), 1.8, true)

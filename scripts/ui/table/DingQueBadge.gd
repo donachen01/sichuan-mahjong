@@ -14,7 +14,7 @@ var revealed := false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	STYLE_CONFIG.apply_label(text_label, false, true)
+	STYLE_CONFIG.apply_label(text_label, false, false)
 	_refresh()
 
 

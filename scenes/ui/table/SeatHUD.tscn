@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/table/SeatHUD.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://scenes/ui/table/DingQueBadge.tscn" id="2_badge"]
 [ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="3_craft"]
 [ext_resource type="Script" path="res://scripts/ui/table/SeatAvatarMedallion.gd" id="4_avatar"]
+[ext_resource type="Texture2D" path="res://res/art/ui/table_v2/hud_shell.png" id="5_shell"]
 
 [node name="SeatHUD" type="Control"]
 custom_minimum_size = Vector2(196, 146)
@@ -33,6 +34,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="MaterialShell" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_shell")
+expand_mode = 1
+stretch_mode = 0
 mouse_filter = 2
 
 [node name="InnerFrame" type="Panel" parent="."]
@@ -157,4 +171,17 @@ offset_bottom = 40.0
 horizontal_alignment = 1
 vertical_alignment = 1
 text = "出牌"
+mouse_filter = 2
+
+[node name="ScoreDeltaLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 108.0
+offset_top = 96.0
+offset_right = 190.0
+offset_bottom = 138.0
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "+0"
 mouse_filter = 2

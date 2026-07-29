@@ -338,6 +338,7 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var snapshot := _settlement_snapshot()
 	scene.set("last_snapshot", {"current_phase": 6})
 	scene.call("_refresh_settlement", snapshot)
+	scene.call("force_complete_settlement_transition_for_test")
 	await process_frame
 	var rich_overlay: Control = scene.get("settlement_overlay")
 	var simplified_overlay: Control = scene.get("settlement_overlay_v2")
@@ -361,13 +362,13 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var root_ui: Control = scene.get("root_ui")
 	if panel != null and root_ui != null and (panel.size.x > root_ui.size.x + 1.0 or panel.size.y > root_ui.size.y + 1.0):
 		failures.append("结算面板不得超出屏幕")
-	var panel_style := panel.get_theme_stylebox("panel") as StyleBoxFlat if panel != null else null
-	if panel_style == null:
-		failures.append("结算面板缺少桌面主题样式")
-	elif panel_style.bg_color.b <= panel_style.bg_color.g or panel_style.bg_color.b <= panel_style.bg_color.r:
-		failures.append("结算页仍是旧绿色系，必须与主桌的深蓝灰色统一")
-	elif panel_style.border_color.b <= panel_style.border_color.r:
-		failures.append("结算页边框没有采用主桌的冷钢蓝边框")
+	var panel_style := panel.get_theme_stylebox("panel") if panel != null else null
+	if not panel_style is StyleBoxTexture:
+		failures.append("结算主面板必须使用 Blender 生成的深翡翠九宫格资源")
+	else:
+		var textured_style := panel_style as StyleBoxTexture
+		if textured_style.texture == null or not textured_style.texture.resource_path.ends_with("settlement_panel_9slice.png"):
+			failures.append("结算主面板九宫格资源路径不正确")
 
 	var wall_draw_after_win := {
 		"end_reason": "draw_wall_empty",
@@ -443,8 +444,8 @@ func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:
 	var upper_hud: Control = seat_huds.get(1)
 	var self_turn_badge := self_hud.get_node_or_null("%TurnBadge") as Label if self_hud != null else null
 	var upper_turn_badge := upper_hud.get_node_or_null("%TurnBadge") as Label if upper_hud != null else null
-	if self_turn_badge == null or not self_turn_badge.visible or self_turn_badge.text != "响应":
-		failures.append("响应阶段本家信息框必须显示响应文字徽标")
+	if self_turn_badge == null or self_turn_badge.visible:
+		failures.append("响应阶段本家信息框不应显示响应文字徽标，应使用铭牌亮圈")
 	if upper_turn_badge != null and upper_turn_badge.visible:
 		failures.append("响应阶段不得同时把上家和本家都标成当前操作方")
 

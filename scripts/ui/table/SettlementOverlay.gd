@@ -231,7 +231,12 @@ func _layout_panel() -> void:
 func _apply_styles() -> void:
 	panel.add_theme_stylebox_override("panel", _make_panel_style())
 	for label in [round_label, result_badge, focus_name_label, score_label, fan_label, hand_label, breakdown_label]:
-		STYLE_CONFIG.apply_label(label, label in [hand_label, breakdown_label], true)
+		# Calligraphy is reserved for the short settlement heading/badge. Names,
+		# numbers and detail copy must keep the embedded Noto Sans CJK body font;
+		# using the display font for a 72px score or multi-line ledger damages digit
+		# clarity and violates the cross-platform no-system-fallback contract.
+		var use_display_font: bool = label == round_label or label == result_badge
+		STYLE_CONFIG.apply_label(label, label in [hand_label, breakdown_label], use_display_font)
 		label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 		label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.04, 0.96))
 		label.add_theme_constant_override("outline_size", 2)

@@ -147,7 +147,7 @@ func _click_at(global_position: Vector2) -> void:
 func _player(seat: int, is_ai: bool, ding_que: String, hand: Array) -> Dictionary:
 	return {
 		"seat": seat,
-		"nickname": ["陈旭", "舒小燕", "陈东", "舒玲"][seat],
+		"nickname": ["陈旭", "舒燕", "陈东", "舒玲"][seat],
 		"score": 0,
 		"is_ai": is_ai,
 		"hand_tiles": hand.duplicate(true),

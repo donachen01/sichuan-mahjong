@@ -1,0 +1,1058 @@
+{
+  "standard": "四川麻将深翡翠精品牌桌与牌局演出最终验收标准_V1",
+  "project": "/Volumes/AI/Codex/四川麻将工程_20260701_v2",
+  "rule": "每项必须由未参与实现的独立裁判给出PASS；不得以总分抵消FAIL",
+  "allowed_status": [
+    "未处理",
+    "处理中",
+    "已修未验",
+    "已验证",
+    "暂缓并说明原因"
+  ],
+  "rubric_version": "V1",
+  "items": [
+    {
+      "id": "AC-VIS-01",
+      "title": "颜色令牌落地",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/stage1_pixel_metrics.json", "evidence/ui_emerald_final_20260726/stage1/table_2048x1152.png"],
+      "metric_values": {"pooled_median_rgb": [34, 120, 97], "target_rgb_distance": 12.53},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认主色令牌与实测颜色距离达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-VIS-02",
+      "title": "明暗层级与克制高光",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "tests/current/SichuanPremiumTableVisualContractRunner.gd", "evidence/ui_emerald_final_20260726/stage1/table_2048x1152.png"],
+      "metric_values": {"center_lift": "0.03-0.05", "edge_darkening": "0.05-0.08", "brocade_strength": "0.018-0.030"},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认明暗、暗角和旧铜高光克制。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-TYPE-01",
+      "title": "字体资产与回退",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_字体与可读性_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_type/typography_metrics.json", "evidence/ui_emerald_final_20260726/stage2_type/settlement_typography_2048x1152.png", "tests/current/SichuanIosFontRegressionRunner.gd"],
+      "metric_values": {"embedded_body_font": "NotoSansCJKsc-Regular.otf", "embedded_display_font": "nameplate_calligraphy.ttf", "covered_characters": "73/73", "rich_settlement_dynamic_labels_audited": 33, "standard_title_size": 40, "standard_focus_score_size": 72},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认实际 rich settlement 路径、动态结算行与关键 HUD 正文均使用内置 Noto；书法仅限短标题和装饰单字章，标准/紧凑字号门槛均受测试约束。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-TYPE-02",
+      "title": "可读性与对比度",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_字体与可读性_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_type/contrast_metrics.json", "evidence/ui_emerald_final_20260726/stage2_type/hud-score-plus_typography_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_type/hud-score-minus_typography_2048x1152.png", "tests/current/SichuanTypographyContrastRunner.gd"],
+      "metric_values": {"contrast_pairs_passed": "15/15", "minimum_measured_ratio": 3.526, "positive_text": "+16", "negative_text": "-14", "semantic_states_passed": "7/7"},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认关键文字对比度全部达标，正负分同时具备符号与颜色，定缺、庄家、当前回合和已胡均有非颜色语义。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-01",
+      "title": "Blender可复现资产链",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/asset_reproducibility.json", "evidence/ui_emerald_final_20260726/stage1/blender_generation.log", "tools/3d/generate_sichuan_center_compass_v2.py"],
+      "metric_values": {"asset_count": 20, "two_pass_hashes_identical": true, "compass_objects": 9, "compass_triangles": 5040},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "新增中央方位盘后，桌体、方位盘与 UI 外壳三类 Blender 可复现链均通过独立裁决。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-02",
+      "title": "实体桌体建模",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/blender_generation.log", "evidence/ui_emerald_final_20260726/stage1/stage1_four_resolution_montage.png"],
+      "metric_values": {"table_triangles": 20296, "compass_triangles": 5040},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认三角面数、倒角桌体和四分辨率稳定性达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-03",
+      "title": "短绒毛毡PBR",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/stage1_pixel_metrics.json", "tests/current/SichuanTableMaterialQualityRunner.gd"],
+      "metric_values": {"felt_texture_size": 2048, "roughness": "0.78-0.90", "metallic": 0.0, "max_local_stddev": 1.52},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认毛毡 PBR 尺寸、粗糙度和无接缝观感达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-04",
+      "title": "蜀锦边缘暗纹",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/brocade_mask_audit.png", "evidence/ui_emerald_final_20260726/stage1/brocade_audit.json"],
+      "metric_values": {"outer_band_fraction": 0.08984, "inner_nonzero_ratio": 0.0, "dark_vs_plain": 0.0216, "bright_vs_dark": 0.0282},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立复算确认边带占比、中心净空和相对亮度均达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-05",
+      "title": "皮革黑胡桃与旧铜",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage1/material_parameters.json", "evidence/ui_emerald_final_20260726/stage1/material_closeups_montage.png"],
+      "metric_values": {"leather_texture_size": 1024, "walnut_texture_size": 1024, "copper_metallic": 0.52, "copper_roughness": 0.46},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认皮革、黑胡桃和旧铜可通过明暗/粗糙度区分且无塑料感。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ART-06",
+      "title": "Godot保留PBR材质",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "scripts/ui/3d/SichuanTableStage3D.gd", "tests/current/Sichuan3DTableStageRunner.gd", "tests/current/SichuanTableMaterialQualityRunner.gd"],
+      "metric_values": {"imported_pbr_preserved": true, "fallback_explicit": true, "flat_material_override": false},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认 Godot 主路径保留 Blender PBR，旧桌体仅作显式 fallback。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HUD-01",
+      "title": "玩家面板尺寸硬锁",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_玩家信息区_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud_rects_four_resolutions.json", "scripts/ui/table/SichuanTableMetrics.gd", "scenes/ui/table/SeatHUD.tscn", "scripts/ui/table/SeatHUD.gd", "tests/current/SichuanTableLayoutContractRunner.gd"],
+      "metric_values": {"standard_width_px": 230, "standard_height_px": 156, "compact_width_px": 196, "compact_height_px": 146, "animation_rect_tolerance_px": 1.0, "implementation_changes_panel_rect": false, "all_inside_viewport": true},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认四分辨率尺寸、视口安全及当前/加分/已胡状态切换均不改变玩家面板 rect。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HUD-02",
+      "title": "玩家面板材质与层级",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage1_独立验收判词_20260726.md", "scenes/ui/table/SeatHUD.tscn", "scripts/ui/table/SeatHUD.gd", "evidence/ui_emerald_final_20260726/stage1/ui_shells_montage_v2.png"],
+      "metric_values": {"nine_slice_shell": true, "legacy_craft_panel_hidden": true, "required_information_complete": true},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认墨玉/黑漆九宫格外壳与内部信息层级达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HUD-03",
+      "title": "当前已胡与得分状态",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_玩家信息区_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud-current_final_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud-current-reduced_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud-won_final_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud-score-plus_final_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/hud-score-minus_final_2048x1152.png", "scripts/ui/table/SeatHUD.gd", "tests/current/SichuanTableLayoutContractRunner.gd", "tests/current/SichuanHudStateIntegrityRunner.gd"],
+      "metric_values": {"active_arrival_seconds": 0.18, "active_followup": "weak_edge_only_breath_without_move_or_scale", "reduced_motion": "stable_edge_highlight", "score_plus_example": 4, "score_minus_example": -6, "panel_rect_changed": false},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认当前、减少动态、已胡以及正负得分反馈均达标；动态时序结论基于源码与 Runner，未独立观看完整录屏。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HAND-01",
+      "title": "手牌几何与亮度硬锁",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_手牌与牌张反馈_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_hand/hand_layout_metrics.json", "evidence/ui_emerald_final_20260726/stage2_hand/hand_brightness_metrics.json", "evidence/ui_emerald_final_20260726/stage2_hand/hand_brightness_2048x1152.png", "tools/capture_hand_layout_metrics.gd"],
+      "metric_values": {"tile_face_px": [132, 198], "tile_count": 14, "regular_step_px": 136, "new_draw_gap_px": 22, "selected_lift_px": 18, "winning_tile_gap_px": 24, "max_bounds_error_px": 0, "median_brightness_delta_255": 2, "allowed_brightness_delta_255": 3},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认冻结几何误差为 0 px，牌面与弃牌白面亮度差为 2/255。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HAND-02",
+      "title": "摸牌选牌与手型",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_手牌与牌张反馈_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_hand/hand_layout_metrics.json", "evidence/ui_emerald_final_20260726/stage2_hand/hand_selected_draw_normal_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/hand_selected_draw_reduced_2048x1152.png", "tests/current/Sichuan3DTableStageRunner.gd"],
+      "metric_values": {"new_draw_travel_ms": 200, "new_draw_settle_ms": 50, "selected_hand_fade_ms": 140, "new_draw_gap_px": 22, "selected_lift_px": 18, "reduced_motion_stops_loops": true},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认摸牌、落位与手型时序均在锁定范围，正常和减少动态状态均可识别。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HAND-03",
+      "title": "出牌与牌河落位",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_手牌与牌张反馈_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_hand/discard_landing_timeline.json", "scripts/ui/3d/SichuanTableStage3D.gd", "tests/current/SichuanDiscardLandingSequenceRunner.gd"],
+      "metric_values": {"discard_travel_ms": 200, "discard_settle_ms": 40, "marker_before_reflow_beat_ms": 60, "marker_visible_reflow_false_ms": 274, "hand_reflow_complete_ms": 453},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "首轮因标记与重排同拍判 FAIL；增加独立 60 ms 标记先行节拍后，同一裁判复跑并改判 PASS。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HAND-04",
+      "title": "自摸展示合同",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_手牌与牌张反馈_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_hand/self-draw_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/gang-self-hu_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/ai-self-draw-1_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/ai-self-draw-2_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/ai-self-draw-3_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/gang_self_hu_timeline.json", "tests/current/SichuanGangSelfHuSequenceRunner.gd", "tests/current/Sichuan3DTableStageRunner.gd"],
+      "metric_values": {"self_draw_marker_count": 1, "ai_self_draw_seats": 3, "draw_actions_at_297ms": [], "self_hu_actions_release_ms": 1023, "released_actions": ["hu", "pass"], "rule_regression": "33/33"},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "首轮因补杠摸牌期间自摸动作可能提前出现判 FAIL；修复表现层阻塞并新增真实计时 Runner 后，同一裁判复跑改判 PASS。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-HAND-05",
+      "title": "碰杠来源箭头",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_手牌与牌张反馈_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_hand/meld-source-matrix_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_hand/concealed-gang_2048x1152.png", "scripts/ui/3d/SichuanTile3D.gd", "tests/current/Sichuan3DTableStageRunner.gd"],
+      "metric_values": {"source_seats_covered": 4, "owner_seats_covered": 4, "arrow_tile_index": 2, "source_identity_channels": ["direction", "source_seat", "seat_label"], "concealed_gang_faces": "outer_faces_middle_jade_backs"},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认四来源座位覆盖完整，碰杠箭头固定在第 2 张且同时保留方向、来源座位与文字标签。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-LAYOUT-01",
+      "title": "中央轻量方向器",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_DQ与中央方向器_独立验收判词_20260726.md", "res/art/3d/sichuan_center_compass_v2.glb", "evidence/ui_emerald_final_20260726/stage2_dq_center/compass_seat_0_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/compass_seat_1_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/compass_seat_2_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/compass_seat_3_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/center_compass_area_metrics.json"],
+      "metric_values": {"compass_max_visual_px": 210, "center_visible_pixel_ratio": 0.212415, "center_bbox_ratio": 0.235727, "center_area_limit": 0.55, "direction_states_captured": 4},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认轻量 PBR 方位器、四方向强调、15 秒倒计时与余牌筹码均达标；截图画布边缘 +1 px 不影响判定。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-LAYOUT-02",
+      "title": "中央净空与牌河",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_空间布局与动作区_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_layout/spatial_layout_metrics.json", "evidence/ui_emerald_final_20260726/stage2_layout/discard-pressure_2048x1152.png", "scripts/ui/3d/SichuanTableStage3D.gd", "tests/current/SichuanSpatialLayoutRunner.gd"],
+      "metric_values": {"discard_count_per_seat": 18, "center_intersections": 0, "cross_river_intersections": 0, "hand_intersections": 0, "row_intersections": 0, "claimed_discard_removed_id": 62107, "surviving_discard_count": 71, "max_survivor_world_delta": 0},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "压力测试先发现被碰杠移除弃牌会带动后续格位；改为按牌持久槽位后，独立裁判复跑确认 71 个幸存弃牌最大位移为 0。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-LAYOUT-03",
+      "title": "副露导轨",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_空间布局与动作区_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_layout/spatial_layout_metrics.json", "evidence/ui_emerald_final_20260726/stage2_layout/meld-pressure_2048x1152.png", "scripts/ui/3d/SichuanTableStage3D.gd", "tests/current/SichuanSpatialLayoutRunner.gd", "tests/current/Sichuan3DTableStageRunner.gd"],
+      "metric_values": {"meld_groups_per_seat": 4, "intersections": 0, "side_rack_tilt_degrees": 90, "far_rack_tilt_degrees": 90, "hud_intersections": 0, "safe_viewport_intersections": 0},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "四组压力测试先发现本家组间和对家短手碰撞；增加本家组间距与对家短手避让后，独立裁判确认四家全组交叉为 0。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-LAYOUT-04",
+      "title": "情境动作区",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_空间布局与动作区_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_layout/action_bar_rects.json", "evidence/ui_emerald_final_20260726/stage2_layout/action-1_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_layout/action-2_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_layout/action-3_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_layout/action-4_2048x1152.png", "scripts/game/MainSceneV2.gd", "tests/current/SichuanActionBarLayoutRunner.gd", "tests/current/SichuanTableTouchTargetRunner.gd"],
+      "metric_values": {"action_state_counts": [1, 2, 3, 4], "four_action_order": ["hu", "gang", "peng", "pass"], "hu_touch_px": [132, 132], "secondary_touch_min_px": [108, 108], "inside_root_all": true, "overlaps_hand_all": false, "bottom_reserve_ratio": 0.225},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "动作压力测试先发现三/四动作态压住 3D 手牌右缘；底部预留提高到 22.5% 后，四状态均不重叠并由独立裁判复跑通过。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-DQ-01",
+      "title": "定缺只展示三个选择",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_DQ与中央方向器_独立验收判词_20260726.md", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_1365x768.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_1600x900.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_2556x1179.png", "tests/current/SichuanTableTouchTargetRunner.gd"],
+      "metric_values": {"choice_count": 3, "button_width_px": 230, "button_height_px": 230, "title_visible": false, "hint_visible": false, "resolution_count": 4},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认定缺态只展示条、筒、万三个选择，无旁侧或卡片提示文字。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-DQ-02",
+      "title": "定缺翡翠印章交互",
+      "status": "已验证",
+      "evidence_paths": ["evidence/ui_emerald_final_20260726/judges/Stage2_DQ与中央方向器_独立验收判词_20260726.md", "res/art/ui/table_v2/ding_que_tiao.png", "res/art/ui/table_v2/ding_que_tong.png", "res/art/ui/table_v2/ding_que_wan.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_selected_2048x1152.png", "evidence/ui_emerald_final_20260726/stage2_dq_center/ding_que_reduced_2048x1152.png", "tests/current/SichuanTableTouchTargetRunner.gd"],
+      "metric_values": {"shade_alpha": 0.13, "selected_lift_px": 12, "feedback_seconds": 0.14, "extra_confirmation": false, "reset_verified": true, "reduced_motion_verified": true},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 4,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Locke / acceptance_standard_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认 Blender 翡翠印章、选中抬升与降饱和反馈、直接提交、重置及减少动态分支达标。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-PRES-01",
+      "title": "只读表现导演",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage3_presentation/presentation_director_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage3_presentation/presentation_dependency_graph.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage3_表现导演与事件唯一性_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "source_forbidden_mutation_api_hits": 0,
+        "snapshot_deep_copy_isolated": true,
+        "main_scene_runtime_mount": true
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判源码审计和实跑确认表现导演仅消费深复制快照，不写规则、计分或 AI 状态，MainSceneV2 真实挂载并接入 snapshot_changed。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-PRES-02",
+      "title": "事件签名与只播放一次",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage3_presentation/presentation_director_metrics.json",
+        "evidence/ui_emerald_final_20260726/judges/Stage3_表现导演与事件唯一性_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "required_signature_kinds": 5,
+        "repeated_refresh_count": 20,
+        "starts_per_signature": 1,
+        "new_round_signature_count": 0
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "五类必需签名均按标准生成；同一快照连续刷新 20 次仍只启动一次，新局会清空签名历史。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-PRES-03",
+      "title": "优先级与不可中断动作",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage3_presentation/presentation_director_metrics.json",
+        "evidence/ui_emerald_final_20260726/judges/Stage3_表现导演与事件唯一性_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "priority_contract": "win>gang>peng>discard>draw>score>tip",
+        "critical_discard_was_not_interrupted": true,
+        "stable_after_clear": true
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判确认优先级、装饰事件可被高优先级打断、关键牌位移不可中断及队列稳定清空均通过。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-MOTION-01",
+      "title": "时间与运动总合同",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage4_motion/final_motion_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage4_motion/motion_sequence_timeline.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage4_动画节奏与事件表现_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "draw_seconds": 0.16,
+        "discard_seconds": 0.20,
+        "peng_seconds": 0.20,
+        "gang_seconds": 0.22,
+        "win_seconds": 0.26,
+        "callout_in_seconds": 0.18,
+        "callout_hold_seconds": 0.36,
+        "callout_out_seconds": 0.42,
+        "score_seconds": 0.18,
+        "camera_shake": false,
+        "layout_contract_changed": false,
+        "touch_contract_changed": false,
+        "tile_mapping_changed": false
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "独立裁判复跑动画合同与规则回归，确认九段时长、无镜头震动且布局、触控、牌 ID 映射均未被表现层改写。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-MOTION-02",
+      "title": "碰直杠补杠与暗杠",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage4_motion/final_motion_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/peng.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/melded-gang.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/add-gang.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/an-gang.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/motion_sequence_timeline.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage4_动画节奏与事件表现_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "peng_sequence_verified": true,
+        "melded_gang_sequence_verified": true,
+        "add_gang_sequence_verified": true,
+        "concealed_gang_sequence_verified": true,
+        "concealed_gang_face_visibility": [true, false, false, true],
+        "recording_frames_per_case": 42,
+        "recording_fps": 30
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "碰、直杠、补杠、暗杠四条真实 MainSceneV2 序列均通过，暗杠首尾明、中间暗的牌面合同保持正确。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-MOTION-03",
+      "title": "胡牌事件",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage4_motion/final_motion_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/self-draw.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/gang-self-draw.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/discard-win.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/recordings/qiang-gang-hu.mp4",
+        "evidence/ui_emerald_final_20260726/stage4_motion/motion_sequence_timeline.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage4_动画节奏与事件表现_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "self_draw_verified": true,
+        "gang_self_draw_verified": true,
+        "discard_win_verified": true,
+        "qiang_gang_hu_verified": true,
+        "gang_self_draw_gang_score_components": 4,
+        "gang_self_draw_hu_score_components": 4,
+        "gang_and_hu_scores_independent": true
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "自摸、杠上花、点炮、抢杠胡四类胡牌均有真实动态证据；杠上花的杠分和胡分按两个独立四家分数组件展示。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-MOTION-04",
+      "title": "事件字美术",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_asset_manifest.md",
+        "docs/ui_rework/四川牌桌事件字原创与参考差异声明_V1.md",
+        "res/source/ui/event_callouts/sichuan_event_callouts.blend",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_peng_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_gang_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_hu_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_zimo_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_gangshanghua_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage4_motion/callout_qiangganghu_1365x768.png",
+        "evidence/ui_emerald_final_20260726/judges/Stage4_动画节奏与事件表现_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "original_textures": 6,
+        "dynamic_recordings": 8,
+        "editable_blender_source": true,
+        "paid_api_calls": 0,
+        "transparent_corners_per_texture": 4,
+        "key_ui_occlusion_count": 0
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "六张原创透明事件字均由本地 Blender 可编辑源生成，哈希、透明角和占位均经独立核查；未调用付费生成 API。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-MOTION-05",
+      "title": "减弱动态",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage4_motion/final_motion_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage4_motion/motion_sequence_timeline.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage4_动画节奏与事件表现_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "reduced_callout_tween_count": 0,
+        "reduced_stage_tween_count": 0,
+        "reduced_hud_tween_count": 0,
+        "terminal_position_unchanged": true,
+        "terminal_scale": 1.0,
+        "information_preserved": true
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "减弱动态下取消装饰 Tween，但事件字、终态位置、终态比例和全部计分信息保持一致。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-SETTLE-01",
+      "title": "结算视觉统一且保留明细",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage5_settlement/screenshots/settlement_1365x768.png",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/screenshots/settlement_2048x1152.png",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/final_settlement_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/settlement_asset_and_transition_manifest.md",
+        "evidence/ui_emerald_final_20260726/judges/Stage5_结算视觉账本与转场_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "panel_style": "StyleBoxTexture",
+        "panel_texture_size": [1024, 640],
+        "theme": "deep_emerald_ink_jade_aged_copper",
+        "score_is_primary_focus": true,
+        "winning_row_highlight": "emerald_active_plus_aged_copper"
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "深翡翠、墨玉与旧铜主题统一；Blender 九宫格源和运行时纹理哈希可追溯；赢家与分数主焦点明确且四列明细完整可审计。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-SETTLE-02",
+      "title": "结算数据权威与账本一致",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage5_settlement/final_settlement_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/settlement_asset_and_transition_manifest.md",
+        "tests/current/SichuanFinalSettlementAcceptanceRunner.gd",
+        "evidence/ui_emerald_final_20260726/judges/Stage5_结算视觉账本与转场_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "authoritative_path": "settlement_data/score_changes",
+        "ledger_case_count": 5,
+        "all_net_zero": true,
+        "all_detail_sums_match": true,
+        "ui_applies_self_draw_bonus": false,
+        "generic_adjustment_rows": 0
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "自摸、点炮、杠上花、抢杠胡、流局五类账本均以 score_changes 为唯一权威，四家净额归零且逐家明细严格对齐最终收分。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-SETTLE-03",
+      "title": "结算转场节奏",
+      "status": "已验证",
+      "evidence_paths": [
+        "evidence/ui_emerald_final_20260726/stage5_settlement/final_settlement_metrics.json",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/recordings/settlement_transition_normal.mp4",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/recordings/settlement_transition_reduced.mp4",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/recordings/settlement_transition_normal_contact.png",
+        "evidence/ui_emerald_final_20260726/stage5_settlement/recordings/settlement_transition_reduced_contact.png",
+        "evidence/ui_emerald_final_20260726/judges/Stage5_结算视觉账本与转场_独立验收判词_20260726.md"
+      ],
+      "metric_values": {
+        "normal_elapsed_seconds": 0.971,
+        "normal_mid_overlay_visible": false,
+        "reduced_elapsed_seconds": 0.184,
+        "same_authoritative_score_path": true,
+        "terminal_ledger_preserved": true,
+        "recording_frames_each": 42
+      },
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 5,
+        "rubric_version": "V1"
+      },
+      "verdict": "PASS",
+      "judge": "Goodall / hand_stage_independent_judge",
+      "reviewed_at": "2026-07-26",
+      "notes": "普通模式约 1 秒后打开详细账本；减弱动态只缩短等待，终态权威路径、账本内容和可审计明细保持一致。",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ENG-01",
+      "title": "触控硬门禁",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ENG-02",
+      "title": "四分辨率与安全区",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ENG-03",
+      "title": "移动渲染性能",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-ENG-04",
+      "title": "规则与历史功能无回归",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-REL-01",
+      "title": "版本与最终产物一致",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-REL-02",
+      "title": "Android交付",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-REL-03",
+      "title": "iOS交付",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    },
+    {
+      "id": "AC-REL-04",
+      "title": "真机人工最终体验",
+      "status": "未处理",
+      "evidence_paths": [],
+      "metric_values": {},
+      "severity_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0
+      },
+      "subjective_score": {
+        "score": 0,
+        "rubric_version": "V1"
+      },
+      "verdict": "PARTIAL",
+      "judge": "",
+      "reviewed_at": "",
+      "notes": "",
+      "required_followups": []
+    }
+  ]
+}

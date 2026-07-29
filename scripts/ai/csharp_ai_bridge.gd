@@ -47,11 +47,10 @@ func analyze_discard(player_state: Dictionary, table_state: Dictionary, rules_co
 		last_transport_mode = "cli_failed"
 		last_host_error = "cli_exit_%d" % exit_code
 		return {}
-	var raw: String = "\n".join(output)
-	var parsed = JSON.parse_string(raw)
+	var parsed := _parse_cli_output(output)
 	last_transport_mode = "cli_after_host_miss" if host_mode_enabled else "cli"
 	last_host_error = ""
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return parsed
 
 
 func build_discard_transport_payload(player_state: Dictionary, table_state: Dictionary, rules_config, force_lightweight: bool = false, compact_result: bool = false) -> Dictionary:
@@ -86,11 +85,10 @@ func analyze_reaction(candidate: Dictionary, player_state: Dictionary, table_sta
 		last_transport_mode = "cli_failed"
 		last_host_error = "cli_exit_%d" % exit_code
 		return {}
-	var raw: String = "\n".join(output)
-	var parsed = JSON.parse_string(raw)
+	var parsed := _parse_cli_output(output)
 	last_transport_mode = "cli_after_host_miss" if host_mode_enabled else "cli"
 	last_host_error = ""
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return parsed
 
 
 func build_reaction_transport_payload(candidate: Dictionary, player_state: Dictionary, table_state: Dictionary, discard_context: Dictionary, rules_config) -> Dictionary:
@@ -143,11 +141,10 @@ func analyze_ding_que(hand_tiles: Array, active_suits: Array, request_tag: Strin
 		last_transport_mode = "cli_failed"
 		last_host_error = "cli_exit_%d" % exit_code
 		return {}
-	var raw: String = "\n".join(output)
-	var parsed = JSON.parse_string(raw)
+	var parsed := _parse_cli_output(output)
 	last_transport_mode = "cli_after_host_miss" if host_mode_enabled else "cli"
 	last_host_error = ""
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return parsed
 
 
 func analyze_self_action(player_state: Dictionary, table_state: Dictionary, rules_config, can_self_hu: bool, an_gang_tile_types: Array, add_gang_tile_types: Array, add_gang_qiang_gang_counts: Dictionary = {}, mandatory_gang_tile_types: Array = [], request_tag: String = "") -> Dictionary:
@@ -172,11 +169,10 @@ func analyze_self_action(player_state: Dictionary, table_state: Dictionary, rule
 		last_transport_mode = "cli_failed"
 		last_host_error = "cli_exit_%d" % exit_code
 		return {}
-	var raw: String = "\n".join(output)
-	var parsed = JSON.parse_string(raw)
+	var parsed := _parse_cli_output(output)
 	last_transport_mode = "cli_after_host_miss" if host_mode_enabled else "cli"
 	last_host_error = ""
-	return parsed if typeof(parsed) == TYPE_DICTIONARY else {}
+	return parsed
 
 
 func set_host_mode_enabled(enabled: bool, port: int = HOST_DEFAULT_PORT) -> void:
@@ -438,6 +434,23 @@ func _write_payload(payload: Dictionary, request_tag: String = "") -> String:
 	file.store_string(JSON.stringify(payload))
 	file.close()
 	return file_path
+
+
+func _parse_cli_output(output: Array) -> Dictionary:
+	# OS.execute can merge diagnostic text with stdout on macOS. Prefer the
+	# complete JSON document, then recover the outermost object so a harmless
+	# native/runtime warning cannot erase an otherwise valid AI decision.
+	var raw := "\n".join(output.map(func(item): return str(item))).strip_edges()
+	var parsed = JSON.parse_string(raw)
+	if typeof(parsed) == TYPE_DICTIONARY:
+		return parsed
+	var first_object := raw.find("{")
+	var last_object := raw.rfind("}")
+	if first_object >= 0 and last_object > first_object:
+		parsed = JSON.parse_string(raw.substr(first_object, last_object - first_object + 1))
+		if typeof(parsed) == TYPE_DICTIONARY:
+			return parsed
+	return {}
 
 
 func _byte_array_to_bool_array(bytes: PackedByteArray) -> Array:

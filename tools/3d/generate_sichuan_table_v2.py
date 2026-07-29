@@ -1,0 +1,522 @@
+"""Generate the Deep Emerald Sichuan table and its deterministic PBR maps.
+
+Run with Blender 5.2 LTS:
+    /Applications/Blender.app/Contents/MacOS/Blender --background \
+      --python tools/3d/generate_sichuan_table_v2.py
+
+The script owns only visual assets.  Gameplay dimensions, tiles, scoring and
+interaction remain in Godot.  Textures are capped at 2048 for mobile runtime.
+"""
+
+from __future__ import annotations
+
+import math
+import subprocess
+from pathlib import Path
+
+import bpy
+import numpy as np
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ART_ROOT = PROJECT_ROOT / "res" / "art"
+OUTPUT_GLB = ART_ROOT / "3d" / "sichuan_table_v2.glb"
+TEXTURE_DIR = ART_ROOT / "materials" / "table_v2"
+
+TABLE_CENTER = np.array([0x18, 0x66, 0x46], dtype=np.float32) / 255.0
+TABLE_BASE = np.array([0x12, 0x55, 0x3B], dtype=np.float32) / 255.0
+TABLE_EDGE = np.array([0x0C, 0x42, 0x31], dtype=np.float32) / 255.0
+LEATHER_RAIL = np.array([0x12, 0x31, 0x25], dtype=np.float32) / 255.0
+WALNUT_WARM = np.array([0x69, 0x30, 0x16], dtype=np.float32) / 255.0
+PLAYFIELD_GROOVE = np.array([0x0E, 0x41, 0x30], dtype=np.float32) / 255.0
+
+
+def srgb_to_linear(value: np.ndarray) -> np.ndarray:
+    return np.where(value <= 0.04045, value / 12.92, ((value + 0.055) / 1.055) ** 2.4)
+
+
+def clear_scene() -> None:
+    bpy.ops.object.select_all(action="SELECT")
+    bpy.ops.object.delete(use_global=False)
+    for blocks in (bpy.data.meshes, bpy.data.materials, bpy.data.curves, bpy.data.images):
+        for block in list(blocks):
+            if block.users == 0:
+                blocks.remove(block)
+
+
+def save_rgba_image(name: str, path: Path, rgb: np.ndarray, alpha: float = 1.0) -> bpy.types.Image:
+    height, width, _ = rgb.shape
+    rgba = np.empty((height, width, 4), dtype=np.float32)
+    # Blender writes byte-buffer PNG pixels without an additional display
+    # transform here.  Keep authored base-colour values in sRGB space; feeding
+    # linearised values produced a visibly near-black tabletop after import.
+    rgba[:, :, :3] = np.clip(rgb, 0.0, 1.0)
+    rgba[:, :, 3] = alpha
+    image = bpy.data.images.new(name, width=width, height=height, alpha=True, float_buffer=False)
+    image.colorspace_settings.name = "sRGB"
+    image.pixels.foreach_set(rgba.reshape(-1))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.filepath_raw = str(path)
+    image.file_format = "PNG"
+    image.save()
+    image.pack()
+    return image
+
+
+def save_non_color_image(name: str, path: Path, rgba: np.ndarray) -> bpy.types.Image:
+    height, width, _ = rgba.shape
+    image = bpy.data.images.new(name, width=width, height=height, alpha=True, float_buffer=False)
+    image.colorspace_settings.name = "Non-Color"
+    image.pixels.foreach_set(np.clip(rgba, 0.0, 1.0).reshape(-1))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.filepath_raw = str(path)
+    image.file_format = "PNG"
+    image.save()
+    image.pack()
+    return image
+
+
+def smooth_noise(size: int, seed: int, cells: int) -> np.ndarray:
+    rng = np.random.default_rng(seed)
+    coarse = rng.random((cells, cells), dtype=np.float32)
+    image = bpy.data.images.new(f"Noise_{seed}_{cells}", width=cells, height=cells, alpha=False, float_buffer=True)
+    rgba = np.ones((cells, cells, 4), dtype=np.float32)
+    rgba[:, :, :3] = coarse[:, :, None]
+    image.pixels.foreach_set(rgba.reshape(-1))
+    image.scale(size, size)
+    pixels = np.empty(size * size * 4, dtype=np.float32)
+    image.pixels.foreach_get(pixels)
+    bpy.data.images.remove(image)
+    return pixels.reshape(size, size, 4)[:, :, 0]
+
+
+def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Image, bpy.types.Image]:
+    y, x = np.mgrid[0:size, 0:size].astype(np.float32)
+    u = x / float(size - 1)
+    v = y / float(size - 1)
+    edge_distance = np.maximum(np.abs(u - 0.5) / 0.5, np.abs(v - 0.5) / 0.5)
+    edge = np.clip((edge_distance - 0.70) / 0.30, 0.0, 1.0)
+    centre = np.clip(1.0 - np.sqrt(((u - 0.5) / 0.72) ** 2 + ((v - 0.5) / 0.72) ** 2), 0.0, 1.0)
+
+    medium = smooth_noise(size, 5201, 42)
+    broad = smooth_noise(size, 5202, 14)
+    fine = smooth_noise(size, 5203, 180)
+    # Short velvet needs three readable scales: a slow brushed-pile shift, a
+    # dense directional fibre grain, and tiny irregular cross fibres. Keeping
+    # colour variation restrained avoids a noisy printed pattern; the normal
+    # and roughness channels carry most of the tactile response under Metal.
+    brush_a = np.sin((u * 14.0 + v * 3.2 + broad * 0.42) * math.pi * 2.0)
+    brush_b = np.sin((u * 5.5 - v * 11.5 + medium * 0.26) * math.pi * 2.0)
+    brushed_pile = brush_a * 0.66 + brush_b * 0.34
+    fibre_main = 0.5 + 0.5 * np.sin((u * 1180.0 + v * 92.0 + fine * 0.72) * math.pi * 2.0)
+    fibre_cross = 0.5 + 0.5 * np.sin((u * 172.0 - v * 830.0 + medium * 0.34) * math.pi * 2.0)
+    fibre = fibre_main * 0.78 + fibre_cross * 0.22
+    nap = (medium - 0.5) * 0.080 + (broad - 0.5) * 0.042 + brushed_pile * 0.014 + (fibre - 0.5) * 0.010
+
+    base = TABLE_BASE[None, None, :] * (1.0 - centre[:, :, None] * 0.045)
+    base += TABLE_CENTER[None, None, :] * (centre[:, :, None] * 0.045)
+    base = base * (1.0 - edge[:, :, None] * 0.065) + TABLE_EDGE[None, None, :] * (edge[:, :, None] * 0.065)
+    base *= 1.0 + nap[:, :, None]
+    # Display calibration for the fixed Godot Metal/Filmic table-lighting rig.
+    # The previous pass over-compensated the green channel and rendered the
+    # tabletop nearly black.  This lift lands the Metal render closer to the
+    # supplied target's calm forest-green midtone while keeping the red channel
+    # restrained enough to avoid drifting back toward cyan.
+    base *= np.array([0.27, 1.01, 0.98], dtype=np.float32)[None, None, :]
+
+    # A low-contrast Shu-brocade meander is restricted to the outer 9%.
+    perimeter = np.clip((edge_distance - 0.82) / 0.10, 0.0, 1.0)
+    wave_a = np.sin((u * 13.0 + np.sin(v * 8.0 * math.pi) * 0.18) * math.pi * 2.0)
+    wave_b = np.sin((v * 11.0 + np.sin(u * 7.0 * math.pi) * 0.16) * math.pi * 2.0)
+    brocade = ((wave_a * wave_b) * 0.5 + 0.5) * perimeter
+    base *= 1.0 + (brocade[:, :, None] - 0.5 * perimeter[:, :, None]) * 0.024
+    mask_rgba = np.ones((size, size, 4), dtype=np.float32)
+    mask_rgba[:, :, :3] = brocade[:, :, None]
+    save_non_color_image("FeltBrocadeMask2048", TEXTURE_DIR / "brocade_mask.png", mask_rgba)
+    felt_base = save_rgba_image("FeltBaseColor2048", TEXTURE_DIR / "felt_basecolor.png", base)
+
+    # Normal carries the compressed pile direction. Fine high-frequency ridges
+    # are blended with broad brushed strokes so the surface reads as dense
+    # velour at normal gameplay distance rather than as a flat colour field.
+    height = (
+        (medium - 0.5) * 0.26
+        + (fine - 0.5) * 0.06
+        + brushed_pile * 0.11
+        + (fibre - 0.5) * 0.08
+        + (brocade - 0.5 * perimeter) * 0.04
+    )
+    grad_y, grad_x = np.gradient(height)
+    normal = np.dstack((-grad_x * 3.25, -grad_y * 3.25, np.ones_like(height)))
+    normal /= np.linalg.norm(normal, axis=2, keepdims=True)
+    normal_rgba = np.ones((size, size, 4), dtype=np.float32)
+    normal_rgba[:, :, :3] = normal * 0.5 + 0.5
+    felt_normal = save_non_color_image("FeltNormal2048", TEXTURE_DIR / "felt_normal.png", normal_rgba)
+
+    roughness = np.clip(
+        0.81
+        + (medium - 0.5) * 0.045
+        + brushed_pile * 0.020
+        + (0.5 - fibre) * 0.022
+        + brocade * 0.006,
+        0.73,
+        0.89,
+    )
+    orm = np.ones((size, size, 4), dtype=np.float32)
+    orm[:, :, 0] = np.clip(0.96 - edge * 0.035, 0.0, 1.0)  # AO
+    orm[:, :, 1] = roughness
+    orm[:, :, 2] = 0.0  # metallic
+    felt_orm = save_non_color_image("FeltORM2048", TEXTURE_DIR / "felt_orm.png", orm)
+    return felt_base, felt_normal, felt_orm
+
+
+def generate_surface_maps(prefix: str, color: np.ndarray, size: int, seed: int, roughness: float, metallic: float):
+    y, x = np.mgrid[0:size, 0:size].astype(np.float32)
+    u = x / float(size - 1)
+    v = y / float(size - 1)
+    medium = smooth_noise(size, seed, 72)
+    fine = smooth_noise(size, seed + 1, 220)
+    grain = (medium - 0.5) * 0.055 + (fine - 0.5) * 0.018
+    if prefix == "walnut":
+        # Broad, gently wandering grain is visible from the gameplay camera.
+        # The former single 2% sine banding read as a flat painted strip; these
+        # nested frequencies keep the frame recognisably walnut without
+        # becoming a high-contrast decorative texture.
+        broad_grain = np.sin(
+            (u * 5.0 + np.sin(v * 1.35 * math.pi) * 0.32 + medium * 0.18)
+            * math.pi
+            * 2.0
+        )
+        fine_grain = np.sin(
+            (u * 17.0 + np.sin(v * 3.4 * math.pi) * 0.10 + fine * 0.08)
+            * math.pi
+            * 2.0
+        )
+        grain += broad_grain * 0.085 + fine_grain * 0.022
+    rgb = color[None, None, :] * (1.0 + grain[:, :, None])
+    if prefix == "walnut":
+        # Colour separation between earlywood and latewood makes the grain
+        # legible after Filmic tonemapping; a scalar-only orange texture lost
+        # all furniture character once the cool table key light was applied.
+        dark_vein = ((1.0 - broad_grain) * 0.5) ** 5
+        rgb *= 1.0 - dark_vein[:, :, None] * 0.24
+        warm_lift = np.array([0.040, 0.018, 0.008], dtype=np.float32)
+        rgb += warm_lift[None, None, :] * ((broad_grain + 1.0) * 0.5)[:, :, None]
+    base = save_rgba_image(f"{prefix.title()}BaseColor", TEXTURE_DIR / f"{prefix}_basecolor.png", rgb)
+    grad_y, grad_x = np.gradient(grain)
+    n = np.dstack((-grad_x * 2.2, -grad_y * 2.2, np.ones_like(grain)))
+    n /= np.linalg.norm(n, axis=2, keepdims=True)
+    nrgba = np.ones((size, size, 4), dtype=np.float32)
+    nrgba[:, :, :3] = n * 0.5 + 0.5
+    normal = save_non_color_image(f"{prefix.title()}Normal", TEXTURE_DIR / f"{prefix}_normal.png", nrgba)
+    orm_data = np.ones((size, size, 4), dtype=np.float32)
+    orm_data[:, :, 0] = 0.94
+    orm_data[:, :, 1] = np.clip(roughness + (medium - 0.5) * 0.04, 0.0, 1.0)
+    orm_data[:, :, 2] = metallic
+    orm = save_non_color_image(f"{prefix.title()}ORM", TEXTURE_DIR / f"{prefix}_orm.png", orm_data)
+    return base, normal, orm
+
+
+def pbr_material(name: str, base: bpy.types.Image, normal: bpy.types.Image, orm: bpy.types.Image, normal_strength: float = 0.54) -> bpy.types.Material:
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    for node in list(nodes):
+        nodes.remove(node)
+    output = nodes.new("ShaderNodeOutputMaterial")
+    shader = nodes.new("ShaderNodeBsdfPrincipled")
+    base_node = nodes.new("ShaderNodeTexImage")
+    base_node.image = base
+    normal_node = nodes.new("ShaderNodeTexImage")
+    normal_node.image = normal
+    normal_node.image.colorspace_settings.name = "Non-Color"
+    normal_map = nodes.new("ShaderNodeNormalMap")
+    normal_map.inputs["Strength"].default_value = normal_strength
+    orm_node = nodes.new("ShaderNodeTexImage")
+    orm_node.image = orm
+    orm_node.image.colorspace_settings.name = "Non-Color"
+    separate = nodes.new("ShaderNodeSeparateColor")
+    links.new(base_node.outputs["Color"], shader.inputs["Base Color"])
+    links.new(normal_node.outputs["Color"], normal_map.inputs["Color"])
+    links.new(normal_map.outputs["Normal"], shader.inputs["Normal"])
+    links.new(orm_node.outputs["Color"], separate.inputs["Color"])
+    links.new(separate.outputs["Green"], shader.inputs["Roughness"])
+    links.new(separate.outputs["Blue"], shader.inputs["Metallic"])
+    links.new(shader.outputs["BSDF"], output.inputs["Surface"])
+    return mat
+
+
+def simple_material(name: str, color: np.ndarray, roughness: float, metallic: float) -> bpy.types.Material:
+    mat = bpy.data.materials.new(name)
+    mat.use_nodes = True
+    shader = next(node for node in mat.node_tree.nodes if node.type == "BSDF_PRINCIPLED")
+    shader.inputs["Base Color"].default_value = (*srgb_to_linear(color), 1.0)
+    shader.inputs["Roughness"].default_value = roughness
+    shader.inputs["Metallic"].default_value = metallic
+    return mat
+
+
+def rounded_box(name: str, size, location, bevel: float, segments: int, material: bpy.types.Material):
+    bpy.ops.mesh.primitive_cube_add(location=location)
+    obj = bpy.context.active_object
+    obj.name = name
+    obj.dimensions = size
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    mod = obj.modifiers.new(name="SoftManufacturedBevel", type="BEVEL")
+    mod.width = bevel
+    mod.segments = segments
+    mod.profile = 0.62
+    mod.limit_method = "ANGLE"
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=mod.name)
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj.data.materials.append(material)
+    return obj
+
+
+def rounded_rectangle_ring(
+    name: str,
+    outer_size: tuple[float, float],
+    inner_size: tuple[float, float],
+    height: float,
+    location: tuple[float, float, float],
+    outer_radius: float,
+    inner_radius: float,
+    corner_segments: int,
+    bevel: float,
+    material: bpy.types.Material,
+):
+    """Create one continuous manufactured frame with genuinely rounded corners.
+
+    Four overlapping boxes expose seams and square joins in the oblique game
+    camera. A single extruded ring gives the supplied furniture reference's
+    uninterrupted tray silhouette while keeping the playable felt dimensions
+    unchanged.
+    """
+
+    def rounded_loop(size: tuple[float, float], radius: float) -> list[tuple[float, float]]:
+        half_width = size[0] * 0.5
+        half_depth = size[1] * 0.5
+        centres_and_ranges = [
+            ((half_width - radius, half_depth - radius), (0.0, 90.0)),
+            ((-half_width + radius, half_depth - radius), (90.0, 180.0)),
+            ((-half_width + radius, -half_depth + radius), (180.0, 270.0)),
+            ((half_width - radius, -half_depth + radius), (270.0, 360.0)),
+        ]
+        points: list[tuple[float, float]] = []
+        for (centre_x, centre_y), (start_angle, end_angle) in centres_and_ranges:
+            for segment in range(corner_segments):
+                factor = segment / float(corner_segments)
+                angle = math.radians(start_angle + (end_angle - start_angle) * factor)
+                points.append((
+                    centre_x + math.cos(angle) * radius,
+                    centre_y + math.sin(angle) * radius,
+                ))
+        return points
+
+    outer = rounded_loop(outer_size, outer_radius)
+    inner = rounded_loop(inner_size, inner_radius)
+    count = len(outer)
+    half_height = height * 0.5
+    vertices = (
+        [(x, y, half_height) for x, y in outer]
+        + [(x, y, half_height) for x, y in inner]
+        + [(x, y, -half_height) for x, y in outer]
+        + [(x, y, -half_height) for x, y in inner]
+    )
+    faces: list[tuple[int, int, int, int]] = []
+    for index in range(count):
+        next_index = (index + 1) % count
+        outer_top = index
+        inner_top = count + index
+        outer_bottom = count * 2 + index
+        inner_bottom = count * 3 + index
+        next_outer_top = next_index
+        next_inner_top = count + next_index
+        next_outer_bottom = count * 2 + next_index
+        next_inner_bottom = count * 3 + next_index
+        faces.extend([
+            (outer_top, next_outer_top, next_inner_top, inner_top),
+            (outer_bottom, inner_bottom, next_inner_bottom, next_outer_bottom),
+            (outer_bottom, next_outer_bottom, next_outer_top, outer_top),
+            (inner_bottom, inner_top, next_inner_top, next_inner_bottom),
+        ])
+
+    mesh = bpy.data.meshes.new(f"{name}Mesh")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.location = location
+    obj.data.materials.append(material)
+
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66.0), island_margin=0.02)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    edge_bevel = obj.modifiers.new(name="ContinuousTrayEdgeBevel", type="BEVEL")
+    edge_bevel.width = bevel
+    edge_bevel.segments = 6
+    edge_bevel.profile = 0.58
+    edge_bevel.limit_method = "ANGLE"
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.modifier_apply(modifier=edge_bevel.name)
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    obj.select_set(False)
+    return obj
+
+
+def walnut_grain_curves(material: bpy.types.Material):
+    """Add restrained lengthwise grain relief around the continuous frame."""
+    curve_data = bpy.data.curves.new("WalnutLongitudinalGrainCurve", type="CURVE")
+    curve_data.dimensions = "3D"
+    curve_data.resolution_u = 2
+    curve_data.bevel_depth = 0.008
+    curve_data.bevel_resolution = 2
+    curve_data.resolution_u = 2
+
+    line_specs = [
+        ("vertical", -7.07, -4.05, 4.05, 0.15),
+        ("vertical", -7.20, -4.00, 4.00, 1.10),
+        ("vertical", 7.07, -4.05, 4.05, 2.15),
+        ("vertical", 7.20, -4.00, 4.00, 3.10),
+        ("horizontal", -4.42, -6.45, 6.45, 0.65),
+        ("horizontal", -4.55, -6.35, 6.35, 1.60),
+        ("horizontal", 4.42, -6.45, 6.45, 2.65),
+        ("horizontal", 4.55, -6.35, 6.35, 3.60),
+    ]
+    point_count = 72
+    for orientation, fixed_axis, start, end, phase in line_specs:
+        spline = curve_data.splines.new("POLY")
+        spline.points.add(point_count - 1)
+        for index in range(point_count):
+            factor = index / float(point_count - 1)
+            primary = start * (1.0 - factor) + end * factor
+            wave = (
+                math.sin(factor * math.pi * 2.0 * 1.35 + phase) * 0.014
+                + math.sin(factor * math.pi * 2.0 * 0.52 + phase * 0.7) * 0.010
+            )
+            if orientation == "vertical":
+                coordinates = (fixed_axis + wave, primary, 0.229, 1.0)
+            else:
+                coordinates = (primary, fixed_axis + wave, 0.229, 1.0)
+            spline.points[index].co = coordinates
+
+    curve_object = bpy.data.objects.new("WalnutLongitudinalGrain", curve_data)
+    bpy.context.collection.objects.link(curve_object)
+    curve_data.materials.append(material)
+    bpy.context.view_layer.objects.active = curve_object
+    curve_object.select_set(True)
+    bpy.ops.object.convert(target="MESH")
+    result = bpy.context.active_object
+    result.name = "WalnutLongitudinalGrain"
+    result.select_set(False)
+    return result
+
+
+def build_table() -> list[bpy.types.Object]:
+    felt_maps = generate_felt_maps()
+    leather_maps = generate_surface_maps("leather", LEATHER_RAIL, 1024, 6101, 0.72, 0.0)
+    walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.64, 0.0)
+    felt = pbr_material("DeepEmeraldShortNapFelt", *felt_maps, normal_strength=0.52)
+    leather = pbr_material("InkGreenLeather", *leather_maps)
+    walnut = pbr_material("WarmWalnutFrame", *walnut_maps, normal_strength=0.52)
+    walnut_grain = simple_material(
+        "WalnutLongitudinalGrainShadow",
+        np.array([0x35, 0x18, 0x0C], dtype=np.float32) / 255.0,
+        0.76,
+        0.0,
+    )
+    groove = simple_material("PlayfieldRecessedGroove", PLAYFIELD_GROOVE, 0.94, 0.0)
+
+    objects = [
+        rounded_box("TableWalnutBase", (14.8, 9.6, 0.56), (0.0, 0.0, -0.31), 0.30, 10, walnut),
+        rounded_box("TableFelt", (13.38, 8.18, 0.31), (0.0, 0.0, 0.00), 0.22, 10, felt),
+        # One continuous raised walnut tray replaces the four overlapping
+        # bands. Its rounded outer and inner contours produce furniture-like
+        # corners and a clean uninterrupted silhouette in the oblique camera.
+        rounded_rectangle_ring(
+            "WalnutApronRing",
+            (14.70, 9.50),
+            (13.76, 8.56),
+            0.34,
+            (0.0, 0.0, 0.05),
+            0.40,
+            0.24,
+            12,
+            0.14,
+            walnut,
+        ),
+        # The target uses a restrained dark gasket between wood and cloth, not
+        # a stack of bright metal trims and decorative stitches.
+        rounded_rectangle_ring(
+            "LeatherGasketRing",
+            (13.82, 8.62),
+            (13.34, 8.14),
+            0.22,
+            (0.0, 0.0, 0.10),
+            0.26,
+            0.18,
+            12,
+            0.055,
+            leather,
+        ),
+        walnut_grain_curves(walnut_grain),
+    ]
+    # Low, rounded dark-green strips create the same recessed playfield
+    # structure as the reference image. They sit just above the felt plane,
+    # remain deliberately lower contrast than a painted line, and do not
+    # overlap any gameplay tile because they are part of the table asset only.
+    objects.extend([
+        rounded_box("PlayfieldGrooveTop", (11.72, 0.028, 0.012), (0.0, -3.02, 0.161), 0.006, 2, groove),
+        rounded_box("PlayfieldGrooveBottom", (11.72, 0.028, 0.012), (0.0, 3.02, 0.161), 0.006, 2, groove),
+        rounded_box("PlayfieldGrooveLeft", (0.028, 5.90, 0.012), (-5.84, 0.0, 0.161), 0.006, 2, groove),
+        rounded_box("PlayfieldGrooveRight", (0.028, 5.90, 0.012), (5.84, 0.0, 0.161), 0.006, 2, groove),
+        rounded_box("CenterGrooveTop", (7.40, 0.024, 0.010), (0.0, -1.72, 0.160), 0.005, 2, groove),
+        rounded_box("CenterGrooveBottom", (7.40, 0.024, 0.010), (0.0, 1.72, 0.160), 0.005, 2, groove),
+        rounded_box("CenterGrooveLeft", (0.024, 3.42, 0.010), (-3.70, 0.0, 0.160), 0.005, 2, groove),
+        rounded_box("CenterGrooveRight", (0.024, 3.42, 0.010), (3.70, 0.0, 0.160), 0.005, 2, groove),
+    ])
+    return objects
+
+
+def export_glb(objects: list[bpy.types.Object]) -> None:
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in objects:
+        obj.select_set(True)
+    OUTPUT_GLB.parent.mkdir(parents=True, exist_ok=True)
+    bpy.ops.export_scene.gltf(
+        filepath=str(OUTPUT_GLB),
+        export_format="GLB",
+        use_selection=True,
+        export_apply=True,
+        export_yup=True,
+        export_materials="EXPORT",
+        export_image_format="AUTO",
+    )
+    # Blender's embedded PNG compressor can emit byte-different IDAT streams
+    # for identical pixels. Canonicalise image payloads and JSON so the GLB hash
+    # is a meaningful reproducibility gate rather than a compression artefact.
+    subprocess.run(
+        ["python3", str(PROJECT_ROOT / "tools" / "3d" / "canonicalize_glb_images.py"), str(OUTPUT_GLB)],
+        check=True,
+    )
+
+
+if __name__ == "__main__":
+    clear_scene()
+    table_objects = build_table()
+    export_glb(table_objects)
+    triangles = 0
+    for obj in table_objects:
+        if hasattr(obj.data, "calc_loop_triangles"):
+            obj.data.calc_loop_triangles()
+            triangles += len(obj.data.loop_triangles)
+    print(f"Generated {OUTPUT_GLB}")
+    print(f"Generated PBR maps in {TEXTURE_DIR}")
+    print(f"Object count: {len(table_objects)}; triangulated faces before exporter: {triangles}")

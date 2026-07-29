@@ -14,13 +14,13 @@ enum MaterialMode {
 
 const FRAME_THICKNESS := 28.0
 const BRASS_LINE_WIDTH := 2.0
-const WOOD_DARK := Color("063B30")
-const WOOD_MID := Color("075C49")
-const BRASS := Color("4BA386")
-const WEAVE_STRENGTH := 0.046
-const RELIEF_STRENGTH := 0.020
-const VIGNETTE_STRENGTH := 0.83
-const LIGHT_STRENGTH := 0.070
+const WOOD_DARK := Color("281F1B")
+const WOOD_MID := Color("3A2B24")
+const BRASS := Color("9D743A")
+const NAP_STRENGTH := 0.028
+const BROCADE_STRENGTH := 0.024
+const EDGE_DARKENING := 0.065
+const CENTER_LIFT := 0.045
 
 @export var material_mode: MaterialMode = MaterialMode.FELT:
 	set(value):
@@ -58,10 +58,10 @@ func _draw() -> void:
 
 
 func _draw_felt_texture() -> void:
-	# The opaque procedural shader owns the reference-green base, crossed weave,
-	# broad centre lift, edge vignette and embossed peripheral cloud scrolls.
-	# This translucent wash only binds the rails to the same emerald family.
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.02, 0.32, 0.24, 0.08 * opacity), true)
+	# The opaque fallback shader owns the Deep Emerald base, irregular short nap,
+	# gentle centre lift and outer-only Shu-brocade relief.  This translucent wash
+	# only binds the rails to the same colour family.
+	draw_rect(Rect2(Vector2.ZERO, size), Color(TABLE_THEME.TABLE_BASE, 0.08 * opacity), true)
 	_draw_perspective_table_structure()
 	_draw_table_frame()
 
@@ -184,24 +184,24 @@ func _sync_felt_shader_layer() -> void:
 	_felt_shader_layer.visible = true
 	var shader_material := _felt_shader_layer.material as ShaderMaterial
 	if shader_material != null:
-		shader_material.set_shader_parameter("weave_strength", WEAVE_STRENGTH * opacity)
-		shader_material.set_shader_parameter("relief_strength", RELIEF_STRENGTH * opacity)
-		shader_material.set_shader_parameter("vignette_strength", VIGNETTE_STRENGTH * opacity)
-		shader_material.set_shader_parameter("light_strength", LIGHT_STRENGTH * opacity)
+		shader_material.set_shader_parameter("nap_strength", NAP_STRENGTH * opacity)
+		shader_material.set_shader_parameter("brocade_strength", BROCADE_STRENGTH * opacity)
+		shader_material.set_shader_parameter("edge_darkening", EDGE_DARKENING * opacity)
+		shader_material.set_shader_parameter("center_lift", CENTER_LIFT * opacity)
 
 
 func get_material_contract() -> Dictionary:
 	return {
-		"base_palette": ["043c2d", "056e54", "07916f", "1eb08c"],
-		"weave_strength": WEAVE_STRENGTH,
-		"relief_strength": RELIEF_STRENGTH,
-		"lighting_layers": ["broad_center_lift", "upper_left_soft_light", "edge_vignette"],
-		"light_direction": "upper_left_to_lower_right",
-		"surface_finish": "fine_crosswoven_emerald_felt",
+		"base_palette": ["0a4b41", "0f6957", "167a64"],
+		"nap_strength": NAP_STRENGTH,
+		"brocade_strength": BROCADE_STRENGTH,
+		"lighting_layers": ["broad_center_lift", "edge_vignette"],
+		"light_direction": "material_nap_not_spotlight",
+		"surface_finish": "deep_emerald_short_nap_felt",
 		"texture_coverage": "full_surface",
-		"fiber_directions": "retina_diagonal_crossweave",
-		"geometric_motifs": "peripheral_embossed_cloud_scrolls",
-		"reference_target": "emerald_mobile_table_without_logo",
+		"fiber_directions": "irregular_multi_scale_nap",
+		"geometric_motifs": "outer_8_to_10_percent_shu_brocade_only",
+		"reference_target": "deep_emerald_refined_table_without_logo",
 		"circular_hotspot": false,
 		"spatial_structure": "fixed_camera_shallow_perspective",
 		"rail_depth": "ebony_side_rails_with_copper_inner_edge",

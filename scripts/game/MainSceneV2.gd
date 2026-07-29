@@ -12,13 +12,20 @@ const TABLE_UTILITY_BAR_SCENE := preload("res://scenes/ui/table/TableUtilityBar.
 const CENTER_TURN_INDICATOR_SCENE := preload("res://scenes/ui/table/CenterTurnIndicator.tscn")
 const TABLE_DISCARD_LAYER_SCRIPT := preload("res://scripts/ui/table/TableDiscardLayer.gd")
 const TABLE_ACTION_BAR_SCENE := preload("res://scenes/ui/table/TableActionBar.tscn")
+const TABLE_PRESENTATION_DIRECTOR_SCRIPT := preload("res://scripts/ui/presentation/TablePresentationDirector.gd")
 const AI_ASSISTANT_SCENE := preload("res://scenes/ui/AIAssistant.tscn")
 const TABLE_STAGE_3D_SCRIPT := preload("res://scripts/ui/3d/SichuanTableStage3D.gd")
 const SICHUAN_TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const SICHUAN_TABLE_METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const SETTLEMENT_OVERLAY_SCENE := preload("res://scenes/ui/table/SettlementOverlay.tscn")
+const DING_QUE_TIAO_SHELL := preload("res://res/art/ui/table_v2/ding_que_tiao.png")
+const DING_QUE_TONG_SHELL := preload("res://res/art/ui/table_v2/ding_que_tong.png")
+const DING_QUE_WAN_SHELL := preload("res://res/art/ui/table_v2/ding_que_wan.png")
+const SETTLEMENT_PANEL_SHELL := preload("res://res/art/ui/table_v2/settlement_panel_9slice.png")
 const AUDIO_SFX_DIR := "res://res/audio/sfx"
 const AUDIO_TTS_DIR := "res://res/audio/tts"
+const SETTLEMENT_HOLD_SECONDS := 1.0
+const SETTLEMENT_REDUCED_HOLD_SECONDS := 0.18
 const DICE_ROLL_AUDIO_PATH := "res://res/audio/sfx/mahjong_dice_roll.wav"
 const SYSTEM_DRAW_AUDIO_PATH := "res://res/audio/sfx/system_draw.mp3"
 const SYSTEM_DRAW_AUDIO_SECONDS := 1.0
@@ -102,6 +109,10 @@ const TABLE_BLUE_PANEL := Color("172744")
 const TABLE_BLUE_CARD := Color("21385F")
 const TABLE_BLUE_ACTIVE := Color("2E4D7A")
 const TABLE_STEEL_EDGE := Color("5F789D")
+const SETTLEMENT_INK_DEEP := Color("061E19")
+const SETTLEMENT_JADE_PANEL := Color("102F29")
+const SETTLEMENT_JADE_CARD := Color("17483C")
+const SETTLEMENT_JADE_ACTIVE := Color("1B6D58")
 const ACTION_PRIMARY_CENTER := Color("FFF176")
 const ACTION_PRIMARY_EDGE := Color("FF8F00")
 const ACTION_PRIMARY_OUTLINE := Color("FFD54F")
@@ -276,6 +287,13 @@ var opening_roll_started_round: int = -1
 var opening_roll_visual_rng := RandomNumberGenerator.new()
 var ai_action_delay_rng := RandomNumberGenerator.new()
 var settlement_dismissed: bool = false
+var settlement_transition_signature := ""
+var settlement_transition_pending_snapshot: Dictionary = {}
+var settlement_transition_ready := false
+var settlement_transition_generation := 0
+var settlement_transition_started_msec := -1
+var settlement_transition_completed_msec := -1
+var settlement_transition_hold_seconds := SETTLEMENT_HOLD_SECONDS
 var draw_transition_active: bool = false
 var draw_transition_started_at_ms: int = 0
 var draw_transition_expected_ms: int = 0
@@ -346,6 +364,7 @@ var table_utility_bar: Control
 var table_discard_layer: Control
 var center_turn_indicator: Control
 var table_action_bar: Control
+var table_presentation_director: Node
 var ai_assistant_drawer: Control
 var settlement_overlay_v2: Control
 var self_hu_tile_host: Control
@@ -364,6 +383,7 @@ var table_3d_enabled := true
 var last_table_3d_tile_id := -1
 var last_table_3d_input_source := ""
 var last_table_3d_input_msec := -1
+var pending_ding_que_suit := ""
 
 const SELF_ROW_MAX_SLOTS := 18
 const SELF_SLOT_STEP := 136.0
@@ -392,6 +412,7 @@ func _ready() -> void:
 	_setup_board_core_hud()
 	_setup_table_utility_bar()
 	_setup_table_action_bar()
+	_setup_table_presentation_director()
 	_setup_seat_huds()
 	_setup_self_hu_tile_host()
 	game_manager.set_human_trainer_hint_enabled(ai_helper_enabled)
@@ -907,12 +928,31 @@ func _apply_style() -> void:
 	style.apply_label(%SettlementTitle, false, true)
 	style.apply_label(settlement_round_label, true, false)
 	style.apply_label(settlement_hero_badge, false, true)
-	style.apply_label(settlement_hero_name, false, true)
+	style.apply_label(settlement_hero_name, false, false)
 	style.apply_label(settlement_hero_result, false, true)
 	style.apply_label(settlement_hero_summary, false, false)
-	style.apply_label(settlement_hero_hu, false, true)
-	style.apply_label(settlement_hero_fan, false, true)
-	style.apply_label(settlement_hero_score, false, true)
+	style.apply_label(settlement_hero_hu, false, false)
+	style.apply_label(settlement_hero_fan, false, false)
+	style.apply_label(settlement_hero_score, false, false)
+	# The rich settlement overlay remains the authoritative fallback path for
+	# the iOS typography contract. Reapply its explicit hierarchy after the
+	# generic theme pass so 26/18/14 defaults cannot shrink it.
+	%SettlementTitle.add_theme_font_size_override("font_size", 36)
+	%SettlementTitle.add_theme_font_override("font", style._display_font())
+	settlement_round_label.add_theme_font_size_override("font_size", 24)
+	settlement_round_label.add_theme_font_override("font", style._body_font())
+	settlement_hero_badge.add_theme_font_size_override("font_size", 26)
+	settlement_hero_badge.add_theme_font_override("font", style._display_font())
+	settlement_hero_name.add_theme_font_size_override("font_size", 28)
+	settlement_hero_name.add_theme_font_override("font", style._body_font())
+	settlement_hero_hu.add_theme_font_size_override("font_size", 24)
+	settlement_hero_hu.add_theme_font_override("font", style._body_font())
+	settlement_hero_fan.add_theme_font_size_override("font_size", 24)
+	settlement_hero_fan.add_theme_font_override("font", style._body_font())
+	settlement_hero_score.add_theme_font_size_override("font_size", 64)
+	settlement_hero_score.add_theme_font_override("font", style._body_font())
+	settlement_breakdown_title.add_theme_font_size_override("font_size", 32)
+	settlement_breakdown_title.add_theme_font_override("font", style._display_font())
 	style.apply_label(board_core_label, true, false)
 	_apply_self_ding_que_style()
 	_apply_self_score_style()
@@ -1184,6 +1224,11 @@ func _apply_3d_presentation_visibility() -> void:
 		background_rect.visible = false
 	if table_discard_layer != null:
 		table_discard_layer.visible = false
+	# 3D table mode owns the remaining-wall numeral as physical world text.
+	# Keep the Control scene only for the non-3D fallback, otherwise both layers
+	# would produce duplicate counts above the compass.
+	if center_turn_indicator != null:
+		center_turn_indicator.visible = false
 	for legacy_host in [player_self_host, player_top_host, player_left_host, player_right_host, self_hand_host]:
 		if legacy_host != null:
 			legacy_host.visible = false
@@ -2183,6 +2228,18 @@ func _setup_table_action_bar() -> void:
 	call_deferred("_layout_table_action_bar")
 
 
+func _setup_table_presentation_director() -> void:
+	if table_presentation_director != null:
+		return
+	table_presentation_director = TABLE_PRESENTATION_DIRECTOR_SCRIPT.new() as Node
+	table_presentation_director.name = "TablePresentationDirector"
+	add_child(table_presentation_director)
+	table_presentation_director.call(
+		"set_reduced_motion",
+		bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
+	)
+
+
 func _queue_table_action_bar_layout() -> void:
 	call_deferred("_layout_table_action_bar")
 
@@ -2199,7 +2256,10 @@ func _layout_table_action_bar() -> void:
 	if table_3d_enabled:
 		# The legacy 2D hand host is deliberately hidden in 3D mode; using its stale
 		# rectangle could place Hu/Cancel behind the real 3D hand on some phones.
-		target_y = root_ui.size.y - desired_size.y - margins.w - maxf(150.0, root_ui.size.y * 0.19)
+		# The real 3D rack begins around 76% of the design height, so reserve 22.5%
+		# below the decision bar. This keeps even the four-action compact profile
+		# above the projected tile bounds instead of overlapping their right edge.
+		target_y = root_ui.size.y - desired_size.y - margins.w - maxf(180.0, root_ui.size.y * 0.225)
 	else:
 		var hand_rect := self_hand_host.get_global_rect() if self_hand_host != null else Rect2()
 		if hand_rect.size.y > 1.0:
@@ -2504,6 +2564,8 @@ func _on_snapshot_changed(snapshot: Dictionary) -> void:
 	_recover_stale_draw_transition(snapshot)
 	var previous_snapshot := last_snapshot.duplicate(true)
 	last_snapshot = snapshot.duplicate(true)
+	if table_presentation_director != null:
+		table_presentation_director.consume_snapshot(previous_snapshot, snapshot)
 
 	var players: Array = snapshot.get("players", [])
 	var current_turn_seat := int(snapshot.get("current_turn_seat", -1))
@@ -2974,7 +3036,9 @@ func _refresh_opening_roll_ui(snapshot: Dictionary) -> void:
 	if dice_overlay_layer != null:
 		dice_overlay_layer.visible = not ding_que_done
 	if center_turn_indicator != null:
-		center_turn_indicator.visible = ding_que_done
+		center_turn_indicator.visible = ding_que_done and not table_3d_enabled
+	if table_stage_3d != null:
+		table_stage_3d.call("set_center_wall_count_visible", ding_que_done)
 	if ding_que_done:
 		if center_turn_indicator != null:
 			var interaction_seat := _active_interaction_seat(snapshot)
@@ -3870,8 +3934,13 @@ func _refresh_table_action_bar(snapshot: Dictionary) -> void:
 		actions.append("pass")
 	var blocked := int(snapshot.get("current_phase", 0)) == 7 \
 		or bool(_player_by_seat(snapshot.get("players", []), 0).get("has_won", false))
+	# A supplement draw may expose gang-self-hu immediately in GameState, but
+	# the visual action must not appear before the 3D draw tile has travelled and
+	# settled. Keep the authoritative action list intact while the draw transition
+	# owns presentation; the timer refresh below reveals it after the draw beat.
 	if draw_transition_active and not actions.is_empty():
-		_clear_draw_transition_block("human_action_panel_available")
+		table_action_bar.call("hide_actions")
+		return
 	if actions.is_empty() or blocked:
 		table_action_bar.call("hide_actions")
 		return
@@ -3965,6 +4034,7 @@ func _refresh_ding_que_panel(snapshot: Dictionary) -> void:
 	var show_panel := current_phase == 3 and bool(snapshot.get("human_ding_que_pending", false))
 	ding_que_overlay.visible = show_panel
 	if not show_panel:
+		_reset_ding_que_visual_state()
 		return
 	if action_panel != null:
 		action_panel.visible = false
@@ -4243,7 +4313,9 @@ func _apply_ding_que_overlay_style() -> void:
 	ding_que_overlay.top_level = true
 	ding_que_overlay.z_index = 420
 	ding_que_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	ding_que_shade.color = Color(0.04, 0.08, 0.16, 0.18)
+	# A restrained neutral-green veil keeps the hand visible and darkens the
+	# table by roughly 12%, matching the modal contract without a blue cast.
+	ding_que_shade.color = Color(0.01, 0.04, 0.03, 0.13)
 	ding_que_panel.custom_minimum_size = Vector2(812, 292)
 
 	var panel_style := StyleBoxFlat.new()
@@ -4322,78 +4394,245 @@ func _apply_ding_que_button_style(button: Button, neon_color: Color, hover_color
 	button.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.08, 0.98))
 	button.add_theme_constant_override("outline_size", 4)
 
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = base_fill.lerp(neon_color, 0.84).lightened(0.04)
-	normal.border_color = Color("F5E6B0")
-	normal.set_border_width_all(7)
-	normal.set_corner_radius_all(115)
-	normal.content_margin_left = 16
-	normal.content_margin_right = 16
-	normal.content_margin_top = 10
-	normal.content_margin_bottom = 10
-	normal.shadow_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.52)
-	normal.shadow_size = 22
-	normal.shadow_offset = Vector2(0, 9)
-	normal.anti_aliasing = true
-	normal.anti_aliasing_size = 1.6
-
-	var hover := normal.duplicate()
-	hover.bg_color = base_fill.lerp(hover_color, 0.72).lightened(0.08)
-	hover.border_color = Color("FFF4C7")
-	hover.set_border_width_all(8)
-	hover.shadow_color = Color(hover_color.r, hover_color.g, hover_color.b, 0.54)
-	hover.shadow_size = 22
-	hover.shadow_offset = Vector2(0, 2)
-	hover.content_margin_top = 7
-	hover.content_margin_bottom = 13
-
-	var pressed := normal.duplicate()
-	pressed.bg_color = base_fill.lerp(neon_color, 0.24).darkened(0.04)
-	pressed.border_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.80)
-	pressed.shadow_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.28)
-	pressed.shadow_size = 8
-	pressed.shadow_offset = Vector2(0, 1)
-	pressed.content_margin_top = 13
-	pressed.content_margin_bottom = 7
-
-	var disabled := normal.duplicate()
-	disabled.bg_color = base_fill.darkened(0.18)
-	disabled.border_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.26)
-	disabled.shadow_color = Color(neon_color.r, neon_color.g, neon_color.b, 0.10)
-	disabled.shadow_size = 4
+	# Blender owns the bevel, jade body, ivory rim and copper keyline. Godot owns
+	# the live glyph, focus, touch target and transient selection state.
+	var normal := _ding_que_shell_style(button, false, false)
+	var hover := _ding_que_shell_style(button, false, false)
+	hover.modulate_color = Color(1.08, 1.08, 1.04, 1.0)
+	hover.expand_margin_left = 4.0
+	hover.expand_margin_right = 4.0
+	hover.expand_margin_top = 6.0
+	hover.expand_margin_bottom = 2.0
+	var pressed := _ding_que_shell_style(button, true, false)
+	var disabled := _ding_que_shell_style(button, false, false)
+	disabled.modulate_color = Color(0.46, 0.50, 0.46, 0.66)
+	var focus := StyleBoxFlat.new()
+	focus.bg_color = Color.TRANSPARENT
+	focus.border_color = Color(hover_color, 0.92)
+	focus.set_border_width_all(4)
+	focus.set_corner_radius_all(115)
+	focus.expand_margin_left = 4.0
+	focus.expand_margin_right = 4.0
+	focus.expand_margin_top = 4.0
+	focus.expand_margin_bottom = 4.0
+	focus.shadow_color = Color(hover_color, 0.30)
+	focus.shadow_size = 12
 
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
 	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_stylebox_override("focus", focus)
 	button.add_theme_stylebox_override("disabled", disabled)
+	button.set_meta("ding_que_neon", neon_color)
+	button.set_meta("ding_que_base_fill", base_fill)
+
+
+func _ding_que_shell_style(button: Button, pressed: bool, selected: bool) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = _ding_que_shell_texture(button)
+	style.draw_center = true
+	style.modulate_color = Color(0.80, 0.80, 0.80, 1.0) if pressed else Color.WHITE
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 13.0 if pressed else 7.0
+	style.content_margin_bottom = 7.0 if pressed else 13.0
+	style.expand_margin_left = 4.0 if selected else 2.0
+	style.expand_margin_right = 4.0 if selected else 2.0
+	style.expand_margin_top = 12.0 if selected else 2.0
+	style.expand_margin_bottom = 0.0 if selected else 2.0
+	return style
+
+
+func _ding_que_shell_texture(button: Button) -> Texture2D:
+	if button == ding_que_tiao_button:
+		return DING_QUE_TIAO_SHELL
+	if button == ding_que_tong_button:
+		return DING_QUE_TONG_SHELL
+	return DING_QUE_WAN_SHELL
+
+
+func _apply_ding_que_selection_state(suit: String) -> void:
+	for entry in [
+		{"button": ding_que_tiao_button, "suit": "tiao"},
+		{"button": ding_que_tong_button, "suit": "tong"},
+		{"button": ding_que_wan_button, "suit": "wan"},
+	]:
+		var button := entry.get("button") as Button
+		var selected := str(entry.get("suit", "")) == suit
+		var selected_style := _ding_que_shell_style(button, false, selected)
+		button.add_theme_stylebox_override("normal", selected_style)
+		button.add_theme_stylebox_override("hover", selected_style)
+		button.add_theme_stylebox_override("pressed", selected_style)
+		button.modulate = Color(1.08, 1.08, 1.04, 1.0) if selected else Color(0.58, 0.62, 0.58, 0.78)
+		# Keep the native focus ring visible on the selected seal. Input is already
+		# de-duplicated by pending_ding_que_suit, so disabling all three buttons
+		# would only replace the selected shell with the dim disabled style.
+		button.disabled = false
+	if suit == "tiao":
+		ding_que_tiao_button.grab_focus()
+	elif suit == "tong":
+		ding_que_tong_button.grab_focus()
+	else:
+		ding_que_wan_button.grab_focus()
+
+
+func _reset_ding_que_visual_state() -> void:
+	if ding_que_tiao_button == null:
+		return
+	pending_ding_que_suit = ""
+	for button in [ding_que_tiao_button, ding_que_tong_button, ding_que_wan_button]:
+		button.modulate = Color.WHITE
+		button.add_theme_stylebox_override("normal", _ding_que_shell_style(button, false, false))
+		button.add_theme_stylebox_override("hover", _ding_que_shell_style(button, false, false))
+		button.add_theme_stylebox_override("pressed", _ding_que_shell_style(button, true, false))
+		button.disabled = false
+
+
+func get_ding_que_visual_contract() -> Dictionary:
+	return {
+		"choices": ["tiao", "tong", "wan"],
+		"visible_labels": ["条", "筒", "万"],
+		"button_minimum_size": Vector2(230.0, 230.0),
+		"shell_pipeline": "blender_orthographic_baked_jade_seals",
+		"shade_alpha": 0.13,
+		"selected_visual_lift_px": 12.0,
+		"selected_glow": "native_focus_ring",
+		"selection_feedback_seconds": 0.14,
+		"extra_confirmation_step": false,
+		"reduced_motion": "static_selected_state_without_delay",
+	}
 
 
 func _refresh_settlement(snapshot: Dictionary) -> void:
 	var show_panel := int(snapshot.get("current_phase", 0)) == 7
-	if show_panel and last_snapshot.get("current_phase", -1) != 7:
-		settlement_dismissed = false
-	var overlay_active := show_panel and not settlement_dismissed
-	settlement_overlay.visible = overlay_active
-	if settlement_overlay_v2 != null:
-		settlement_overlay_v2.visible = false
-	_apply_settlement_backdrop_state(overlay_active)
-	if overlay_active:
-		_layout_settlement_overlay()
-		_render_settlement(snapshot)
-		root_ui.move_child(settlement_overlay, root_ui.get_child_count() - 1)
-		settlement_overlay.move_to_front()
+	if not show_panel:
+		_reset_settlement_transition()
+		_set_settlement_overlay_active(snapshot, false)
+	else:
+		var signature := _settlement_transition_signature_for(snapshot)
+		if signature != settlement_transition_signature:
+			_begin_settlement_transition(snapshot, signature)
+		else:
+			settlement_transition_pending_snapshot = snapshot.duplicate(true)
+		_set_settlement_overlay_active(
+			settlement_transition_pending_snapshot,
+			settlement_transition_ready and not settlement_dismissed
+		)
 	top_settlement_info_button.visible = false
 	top_next_round_button.visible = false
 	if table_utility_bar != null:
 		var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
-		table_utility_bar.call("render", ai_helper_enabled, show_panel, settlement_dismissed, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)
+		table_utility_bar.call(
+			"render",
+			ai_helper_enabled,
+			show_panel and settlement_transition_ready,
+			settlement_dismissed,
+			str(AI_PRESET_LABELS.get(preset_name, "骨灰")),
+			opponent_hands_enabled
+		)
 		_layout_table_utility_bar()
 	if not show_panel:
 		settlement_dismissed = false
 		settlement_selected_seat = -1
-	if not show_panel:
+
+
+func _settlement_transition_signature_for(snapshot: Dictionary) -> String:
+	var settlement_data: Dictionary = snapshot.get("settlement_data", {})
+	return JSON.stringify({
+		"round_index": settlement_data.get("round_index", snapshot.get("round_index", 0)),
+		"end_reason": settlement_data.get("end_reason", ""),
+		"score_changes": settlement_data.get("score_changes", {}),
+		"winner_seats": settlement_data.get("winner_seats", []),
+		"win_events": settlement_data.get("win_events", []),
+	})
+
+
+func _begin_settlement_transition(snapshot: Dictionary, signature: String) -> void:
+	settlement_transition_generation += 1
+	var generation := settlement_transition_generation
+	settlement_transition_signature = signature
+	settlement_transition_pending_snapshot = snapshot.duplicate(true)
+	settlement_transition_ready = false
+	settlement_dismissed = false
+	settlement_selected_seat = -1
+	settlement_transition_started_msec = Time.get_ticks_msec()
+	settlement_transition_completed_msec = -1
+	settlement_transition_hold_seconds = (
+		SETTLEMENT_REDUCED_HOLD_SECONDS
+		if bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
+		else SETTLEMENT_HOLD_SECONDS
+	)
+	_wait_for_settlement_transition(generation, signature)
+
+
+func _wait_for_settlement_transition(generation: int, signature: String) -> void:
+	await get_tree().create_timer(settlement_transition_hold_seconds).timeout
+	if generation != settlement_transition_generation:
 		return
+	if signature != settlement_transition_signature:
+		return
+	if int(settlement_transition_pending_snapshot.get("current_phase", 0)) != 7:
+		return
+	settlement_transition_ready = true
+	settlement_transition_completed_msec = Time.get_ticks_msec()
+	_set_settlement_overlay_active(settlement_transition_pending_snapshot, not settlement_dismissed)
+	if table_utility_bar != null:
+		var snapshot := settlement_transition_pending_snapshot
+		var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
+		table_utility_bar.call("render", ai_helper_enabled, true, settlement_dismissed, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)
+		_layout_table_utility_bar()
+
+
+func _set_settlement_overlay_active(snapshot: Dictionary, active: bool) -> void:
+	settlement_overlay.visible = active
+	if settlement_overlay_v2 != null:
+		settlement_overlay_v2.visible = false
+	_apply_settlement_backdrop_state(active)
+	if not active:
+		return
+	_layout_settlement_overlay()
+	_render_settlement(snapshot)
+	root_ui.move_child(settlement_overlay, root_ui.get_child_count() - 1)
+	settlement_overlay.move_to_front()
+
+
+func _reset_settlement_transition() -> void:
+	settlement_transition_generation += 1
+	settlement_transition_signature = ""
+	settlement_transition_pending_snapshot = {}
+	settlement_transition_ready = false
+	settlement_transition_started_msec = -1
+	settlement_transition_completed_msec = -1
+	settlement_transition_hold_seconds = SETTLEMENT_HOLD_SECONDS
+
+
+func force_complete_settlement_transition_for_test() -> void:
+	if settlement_transition_signature.is_empty() or settlement_transition_pending_snapshot.is_empty():
+		return
+	settlement_transition_generation += 1
+	settlement_transition_ready = true
+	settlement_transition_completed_msec = Time.get_ticks_msec()
+	_set_settlement_overlay_active(settlement_transition_pending_snapshot, not settlement_dismissed)
+
+
+func get_settlement_transition_contract() -> Dictionary:
+	var elapsed_seconds := -1.0
+	if settlement_transition_started_msec >= 0:
+		var end_msec := settlement_transition_completed_msec
+		if end_msec < 0:
+			end_msec = Time.get_ticks_msec()
+		elapsed_seconds = float(end_msec - settlement_transition_started_msec) / 1000.0
+	return {
+		"normal_hold_seconds": SETTLEMENT_HOLD_SECONDS,
+		"reduced_hold_seconds": SETTLEMENT_REDUCED_HOLD_SECONDS,
+		"active_hold_seconds": settlement_transition_hold_seconds,
+		"elapsed_seconds": elapsed_seconds,
+		"signature": settlement_transition_signature,
+		"ready": settlement_transition_ready,
+		"overlay_visible": settlement_overlay.visible,
+		"authoritative_score_path": "settlement_data/score_changes",
+		"terminal_ledger_preserved": true,
+	}
 
 
 func _apply_settlement_backdrop_state(active: bool) -> void:
@@ -4667,7 +4906,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		avatar.text = _settlement_avatar_text(seat)
 		avatar.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		avatar.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_apply_settlement_label_style(avatar, seat == focus_seat, true)
+		_apply_settlement_label_style(avatar, seat == focus_seat, true, false, true)
 		if seat == focus_seat:
 			_apply_settlement_focus_row_text_style(avatar)
 		avatar.add_theme_font_size_override("font_size", int(round(30 * scale)))
@@ -4686,7 +4925,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		var name_label := Label.new()
 		name_label.text = _settlement_display_name(seat)
 		_apply_settlement_label_style(name_label, seat == focus_seat, true)
-		name_label.add_theme_font_size_override("font_size", int(round((29 if seat == focus_seat else 26) * scale)))
+		name_label.add_theme_font_size_override("font_size", clampi(int(round((29 if seat == focus_seat else 26) * scale)), 22, 30))
 		if seat == focus_seat:
 			_apply_settlement_focus_row_text_style(name_label)
 		name_row.add_child(name_label)
@@ -4702,7 +4941,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		if best_seats.has(seat):
 			var best_badge := Label.new()
 			best_badge.text = "本局最佳"
-			_apply_settlement_label_style(best_badge, true, true)
+			_apply_settlement_label_style(best_badge, true, true, false, true)
 			best_badge.add_theme_font_size_override("font_size", int(round(16 * scale)))
 			best_badge.add_theme_stylebox_override("normal", _build_settlement_hero_badge_style())
 			name_row.add_child(best_badge)
@@ -4710,7 +4949,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		var total_label := Label.new()
 		total_label.text = "总分 %d" % int(player.get("score", 0))
 		_apply_settlement_label_style(total_label, seat == focus_seat, false, true)
-		total_label.add_theme_font_size_override("font_size", int(round(24 * scale)))
+		total_label.add_theme_font_size_override("font_size", clampi(int(round(24 * scale)), 22, 26))
 		if seat == focus_seat:
 			_apply_settlement_focus_row_text_style(total_label, true)
 		name_box.add_child(total_label)
@@ -4759,7 +4998,7 @@ func _render_settlement_hand(players: Array, settlement_data: Dictionary, focus_
 	var name_label := Label.new()
 	name_label.text = _settlement_display_name(focus_seat)
 	_apply_settlement_label_style(name_label, true, true)
-	name_label.add_theme_font_size_override("font_size", int(round(30 * scale)))
+	name_label.add_theme_font_size_override("font_size", clampi(int(round(30 * scale)), 22, 30))
 	header.add_child(name_label)
 
 	if bool(player.get("has_won", false)):
@@ -5283,6 +5522,36 @@ func _sum_settlement_breakdown_scores(lines: Array[Dictionary]) -> int:
 	return total
 
 
+func get_settlement_ledger_contract(snapshot: Dictionary) -> Dictionary:
+	var settlement_data: Dictionary = snapshot.get("settlement_data", {})
+	var score_changes: Dictionary = settlement_data.get("score_changes", {})
+	var players: Array = snapshot.get("players", [])
+	var seat_rows := {}
+	var net_change := 0
+	var all_detail_sums_match := true
+	for seat in range(PLAYER_COUNT):
+		var authoritative_delta := int(score_changes.get(seat, 0))
+		var lines := _build_settlement_breakdown_lines(players, settlement_data, seat, authoritative_delta)
+		var detail_sum := _sum_settlement_breakdown_scores(lines)
+		seat_rows[seat] = {
+			"authoritative_delta": authoritative_delta,
+			"detail_sum": detail_sum,
+			"matches": detail_sum == authoritative_delta,
+			"lines": lines,
+		}
+		net_change += authoritative_delta
+		all_detail_sums_match = all_detail_sums_match and detail_sum == authoritative_delta
+	return {
+		"authoritative_path": "settlement_data/score_changes",
+		"score_changes": score_changes.duplicate(true),
+		"net_change": net_change,
+		"net_zero": net_change == 0,
+		"all_detail_sums_match": all_detail_sums_match,
+		"ui_applies_self_draw_bonus": false,
+		"seat_rows": seat_rows,
+	}
+
+
 func _build_cha_jiao_reason_text(item: Dictionary) -> String:
 	var tile: Dictionary = item.get("cha_jiao_tile", {})
 	var tile_name := str(tile.get("display_name", ""))
@@ -5471,8 +5740,6 @@ func _format_fan_and_basic_score(fan_detail: Dictionary, win_type: String = "") 
 	var capped_fan := int(fan_detail.get("capped_fan", 0))
 	var hand_score := int(fan_detail.get("hand_score", _resolve_basic_score_from_fan(capped_fan)))
 	var basic_score := int(fan_detail.get("per_payer_score", hand_score))
-	if (win_type == "self_draw" or win_type == "gang_self_draw") and not fan_detail.has("per_payer_score"):
-		basic_score += 1
 	var fan_text := "%d番（封顶）" % capped_fan if capped_fan >= 4 else "%d番" % capped_fan
 	if basic_score != hand_score and (win_type == "self_draw" or win_type == "gang_self_draw"):
 		return "%s / %d+自摸1=%d分" % [fan_text, hand_score, basic_score]
@@ -5507,10 +5774,11 @@ func _resolve_event_payment_for_payer(event: Dictionary, _payer_seat: int, _play
 	var win_type: String = str(event.get("win_type", "discard_win"))
 	var capped_fan := int(fan_detail.get("capped_fan", 0))
 	var hand_score := int(fan_detail.get("hand_score", _resolve_basic_score_from_fan(capped_fan)))
-	var payment := hand_score
 	if win_type == "self_draw" or win_type == "gang_self_draw":
-		payment = int(fan_detail.get("per_payer_score", hand_score + 1))
-	return payment
+		# The rules layer owns the self-draw +1 and exports the authoritative
+		# per-payer amount. The settlement UI must never manufacture another +1.
+		return int(fan_detail.get("per_payer_score", hand_score))
+	return hand_score
 
 
 func _resolve_gang_event_total_score(event: Dictionary) -> int:
@@ -5531,7 +5799,7 @@ func _resolve_gang_unit_score(gang_type: String) -> int:
 
 func _apply_settlement_visuals(round_delta: int) -> void:
 	var scale := _settlement_content_scale()
-	settlement_shade.color = Color(0.025, 0.055, 0.11, 0.76)
+	settlement_shade.color = Color(0.012, 0.055, 0.044, 0.78)
 	settlement_panel.add_theme_stylebox_override("panel", _build_settlement_panel_style())
 	settlement_hero_card.add_theme_stylebox_override("panel", _build_settlement_hero_style(round_delta))
 	settlement_breakdown_card.add_theme_stylebox_override("panel", _build_settlement_detail_style())
@@ -5550,51 +5818,60 @@ func _apply_settlement_visuals(round_delta: int) -> void:
 	next_round_button.add_theme_color_override("font_color", IVORY_SOFT)
 	settlement_hero_badge.add_theme_stylebox_override("normal", _build_settlement_hero_badge_style())
 	settlement_hero_badge.add_theme_font_size_override("font_size", int(round(22 * scale)))
-	_apply_settlement_label_style(settlement_hero_badge, true, true)
-	_apply_settlement_label_style(%SettlementTitle, false, true)
-	%SettlementTitle.add_theme_font_size_override("font_size", int(round(44 * scale)))
+	_apply_settlement_label_style(settlement_hero_badge, true, true, false, true)
+	_apply_settlement_label_style(%SettlementTitle, false, true, false, true)
+	%SettlementTitle.add_theme_font_size_override("font_size", clampi(int(round(36 * scale)), 30, 40))
 	%SettlementTitle.add_theme_color_override("font_color", IVORY_SOFT)
-	settlement_round_label.add_theme_font_size_override("font_size", int(round(25 * scale)))
+	settlement_round_label.add_theme_font_size_override("font_size", clampi(int(round(25 * scale)), 22, 28))
 	settlement_round_label.add_theme_color_override("font_color", Color(0.97, 0.93, 0.80, 1.0))
 	settlement_player_list_title.add_theme_color_override("font_color", IVORY_SOFT)
 	settlement_player_list_title.add_theme_font_size_override("font_size", int(round(34 * scale)))
 	settlement_hero_result.add_theme_font_size_override("font_size", int(round(44 * scale)))
 	settlement_hero_result.add_theme_color_override("font_color", Color(0.98, 0.94, 0.82, 1.0))
-	settlement_hero_name.add_theme_font_size_override("font_size", int(round(32 * scale)))
+	settlement_hero_name.add_theme_font_size_override("font_size", clampi(int(round(32 * scale)), 24, 34))
 	settlement_hero_name.add_theme_color_override("font_color", Color(0.98, 0.94, 0.84, 1.0))
 	settlement_hero_name.autowrap_mode = TextServer.AUTOWRAP_OFF
 	settlement_hero_name.clip_text = true
-	settlement_hero_summary.add_theme_font_size_override("font_size", int(round(22 * scale)))
+	settlement_hero_summary.add_theme_font_size_override("font_size", clampi(int(round(22 * scale)), 22, 26))
 	settlement_hero_summary.add_theme_color_override("font_color", Color(0.90, 0.88, 0.82, 0.94))
-	settlement_hero_hu.add_theme_font_size_override("font_size", int(round(28 * scale)))
-	settlement_hero_fan.add_theme_font_size_override("font_size", int(round(28 * scale)))
-	settlement_hero_score.add_theme_font_size_override("font_size", int(round(64 * scale)))
+	settlement_hero_hu.add_theme_font_size_override("font_size", clampi(int(round(26 * scale)), 22, 28))
+	settlement_hero_fan.add_theme_font_size_override("font_size", clampi(int(round(26 * scale)), 22, 28))
+	settlement_hero_score.add_theme_font_size_override("font_size", clampi(int(round(66 * scale)), 60, 72))
 	settlement_hero_score.add_theme_color_override("font_color", Color(0.98, 0.95, 0.84, 1.0))
-	_apply_settlement_label_style(settlement_breakdown_title, false, true)
-	settlement_breakdown_title.add_theme_font_size_override("font_size", int(round(30 * scale)))
+	_apply_settlement_label_style(settlement_breakdown_title, false, true, false, true)
+	settlement_breakdown_title.add_theme_font_size_override("font_size", clampi(int(round(32 * scale)), 30, 36))
 	settlement_breakdown_title.add_theme_color_override("font_color", IVORY_SOFT)
 	settlement_close_button.add_theme_font_size_override("font_size", int(round(26 * scale)))
 	next_round_button.add_theme_font_size_override("font_size", int(round(42 * scale)))
 
 
-func _apply_settlement_label_style(label: Control, dark_text: bool = false, large: bool = false, use_aux: bool = false) -> void:
-	STYLE_CONFIG.apply_label(label, use_aux, large)
+func _apply_settlement_label_style(
+	label: Control,
+	dark_text: bool = false,
+	_large: bool = false,
+	use_aux: bool = false,
+	use_display_font: bool = false
+) -> void:
+	# Size and font role are independent. Large settlement numbers, names and
+	# ledger copy remain Noto Sans CJK; calligraphy is opt-in for short decorative
+	# headings only.
+	STYLE_CONFIG.apply_label(label, use_aux, use_display_font)
 	if not dark_text:
 		return
-	var font_color := Color(0.95, 0.96, 0.99, 1.0) if not use_aux else Color(0.82, 0.87, 0.95, 1.0)
+	var font_color := Color(0.96, 0.94, 0.86, 1.0) if not use_aux else Color(0.79, 0.82, 0.76, 1.0)
 	if label is Label:
 		var typed := label as Label
 		typed.add_theme_color_override("font_color", font_color)
-		typed.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.92))
+		typed.add_theme_color_override("font_outline_color", Color(0.01, 0.07, 0.055, 0.94))
 	elif label is Button:
 		var button := label as Button
 		button.add_theme_color_override("font_color", font_color)
-		button.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.92))
+		button.add_theme_color_override("font_outline_color", Color(0.01, 0.07, 0.055, 0.94))
 
 
 func _apply_settlement_focus_row_text_style(label: Control, aux: bool = false) -> void:
 	var font_color := Color(1.0, 0.98, 0.93, 1.0) if not aux else Color(0.99, 0.96, 0.90, 1.0)
-	var outline_color := Color(0.03, 0.07, 0.15, 0.96)
+	var outline_color := Color(0.01, 0.07, 0.055, 0.96)
 	if label is Label:
 		var typed := label as Label
 		typed.add_theme_color_override("font_color", font_color)
@@ -5609,18 +5886,18 @@ func _apply_settlement_focus_row_text_style(label: Control, aux: bool = false) -
 
 func _apply_settlement_breakdown_label_style(label: Label, is_header: bool = false, is_score: bool = false) -> void:
 	var scale := _settlement_content_scale()
-	label.add_theme_font_size_override("font_size", int(round((28 if is_header else 25) * scale)))
-	label.add_theme_color_override("font_color", Color(0.94, 0.96, 1.0, 1.0))
-	label.add_theme_color_override("font_outline_color", Color(0.03, 0.07, 0.14, 0.88))
+	label.add_theme_font_size_override("font_size", clampi(int(round((26 if is_header else 24) * scale)), 22, 28))
+	label.add_theme_color_override("font_color", Color(0.95, 0.94, 0.87, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(0.01, 0.07, 0.055, 0.90))
 	label.add_theme_constant_override("outline_size", 1)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	if is_score:
-		label.add_theme_font_size_override("font_size", int(round(28 * scale)))
+		label.add_theme_font_size_override("font_size", clampi(int(round(26 * scale)), 22, 28))
 
 
 func _build_settlement_side_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_PANEL
+	style.bg_color = SETTLEMENT_JADE_PANEL
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.58)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5635,7 +5912,7 @@ func _build_settlement_side_style() -> StyleBoxFlat:
 
 func _build_settlement_detail_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_DEEP
+	style.bg_color = SETTLEMENT_INK_DEEP
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.62)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 22
@@ -5650,13 +5927,13 @@ func _build_settlement_detail_style() -> StyleBoxFlat:
 
 func _build_settlement_hand_style() -> StyleBoxFlat:
 	var style := _build_settlement_detail_style()
-	style.bg_color = TABLE_BLUE_PANEL
+	style.bg_color = SETTLEMENT_JADE_PANEL
 	return style
 
 
 func _build_settlement_hand_row_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_ACTIVE if is_focus else Color(TABLE_BLUE_CARD, 0.94)
+	style.bg_color = SETTLEMENT_JADE_ACTIVE if is_focus else Color(SETTLEMENT_JADE_CARD, 0.94)
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.82) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.34)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 12
@@ -5704,11 +5981,11 @@ func _build_settlement_group_tag_style() -> StyleBoxFlat:
 func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	if is_header:
-		style.bg_color = TABLE_BLUE_ACTIVE
+		style.bg_color = SETTLEMENT_JADE_ACTIVE
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.70)
 		style.set_border_width_all(2)
 	else:
-		style.bg_color = Color(TABLE_BLUE_CARD.lightened(0.045), 0.96) if alternate else Color(TABLE_BLUE_PANEL, 0.96)
+		style.bg_color = Color(SETTLEMENT_JADE_CARD.lightened(0.045), 0.96) if alternate else Color(SETTLEMENT_JADE_PANEL, 0.96)
 		style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.16)
 		style.set_border_width_all(1)
 	style.corner_radius_top_left = 10
@@ -5720,7 +5997,7 @@ func _build_settlement_breakdown_row_style(is_header: bool, alternate: bool) -> 
 
 func _build_settlement_hero_style(round_delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_ACTIVE if round_delta >= 0 else TABLE_BLUE_PANEL
+	style.bg_color = SETTLEMENT_JADE_ACTIVE if round_delta >= 0 else SETTLEMENT_JADE_PANEL
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.90)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 24
@@ -5735,9 +6012,9 @@ func _build_settlement_hero_style(round_delta: int) -> StyleBoxFlat:
 
 func _build_settlement_list_row_style(is_focus: bool, delta: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_ACTIVE if is_focus else Color(TABLE_BLUE_PANEL, 0.94)
+	style.bg_color = SETTLEMENT_JADE_ACTIVE if is_focus else Color(SETTLEMENT_JADE_PANEL, 0.94)
 	if delta < 0 and not is_focus:
-		style.bg_color = Color("202A43")
+		style.bg_color = Color("172621")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.92) if is_focus else Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.30)
 	style.set_border_width_all(2 if is_focus else 1)
 	style.corner_radius_top_left = 14
@@ -5756,7 +6033,7 @@ func _build_settlement_list_row_hover_style(is_focus: bool, delta: int) -> Style
 
 func _build_settlement_avatar_style(is_focus: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("334F78") if is_focus else Color("1D2D49")
+	style.bg_color = Color("25705C") if is_focus else Color("0B352C")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.86)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 14
@@ -5804,24 +6081,24 @@ func _build_settlement_hero_badge_style() -> StyleBoxFlat:
 	return style
 
 
-func _build_settlement_panel_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_DEEP
-	style.border_color = Color(TABLE_STEEL_EDGE, 0.98)
-	style.set_border_width_all(4)
-	style.corner_radius_top_left = 32
-	style.corner_radius_top_right = 32
-	style.corner_radius_bottom_left = 32
-	style.corner_radius_bottom_right = 32
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.38)
-	style.shadow_size = 20
-	style.shadow_offset = Vector2(8, 10)
+func _build_settlement_panel_style() -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = SETTLEMENT_PANEL_SHELL
+	style.draw_center = true
+	style.texture_margin_left = 112.0
+	style.texture_margin_right = 112.0
+	style.texture_margin_top = 92.0
+	style.texture_margin_bottom = 92.0
+	style.content_margin_left = 32.0
+	style.content_margin_right = 32.0
+	style.content_margin_top = 26.0
+	style.content_margin_bottom = 26.0
 	return style
 
 
 func _build_settlement_utility_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = TABLE_BLUE_PANEL
+	style.bg_color = SETTLEMENT_JADE_PANEL
 	style.border_color = Color(GOLD_SOFT.r, GOLD_SOFT.g, GOLD_SOFT.b, 0.74)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 18
@@ -5854,7 +6131,7 @@ func _build_settlement_utility_button_pressed_style() -> StyleBoxFlat:
 
 func _build_settlement_primary_button_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("315F86")
+	style.bg_color = Color("176F58")
 	style.border_color = Color(SICHUAN_TABLE_THEME.COPPER_HIGHLIGHT, 0.96)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = 20
@@ -7453,8 +7730,18 @@ func _ensure_an_gang_button() -> void:
 
 
 func _on_ding_que_pressed(suit: String) -> void:
+	if not pending_ding_que_suit.is_empty():
+		return
+	pending_ding_que_suit = suit
+	_apply_ding_que_selection_state(suit)
+	var reduced_motion := bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
+	if not reduced_motion:
+		await get_tree().create_timer(0.14).timeout
 	if game_manager.choose_ding_que(suit):
 		_speak_ding_que(suit, 0)
+		return
+	_reset_ding_que_visual_state()
+	_refresh_ding_que_panel(game_manager.get_fresh_snapshot())
 
 
 func _on_next_round_pressed() -> void:

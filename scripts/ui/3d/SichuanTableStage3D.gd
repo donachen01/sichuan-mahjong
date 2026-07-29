@@ -4,9 +4,9 @@ extends Node3D
 signal tile_pressed(tile_id: int)
 
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
-const TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
-const REFERENCE_GREEN_FELT_SHADER := preload("res://shaders/table_plush_felt_3d.gdshader")
-const RAIL_TEXTURE_SHADER := preload("res://shaders/table_rail_texture_3d.gdshader")
+const TABLE_SCENE := preload("res://res/art/3d/sichuan_table_v2.glb")
+const CENTER_COMPASS_SCENE := preload("res://res/art/3d/sichuan_center_compass_v2.glb")
+const FALLBACK_TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
 
 const HAND_STEP_SELF := 0.80
 # 侧家(上/下家)牌沿桌边码放的步距。0.45 太密，牌挤成一条分不清；
@@ -22,6 +22,14 @@ const DISCARD_COLUMN_STEP := 0.56
 const DISCARD_ROW_STEP := 0.78
 const MAX_VISIBLE_DISCARDS := 18
 const TWEEN_SECONDS := 0.18
+const PENG_MOTION_SECONDS := 0.22
+const GANG_MOTION_SECONDS := 0.26
+const WIN_TRANSFER_SECONDS := 0.24
+const DRAW_TRAVEL_SECONDS := 0.20
+const DRAW_SETTLE_SECONDS := 0.05
+const DISCARD_TRAVEL_SECONDS := 0.20
+const DISCARD_SETTLE_SECONDS := 0.04
+const DISCARD_REFLOW_BEAT_SECONDS := 0.06
 const SELF_RACK_TILT_DEGREES := 48.0
 # 对家、上家和下家的暗手按用户验收要求严格垂直于桌面，不再向桌心内倾。
 # 正负号只决定哪一实体表面朝向牌主；绝对值都必须保持 90°。
@@ -29,6 +37,20 @@ const SIDE_RACK_TILT_DEGREES := 90.0
 const FAR_RACK_TILT_DEGREES := -90.0
 const CENTER_INDICATOR_WORLD_Z := -1.60
 const DISCARD_GLOBAL_Z_SHIFT := -1.60
+const WALL_COUNT_FLOAT_HEIGHT := 0.96
+# A full cycle is intentionally unhurried (30 seconds): the count remains
+# readable during play while still continuously completing its own 360° spin.
+const WALL_COUNT_ROTATION_SPEED_DEGREES := 12.0
+const WALL_COUNT_BOB_AMPLITUDE := 0.030
+const WALL_COUNT_BOB_SPEED := 1.45
+const DRAW_MARKER_STYLE_NAMES := ["铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印"]
+const SELECTED_MARKER_STYLE_NAMES := ["象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印"]
+
+@export_enum("铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印")
+var draw_marker_style_variant := 1
+
+@export_enum("象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印")
+var selected_marker_style_variant := 1
 
 # Named product contract calibrated against the supplied commercial reference.
 # The target composition relies on genuine foreground/background scale change
@@ -41,17 +63,30 @@ const CAMERA_TARGET := Vector3(0.0, 0.0, -0.50)
 
 var camera: Camera3D
 var tile_root: Node3D
+var center_compass_model: Node3D
+var center_wall_count_anchor: Node3D
+var center_wall_count_rotor: Node3D
+var center_wall_count_label: Label3D
+var center_wall_count_shadow: Label3D
+var center_wall_count_visible := true
+var center_wall_count_motion_time := 0.0
 var tile_nodes: Dictionary = {}
 var self_hand_keys: Array[String] = []
 var last_contract: Dictionary = {}
 var reduced_motion := false
 var interaction_enabled := false
 var self_meld_tile_count := 0
+var meld_tile_counts_by_seat: Array[int] = [0, 0, 0, 0]
+var discard_slots_by_seat: Array[Dictionary] = [{}, {}, {}, {}]
+var active_motion_tweens: Array[Tween] = []
+var last_desired_entries: Dictionary = {}
 
 
 func _ready() -> void:
 	_setup_world()
 	_setup_table()
+	_setup_center_compass()
+	_setup_center_wall_count()
 	tile_root = Node3D.new()
 	tile_root.name = "GameplayTiles"
 	add_child(tile_root)
@@ -70,11 +105,14 @@ func render_snapshot(
 	self_hand_keys.clear()
 	var desired: Dictionary = {}
 	var players: Array = snapshot.get("players", [])
+	_set_center_wall_count(int(snapshot.get("wall_count", 0)))
 	var latest_discard_id := int(snapshot.get("recent_discard_tile_id", -1))
 	var new_draw_id := int(snapshot.get("human_last_draw_tile_id", -1))
 	var recommended_id := int(markers.get("recommended_tile_id", -1))
 	var danger_ids: Array = markers.get("danger_tile_ids", [])
 	self_meld_tile_count = _meld_tile_count(_player_by_seat(players, 0).get("melds", []))
+	for seat in range(4):
+		meld_tile_counts_by_seat[seat] = _meld_tile_count(_player_by_seat(players, seat).get("melds", []))
 
 	for seat in range(4):
 		var player := _player_by_seat(players, seat)
@@ -93,6 +131,7 @@ func render_snapshot(
 		_append_meld_entries(desired, seat, player.get("melds", []))
 		_append_discard_entries(desired, seat, player.get("discards", []), latest_discard_id)
 
+	last_desired_entries = desired.duplicate(true)
 	_apply_entries(desired)
 	last_contract = _build_contract(snapshot, all_hands, players, desired)
 
@@ -119,10 +158,59 @@ func find_tile_at_screen(screen_position: Vector2) -> int:
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
+	if center_wall_count_rotor != null and reduced_motion:
+		center_wall_count_rotor.rotation = Vector3.ZERO
+		center_wall_count_anchor.position.y = WALL_COUNT_FLOAT_HEIGHT
+	_stop_and_reset_motion_tweens()
 	for tile_value in tile_nodes.values():
 		var tile := tile_value as SichuanTile3D
 		if tile != null:
 			tile.set_reduced_motion(enabled)
+	for key in last_desired_entries:
+		var tile := tile_nodes.get(key) as SichuanTile3D
+		if tile == null:
+			continue
+		var data: Dictionary = last_desired_entries[key]
+		tile.transform = data.get("transform", tile.transform)
+		tile.scale = data.get("scale", tile.scale)
+		if bool(data.get("latest", false)):
+			tile.call("set_latest_marker_visible", true)
+
+
+func set_center_wall_count_visible(enabled: bool) -> void:
+	center_wall_count_visible = enabled
+	if center_wall_count_anchor != null:
+		center_wall_count_anchor.visible = enabled
+
+
+func _process(delta: float) -> void:
+	if reduced_motion or not center_wall_count_visible or center_wall_count_anchor == null or center_wall_count_rotor == null:
+		return
+	center_wall_count_motion_time = fmod(center_wall_count_motion_time + delta, TAU)
+	# Spin in the text's readable plane rather than turning the face edge-on.
+	# The paired gold/brass world labels keep their dimensional silhouette
+	# instead of deforming into an unreadable line halfway through 360°.
+	center_wall_count_rotor.rotation.z = fmod(
+		center_wall_count_rotor.rotation.z + deg_to_rad(WALL_COUNT_ROTATION_SPEED_DEGREES) * delta,
+		TAU
+	)
+	center_wall_count_anchor.position.y = WALL_COUNT_FLOAT_HEIGHT + sin(center_wall_count_motion_time * WALL_COUNT_BOB_SPEED) * WALL_COUNT_BOB_AMPLITUDE
+
+
+func set_draw_marker_style_variant(value: int) -> void:
+	draw_marker_style_variant = clampi(value, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+	for tile_value in tile_nodes.values():
+		var tile := tile_value as SichuanTile3D
+		if tile != null:
+			tile.set_draw_marker_style_variant(draw_marker_style_variant)
+
+
+func set_selected_marker_style_variant(value: int) -> void:
+	selected_marker_style_variant = clampi(value, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
+	for tile_value in tile_nodes.values():
+		var tile := tile_value as SichuanTile3D
+		if tile != null:
+			tile.set_selected_marker_style_variant(selected_marker_style_variant)
 
 
 func get_visual_contract() -> Dictionary:
@@ -140,8 +228,12 @@ func _setup_world() -> void:
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color("202A43")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("AEB9CC")
-	environment.ambient_light_energy = 0.38
+	# Keep ambient fill restrained so the authored #167A64/#0F6957 felt does
+	# not wash into cyan under Metal's filmic tonemapper. Mahjong tiles receive
+	# their own layer-2 fill below, so reducing table ambient does not cost glyph
+	# readability.
+	environment.ambient_light_color = Color("8FB3A9")
+	environment.ambient_light_energy = 0.18
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	# Small-radius SSAO grounds adjacent tiles without turning the ivory faces
@@ -175,8 +267,12 @@ func _setup_world() -> void:
 
 	var key_light := DirectionalLight3D.new()
 	key_light.name = "UpperLeftWarmKey"
-	key_light.light_color = Color("F3F7FF")
-	key_light.light_energy = 0.92
+	# A warm-neutral furniture key preserves the reddish walnut grain and keeps
+	# the forest-green felt from drifting toward cyan. Tile faces still receive
+	# the dedicated layer-2 fill light, so this table calibration does not cost
+	# glyph readability.
+	key_light.light_color = Color("FFF0E3")
+	key_light.light_energy = 0.91
 	# DirectionalLight3D shines along local -Z. The -146-degree yaw points the
 	# ground component toward the player's right/down screen quadrant, matching
 	# the supplied commercial reference instead of the former right/up shadow.
@@ -205,52 +301,96 @@ func _setup_world() -> void:
 
 func _setup_table() -> void:
 	var table := TABLE_SCENE.instantiate() as Node3D
+	if table == null:
+		table = FALLBACK_TABLE_SCENE.instantiate() as Node3D
+	if table == null:
+		push_error("Deep Emerald table and fallback table both failed to instantiate")
+		return
 	table.name = "ManufacturedClubTable"
 	# Extend only the table depth so the far/opponent rail sits outside the
 	# camera crop while the left/right rails still frame the play surface.
 	table.scale = Vector3(1.0, 1.0, 1.60)
 	table.position.z = -2.30
 	add_child(table)
-	_apply_table_materials(table)
-
-	var woven_felt := MeshInstance3D.new()
-	woven_felt.name = "FullSurfaceReferenceGreenFelt"
-	var plane := PlaneMesh.new()
-	plane.size = Vector2(13.55, 13.40)
-	woven_felt.mesh = plane
-	woven_felt.position = Vector3(0.0, 0.051, -2.30)
-	woven_felt.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var material := ShaderMaterial.new()
-	material.shader = REFERENCE_GREEN_FELT_SHADER
-	woven_felt.material_override = material
-	add_child(woven_felt)
+	# The GLB owns the short-nap felt, leather, walnut, seam and aged-copper
+	# PBR materials.  Runtime flat-colour overrides are intentionally forbidden:
+	# they erase roughness/normal detail and caused the previous plastic table.
+	_preserve_imported_pbr_materials(table)
 
 
-func _apply_table_materials(node: Node) -> void:
+func _setup_center_compass() -> void:
+	center_compass_model = CENTER_COMPASS_SCENE.instantiate() as Node3D
+	if center_compass_model == null:
+		push_error("Deep Emerald center compass failed to instantiate")
+		return
+	center_compass_model.name = "DeepEmeraldCenterCompass"
+	center_compass_model.position = Vector3(0.0, 0.34, CENTER_INDICATOR_WORLD_Z)
+	# Keep the direction body deliberately subordinate to the river. At 0.46
+	# its visible footprint stays below 55% of the retired central plaque.
+	center_compass_model.scale = Vector3.ONE * 0.46
+	add_child(center_compass_model)
+	_preserve_imported_pbr_materials(center_compass_model)
+
+
+func _setup_center_wall_count() -> void:
+	# The remaining-wall value belongs to the table world, not to an overlay
+	# card. The layered world-space labels give the gold face a crisp bronze
+	# edge and drop depth while their rotor turns above the physical compass.
+	center_wall_count_anchor = Node3D.new()
+	center_wall_count_anchor.name = "CenterWallCount3DAnchor"
+	center_wall_count_anchor.position = Vector3(0.0, WALL_COUNT_FLOAT_HEIGHT, CENTER_INDICATOR_WORLD_Z)
+	add_child(center_wall_count_anchor)
+	center_wall_count_anchor.look_at(CAMERA_POSITION, Vector3.UP)
+	# Label3D's visible face is local +Z while Node3D.look_at aims local -Z.
+	# Flip the anchor once so “余40” reads forward at the start of every 360°
+	# rotation instead of appearing as mirrored text.
+	center_wall_count_anchor.rotate_y(PI)
+
+	center_wall_count_rotor = Node3D.new()
+	center_wall_count_rotor.name = "CenterWallCount3DRotor"
+	center_wall_count_anchor.add_child(center_wall_count_rotor)
+
+	center_wall_count_shadow = Label3D.new()
+	center_wall_count_shadow.name = "CenterWallCount3DShadow"
+	center_wall_count_shadow.text = "余55"
+	center_wall_count_shadow.font_size = 84
+	center_wall_count_shadow.pixel_size = 0.0066
+	center_wall_count_shadow.modulate = Color("563007")
+	center_wall_count_shadow.outline_modulate = Color("1B1206")
+	center_wall_count_shadow.outline_size = 14
+	center_wall_count_shadow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	center_wall_count_shadow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	center_wall_count_shadow.position = Vector3(0.024, -0.024, 0.018)
+	center_wall_count_shadow.no_depth_test = false
+	center_wall_count_rotor.add_child(center_wall_count_shadow)
+
+	center_wall_count_label = Label3D.new()
+	center_wall_count_label.name = "CenterWallCount3DText"
+	center_wall_count_label.text = "余55"
+	center_wall_count_label.font_size = 84
+	center_wall_count_label.pixel_size = 0.0066
+	center_wall_count_label.modulate = Color("FFE7A0")
+	center_wall_count_label.outline_modulate = Color("8A4A08")
+	center_wall_count_label.outline_size = 10
+	center_wall_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	center_wall_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	center_wall_count_label.no_depth_test = false
+	center_wall_count_rotor.add_child(center_wall_count_label)
+
+
+func _set_center_wall_count(wall_count: int) -> void:
+	var display_text := "余%d" % maxi(0, wall_count)
+	if center_wall_count_label != null:
+		center_wall_count_label.text = display_text
+	if center_wall_count_shadow != null:
+		center_wall_count_shadow.text = display_text
+
+
+func _preserve_imported_pbr_materials(node: Node) -> void:
 	if node is MeshInstance3D:
-		var mesh_instance := node as MeshInstance3D
-		var node_name := mesh_instance.name.to_lower()
-		if "frame" in node_name:
-			var rail_material := ShaderMaterial.new()
-			rail_material.shader = RAIL_TEXTURE_SHADER
-			mesh_instance.material_override = rail_material
-		else:
-			var color := Color("08705A")
-			var roughness := 0.86
-			var metallic := 0.0
-			if "copper" in node_name:
-				color = Color("075845")
-				roughness = 0.38
-				metallic = 0.42
-			elif "felt" not in node_name:
-				color = Color("08705A")
-			var table_material := StandardMaterial3D.new()
-			table_material.albedo_color = color
-			table_material.roughness = roughness
-			table_material.metallic = metallic
-			mesh_instance.material_override = table_material
+		(node as MeshInstance3D).material_override = null
 	for child in node.get_children():
-		_apply_table_materials(child)
+		_preserve_imported_pbr_materials(child)
 
 
 func _append_hand_entries(
@@ -361,6 +501,10 @@ func _append_hand_entries(
 			source_seat if source_seat != seat else -1,
 			seat
 		)
+		desired[winning_key]["motion_kind"] = "win_transfer"
+		desired[winning_key]["motion_role"] = "source_tile_to_winner"
+		desired[winning_key]["motion_source_seat"] = source_seat
+		desired[winning_key]["motion_duration_seconds"] = WIN_TRANSFER_SECONDS
 
 
 func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
@@ -373,6 +517,7 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 		# 决定箭头方向和文字，不再因为来源方向把箭头挪到牌组两端。
 		var claim_index := mini(1, meld_tiles.size() - 1)
 		var meld_type := str(meld.get("type", ""))
+		var gang_subtype := str(meld.get("gang_subtype", meld.get("gang_type", "melded_gang")))
 		for tile_index in range(meld_tiles.size()):
 			var tile_value = meld_tiles[tile_index]
 			var tile: Dictionary = tile_value
@@ -380,8 +525,10 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 			var concealed_gang := _is_concealed_gang(meld)
 			var position := _meld_position(seat, tile_index, meld_index, flat_index, concealed_gang)
 			var key := "meld_%d_%d_%d" % [seat, meld_index, tile_id]
-			var show_face := not concealed_gang
-			var is_claim_tile := show_face and source_seat != seat and tile_index == claim_index
+			# 本轮暗杠视觉合同：两边明示、中间两张扣背。暗杠没有来源牌，
+			# 因此外侧正面也不会错误出现碰/杠来源箭头。
+			var show_face := not concealed_gang or tile_index == 0 or tile_index == meld_tiles.size() - 1
+			var is_claim_tile := not concealed_gang and source_seat != seat and tile_index == claim_index
 			desired[key] = _entry(
 				tile,
 				show_face,
@@ -398,11 +545,25 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				180.0 if seat != 0 else 0.0,
 				false,
 				not show_face,
-				concealed_gang,
+				concealed_gang and not show_face,
 				source_seat if is_claim_tile else -1,
 				seat,
 				meld_type if is_claim_tile else ""
 			)
+			var motion_kind := "peng" if meld_type == "peng" else "gang"
+			desired[key]["motion_kind"] = motion_kind
+			desired[key]["gang_subtype"] = gang_subtype if motion_kind == "gang" else ""
+			desired[key]["motion_duration_seconds"] = PENG_MOTION_SECONDS if motion_kind == "peng" else GANG_MOTION_SECONDS
+			if is_claim_tile:
+				desired[key]["motion_role"] = "source_discard_to_meld"
+				desired[key]["motion_source_seat"] = source_seat
+			elif motion_kind == "gang" and gang_subtype == "add_gang" and tile_index == meld_tiles.size() - 1:
+				desired[key]["motion_role"] = "fourth_tile_hand_to_existing_peng"
+				desired[key]["motion_source_seat"] = seat
+			elif motion_kind == "gang" and gang_subtype == "an_gang":
+				desired[key]["motion_role"] = "concealed_gang_outer_faces_middle_backs"
+			else:
+				desired[key]["motion_role"] = "group_formation"
 			flat_index += 1
 
 
@@ -428,15 +589,41 @@ func _claim_tile_index_for_meld(tile_count: int, owner_seat: int, source_seat: i
 
 func _append_discard_entries(desired: Dictionary, seat: int, discards: Array, latest_id: int) -> void:
 	var visible_discards: Array = discards.slice(maxi(0, discards.size() - MAX_VISIBLE_DISCARDS), discards.size())
+	var slots := discard_slots_by_seat[clampi(seat, 0, 3)]
+	var visible_ids: Dictionary = {}
+	for index in range(visible_discards.size()):
+		visible_ids[int((visible_discards[index] as Dictionary).get("id", index))] = true
+	for tracked_id in slots.keys():
+		if not visible_ids.has(tracked_id):
+			slots.erase(tracked_id)
+	var used_slots: Dictionary = {}
+	for tracked_slot in slots.values():
+		used_slots[int(tracked_slot)] = true
 	for index in range(visible_discards.size()):
 		var tile: Dictionary = visible_discards[index]
 		var tile_id := int(tile.get("id", index))
-		var position := _discard_position(seat, index)
+		if not slots.has(tile_id):
+			var free_slot := 0
+			while free_slot < MAX_VISIBLE_DISCARDS and used_slots.has(free_slot):
+				free_slot += 1
+			# visible_discards is capped at MAX_VISIBLE_DISCARDS, so a slot is
+			# always available after absent ids are pruned. Keep this fallback
+			# deterministic if malformed duplicate ids ever violate that contract.
+			free_slot = mini(free_slot, MAX_VISIBLE_DISCARDS - 1)
+			slots[tile_id] = free_slot
+			used_slots[free_slot] = true
+		var position := _discard_position(seat, int(slots[tile_id]))
 		var key := "discard_%d_%d" % [seat, tile_id]
 		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat)
 
 
 func _apply_entries(desired: Dictionary) -> void:
+	var discard_landing_delay_by_seat: Dictionary = {}
+	for desired_key in desired.keys():
+		var desired_data: Dictionary = desired[desired_key]
+		if bool(desired_data.get("latest", false)) and not tile_nodes.has(desired_key):
+			discard_landing_delay_by_seat[int(desired_data.get("winner_seat", -1))] = \
+				DISCARD_TRAVEL_SECONDS + DISCARD_SETTLE_SECONDS + DISCARD_REFLOW_BEAT_SECONDS
 	for existing_key in tile_nodes.keys():
 		if desired.has(existing_key):
 			continue
@@ -454,6 +641,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			tile.name = _safe_node_name(str(key))
 			tile_root.add_child(tile)
 			tile_nodes[key] = tile
+		tile.draw_marker_style_variant = clampi(draw_marker_style_variant, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+		tile.selected_marker_style_variant = clampi(selected_marker_style_variant, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
 		tile.set_reduced_motion(reduced_motion)
 		# Snapshot state is dynamic even when the tile id is stable. Reconfigure
 		# every frame so reveal, win, selection and latest-discard state cannot
@@ -480,18 +669,111 @@ func _apply_entries(desired: Dictionary) -> void:
 		var target_transform: Transform3D = data.get("transform", Transform3D.IDENTITY)
 		var target_scale: Vector3 = data.get("scale", Vector3.ONE)
 		if is_new and not reduced_motion:
-			tile.transform = target_transform.translated_local(Vector3(0.0, 0.42, 0.0))
-			tile.scale = target_scale * 0.82
-			var enter_tween := tile.create_tween().set_parallel(true)
-			enter_tween.tween_property(tile, "transform", target_transform, TWEEN_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			enter_tween.tween_property(tile, "scale", target_scale, TWEEN_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			var motion_kind := str(data.get("motion_kind", ""))
+			var motion_role := str(data.get("motion_role", ""))
+			var motion_duration := float(data.get("motion_duration_seconds", TWEEN_SECONDS))
+			tile.transform = _motion_start_transform(target_transform, motion_role, int(data.get("motion_source_seat", -1)))
+			if bool(data.get("latest", false)):
+				# The latest marker becomes visible only after the tile reaches and
+				# settles into its immutable river cell. No layout or camera shake is
+				# used; the 2.5% scale overshoot supplies the restrained table contact.
+				tile.call("set_latest_marker_visible", false)
+				tile.scale = target_scale * 0.86
+				var discard_tween := _track_tween(tile.create_tween())
+				discard_tween.tween_property(tile, "transform", target_transform, DISCARD_TRAVEL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				discard_tween.parallel().tween_property(tile, "scale", target_scale * 1.025, DISCARD_TRAVEL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				discard_tween.tween_property(tile, "scale", target_scale, DISCARD_SETTLE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				discard_tween.tween_callback(Callable(tile, "set_latest_marker_visible").bind(true))
+			elif bool(data.get("new_draw", false)):
+				# The draw token travels for 200 ms, then settles for 50 ms. Keeping
+				# the two phases explicit makes the animation measurable and leaves the
+				# accepted 22 px hand gap/physical target transform untouched.
+				tile.scale = target_scale * 0.82
+				var draw_tween := _track_tween(tile.create_tween())
+				draw_tween.tween_property(tile, "transform", target_transform, DRAW_TRAVEL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				draw_tween.parallel().tween_property(tile, "scale", target_scale * 1.025, DRAW_TRAVEL_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				draw_tween.tween_property(tile, "scale", target_scale, DRAW_SETTLE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			elif motion_kind in ["peng", "gang", "win_transfer"]:
+				tile.scale = target_scale * 0.82
+				var event_tween := _track_tween(tile.create_tween())
+				event_tween.tween_property(tile, "transform", target_transform, motion_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				event_tween.parallel().tween_property(tile, "scale", target_scale, motion_duration).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+			else:
+				tile.scale = target_scale * 0.82
+				var enter_tween := _track_tween(tile.create_tween()).set_parallel(true)
+				enter_tween.tween_property(tile, "transform", target_transform, TWEEN_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+				enter_tween.tween_property(tile, "scale", target_scale, TWEEN_SECONDS).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 		elif not reduced_motion and tile.transform != target_transform:
-			var move_tween := tile.create_tween().set_parallel(true)
+			var move_tween := _track_tween(tile.create_tween())
+			var hand_seat := -1
+			if str(key).begins_with("hand_"):
+				hand_seat = int(str(key).split("_")[1])
+			var reflow_delay := float(discard_landing_delay_by_seat.get(hand_seat, 0.0))
+			if reflow_delay > 0.0:
+				move_tween.tween_interval(reflow_delay)
 			move_tween.tween_property(tile, "transform", target_transform, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			move_tween.tween_property(tile, "scale", target_scale, 0.14)
+			move_tween.parallel().tween_property(tile, "scale", target_scale, 0.14)
 		else:
 			tile.transform = target_transform
 			tile.scale = target_scale
+
+
+func get_motion_contract() -> Dictionary:
+	return {
+		"peng_seconds": PENG_MOTION_SECONDS,
+		"gang_seconds": GANG_MOTION_SECONDS,
+		"win_transfer_seconds": WIN_TRANSFER_SECONDS,
+		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
+		"melded_gang_sequence": ["source_discard_to_meld", "four_tiles_land", "callout_then_scores"],
+		"add_gang_sequence": ["fourth_tile_hand_to_existing_peng", "callout_then_three_payers_and_actor"],
+		"an_gang_sequence": ["outer_faces_middle_jade_backs", "callout_then_three_payers_and_actor"],
+		"discard_win_sequence": ["source_tile_to_winner", "callout_then_scores"],
+		"screen_shake": false,
+		"active_tween_count": _active_motion_tween_count(),
+		"reduced_motion": reduced_motion,
+	}
+
+
+func get_motion_entry_contract(key: String) -> Dictionary:
+	return (last_desired_entries.get(key, {}) as Dictionary).duplicate(true)
+
+
+func _motion_start_transform(target: Transform3D, role: String, source_seat: int) -> Transform3D:
+	if role == "source_discard_to_meld" or role == "source_tile_to_winner":
+		var offset := Vector3.ZERO
+		match source_seat:
+			0:
+				offset = Vector3(0.0, 0.62, 2.45)
+			1:
+				offset = Vector3(-2.85, 0.62, 0.0)
+			2:
+				offset = Vector3(0.0, 0.62, -2.45)
+			3:
+				offset = Vector3(2.85, 0.62, 0.0)
+		return Transform3D(target.basis, target.origin + offset)
+	if role == "fourth_tile_hand_to_existing_peng":
+		return target.translated_local(Vector3(0.0, 0.78, 0.72))
+	return target.translated_local(Vector3(0.0, 0.42, 0.0))
+
+
+func _track_tween(tween: Tween) -> Tween:
+	active_motion_tweens.append(tween)
+	return tween
+
+
+func _active_motion_tween_count() -> int:
+	var count := 0
+	for tween in active_motion_tweens:
+		if tween != null and tween.is_valid() and tween.is_running():
+			count += 1
+	return count
+
+
+func _stop_and_reset_motion_tweens() -> void:
+	for tween in active_motion_tweens:
+		if tween != null and tween.is_valid():
+			tween.kill()
+	active_motion_tweens.clear()
 
 
 func _entry(
@@ -550,7 +832,11 @@ func _hand_position(seat: int, index: int, count: int, step: float) -> Vector3:
 			return Vector3(-5.92, 0.36, -centered - 1.22)
 		2:
 			# 目标图的对家牌墙略偏左，右侧为其碰杠留出一段清楚的横向副露带。
-			return Vector3(-centered - 1.40, 0.36, -6.00)
+			# 四组副露时只剩很短的暗手；让短手继续沿对家导轨向左收缩，避免
+			# 最后一组副露穿入暗手，同时不改变零/一组副露的常规构图。
+			var far_meld_pressure := maxi(0, meld_tile_counts_by_seat[2] - 4)
+			var far_hand_center_x := -1.40 - minf(float(far_meld_pressure) * 0.22, 2.0)
+			return Vector3(-centered + far_hand_center_x, 0.36, -6.00)
 		3:
 			# 右家镜像左家：同样保持 X 固定消除锯齿。
 			return Vector3(5.92, 0.36, centered - 1.22)
@@ -601,7 +887,7 @@ func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int
 			# 暗杠组内额外拉开 0.08，最终 0.48 大于 1.12 倍牌宽，
 			# 中间两张不会再熔成一整块无边界的浅色长条。
 			var concealed_spacing := float(tile_index) * 0.08 if concealed_gang else 0.0
-			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.04 + concealed_spacing
+			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.23 + concealed_spacing
 			return Vector3(-5.95 + self_offset, 0.09, 3.20)
 		1:
 			# 侧家所有碰杠沿同一条手牌方向的副露导轨连续摆放；组间加 0.10 缝。
@@ -720,11 +1006,16 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"camera_position": CAMERA_POSITION,
 		"camera_target": CAMERA_TARGET,
 		"center_indicator_world_z": CENTER_INDICATOR_WORLD_Z,
+		"center_compass_asset": "res://res/art/3d/sichuan_center_compass_v2.glb",
+		"center_compass_pbr_preserved": center_compass_model != null,
 		"discard_global_z_shift": DISCARD_GLOBAL_Z_SHIFT,
 		"discard_row_step": DISCARD_ROW_STEP,
 		"wall_count": int(snapshot.get("wall_count", 0)),
 		"rendered_wall_tile_count": 0,
-		"wall_representation": "numeric_counter_only",
+		"wall_representation": "floating_3d_golden_count_above_center",
+		"wall_count_surface": "bevel_shadowed_label3d_without_frame",
+		"wall_count_motion": "self_spin_360_degrees_in_readable_plane_with_subtle_vertical_float",
+		"wall_count_3d_node": center_wall_count_label != null,
 		"hand_counts": hand_counts,
 		"discard_counts": discard_counts,
 		"meld_tile_counts": meld_tile_counts,
@@ -752,17 +1043,32 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"self_meld_tile_count": self_meld_tile_count,
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",
-		"new_draw_feedback": "rotating_gold_cone_only",
-		"selected_tile_feedback": "floating_warm_jade_hand_only",
-		"latest_discard_feedback": "rotating_green_diamond_directly_above_tile",
+		"new_draw_feedback": "five_selectable_theme_marker_variants",
+		"new_draw_travel_seconds": DRAW_TRAVEL_SECONDS,
+		"new_draw_settle_seconds": DRAW_SETTLE_SECONDS,
+		"new_draw_marker_variants": DRAW_MARKER_STYLE_NAMES,
+		"selected_new_draw_marker_variant": draw_marker_style_variant,
+		"selected_tile_feedback": "five_selectable_theme_selection_variants",
+		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
+		"selected_selection_marker_variant": selected_marker_style_variant,
+		"marker_variant_selection": "draw_and_selection_independent",
+		"latest_discard_feedback": "rotating_solid_golden_3d_diamond_directly_above_tile",
+		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
+		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
+		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,
+		"discard_slot_policy": "persistent_per_tile_until_removed_no_survivor_reflow",
+		"latest_marker_timing": "after_river_landing",
+		"hand_reflow_timing": "after_discard_landing",
 		"side_meld_layout": "single_side_rail_with_group_gaps",
 		"right_meld_axis": "same_yaw_and_z_flow_as_right_hand",
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
 		"meld_source_feedback": "compact_blue_second_tile_arrow_and_seat_label",
-		"season_theme": "reference_emerald_mobile",
-		"table_surface_finish": "fine_crosswoven_emerald_with_peripheral_cloud_relief",
-		"concealed_gang_presentation": "four_distinct_face_down_jade_tiles",
+		"season_theme": "deep_emerald_refined_table",
+		"table_asset": "sichuan_table_v2_pbr",
+		"table_material_pipeline": "blender_pbr_preserved_without_flat_overrides",
+		"table_surface_finish": "dense_directional_microfibre_velvet_with_restrained_shu_brocade_edge",
+		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
 		"physics_tiles": 0,

@@ -2243,7 +2243,7 @@ func _select_initial_dealer() -> int:
 func _create_initial_players(previous_players: Array = []) -> Array[Dictionary]:
 	return [
 		_create_player_state(0, "陈旭", false, _seed_score_for_seat(previous_players, 0)),
-		_create_player_state(1, "舒小燕", true, _seed_score_for_seat(previous_players, 1)),
+		_create_player_state(1, "舒燕", true, _seed_score_for_seat(previous_players, 1)),
 		_create_player_state(2, "陈东", true, _seed_score_for_seat(previous_players, 2)),
 		_create_player_state(3, "舒玲", true, _seed_score_for_seat(previous_players, 3)),
 	]

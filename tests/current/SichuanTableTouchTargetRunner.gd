@@ -4,6 +4,7 @@ const MAIN_SCENE := preload("res://scenes/table/MainSceneV2.tscn")
 const UTILITY_BAR_SCRIPT_PATH := "res://scripts/ui/table/TableUtilityBar.gd"
 const ACTION_BAR_SCRIPT_PATH := "res://scripts/ui/table/TableActionBar.gd"
 const HAND_VIEWPORT_SCENE := preload("res://scenes/ui/PlayerHandViewport.tscn")
+const TABLE_STAGE_SCRIPT := preload("res://scripts/ui/3d/SichuanTableStage3D.gd")
 const MIN_TOUCH_SIZE := Vector2(76.0, 76.0)
 
 
@@ -30,6 +31,7 @@ func _run() -> void:
 	await _verify_action_bar(root_node, failures)
 	_verify_summer_ding_que_controls(root_node, failures)
 	await _verify_hand_layout_pressure(failures)
+	await _verify_real_3d_hand_touch_projection(failures)
 
 	root_node.queue_free()
 	await process_frame
@@ -213,6 +215,7 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		root_node.get("ding_que_wan_button"),
 	]
 	var expected_texts := ["条", "筒", "万"]
+	var expected_shells := ["ding_que_tiao.png", "ding_que_tong.png", "ding_que_wan.png"]
 	for index in range(buttons.size()):
 		var button := buttons[index]
 		if button == null:
@@ -220,13 +223,42 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 			continue
 		if button.text != expected_texts[index] or not button.tooltip_text.begins_with("定缺"):
 			failures.append("定缺圆印文案或辅助说明不完整")
-		if button.custom_minimum_size.x < 220.0 or button.custom_minimum_size.y < 220.0:
-			failures.append("定缺圆印的手机触控面积过小")
-		var normal := button.get_theme_stylebox("normal") as StyleBoxFlat
-		if normal == null or normal.corner_radius_top_left < 108 or normal.get_border_width(SIDE_TOP) < 4:
-			failures.append("定缺选择未实现圆形玻璃印与高光外环")
+		if button.custom_minimum_size.x < 230.0 or button.custom_minimum_size.y < 230.0:
+			failures.append("定缺圆印的手机触控面积必须至少为230x230")
+		var normal := button.get_theme_stylebox("normal") as StyleBoxTexture
+		if normal == null or normal.texture == null or not normal.texture.resource_path.ends_with(expected_shells[index]):
+			failures.append("定缺选择必须使用 Blender 烘焙的翡翠印章外壳")
+		var focus := button.get_theme_stylebox("focus") as StyleBoxFlat
+		if focus == null or focus.corner_radius_top_left < 108 or focus.get_border_width(SIDE_TOP) < 4:
+			failures.append("定缺选择缺少独立的圆形聚焦光环")
 		if button.focus_mode != Control.FOCUS_ALL:
 			failures.append("定缺圆印必须保留原生焦点与可点击性")
+	var status_label: Label = root_node.get("ding_que_status_label")
+	var hint_label: Label = root_node.get("ding_que_hint_label")
+	if status_label.visible or hint_label.visible:
+		failures.append("定缺阶段只能展示三枚选择，不得显示大标题或说明")
+	var shade: ColorRect = root_node.get("ding_que_shade")
+	if shade == null or shade.color.a < 0.10 or shade.color.a > 0.15:
+		failures.append("定缺桌面压暗必须保持在10%-15%")
+	var visual_contract: Dictionary = root_node.call("get_ding_que_visual_contract")
+	if str(visual_contract.get("shell_pipeline", "")) != "blender_orthographic_baked_jade_seals":
+		failures.append("定缺必须声明 Blender 正交烘焙印章管线")
+	if float(visual_contract.get("selected_visual_lift_px", 0.0)) < 8.0 \
+			or float(visual_contract.get("selected_visual_lift_px", 0.0)) > 12.0:
+		failures.append("定缺选中印章的视觉抬升必须为8-12px")
+	if bool(visual_contract.get("extra_confirmation_step", true)):
+		failures.append("定缺不得增加二次确认步骤")
+	root_node.call("_apply_ding_que_selection_state", "tong")
+	var selected_style := buttons[1].get_theme_stylebox("normal") as StyleBoxTexture
+	if selected_style == null or selected_style.expand_margin_top < 8.0 or selected_style.expand_margin_top > 12.0:
+		failures.append("定缺选中印章没有按合同向上抬升")
+	if buttons[1].modulate.r <= 1.0 or buttons[0].modulate.a >= 0.90 or buttons[2].modulate.a >= 0.90:
+		failures.append("定缺选中项必须提亮，其他两项必须降低饱和/存在感")
+	root_node.call("_reset_ding_que_visual_state")
+	for button in buttons:
+		var reset_style := button.get_theme_stylebox("normal") as StyleBoxTexture
+		if reset_style == null or reset_style.expand_margin_top > 2.1 or button.modulate != Color.WHITE:
+			failures.append("定缺提交或失败后必须完整复位印章状态")
 	var utility_bar: Control = root_node.get("table_utility_bar")
 	if overlay != null and utility_bar != null:
 		utility_bar.call("set_collapsed", true)
@@ -277,6 +309,64 @@ func _verify_hand_layout_pressure(failures: Array[String]) -> void:
 	if meld_bounds.position.x < 492.0 or meld_bounds.end.x > hand_viewport.size.x:
 		failures.append("three-meld reserved band must not push the remaining hand out of bounds")
 	hand_viewport.queue_free()
+	await process_frame
+
+
+func _verify_real_3d_hand_touch_projection(failures: Array[String]) -> void:
+	var original_viewport_size := get_root().size
+	get_root().size = Vector2i(1365, 768)
+	await process_frame
+	await process_frame
+	var stage := TABLE_STAGE_SCRIPT.new() as SichuanTableStage3D
+	get_root().add_child(stage)
+	await process_frame
+	await process_frame
+	stage.set_reduced_motion(true)
+	var all_hands: Array = []
+	var players: Array = []
+	for seat in range(4):
+		var hand := _make_tiles(14 if seat == 0 else 13)
+		for tile_index in range(hand.size()):
+			hand[tile_index]["id"] = 1000 + seat * 100 + tile_index
+		all_hands.append(hand)
+		players.append({
+			"seat": seat,
+			"has_won": false,
+			"ding_que": "tong" if seat == 0 else "",
+			"melds": [],
+			"discards": [],
+		})
+	var selected_tile_id := int(all_hands[0][6].get("id", -1))
+	stage.render_snapshot({
+		"players": players,
+		"human_can_discard": true,
+		"human_last_draw_tile_id": int(all_hands[0].back().get("id", -1)),
+		"recent_discard_tile_id": -1,
+	}, all_hands, false, selected_tile_id, {})
+	await process_frame
+	await process_frame
+	var selected_rect := Rect2()
+	var measured_count := 0
+	for key_value in stage.get("self_hand_keys") as Array:
+		var tile := (stage.get("tile_nodes") as Dictionary).get(key_value) as SichuanTile3D
+		if tile == null:
+			continue
+		var projected_rect := tile.get_screen_rect(stage.get_camera())
+		var real_pick_rect := projected_rect.grow(12.0)
+		measured_count += 1
+		if minf(real_pick_rect.size.x, real_pick_rect.size.y) < 44.0:
+			failures.append("3D self-hand tile %d real projected pick target is below 44pt: %s" % [tile.tile_id, real_pick_rect])
+		if tile.tile_id == selected_tile_id:
+			selected_rect = projected_rect
+	if measured_count != 14:
+		failures.append("compact 3D touch projection must measure all 14 self-hand tiles")
+	if selected_rect.size == Vector2.ZERO:
+		failures.append("selected 3D tile projection is missing")
+	elif stage.find_tile_at_screen(selected_rect.get_center()) != selected_tile_id:
+		failures.append("selected/lifted 3D tile must still resolve to its original tile_id")
+	stage.queue_free()
+	await process_frame
+	get_root().size = original_viewport_size
 	await process_frame
 
 

@@ -1,0 +1,33 @@
+# 深翡翠精品牌桌最终回归固定清单 V1
+# 工作目录固定为 /Volumes/AI/Codex/四川麻将工程_20260701_v2。
+# 独立裁判必须取得每条命令的退出码和完整日志；任一失败即 AC-ENG-04 FAIL。
+
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTableLayoutContractRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTableTouchTargetRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanIosFontRegressionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTableMotionContractRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanSettlementUiRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanRuleRegressionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanScoringRules20260723Runner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanCSharpContractRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/Sichuan3DTableStageRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/Sichuan3DFallbackRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanHumanReactionActionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanLiveReactionClickRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/sichuan_ding_que_regression.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanHudStateIntegrityRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanRestoredUiRegressionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTableMaterialQualityRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanEmeraldUIShellAssetRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanPremiumTableVisualContractRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTileVisualQualityRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanTileAssetRegressionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanSpatialLayoutRunner.gd -- --resolution=1365x768 --output=res://evidence/ui_emerald_final_20260726/stage6_engineering/rect_reports/spatial_1365x768.json
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanSpatialLayoutRunner.gd -- --resolution=2048x1152 --output=res://evidence/ui_emerald_final_20260726/stage6_engineering/rect_reports/spatial_2048x1152.json
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanSpatialLayoutRunner.gd -- --resolution=2400x1080 --output=res://evidence/ui_emerald_final_20260726/stage6_engineering/rect_reports/spatial_2400x1080.json
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanSpatialLayoutRunner.gd -- --resolution=2556x1179 --output=res://evidence/ui_emerald_final_20260726/stage6_engineering/rect_reports/spatial_2556x1179.json
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanCameraCompositionRunner.gd
+/Applications/Godot.NET.app/Contents/MacOS/Godot --headless --path /Volumes/AI/Codex/四川麻将工程_20260701_v2 --script res://tests/current/SichuanLightingQualityRunner.gd
+
+# C# Release compile gate
+dotnet build dotnet/AI.Core/AI.Core.csproj -c Release

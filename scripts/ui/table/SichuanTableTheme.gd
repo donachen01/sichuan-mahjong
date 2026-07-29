@@ -1,21 +1,38 @@
 class_name SichuanTableTheme
 extends RefCounted
 
-const INK_JADE_DEEP := Color("293C64")
-const MALACHITE := Color("4F70A3")
-const MOSS_GLOW := Color("5B80AF")
-const EBONY := Color("182238")
-const LACQUER_BROWN := Color("273550")
-const PANEL_JADE_BLACK := Color("263955")
-const WARM_CERAMIC := Color("E9E8EB")
+const TABLE_CENTER := Color("167A64")
+const TABLE_BASE := Color("0F6957")
+const TABLE_EDGE := Color("0A4B41")
+const LEATHER_RAIL := Color("172621")
+const WALNUT_DARK := Color("281F1B")
+const AGED_COPPER := Color("9D743A")
+const COPPER_HIGHLIGHT := Color("C49A55")
+const IVORY_TEXT := Color("F2EBDD")
+const SECONDARY_TEXT := Color("C9C6BC")
+const POSITIVE_SCORE := Color("E8C96A")
+const NEGATIVE_SCORE := Color("E38B7F")
+const SOURCE_ARROW_BLUE := Color("43A7E8")
+const PENG_CYAN_JADE := Color("2C9B8A")
+const GANG_GOLD_BROWN := AGED_COPPER
+const HU_CINNABAR := Color("B84236")
+const PASS_MUTED := Color("53645E")
+
+# Compatibility names remain while shared components migrate to the named V2
+# tokens.  They intentionally resolve to the Deep Emerald palette, not blue.
+const INK_JADE_DEEP := TABLE_EDGE
+const MALACHITE := TABLE_BASE
+const MOSS_GLOW := TABLE_CENTER
+const EBONY := LEATHER_RAIL
+const LACQUER_BROWN := WALNUT_DARK
+const PANEL_JADE_BLACK := Color("102F29")
+const WARM_CERAMIC := IVORY_TEXT
 const JADE_SIDE := Color("2B9131")
-const AGED_COPPER := Color("B98B49")
-const COPPER_HIGHLIGHT := Color("E0BA70")
-const COPPER_MID := Color("D2A85B")
-const COPPER_SHADOW := Color("8E6635")
-const CINNABAR := Color("C95850")
-const INDIGO := Color("315E76")
-const MIST_GREEN := Color("B7D8CE")
+const COPPER_MID := AGED_COPPER
+const COPPER_SHADOW := Color("6F4E29")
+const CINNABAR := HU_CINNABAR
+const INDIGO := SOURCE_ARROW_BLUE
+const MIST_GREEN := SECONDARY_TEXT
 
 const FELT_DEEP := INK_JADE_DEEP
 const FELT_BASE := MALACHITE
@@ -24,8 +41,8 @@ const WOOD_DARK := EBONY
 const WOOD_MID := LACQUER_BROWN
 const BRASS := AGED_COPPER
 const IVORY := WARM_CERAMIC
-const TEXT_PRIMARY := Color("F7F5EE")
-const TEXT_SECONDARY := Color("D9E0EC")
+const TEXT_PRIMARY := IVORY_TEXT
+const TEXT_SECONDARY := SECONDARY_TEXT
 const WAN_QUE := Color("EA5146")
 const TONG_QUE := Color("F6B73B")
 const TIAO_QUE := Color("24B87A")
@@ -38,10 +55,10 @@ const RADIUS_SURFACE := 20
 
 static func brand_contract() -> Dictionary:
 	return {
-		"name": "锦夏蓝庭",
-		"direction": "bright_summer_blue_mobile_mahjong",
+		"name": "深翡翠雅局",
+		"direction": "deep_emerald_refined_noncommercial_mahjong",
 		"shape_motif": "shu_courtyard_cut_corner",
-		"materials": ["ink_jade_felt", "ebony_lacquer", "warm_ceramic_and_jade"],
+		"materials": ["deep_emerald_short_nap_felt", "ink_green_leather", "black_walnut", "warm_ivory_tiles"],
 		"accent_material": "aged_copper",
 		"light_direction": "top_left_315_degrees",
 		"visual_hierarchy": ["tiles", "actions_and_key_text", "player_panels", "brocade_frame_ornament"],
@@ -115,7 +132,10 @@ static func make_panel_style(active: bool = false) -> StyleBoxFlat:
 
 static func make_badge_style(suit: String) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = ding_que_color(suit).darkened(0.26)
+	# Keep even the naturally bright 筒 amber behind 28px ivory copy above the
+	# WCAG large-text threshold. The hue still identifies the suit; the written
+	# 缺万/缺筒/缺条 label remains the primary, non-colour-only state cue.
+	style.bg_color = ding_que_color(suit).darkened(0.36)
 	style.border_color = Color(COPPER_MID, 0.88)
 	style.set_border_width_all(2)
 	style.corner_radius_top_left = RADIUS_CHIP
@@ -153,16 +173,16 @@ static func make_action_style(action: String, pressed: bool = false) -> StyleBox
 	var style := StyleBoxFlat.new()
 	match action:
 		"hu":
-			style.bg_color = Color("0D5A3E")
+			style.bg_color = HU_CINNABAR.darkened(0.18)
 			style.border_color = COPPER_HIGHLIGHT
 		"gang":
-			style.bg_color = Color("102832")
+			style.bg_color = Color("293125")
 			style.border_color = Color(COPPER_MID, 0.88)
 		"peng":
-			style.bg_color = Color("0D5A3E")
+			style.bg_color = PENG_CYAN_JADE.darkened(0.24)
 			style.border_color = COPPER_HIGHLIGHT
 		_:
-			style.bg_color = Color("211A16")
+			style.bg_color = PASS_MUTED.darkened(0.30)
 			style.border_color = Color(AGED_COPPER, 0.82)
 	if pressed:
 		style.bg_color = style.bg_color.darkened(0.18)

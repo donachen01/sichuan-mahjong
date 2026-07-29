@@ -42,8 +42,8 @@ func _verify_seat_motion_and_text(failures: Array[String]) -> void:
 	if dealer_badge == null or dealer_badge.text != "庄" or not dealer_badge.visible:
 		failures.append("dealer state must include the 庄 text")
 	var turn_badge := seat_hud.get_node_or_null("%TurnBadge") as Label
-	if turn_badge == null or turn_badge.text != "出牌" or not turn_badge.visible:
-		failures.append("current turn must include the 出牌 text badge")
+	if turn_badge == null or turn_badge.visible:
+		failures.append("current turn must use the nameplate ring instead of a 出牌 text badge")
 	if ding_text == null or ding_text.text != "缺万":
 		failures.append("ding-que state must include text, not color only")
 	seat_hud.call("render", {"nickname": "本家", "score": 100, "ding_que": "wan", "_is_dealer": false, "has_won": true}, 2, true)
@@ -137,9 +137,17 @@ func _verify_center_text(failures: Array[String]) -> void:
 	var center := CENTER_SCENE.instantiate() as Control
 	get_root().add_child(center)
 	center.call("render", 22, 1, "上家出牌中")
-	var status_label := center.get_node_or_null("%StatusLabel") as Label
-	if status_label == null or not status_label.text.contains("上家出牌中"):
-		failures.append("current turn must include a text status, not color only")
+	var left_direction := center.get_node_or_null("%LeftDirectionLabel") as Label
+	var wall_count := center.get_node_or_null("%TurnChipLabel") as Label
+	var countdown := center.get_node_or_null("%CountLabel") as Label
+	if left_direction == null or left_direction.visible:
+		failures.append("center must not expose highlighted direction text")
+	if wall_count == null or wall_count.text != "余22":
+		failures.append("center must keep wall count as borderless floating text")
+	elif not wall_count.rotation == 0.0:
+		failures.append("2D fallback count must remain still; the 3D stage owns the rotation")
+	if countdown == null or countdown.visible:
+		failures.append("center compass must not expose a presentation countdown")
 	center.queue_free()
 
 

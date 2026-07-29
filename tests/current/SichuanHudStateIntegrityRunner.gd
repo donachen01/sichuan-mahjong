@@ -72,9 +72,11 @@ func _verify_ding_que_modal(scene: Node, failures: Array[String]) -> void:
 			continue
 		if button.custom_minimum_size.x < 220.0 or button.custom_minimum_size.y < 220.0:
 			failures.append("定缺圆印未达到 220×220 设计门槛")
-		var style := button.get_theme_stylebox("normal") as StyleBoxFlat
-		if style == null or style.corner_radius_top_left < 108 or style.get_border_width(SIDE_TOP) < 4:
-			failures.append("定缺按钮未保留大圆印和高光外环")
+		var style := button.get_theme_stylebox("normal") as StyleBoxTexture
+		var focus := button.get_theme_stylebox("focus") as StyleBoxFlat
+		if style == null or style.texture == null or focus == null \
+				or focus.corner_radius_top_left < 108 or focus.get_border_width(SIDE_TOP) < 4:
+			failures.append("定缺按钮必须使用 Blender 翡翠印章外壳和 Godot 聚焦光环")
 		if button.get_theme_font_size("font_size") < 68 or button.get_theme_constant("outline_size") < 2:
 			failures.append("定缺文字字号或深色描边低于可读门槛")
 		rects.append(button.get_global_rect())
@@ -94,7 +96,7 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 	for seat in range(4):
 		players.append({
 			"seat": seat,
-			"nickname": ["本家", "上家", "对家", "下家"][seat],
+			"nickname": ["陈旭", "舒燕", "陈东", "舒玲"][seat],
 			"score": [8, -2, -3, -3][seat],
 			"ding_que": ["tiao", "tong", "wan", "tiao"][seat],
 			"has_won": seat == 0,
@@ -113,10 +115,13 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 			failures.append("SeatHUD%d 缺失" % seat)
 			continue
 		var name_label := hud.get_node_or_null("%NameLabel") as Label
+		var avatar_glyph := hud.get_node_or_null("%AvatarGlyph") as Label
 		var score_label := hud.get_node_or_null("%ScoreLabel") as Label
 		var ding_badge: Control = hud.call("get_ding_que_badge")
 		if name_label == null or name_label.text != players[seat]["nickname"]:
 			failures.append("SeatHUD%d 没有消费 nickname" % seat)
+		if avatar_glyph == null or avatar_glyph.text != ["旭", "燕", "东", "玲"][seat]:
+			failures.append("SeatHUD%d 的姓名缩写圆圈映射错误" % seat)
 		if score_label == null or score_label.text != "%d分" % players[seat]["score"]:
 			failures.append("SeatHUD%d 没有消费 score" % seat)
 		if ding_badge == null or not ding_badge.visible:
@@ -128,20 +133,26 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 		failures.append("已胡 HUD 缺少文字状态")
 	if dealer == null or not dealer.visible or dealer.text != "庄":
 		failures.append("庄家 HUD 缺少文字状态")
-	if turn == null or not turn.visible:
-		failures.append("当前行动 HUD 缺少文字状态")
+	if turn == null or turn.visible:
+		failures.append("当前行动 HUD 不应再显示出牌文字状态")
 	var center: Control = scene.get("center_turn_indicator")
 	if center == null:
 		failures.append("中央余牌组件缺失")
 		return
 	var center_contract: Dictionary = center.call("get_visual_contract")
-	if str(center_contract.get("direction_labels", "")) != "none":
-		failures.append("旧版中央余牌牌匾不得继续显示东南西北方位字")
-	if str(center_contract.get("concept", "")) != "restored_remaining_tile_plaque" or int(center_contract.get("border_lines", 0)) != 2:
-		failures.append("中央余牌没有恢复深色双线切角牌匾合同")
-	var title := center.get_node_or_null("%CaptionLabel") as Label
-	if title == null or title.text != "余牌" or title.horizontal_alignment != HORIZONTAL_ALIGNMENT_CENTER:
-		failures.append("中央“余牌”没有保持居中单焦点")
+	var directions: Array = center_contract.get("direction_labels", [])
+	if not directions.is_empty():
+		failures.append("中央区不应再显示本/上/对/下文字")
+	if str(center_contract.get("concept", "")) != "floating_wall_count_above_physical_center" \
+			or bool(center_contract.get("persistent_long_status_text", true)):
+		failures.append("中央区必须只保留悬浮余牌信息，不得常驻长状态句")
+	var wall_count := center.get_node_or_null("%TurnChipLabel") as Label
+	if wall_count == null or not wall_count.visible or not wall_count.text.begins_with("余"):
+		failures.append("余牌必须使用中心图形上方的无框悬浮文字")
+	var background := center.get_node_or_null("%BackgroundPanel") as Panel
+	var compass_overlay := center.get_node_or_null("%CompassVisual") as Control
+	if background == null or background.visible or compass_overlay == null or compass_overlay.visible:
+		failures.append("中央方向文字移除后不得残留暗框或方向高亮框")
 
 
 func _verify_hu_and_cancel(scene: Node, failures: Array[String]) -> void:

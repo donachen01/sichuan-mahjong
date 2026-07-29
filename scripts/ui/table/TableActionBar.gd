@@ -5,6 +5,10 @@ signal action_selected(action: String)
 
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
+const ACTION_HU_TEXTURE := preload("res://res/art/ui/table_v2/action_hu.png")
+const ACTION_GANG_TEXTURE := preload("res://res/art/ui/table_v2/action_gang.png")
+const ACTION_PENG_TEXTURE := preload("res://res/art/ui/table_v2/action_peng.png")
+const ACTION_PASS_TEXTURE := preload("res://res/art/ui/table_v2/action_pass.png")
 const ENTRANCE_DURATION := 0.16
 const ENTRANCE_STAGGER := 0.025
 const HOVER_DURATION := 0.10
@@ -345,46 +349,44 @@ func _make_background_style() -> StyleBoxFlat:
 	return style
 
 
-func _make_hover_style(action: String) -> StyleBoxFlat:
+func _make_hover_style(action: String) -> StyleBoxTexture:
 	var style := _make_action_seal_style(action, false)
-	style.bg_color = style.bg_color.lightened(0.08)
-	style.border_color = style.border_color.lightened(0.10)
+	style.modulate_color = Color(1.08, 1.06, 0.96, 1.0)
 	return style
 
 
-func _make_focus_style(action: String) -> StyleBoxFlat:
+func _make_focus_style(action: String) -> StyleBoxTexture:
 	var style := _make_hover_style(action)
-	style.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 1.0)
-	style.set_border_width_all(4)
+	style.expand_margin_left = 3.0
+	style.expand_margin_top = 3.0
+	style.expand_margin_right = 3.0
+	style.expand_margin_bottom = 3.0
 	return style
 
 
-func _make_action_seal_style(action: String, pressed: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	match action:
-		"hu":
-			style.bg_color = Color("E86F67")
-			style.border_color = Color("FFE4A8")
-		"gang":
-			style.bg_color = Color("F0B744")
-			style.border_color = Color("FFF0BD")
-		"peng":
-			style.bg_color = Color("48BE92")
-			style.border_color = Color("DDFBEF")
-		_:
-			style.bg_color = Color("438AA3")
-			style.border_color = Color("DDF4F6")
-	if pressed:
-		style.bg_color = style.bg_color.darkened(0.18)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(96)
+func _make_action_seal_style(action: String, pressed: bool) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = _action_texture(action)
+	style.draw_center = true
+	style.modulate_color = Color(0.78, 0.78, 0.78, 1.0) if pressed else Color.WHITE
 	style.expand_margin_left = 2.0
 	style.expand_margin_top = 2.0
 	style.expand_margin_right = 2.0
 	style.expand_margin_bottom = 2.0
-	style.shadow_color = Color(0.04, 0.22, 0.24, 0.42)
-	style.shadow_size = 11 if not pressed else 3
-	style.shadow_offset = Vector2(6.0, 8.0 if not pressed else 2.0)
+	style.content_margin_left = 16.0
+	style.content_margin_right = 16.0
 	style.content_margin_top = 1.0 if not pressed else 6.0
-	style.anti_aliasing = true
+	style.content_margin_bottom = 4.0
 	return style
+
+
+func _action_texture(action: String) -> Texture2D:
+	match action:
+		"hu":
+			return ACTION_HU_TEXTURE
+		"gang":
+			return ACTION_GANG_TEXTURE
+		"peng":
+			return ACTION_PENG_TEXTURE
+		_:
+			return ACTION_PASS_TEXTURE

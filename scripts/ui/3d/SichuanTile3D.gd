@@ -3,6 +3,18 @@ extends Node3D
 
 const TILE_BODY_SCENE := preload("res://res/art/3d/mahjong_tile_body.glb")
 const SELECTED_HAND_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_hand_pointer.svg")
+const SELECTED_HALO_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_jade_halo.svg")
+const SELECTED_ARROW_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_copper_arrow.svg")
+const SELECTED_CROWN_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_ink_crown.svg")
+const SELECTED_FOCUS_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_amber_focus.svg")
+const DRAW_MARKER_STYLE_NAMES := ["铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印"]
+const SELECTED_MARKER_STYLE_NAMES := ["象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印"]
+
+@export_enum("铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印")
+var draw_marker_style_variant := 1
+
+@export_enum("象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印")
+var selected_marker_style_variant := 1
 const TILE_SIZE := Vector3(0.42, 0.18, 0.58)
 # Blender 玉白牌体顶面 Y=0.18。亮牌不再叠加不透明白色内框，印刷符号直接落在
 # 圆润玉石表面上；暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
@@ -12,9 +24,12 @@ const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.018, 0.58 - 0.018)
 const FACE_Y := 0.181
 const MARKER_Y := 0.194
 const NEW_DRAW_MARKER_SPEED_DEGREES := 120.0
-const LATEST_DISCARD_MARKER_SPEED_DEGREES := 90.0
-const SELECTED_HAND_PULSE_SPEED := 3.6
+const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
+const SELECTED_MARKER_PULSE_SPEED := 3.6
+const SELECTED_MARKER_FADE_SECONDS := 0.14
 const DUAL_MARKER_OFFSET_X := 0.115
+const SELF_HAND_FACE_WHITE := Color("FAF8F3")
+const FLAT_RESULT_JADE_BACK := Color("0F6957")
 
 static var material_cache: Dictionary = {}
 
@@ -57,7 +72,7 @@ func _process(delta: float) -> void:
 		new_draw_marker.rotation.y += deg_to_rad(NEW_DRAW_MARKER_SPEED_DEGREES) * delta
 	if selected_marker != null and selected_marker.visible:
 		marker_animation_time += delta
-		var pulse := 1.0 + sin(marker_animation_time * SELECTED_HAND_PULSE_SPEED) * 0.055
+		var pulse := 1.0 + sin(marker_animation_time * SELECTED_MARKER_PULSE_SPEED) * 0.055
 		selected_marker.scale = Vector3.ONE * pulse
 	if latest_marker != null and latest_marker.visible:
 		latest_marker.rotation.y += deg_to_rad(LATEST_DISCARD_MARKER_SPEED_DEGREES) * delta
@@ -82,6 +97,7 @@ func configure(
 	meld_owner: int = -1,
 	meld_type: String = ""
 ) -> void:
+	var was_selected := is_selected
 	tile_data = tile.duplicate(true)
 	tile_id = int(tile_data.get("id", -1))
 	pickable = can_pick and tile_id >= 0
@@ -124,6 +140,15 @@ func configure(
 	_apply_state_marker(selected, new_draw, recommended, danger)
 	new_draw_marker.visible = new_draw
 	selected_marker.visible = selected
+	if selected:
+		if reduced_motion or was_selected:
+			selected_marker.transparency = 0.0
+		else:
+			selected_marker.transparency = 1.0
+			var marker_fade := selected_marker.create_tween()
+			marker_fade.tween_property(selected_marker, "transparency", 0.0, SELECTED_MARKER_FADE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		selected_marker.transparency = 0.0
 	_update_status_marker_positions(selected, new_draw)
 	latest_marker.visible = latest
 	set_process((new_draw or selected or latest) and not reduced_motion)
@@ -169,6 +194,42 @@ func set_reduced_motion(enabled: bool) -> void:
 	if reduced_motion and selected_marker != null:
 		selected_marker.scale = Vector3.ONE
 	set_process(has_rotating_marker and not reduced_motion)
+
+
+func set_draw_marker_style_variant(value: int) -> void:
+	draw_marker_style_variant = clampi(value, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+	if new_draw_marker == null:
+		return
+	new_draw_marker.mesh = _build_new_draw_marker_mesh()
+	new_draw_marker.set_surface_override_material(0, _gold_marker_material())
+
+
+func set_selected_marker_style_variant(value: int) -> void:
+	selected_marker_style_variant = clampi(value, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
+	if selected_marker == null:
+		return
+	selected_marker.mesh = _build_selected_marker_mesh()
+	selected_marker.set_surface_override_material(0, _selected_marker_material())
+
+
+func get_marker_style_contract() -> Dictionary:
+	return {
+		"draw_variants": DRAW_MARKER_STYLE_NAMES,
+		"selected_draw_variant": draw_marker_style_variant,
+		"selection_variants": SELECTED_MARKER_STYLE_NAMES,
+		"selected_selection_variant": selected_marker_style_variant,
+		"independent_selection": true,
+	}
+
+
+func set_latest_marker_visible(enabled: bool) -> void:
+	if latest_marker == null:
+		return
+	latest_marker.visible = enabled
+	var has_animated_marker := (new_draw_marker != null and new_draw_marker.visible) \
+		or (selected_marker != null and selected_marker.visible) \
+		or latest_marker.visible
+	set_process(has_animated_marker and not reduced_motion)
 
 
 func get_screen_rect(camera: Camera3D) -> Rect2:
@@ -247,11 +308,11 @@ func _build_visuals() -> void:
 	new_draw_marker.visible = false
 	add_child(new_draw_marker)
 
-	# 选牌反馈采用一只朝向牌面的暖玉手型。它轻微呼吸悬浮，与摸牌金色钻锥
-	# 明确区分，并且只占牌上沿之外的小区域，不再使用整牌半透明背板。
+	# 默认选牌反馈采用翡翠圆印加白色勾号，含义直接且不再出现手型。
+	# 它轻微呼吸悬浮，与摸牌旋转标记明确区分，也不会遮挡牌面。
 	selected_marker = MeshInstance3D.new()
-	selected_marker.name = "SelectedHandPointerMarker"
-	selected_marker.mesh = _build_selected_hand_marker_mesh()
+	selected_marker.name = "SelectedTileMarker"
+	selected_marker.mesh = _build_selected_marker_mesh()
 	selected_marker.position = Vector3(0.0, 0.245, -TILE_SIZE.z * 0.72)
 	selected_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	selected_marker.set_surface_override_material(0, _selected_marker_material())
@@ -259,10 +320,13 @@ func _build_visuals() -> void:
 	add_child(selected_marker)
 
 	latest_marker = MeshInstance3D.new()
-	latest_marker.name = "LatestDiscardRotatingJadeDiamond"
+	# 最新弃牌只保留一枚实心的鎏金立体菱锥。它是落在牌面正上方的
+	# 真实 3D 几何，而不是平面的翡翠描边环；金色与桌面的深翡翠形成清楚
+	# 的即时对比，并通过慢速自转表达“刚刚打出”。
+	latest_marker.name = "LatestDiscardRotatingGoldenDiamond"
 	latest_marker.mesh = _build_latest_discard_marker_mesh()
-	latest_marker.position = Vector3(0.0, MARKER_Y + 0.145, 0.0)
-	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	latest_marker.position = Vector3(0.0, MARKER_Y + 0.36, 0.0)
+	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	latest_marker.set_surface_override_material(0, _latest_discard_marker_material())
 	latest_marker.visible = false
 	add_child(latest_marker)
@@ -321,13 +385,13 @@ func _face_material(show_face: bool) -> StandardMaterial3D:
 
 
 func _bright_front_face_material() -> StandardMaterial3D:
-	const CACHE_KEY := "face:self_hand_discard_white_v1"
+	const CACHE_KEY := "face:self_hand_discard_white_v2"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
 	# 桌面弃牌正面在当前电影色调映射下接近这一暖白。使用不受局部入射角影响的
 	# 牌面层，只校正本家正面白度，不抬高全桌曝光，也不漂白牌面字色。
-	result.albedo_color = Color("E4E2DE")
+	result.albedo_color = SELF_HAND_FACE_WHITE
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
@@ -396,13 +460,14 @@ func _jade_back_material() -> StandardMaterial3D:
 
 
 func _flat_concealed_jade_back_material() -> StandardMaterial3D:
-	const CACHE_KEY := "body:flat_result_jade_back_v1"
+	const CACHE_KEY := "body:flat_result_jade_back_v2"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	# 自摸后整手平扣，牌背必须在横跨整条底部牌河的不同受光位置仍保持
-	# 同一翡翠绿，不能出现左白右绿而误看成部分亮牌。
-	result.albedo_color = Color("168B32")
+	# 自摸后整手平扣，牌背必须在横跨整条牌轨的不同受光位置仍保持
+	# 同一深翡翠色。旧色 #168B32 在无光照材质上会变成荧光绿，破坏
+	# 深翡翠桌面的克制层级；这里与 TABLE_BASE 使用同一色值语义。
+	result.albedo_color = FLAT_RESULT_JADE_BACK
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
@@ -475,7 +540,7 @@ func _build_rounded_plane_mesh(size: Vector2, radius: float, corner_segments: in
 func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, danger: bool) -> void:
 	var marker_color := Color(0.0, 0.0, 0.0, 0.0)
 	var marker_key := "none"
-	# 选中的牌永远不再使用整牌底色，即使它同时带建议或风险状态；悬浮手型
+	# 选中的牌永远不再使用整牌底色，即使它同时带建议或风险状态；悬浮勾选标记
 	# 负责表达选择，避免多个状态叠成用户指出的“大块背板”。
 	if selected:
 		pass
@@ -492,36 +557,69 @@ func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, dang
 
 
 func _gold_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:new_draw_gold_v1"
-	if material_cache.has(CACHE_KEY):
-		return material_cache[CACHE_KEY]
+	var colors := [
+		Color("F4B72E"),
+		Color("63D9A6"),
+		Color("F3C96A"),
+		Color("79B8B0"),
+		Color("DDAE5E"),
+	]
+	var marker_color: Color = colors[clampi(draw_marker_style_variant, 0, colors.size() - 1)]
+	var cache_key := "marker:new_draw_%d" % clampi(draw_marker_style_variant, 0, colors.size() - 1)
+	if material_cache.has(cache_key):
+		return material_cache[cache_key]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("F4B72E")
+	result.albedo_color = marker_color
 	result.metallic = 0.18
 	result.roughness = 0.28
 	result.emission_enabled = true
-	result.emission = Color("8F4D05")
+	result.emission = marker_color.darkened(0.42)
 	result.emission_energy_multiplier = 0.32
-	material_cache[CACHE_KEY] = result
+	material_cache[cache_key] = result
 	return result
 
 
 func _selected_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:selected_vector_hand_v3"
-	if material_cache.has(CACHE_KEY):
-		return material_cache[CACHE_KEY]
+	var colors := [
+		Color("F8D98E"),
+		Color("C7F0D9"),
+		Color("FFE8A6"),
+		Color("B7E7DC"),
+		Color("F6C978"),
+	]
+	var textures: Array[Texture2D] = [
+		SELECTED_HAND_TEXTURE,
+		SELECTED_HALO_TEXTURE,
+		SELECTED_ARROW_TEXTURE,
+		SELECTED_CROWN_TEXTURE,
+		SELECTED_FOCUS_TEXTURE,
+	]
+	var variant := clampi(selected_marker_style_variant, 0, colors.size() - 1)
+	var marker_color: Color = colors[variant]
+	var cache_key := "marker:selected_vector_%d" % variant
+	if material_cache.has(cache_key):
+		return material_cache[cache_key]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color.WHITE
-	result.albedo_texture = SELECTED_HAND_TEXTURE
+	result.albedo_color = marker_color
+	result.albedo_texture = textures[variant]
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	result.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	material_cache[CACHE_KEY] = result
+	material_cache[cache_key] = result
 	return result
 
 
 func _build_new_draw_marker_mesh() -> ImmediateMesh:
+	match clampi(draw_marker_style_variant, 0, 4):
+		1:
+			return _build_flat_marker_ring_mesh()
+		2:
+			return _build_four_point_star_mesh()
+		3:
+			return _build_double_chevron_mesh()
+		4:
+			return _build_square_seal_mesh()
 	var mesh := ImmediateMesh.new()
 	var top := Vector3(0.0, 0.10, 0.0)
 	var bottom := Vector3(0.0, -0.12, 0.0)
@@ -544,28 +642,96 @@ func _build_new_draw_marker_mesh() -> ImmediateMesh:
 	return mesh
 
 
-func _build_selected_hand_marker_mesh() -> PlaneMesh:
+func _build_selected_marker_mesh() -> PlaneMesh:
 	var mesh := PlaneMesh.new()
-	mesh.size = Vector2(0.34, 0.25)
+	var sizes := [
+		Vector2(0.34, 0.25),
+		Vector2(0.32, 0.24),
+		Vector2(0.36, 0.27),
+		Vector2(0.31, 0.28),
+		Vector2(0.33, 0.26),
+	]
+	mesh.size = sizes[clampi(selected_marker_style_variant, 0, sizes.size() - 1)]
+	return mesh
+
+
+func _build_flat_marker_ring_mesh() -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	var outer := [Vector3(0.0, 0.02, -0.11), Vector3(0.11, 0.02, 0.0), Vector3(0.0, 0.02, 0.11), Vector3(-0.11, 0.02, 0.0)]
+	var inner := [Vector3(0.0, 0.022, -0.055), Vector3(0.055, 0.022, 0.0), Vector3(0.0, 0.022, 0.055), Vector3(-0.055, 0.022, 0.0)]
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for index in range(4):
+		var next_index := (index + 1) % 4
+		mesh.surface_add_vertex(outer[index])
+		mesh.surface_add_vertex(outer[next_index])
+		mesh.surface_add_vertex(inner[next_index])
+		mesh.surface_add_vertex(outer[index])
+		mesh.surface_add_vertex(inner[next_index])
+		mesh.surface_add_vertex(inner[index])
+	mesh.surface_end()
+	return mesh
+
+
+func _build_four_point_star_mesh() -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	var center := Vector3(0.0, 0.12, 0.0)
+	var points: Array[Vector3] = []
+	for index in range(8):
+		var angle := -PI * 0.5 + float(index) * TAU / 8.0
+		var radius := 0.12 if index % 2 == 0 else 0.045
+		points.append(Vector3(cos(angle) * radius, 0.12, sin(angle) * radius))
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for index in range(points.size()):
+		var next_index := (index + 1) % points.size()
+		mesh.surface_add_vertex(center)
+		mesh.surface_add_vertex(points[index])
+		mesh.surface_add_vertex(points[next_index])
+	mesh.surface_end()
+	return mesh
+
+
+func _build_double_chevron_mesh() -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for offset in [-0.07, 0.07]:
+		mesh.surface_add_vertex(Vector3(offset - 0.045, 0.09, -0.09))
+		mesh.surface_add_vertex(Vector3(offset + 0.045, 0.09, 0.0))
+		mesh.surface_add_vertex(Vector3(offset - 0.045, 0.09, 0.09))
+	mesh.surface_end()
+	return mesh
+
+
+func _build_square_seal_mesh() -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	var half := 0.085
+	var y := 0.08
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for vertex in [
+		Vector3(-half, y, -half), Vector3(half, y, -half), Vector3(half, y, half),
+		Vector3(-half, y, -half), Vector3(half, y, half), Vector3(-half, y, half),
+	]:
+		mesh.surface_add_vertex(vertex)
+	mesh.surface_end()
 	return mesh
 
 
 func _build_latest_discard_marker_mesh() -> ImmediateMesh:
+	# A compact solid pointer: a diamond-shaped golden crown funnels to one lower
+	# point. The crown reads as a bright rhombus from the camera while the four
+	# sloped facets make the depth explicit, matching the reference's 3D marker
+	# rather than reverting to a flat outline ring.
 	var mesh := ImmediateMesh.new()
-	var outer := [
-		Vector3(0.0, 0.0, -0.22), Vector3(0.17, 0.0, 0.0),
-		Vector3(0.0, 0.0, 0.22), Vector3(-0.17, 0.0, 0.0),
-	]
-	var inner := [
-		Vector3(0.0, 0.0, -0.115), Vector3(0.088, 0.0, 0.0),
-		Vector3(0.0, 0.0, 0.115), Vector3(-0.088, 0.0, 0.0),
+	var pointer := Vector3(0.0, -0.205, 0.0)
+	var crown := [
+		Vector3(0.0, 0.155, -0.180), Vector3(0.170, 0.155, 0.0),
+		Vector3(0.0, 0.155, 0.180), Vector3(-0.170, 0.155, 0.0),
 	]
 	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
 	for index in range(4):
 		var next_index := (index + 1) % 4
 		for vertex in [
-			outer[index], outer[next_index], inner[next_index],
-			outer[index], inner[next_index], inner[index],
+			Vector3(0.0, 0.155, 0.0), crown[index], crown[next_index],
+			pointer, crown[next_index], crown[index],
 		]:
 			mesh.surface_add_vertex(vertex)
 	mesh.surface_end()
@@ -573,16 +739,20 @@ func _build_latest_discard_marker_mesh() -> ImmediateMesh:
 
 
 func _latest_discard_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:latest_jade_diamond_v2"
+	const CACHE_KEY := "marker:latest_solid_golden_diamond_v3"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("4BE486")
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	result.albedo_color = Color("FFD45A")
+	result.metallic = 0.34
+	result.roughness = 0.26
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.emission_enabled = true
-	result.emission = Color("0F8F4C")
-	result.emission_energy_multiplier = 0.42
+	result.emission = Color("E79512")
+	result.emission_energy_multiplier = 0.52
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.36
+	result.clearcoat_roughness = 0.18
 	material_cache[CACHE_KEY] = result
 	return result
 

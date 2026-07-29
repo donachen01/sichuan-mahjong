@@ -21,7 +21,7 @@ func _run() -> void:
 	if world != null and world.environment != null:
 		var environment := world.environment
 		_check(environment.tonemap_mode == Environment.TONE_MAPPER_FILMIC, "Filmic tonemap remains enabled")
-		_check(environment.ambient_light_energy >= 0.22 and environment.ambient_light_energy <= 0.42, "ambient energy stays inside the mobile gate")
+		_check(environment.ambient_light_energy >= 0.15 and environment.ambient_light_energy <= 0.25, "ambient energy stays inside the calibrated deep-emerald mobile gate")
 		_check(environment.ssao_enabled, "SSAO is enabled")
 		_check(environment.ssao_radius >= 0.45 and environment.ssao_radius <= 1.0, "SSAO radius is local")
 		_check(environment.ssao_intensity >= 0.65 and environment.ssao_intensity <= 1.25, "SSAO intensity is restrained")

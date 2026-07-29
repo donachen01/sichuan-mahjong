@@ -37,16 +37,16 @@ func _run() -> void:
 
 func _verify_brand_language_contract(failures: Array[String]) -> void:
 	var contract: Dictionary = TABLE_THEME.brand_contract()
-	if str(contract.get("name", "")) != "锦夏蓝庭":
-		failures.append("牌桌主题必须使用锦夏蓝庭参考蓝桌品牌语言")
-	if str(contract.get("direction", "")) != "bright_summer_blue_mobile_mahjong":
-		failures.append("牌桌主题方向必须锁定明亮夏季蓝色移动麻将")
+	if str(contract.get("name", "")) != "深翡翠雅局":
+		failures.append("牌桌主题必须使用深翡翠雅局品牌语言")
+	if str(contract.get("direction", "")) != "deep_emerald_refined_noncommercial_mahjong":
+		failures.append("牌桌主题方向必须锁定深翡翠精品非商业化麻将")
 	if str(contract.get("shape_motif", "")) != "shu_courtyard_cut_corner":
 		failures.append("核心轮廓必须使用蜀院切角母题")
 	var materials: Array = contract.get("materials", [])
-	for material in ["ink_jade_felt", "ebony_lacquer", "warm_ceramic_and_jade"]:
+	for material in ["deep_emerald_short_nap_felt", "ink_green_leather", "black_walnut", "warm_ivory_tiles"]:
 		if not materials.has(material):
-			failures.append("蜀锦玉案材质合同缺少 %s" % material)
+			failures.append("深翡翠雅局材质合同缺少 %s" % material)
 	var hierarchy: Array = contract.get("visual_hierarchy", [])
 	var expected_hierarchy := ["tiles", "actions_and_key_text", "player_panels", "brocade_frame_ornament"]
 	if hierarchy != expected_hierarchy:
@@ -57,20 +57,24 @@ func _verify_brand_language_contract(failures: Array[String]) -> void:
 
 func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 	var expected_colors := {
-		"ink_jade": Color("293C64"),
-		"malachite": Color("4F70A3"),
-		"ebony": Color("182238"),
-		"aged_copper": Color("B98B49"),
-		"copper_highlight": Color("E0BA70"),
-		"ivory": Color("E9E8EB"),
+		"table_center": Color("167A64"),
+		"table_base": Color("0F6957"),
+		"table_edge": Color("0A4B41"),
+		"leather": Color("172621"),
+		"walnut": Color("281F1B"),
+		"aged_copper": Color("9D743A"),
+		"copper_highlight": Color("C49A55"),
+		"ivory": Color("F2EBDD"),
 	}
 	var actual_colors := {
-		"ink_jade": TABLE_THEME.INK_JADE_DEEP,
-		"malachite": TABLE_THEME.MALACHITE,
-		"ebony": TABLE_THEME.EBONY,
+		"table_center": TABLE_THEME.TABLE_CENTER,
+		"table_base": TABLE_THEME.TABLE_BASE,
+		"table_edge": TABLE_THEME.TABLE_EDGE,
+		"leather": TABLE_THEME.LEATHER_RAIL,
+		"walnut": TABLE_THEME.WALNUT_DARK,
 		"aged_copper": TABLE_THEME.AGED_COPPER,
 		"copper_highlight": TABLE_THEME.COPPER_HIGHLIGHT,
-		"ivory": TABLE_THEME.WARM_CERAMIC,
+		"ivory": TABLE_THEME.IVORY_TEXT,
 	}
 	for color_name in expected_colors:
 		var expected: Color = expected_colors[color_name]
@@ -93,44 +97,47 @@ func _verify_club_palette_and_shader(failures: Array[String]) -> void:
 			var shader_path := shader_material.shader.resource_path
 			if shader_path != "res://shaders/table_club_felt.gdshader":
 				failures.append("ClubFeltShader 使用了错误的 shader: %s" % shader_path)
-			var weave_strength := float(shader_material.get_shader_parameter("weave_strength"))
-			if weave_strength < 0.035 or weave_strength > 0.060:
-				failures.append("交叉织纹强度必须保持在 3.5%-6%，当前 %.3f" % weave_strength)
-			var relief_strength := float(shader_material.get_shader_parameter("relief_strength"))
-			if relief_strength < 0.015 or relief_strength > 0.028:
-				failures.append("边缘云纹浮雕强度必须保持克制，当前 %.3f" % relief_strength)
-			var light_strength := float(shader_material.get_shader_parameter("light_strength"))
-			if light_strength < 0.05 or light_strength > 0.09:
-				failures.append("左上柔光强度必须保持在 5%-9%，当前 %.3f" % light_strength)
+			var nap_strength: float = shader_material.get_shader_parameter("nap_strength")
+			if nap_strength < 0.020 or nap_strength > 0.035:
+				failures.append("短绒变化必须保持在 2%-3.5%，当前 %.3f" % nap_strength)
+			var brocade_strength: float = shader_material.get_shader_parameter("brocade_strength")
+			if brocade_strength < 0.018 or brocade_strength > 0.030:
+				failures.append("边缘蜀锦浮雕必须保持在 1.8%-3%，当前 %.3f" % brocade_strength)
+			var edge_darkening: float = shader_material.get_shader_parameter("edge_darkening")
+			if edge_darkening < 0.05 or edge_darkening > 0.08:
+				failures.append("桌面边缘压暗必须保持在 5%-8%，当前 %.3f" % edge_darkening)
+			var center_lift: float = shader_material.get_shader_parameter("center_lift")
+			if center_lift < 0.03 or center_lift > 0.05:
+				failures.append("桌面中央提亮必须保持在 3%-5%，当前 %.3f" % center_lift)
 			var shader_source := FileAccess.get_file_as_string("res://shaders/table_club_felt.gdshader")
-			for texture_source in ["fine_weave", "cloud_scroll", "ring_line", "centre_lift"]:
+			for texture_source in ["value_noise", "outer_brocade", "center_lift", "edge_darkening"]:
 				if not shader_source.contains(texture_source):
-					failures.append("参考绿桌材质缺少程序化实现 %s" % texture_source)
-			for forbidden_source in ["centered_spotlight", "shu_medallion_motif", "off_canvas_source"]:
+					failures.append("深翡翠短绒材质缺少程序化实现 %s" % texture_source)
+			for forbidden_source in ["fine_weave", "cloud_scroll", "ring_line", "centered_spotlight", "shu_medallion_motif", "off_canvas_source"]:
 				if shader_source.contains(forbidden_source):
-					failures.append("牌桌不得包含大团花或径向圆形亮斑实现 %s" % forbidden_source)
+					failures.append("牌桌不得包含高频织线、大团花或径向圆形亮斑实现 %s" % forbidden_source)
 	if not overlay.has_method("get_material_contract"):
 		failures.append("牌桌材质层必须暴露毛绒与环境灯光合同")
 	else:
 		var overlay_contract: Dictionary = overlay.call("get_material_contract")
 		var base_palette: Array = overlay_contract.get("base_palette", [])
-		for color_hex in ["043c2d", "056e54", "07916f", "1eb08c"]:
+		for color_hex in ["0a4b41", "0f6957", "167a64"]:
 			if not base_palette.has(color_hex):
 				failures.append("墨玉桌面基础色缺少 #%s" % color_hex)
 		var lighting_layers: Array = overlay_contract.get("lighting_layers", [])
-		for layer_name in ["broad_center_lift", "upper_left_soft_light", "edge_vignette"]:
+		for layer_name in ["broad_center_lift", "edge_vignette"]:
 			if not lighting_layers.has(layer_name):
 				failures.append("环境灯光合同缺少 %s" % layer_name)
-		if str(overlay_contract.get("surface_finish", "")) != "fine_crosswoven_emerald_felt":
-			failures.append("桌面必须使用参考图的细密交叉织纹")
+		if str(overlay_contract.get("surface_finish", "")) != "deep_emerald_short_nap_felt":
+			failures.append("桌面必须使用深翡翠无规则短绒")
 		if str(overlay_contract.get("texture_coverage", "")) != "full_surface":
 			failures.append("毛绒纹理必须覆盖完整桌面")
-		if str(overlay_contract.get("fiber_directions", "")) != "retina_diagonal_crossweave":
-			failures.append("织纹必须使用 Retina 细度的斜向交叉结构")
-		if str(overlay_contract.get("geometric_motifs", "")) != "peripheral_embossed_cloud_scrolls":
-			failures.append("桌面边缘必须包含参考图同类的低对比云纹浮雕")
-		if str(overlay_contract.get("reference_target", "")) != "emerald_mobile_table_without_logo":
-			failures.append("桌面参考合同必须明确为无商标文字的绿色麻将桌")
+		if str(overlay_contract.get("fiber_directions", "")) != "irregular_multi_scale_nap":
+			failures.append("短绒必须使用无规则多尺度方向变化")
+		if str(overlay_contract.get("geometric_motifs", "")) != "outer_8_to_10_percent_shu_brocade_only":
+			failures.append("蜀锦暗纹只能位于桌面外圈8%-10%")
+		if str(overlay_contract.get("reference_target", "")) != "deep_emerald_refined_table_without_logo":
+			failures.append("桌面参考合同必须明确为无商标文字的深翡翠精品桌")
 		if bool(overlay_contract.get("circular_hotspot", true)):
 			failures.append("牌桌光照合同必须明确禁止圆形亮斑")
 	overlay.free()
@@ -237,10 +244,12 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("SeatHUD must expose premium nameplate visual contract")
 	else:
 		var hud_contract: Dictionary = hud.call("get_visual_contract")
-		if str(hud_contract.get("material_family", "")) != "ebony_lacquer_cut_corner_nameplate":
-			failures.append("SeatHUD must use the ebony lacquer cut-corner nameplate material")
-		if str(hud_contract.get("active_treatment", "")) != "copper_edge_light":
-			failures.append("SeatHUD current-turn state must use a restrained copper edge light")
+		if str(hud_contract.get("material_family", "")) != "five_variant_emerald_nameplate":
+			failures.append("SeatHUD must use the five-variant emerald nameplate material")
+		if str(hud_contract.get("active_treatment", "")) != "pulsing_emerald_copper_nameplate_ring":
+			failures.append("SeatHUD current-turn state must use a pulsing emerald/copper nameplate ring")
+		if hud_contract.get("seat_avatar_glyphs", []) != ["旭", "燕", "东", "玲"]:
+			failures.append("SeatHUD avatar glyph order must remain self 旭, upper 燕, opposite 东, lower 玲")
 	hud.free()
 
 	var action_bar := ACTION_BAR_SCENE.instantiate() as Control

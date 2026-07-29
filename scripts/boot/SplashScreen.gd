@@ -16,6 +16,16 @@ var _dice_faces := ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
 
 
 func _ready() -> void:
+	if OS.get_cmdline_user_args().has("--stage6-release-performance"):
+		var probe_script := load("res://tools/Stage6ReleasePerformanceProbe.gd") as Script
+		if probe_script == null:
+			push_error("Stage 6 release performance probe script is missing")
+			get_tree().quit(1)
+			return
+		var probe := probe_script.new() as Node
+		get_tree().root.add_child.call_deferred(probe)
+		queue_free()
+		return
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	modulate = Color(1, 1, 1, 0)
 	version_label.text = _app_version_text()
