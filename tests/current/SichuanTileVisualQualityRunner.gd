@@ -2,6 +2,7 @@ extends SceneTree
 
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
 const EPSILON := 0.002
+const SELF_HAND_RACK_TILT_DEGREES := 48.0
 
 var failures: Array[String] = []
 
@@ -116,9 +117,10 @@ func _run() -> void:
 		var jade_material := jade_mesh.material_override as StandardMaterial3D
 		_check(jade_material != null, "jade back material exists")
 		if jade_material != null:
-			_check_color(jade_material.albedo_color, Color("178B32"), "jade layer source color")
-			_check(jade_material.roughness >= 0.20 and jade_material.roughness <= 0.32, "jade layer roughness is polished but not plastic")
-			_check(jade_material.clearcoat_enabled and jade_material.clearcoat >= 0.30 and jade_material.clearcoat <= 0.40, "jade layer carries the same rounded highlight language")
+			_check_color(jade_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "jade layer uses the normal dark-emerald back color")
+			_check(jade_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "jade layer color is stable under table lighting")
+			_check(jade_material.cull_mode == BaseMaterial3D.CULL_DISABLED, "jade layer remains visible from both winner and concealed-kong viewing angles")
+			_check(not jade_material.clearcoat_enabled and not jade_material.emission_enabled, "jade layer has no lighting tint or artificial glow")
 
 	tile.call(
 		"configure",
@@ -146,9 +148,10 @@ func _run() -> void:
 	var back_material := concealed_back.get_active_material(0) as StandardMaterial3D if concealed_back != null else null
 	_check(back_material != null, "table-facing jade back material exists")
 	if back_material != null:
-		_check_color(back_material.albedo_color, Color("178B32"), "table-facing jade back calibrated source color")
-		_check(back_material.roughness >= 0.20 and back_material.roughness <= 0.32, "concealed back is smooth without becoming a neon plastic plate")
-		_check(back_material.clearcoat_enabled and back_material.clearcoat <= 0.40, "concealed back highlight stays restrained")
+		_check_color(back_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "table-facing concealed back matches the normal dark-emerald back")
+		_check(back_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "concealed back color is stable under table lighting")
+		_check(back_material.cull_mode == BaseMaterial3D.CULL_DISABLED, "concealed back remains visible from both table views")
+		_check(not back_material.clearcoat_enabled and not back_material.emission_enabled, "concealed back has no lighting tint or artificial glow")
 
 	tile.call(
 		"configure",
@@ -167,14 +170,34 @@ func _run() -> void:
 	var state_marker := tile.get("state_marker") as MeshInstance3D
 	var new_draw_marker := tile.get("new_draw_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "new draw no longer paints a full-tile color plane")
-	_check(new_draw_marker != null and new_draw_marker.visible, "new draw uses one visible themed marker")
+	_check(new_draw_marker != null and new_draw_marker.visible, "new draw uses one visible small blue 3D diamond")
 	if new_draw_marker != null:
-		_check(new_draw_marker.position.z < -0.36, "new draw cone stays beyond the tile glyph area")
-		_check(tile.get("draw_marker_style_variant") == 1, "new-draw marker defaults to the selected emerald-ring variant")
+		_check(new_draw_marker.name == "NewDrawRotatingBlueDiamond", "new draw exposes the blue-diamond node contract")
+		var draw_yaw_pivot := new_draw_marker.get_parent() as Node3D
+		_check(draw_yaw_pivot != null and draw_yaw_pivot.name == "NewDrawWorldYawPivot", "new draw diamond owns a dedicated world-yaw pivot")
+		if draw_yaw_pivot != null:
+			_check(absf(rad_to_deg(draw_yaw_pivot.rotation.x) + SELF_HAND_RACK_TILT_DEGREES) <= EPSILON, "new draw yaw pivot counteracts the self-hand tilt")
+		_check(new_draw_marker.position.z >= -0.14 and new_draw_marker.position.z <= -0.10, "new draw diamond stays tight to the drawn tile instead of floating toward the table")
+		_check(new_draw_marker.position.y >= 0.27 and new_draw_marker.position.y <= 0.30, "new draw diamond sits directly above the drawn tile")
+		_check(tile.get("draw_marker_style_variant") == 0, "new-draw marker is the fixed blue-diamond style")
+		var draw_mesh := new_draw_marker.mesh as ImmediateMesh
+		_check(draw_mesh != null, "new draw uses solid 3D diamond geometry")
+		if draw_mesh != null:
+			_check(draw_mesh.get_aabb().size.x >= 0.15 and draw_mesh.get_aabb().size.x <= 0.17, "new draw diamond is compact")
+		var draw_material := new_draw_marker.get_active_material(0) as StandardMaterial3D
+		_check(draw_material != null, "new draw blue material exists")
+		if draw_material != null:
+			_check_color(draw_material.albedo_color, Color("42A5FF"), "new draw diamond is blue")
+			_check(draw_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "new draw diamond uses one flat blue without lighting gradients")
+			_check(not draw_material.emission_enabled and not draw_material.clearcoat_enabled, "new draw diamond has no glow or clearcoat gradient")
 		tile.call("set_reduced_motion", false)
 		var rotation_before := new_draw_marker.rotation.y
 		tile.call("_process", 0.5)
-		_check(absf(rad_to_deg(new_draw_marker.rotation.y - rotation_before) - 60.0) <= 0.2, "new draw cone rotates at 120 degrees per second")
+		_check(absf(rad_to_deg(new_draw_marker.rotation.y - rotation_before) - 63.0) <= 0.2, "new draw diamond matches the latest-discard 126-degree-per-second rotation")
+		tile.transform.basis = Basis(Vector3.RIGHT, deg_to_rad(SELF_HAND_RACK_TILT_DEGREES))
+		await process_frame
+		var world_yaw_axis := new_draw_marker.global_transform.basis.y.normalized()
+		_check(world_yaw_axis.dot(Vector3.UP) >= 0.999, "new draw diamond rotates around the same world-vertical axis as the latest discard")
 		tile.call("set_reduced_motion", true)
 		var reduced_rotation := new_draw_marker.rotation.y
 		tile.call("_process", 0.5)
@@ -196,31 +219,12 @@ func _run() -> void:
 	await process_frame
 	var selected_marker := tile.get("selected_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "selected tile suppresses every full-tile color plane")
-	_check(selected_marker != null and selected_marker.visible, "selected tile uses one visible jade check marker")
+	_check(selected_marker != null and not selected_marker.visible, "selected tile does not show a checkmark or any overlay graphic")
 	_check(new_draw_marker != null and not new_draw_marker.visible, "selection marker is independent from the new-draw diamond")
 	if selected_marker != null:
-		_check(selected_marker.name == "SelectedTileMarker", "selection marker has a generic selected-tile node contract")
-		_check(tile.get("selected_marker_style_variant") == 1, "selection marker defaults to the jade check variant")
-		var selected_mesh := selected_marker.mesh as PlaneMesh
-		_check(selected_mesh != null and selected_mesh.size.x >= 0.31, "selection marker uses a selectable themed vector plane")
-		var selected_material := selected_marker.get_active_material(0) as StandardMaterial3D
-		_check(selected_material != null and selected_material.albedo_texture != null, "selection marker has an independent vector texture")
-		if selected_material != null and selected_material.albedo_texture != null:
-			_check(selected_material.albedo_texture.resource_path.ends_with("selected_jade_halo.svg"), "default selection marker must use the simple jade check graphic")
-		var selection_texture_paths: Dictionary = {}
-		for variant in range(5):
-			tile.call("set_selected_marker_style_variant", variant)
-			var variant_material := selected_marker.get_active_material(0) as StandardMaterial3D
-			if variant_material != null and variant_material.albedo_texture != null:
-				selection_texture_paths[variant_material.albedo_texture.resource_path] = true
-		_check(selection_texture_paths.size() == 5, "five selection styles must use five distinct vector graphics")
-		tile.call("set_selected_marker_style_variant", 1)
-		tile.call("set_reduced_motion", false)
-		var selected_scale_before := selected_marker.scale.x
-		tile.call("_process", 0.25)
-		_check(absf(selected_marker.scale.x - selected_scale_before) >= 0.005, "selection marker uses a subtle breathing pulse")
-		tile.call("set_reduced_motion", true)
-		_check(absf(selected_marker.scale.x - 1.0) <= EPSILON, "reduced motion freezes the selection marker at its base scale")
+		_check(selected_marker.name == "SelectionVisualDisabled", "selection compatibility node cannot render an icon")
+		_check(selected_marker.mesh == null, "selected tile has no checkmark mesh or texture plane")
+		_check(tile.get("selected_marker_style_variant") == 0, "selection icon style is fixed to none")
 
 	tile.call(
 		"configure",
@@ -243,6 +247,11 @@ func _run() -> void:
 		_check(latest_marker.position.z == 0.0 and latest_marker.position.y >= 0.33, "latest diamond floats directly above the tile center")
 		var latest_mesh := latest_marker.mesh as ImmediateMesh
 		_check(latest_mesh != null and latest_mesh.get_aabb().size.x >= 0.33, "latest diamond is substantially larger than the old yellow chip")
+		if latest_mesh != null and new_draw_marker != null and new_draw_marker.mesh is ImmediateMesh:
+			_check(
+				(new_draw_marker.mesh as ImmediateMesh).get_aabb().size.x < latest_mesh.get_aabb().size.x,
+				"new draw blue diamond stays smaller than the latest-discard diamond"
+			)
 		tile.call("set_reduced_motion", false)
 		var latest_rotation_before := latest_marker.rotation.y
 		tile.call("_process", 0.5)
@@ -262,8 +271,8 @@ func _run() -> void:
 		-1
 	)
 	await process_frame
-	_check(selected_marker.visible and new_draw_marker.visible, "selection and new-draw markers can coexist")
-	_check(selected_marker.position.x < -0.10 and new_draw_marker.position.x > 0.10, "coexisting markers split cleanly without overlap")
+	_check(not selected_marker.visible and new_draw_marker.visible, "selected drawn tile preserves only the blue new-draw diamond")
+	_check(absf(new_draw_marker.position.x) <= EPSILON, "blue diamond remains centred when its tile is selected")
 
 	if failures.is_empty():
 		print("SICHUAN_TILE_VISUAL_QUALITY_PASS")

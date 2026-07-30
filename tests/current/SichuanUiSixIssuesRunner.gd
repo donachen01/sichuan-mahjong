@@ -194,21 +194,32 @@ func _check_issue_6(root_node: Node, failures: Array[String]) -> void:
 	var top_ui = root_node.top_ui
 	var right_ui = root_node.right_ui
 
-	if left_ui._claim_arrow_text(1, 2) != "↑对家":
-		failures.append("问题6：左侧玩家来自对家的碰杠箭头文案错误")
-	if left_ui._claim_arrow_text(1, 0) != "↓本家":
-		failures.append("问题6：左侧玩家来自本家的碰杠箭头文案错误")
-	if top_ui._claim_arrow_text(2, 1) != "←上家":
-		failures.append("问题6：顶部玩家来自上家的碰杠箭头文案错误")
-	if right_ui._claim_arrow_text(3, 2) != "↑对家":
-		failures.append("问题6：右侧玩家来自对家的碰杠箭头文案错误")
+	if left_ui._claim_arrow_text(1, 2) != "↑":
+		failures.append("问题6：左侧玩家来自对家的碰杠箭头方向错误或仍带座位文字")
+	if left_ui._claim_arrow_text(1, 0) != "↓":
+		failures.append("问题6：左侧玩家来自本家的碰杠箭头方向错误或仍带座位文字")
+	if top_ui._claim_arrow_text(2, 1) != "←":
+		failures.append("问题6：顶部玩家来自上家的碰杠箭头方向错误或仍带座位文字")
+	if right_ui._claim_arrow_text(3, 2) != "↑":
+		failures.append("问题6：右侧玩家来自对家的碰杠箭头方向错误或仍带座位文字")
+	if left_ui._claim_arrow_text(1, 1) != "":
+		failures.append("问题6：自家来源不得显示箭头或来源文字")
 
-	if abs(left_ui._claim_arrow_rotation("←上家") + PI * 0.5) > 0.01:
+	if abs(left_ui._claim_arrow_rotation("←") + PI * 0.5) > 0.01:
 		failures.append("问题6：左箭头旋转仍不正确")
-	if abs(right_ui._claim_arrow_rotation("→下家") - PI * 0.5) > 0.01:
+	if abs(right_ui._claim_arrow_rotation("→") - PI * 0.5) > 0.01:
 		failures.append("问题6：右箭头旋转仍不正确")
-	if abs(top_ui._claim_arrow_rotation("↑对家")) > 0.01:
+	if abs(top_ui._claim_arrow_rotation("↑")) > 0.01:
 		failures.append("问题6：上箭头旋转仍不正确")
+
+	var overlay: Control = left_ui._create_claim_arrow_overlay(Vector2(80, 120), "↑", true)
+	var badge := overlay.get_node_or_null("CompactSkyBlueClaimArrow") as Node2D
+	var arrow := badge.get_node_or_null("FlatSkyBlueArrow") as Polygon2D if badge != null else null
+	if badge == null or badge.get_child_count() != 1 or arrow == null:
+		failures.append("问题6：回退路径必须只显示一个小号扁平箭头，不得保留阴影、高光或文字")
+	elif not arrow.color.is_equal_approx(Color("48C8FF")) or arrow.polygon.size() != 7:
+		failures.append("问题6：回退路径箭头必须为统一天蓝色七点短杆箭头")
+	overlay.free()
 
 
 func _click_ding_que_button(root_node: Node, game_state, suit: String) -> bool:
@@ -235,8 +246,11 @@ func _click_ding_que_button(root_node: Node, game_state, suit: String) -> bool:
 	await process_frame
 	if str(game_state.players[0].get("ding_que", "")) != suit and root_node.has_method("_handle_ding_que_overlay_click"):
 		root_node.call("_handle_ding_que_overlay_click", rect.get_center())
-		await process_frame
-		await process_frame
+	# The production selection deliberately holds its pressed state for 140 ms
+	# when reduced motion is disabled. Wait for that real interaction contract
+	# instead of treating two render frames as completion.
+	await create_timer(0.18).timeout
+	await process_frame
 	return str(game_state.players[0].get("ding_que", "")) == suit
 
 

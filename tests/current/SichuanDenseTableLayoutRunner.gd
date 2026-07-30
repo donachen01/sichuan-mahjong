@@ -136,6 +136,9 @@ func _verify_discard_tracks(failures: Array[String]) -> void:
 		all_discard_rects.append_array(rects)
 		var lane: Control = layer.call("get_lane", seat)
 		var lane_rect := lane.get_global_rect().grow(1.0)
+		var lane_contract: Dictionary = layer.call("get_lane_contract", seat)
+		if str(lane_contract.get("origin_policy", "")) != "upper_left_from_each_player_perspective":
+			failures.append("seat %d discard lane lost the player-perspective upper-left origin contract" % seat)
 		for rect_value in rects:
 			var rect: Rect2 = rect_value
 			if not lane_rect.encloses(rect):

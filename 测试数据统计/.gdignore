@@ -1,0 +1,1 @@
+# Test reports are read as raw files by tooling and must not be imported as translations.

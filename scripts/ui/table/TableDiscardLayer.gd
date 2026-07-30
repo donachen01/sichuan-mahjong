@@ -101,6 +101,7 @@ func get_lane_contract(seat: int) -> Dictionary:
 		"items_per_row": int(LANE_ITEMS_PER_ROW[safe_seat]),
 		"max_visible": MAX_DISCARDS_PER_SEAT,
 		"stable_origin": true,
+		"origin_policy": "upper_left_from_each_player_perspective",
 		"flow": ["left_to_right", "top_to_bottom", "right_to_left", "bottom_to_top"][safe_seat],
 	}
 

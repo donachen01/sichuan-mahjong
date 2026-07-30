@@ -16,6 +16,8 @@ const HAND_STEP_FAR := 0.55
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
 const FAR_HAND_SCALE := 1.27
+const SIDE_WIN_RESULT_UPSHIFT_Z := 0.72
+const SIDE_WINNING_TILE_MAX_LOCAL_Z := 1.65
 const MELD_SCALE := 1.12
 const DISCARD_SCALE := 1.16
 const DISCARD_COLUMN_STEP := 0.56
@@ -37,20 +39,19 @@ const SIDE_RACK_TILT_DEGREES := 90.0
 const FAR_RACK_TILT_DEGREES := -90.0
 const CENTER_INDICATOR_WORLD_Z := -1.60
 const DISCARD_GLOBAL_Z_SHIFT := -1.60
-const WALL_COUNT_FLOAT_HEIGHT := 0.96
-# A full cycle is intentionally unhurried (30 seconds): the count remains
-# readable during play while still continuously completing its own 360° spin.
-const WALL_COUNT_ROTATION_SPEED_DEGREES := 12.0
-const WALL_COUNT_BOB_AMPLITUDE := 0.030
-const WALL_COUNT_BOB_SPEED := 1.45
-const DRAW_MARKER_STYLE_NAMES := ["铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印"]
-const SELECTED_MARKER_STYLE_NAMES := ["象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印"]
+const WALL_COUNT_SURFACE_HEIGHT := 0.64
+const CENTER_WALL_SURFACE_RADIUS := 0.72
+const CENTER_WALL_SURFACE_HEIGHT := 0.12
+const CENTER_WALL_INSET_RADIUS := 0.63
+const CENTER_WALL_INSET_HEIGHT := 0.035
+const DRAW_MARKER_STYLE_NAMES := ["小号蓝色立体菱形"]
+const SELECTED_MARKER_STYLE_NAMES := ["无选中图案"]
 
-@export_enum("铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印")
-var draw_marker_style_variant := 1
+@export_enum("小号蓝色立体菱形")
+var draw_marker_style_variant := 0
 
-@export_enum("象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印")
-var selected_marker_style_variant := 1
+@export_enum("无选中图案")
+var selected_marker_style_variant := 0
 
 # Named product contract calibrated against the supplied commercial reference.
 # The target composition relies on genuine foreground/background scale change
@@ -65,11 +66,10 @@ var camera: Camera3D
 var tile_root: Node3D
 var center_compass_model: Node3D
 var center_wall_count_anchor: Node3D
-var center_wall_count_rotor: Node3D
 var center_wall_count_label: Label3D
-var center_wall_count_shadow: Label3D
+var center_wall_count_surface: MeshInstance3D
+var center_wall_count_inset: MeshInstance3D
 var center_wall_count_visible := true
-var center_wall_count_motion_time := 0.0
 var tile_nodes: Dictionary = {}
 var self_hand_keys: Array[String] = []
 var last_contract: Dictionary = {}
@@ -158,9 +158,6 @@ func find_tile_at_screen(screen_position: Vector2) -> int:
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	if center_wall_count_rotor != null and reduced_motion:
-		center_wall_count_rotor.rotation = Vector3.ZERO
-		center_wall_count_anchor.position.y = WALL_COUNT_FLOAT_HEIGHT
 	_stop_and_reset_motion_tweens()
 	for tile_value in tile_nodes.values():
 		var tile := tile_value as SichuanTile3D
@@ -183,30 +180,16 @@ func set_center_wall_count_visible(enabled: bool) -> void:
 		center_wall_count_anchor.visible = enabled
 
 
-func _process(delta: float) -> void:
-	if reduced_motion or not center_wall_count_visible or center_wall_count_anchor == null or center_wall_count_rotor == null:
-		return
-	center_wall_count_motion_time = fmod(center_wall_count_motion_time + delta, TAU)
-	# Spin in the text's readable plane rather than turning the face edge-on.
-	# The paired gold/brass world labels keep their dimensional silhouette
-	# instead of deforming into an unreadable line halfway through 360°.
-	center_wall_count_rotor.rotation.z = fmod(
-		center_wall_count_rotor.rotation.z + deg_to_rad(WALL_COUNT_ROTATION_SPEED_DEGREES) * delta,
-		TAU
-	)
-	center_wall_count_anchor.position.y = WALL_COUNT_FLOAT_HEIGHT + sin(center_wall_count_motion_time * WALL_COUNT_BOB_SPEED) * WALL_COUNT_BOB_AMPLITUDE
-
-
-func set_draw_marker_style_variant(value: int) -> void:
-	draw_marker_style_variant = clampi(value, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+func set_draw_marker_style_variant(_value: int) -> void:
+	draw_marker_style_variant = 0
 	for tile_value in tile_nodes.values():
 		var tile := tile_value as SichuanTile3D
 		if tile != null:
 			tile.set_draw_marker_style_variant(draw_marker_style_variant)
 
 
-func set_selected_marker_style_variant(value: int) -> void:
-	selected_marker_style_variant = clampi(value, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
+func set_selected_marker_style_variant(_value: int) -> void:
+	selected_marker_style_variant = 0
 	for tile_value in tile_nodes.values():
 		var tile := tile_value as SichuanTile3D
 		if tile != null:
@@ -333,57 +316,80 @@ func _setup_center_compass() -> void:
 
 
 func _setup_center_wall_count() -> void:
-	# The remaining-wall value belongs to the table world, not to an overlay
-	# card. The layered world-space labels give the gold face a crisp bronze
-	# edge and drop depth while their rotor turns above the physical compass.
+	# The compass and remaining-wall value form one diegetic counter. The
+	# shallow octagonal surface sits on the physical compass face and the number
+	# is its face marking, rather than a separate floating status label.
 	center_wall_count_anchor = Node3D.new()
 	center_wall_count_anchor.name = "CenterWallCount3DAnchor"
-	center_wall_count_anchor.position = Vector3(0.0, WALL_COUNT_FLOAT_HEIGHT, CENTER_INDICATOR_WORLD_Z)
+	center_wall_count_anchor.position = Vector3(0.0, WALL_COUNT_SURFACE_HEIGHT, CENTER_INDICATOR_WORLD_Z)
+	center_wall_count_anchor.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
 	add_child(center_wall_count_anchor)
-	center_wall_count_anchor.look_at(CAMERA_POSITION, Vector3.UP)
-	# Label3D's visible face is local +Z while Node3D.look_at aims local -Z.
-	# Flip the anchor once so “余40” reads forward at the start of every 360°
-	# rotation instead of appearing as mirrored text.
-	center_wall_count_anchor.rotate_y(PI)
 
-	center_wall_count_rotor = Node3D.new()
-	center_wall_count_rotor.name = "CenterWallCount3DRotor"
-	center_wall_count_anchor.add_child(center_wall_count_rotor)
-
-	center_wall_count_shadow = Label3D.new()
-	center_wall_count_shadow.name = "CenterWallCount3DShadow"
-	center_wall_count_shadow.text = "余55"
-	center_wall_count_shadow.font_size = 84
-	center_wall_count_shadow.pixel_size = 0.0066
-	center_wall_count_shadow.modulate = Color("563007")
-	center_wall_count_shadow.outline_modulate = Color("1B1206")
-	center_wall_count_shadow.outline_size = 14
-	center_wall_count_shadow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	center_wall_count_shadow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	center_wall_count_shadow.position = Vector3(0.024, -0.024, 0.018)
-	center_wall_count_shadow.no_depth_test = false
-	center_wall_count_rotor.add_child(center_wall_count_shadow)
+	center_wall_count_surface = _make_center_counter_mesh(
+		"CenterWallCount3DUnifiedSurface",
+		CENTER_WALL_SURFACE_RADIUS,
+		CENTER_WALL_SURFACE_HEIGHT,
+		Color("B8863B"),
+		-0.055
+	)
+	center_wall_count_anchor.add_child(center_wall_count_surface)
+	center_wall_count_inset = _make_center_counter_mesh(
+		"CenterWallCount3DUnifiedInset",
+		CENTER_WALL_INSET_RADIUS,
+		CENTER_WALL_INSET_HEIGHT,
+		Color("184A3A"),
+		0.018
+	)
+	center_wall_count_anchor.add_child(center_wall_count_inset)
 
 	center_wall_count_label = Label3D.new()
 	center_wall_count_label.name = "CenterWallCount3DText"
-	center_wall_count_label.text = "余55"
-	center_wall_count_label.font_size = 84
-	center_wall_count_label.pixel_size = 0.0066
-	center_wall_count_label.modulate = Color("FFE7A0")
-	center_wall_count_label.outline_modulate = Color("8A4A08")
-	center_wall_count_label.outline_size = 10
+	center_wall_count_label.text = "55"
+	center_wall_count_label.font_size = 96
+	center_wall_count_label.pixel_size = 0.0062
+	center_wall_count_label.modulate = Color("F6F5E9")
+	center_wall_count_label.outline_modulate = Color("123D30")
+	center_wall_count_label.outline_size = 12
 	center_wall_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_wall_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	center_wall_count_label.no_depth_test = false
-	center_wall_count_rotor.add_child(center_wall_count_label)
+	# The inset is a physical face layer; lift the glyph a few millimetres above
+	# it so the count is readable without becoming a floating HUD element.
+	center_wall_count_label.position = Vector3(0.0, 0.0, 0.045)
+	center_wall_count_anchor.add_child(center_wall_count_label)
+
+
+func _make_center_counter_mesh(
+	node_name: String,
+	radius: float,
+	height: float,
+	color: Color,
+	local_z_offset: float
+) -> MeshInstance3D:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = radius
+	mesh.bottom_radius = radius * 1.035
+	mesh.height = height
+	mesh.radial_segments = 8
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.metallic = 0.28 if color == Color("B8863B") else 0.05
+	material.roughness = 0.38 if color == Color("B8863B") else 0.46
+	var instance := MeshInstance3D.new()
+	instance.name = node_name
+	instance.mesh = mesh
+	instance.material_override = material
+	# The parent anchor remains flat for the text contract. Rotate the mesh back
+	# so the cylinder's Y axis stays the physical tabletop normal.
+	instance.rotation_degrees = Vector3(90.0, 0.0, 0.0)
+	instance.position = Vector3(0.0, 0.0, local_z_offset)
+	return instance
 
 
 func _set_center_wall_count(wall_count: int) -> void:
-	var display_text := "余%d" % maxi(0, wall_count)
+	var display_text := str(maxi(0, wall_count))
 	if center_wall_count_label != null:
 		center_wall_count_label.text = display_text
-	if center_wall_count_shadow != null:
-		center_wall_count_shadow.text = display_text
 
 
 func _preserve_imported_pbr_materials(node: Node) -> void:
@@ -437,6 +443,9 @@ func _append_hand_entries(
 		var tile: Dictionary = display_hand[index]
 		var tile_id := int(tile.get("id", -1))
 		var position := _hand_position(seat, index, count, step)
+		# 侧家胡牌时整条保留手牌向桌面上方收紧，给本家手牌留出固定保护带。
+		if ai_discard_win and seat in [1, 3]:
+			position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		if lay_down_hand:
 			position.y = 0.09
 		var selected := seat == 0 and tile_id == selected_id
@@ -470,6 +479,8 @@ func _append_hand_entries(
 	if discard_win:
 		var source_seat := winning_source_seat
 		var winning_position := _hand_position(seat, count, count + 1, step)
+		if ai_discard_win and seat in [1, 3]:
+			winning_position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		# The winning tile is a separate result token, not another compressed hand
 		# tile. Point-winning AI racks need a larger break because the upright hand
 		# projects farther along the rail than a flat tile; human laid-down results
@@ -485,6 +496,10 @@ func _append_hand_entries(
 					winning_position.x -= step * edge_break
 				3:
 					winning_position.z += step * edge_break
+		# 下家原先沿 +Z 继续外摆，会侵入本家手牌。上下两家都受同一世界坐标
+		# 保护线约束，保持结果牌邻近自己的牌轨但绝不进入本家手牌区。
+		if ai_discard_win and seat in [1, 3]:
+			winning_position.z = minf(winning_position.z, SIDE_WINNING_TILE_MAX_LOCAL_Z)
 		winning_position.y = 0.09
 		var winning_key := "winning_%d_%d" % [seat, winning_tile_id]
 		desired[winning_key] = _entry(
@@ -920,11 +935,16 @@ func _discard_position(seat: int, index: int) -> Vector3:
 		0:
 			position = Vector3(x, 0.09, 1.52 + z)
 		1:
-			position = Vector3(-2.55 - z, 0.09, -x)
+			# Left player faces toward +X. Their personal right is +Z and
+			# their down direction is -X, so the upper-left slot is the
+			# inner/far corner and subsequent tiles advance toward +Z.
+			position = Vector3(-2.55 - z, 0.09, x)
 		2:
 			position = Vector3(-x, 0.09, -1.52 - z)
 		3:
-			position = Vector3(2.55 + z, 0.09, x)
+			# Right player faces toward -X. Their personal right is -Z and
+			# their down direction is +X, mirroring the left player's rail.
+			position = Vector3(2.55 + z, 0.09, -x)
 	# A common negative-Z translation is a common upward screen translation for
 	# all four seats under the accepted perspective camera. Keeping it outside
 	# the seat-specific formulas prevents the four discard zones from drifting
@@ -1012,9 +1032,14 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"discard_row_step": DISCARD_ROW_STEP,
 		"wall_count": int(snapshot.get("wall_count", 0)),
 		"rendered_wall_tile_count": 0,
-		"wall_representation": "floating_3d_golden_count_above_center",
-		"wall_count_surface": "bevel_shadowed_label3d_without_frame",
-		"wall_count_motion": "self_spin_360_degrees_in_readable_plane_with_subtle_vertical_float",
+		"wall_representation": "static_numeric_count_embedded_on_center_compass",
+		"wall_count_surface": "flat_label3d_on_physical_center_compass",
+		"center_display_asset": "unified_octagonal_wall_count_tile",
+		"center_display_nodes": ["CenterWallCount3DUnifiedSurface", "CenterWallCount3DUnifiedInset", "CenterWallCount3DText"],
+		"wall_count_format": "%d",
+		"wall_count_motion": "none_static_on_table_surface",
+		"wall_count_surface_height": WALL_COUNT_SURFACE_HEIGHT,
+		"wall_count_surface_rotation_degrees": -90.0,
 		"wall_count_3d_node": center_wall_count_label != null,
 		"hand_counts": hand_counts,
 		"discard_counts": discard_counts,
@@ -1038,32 +1063,46 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"opponent_reveal_pose": "three_flat_face_up_hands",
 		"opponent_back_material": "shared_shaded_jade",
 		"discard_win_hand_pose": "flat_revealed_for_human",
-		"ai_discard_win_presentation": "standing_hand_plus_adjacent_winning_tile",
+		"ai_discard_win_presentation": "standing_hand_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
+		"side_win_result_upshift_z": SIDE_WIN_RESULT_UPSHIFT_Z,
+		"side_winning_tile_max_local_z": SIDE_WINNING_TILE_MAX_LOCAL_Z,
 		"self_meld_zone": "left_of_concealed_hand",
 		"self_meld_tile_count": self_meld_tile_count,
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",
-		"new_draw_feedback": "five_selectable_theme_marker_variants",
+		"new_draw_feedback": "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile",
+		"new_draw_rotation": "world_vertical_axis_and_rate_match_latest_discard",
 		"new_draw_travel_seconds": DRAW_TRAVEL_SECONDS,
 		"new_draw_settle_seconds": DRAW_SETTLE_SECONDS,
 		"new_draw_marker_variants": DRAW_MARKER_STYLE_NAMES,
 		"selected_new_draw_marker_variant": draw_marker_style_variant,
-		"selected_tile_feedback": "five_selectable_theme_selection_variants",
+		"selected_tile_feedback": "physical_lift_without_overlay_graphic",
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
-		"marker_variant_selection": "draw_and_selection_independent",
+		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
 		"latest_discard_feedback": "rotating_solid_golden_3d_diamond_directly_above_tile",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,
 		"discard_slot_policy": "persistent_per_tile_until_removed_no_survivor_reflow",
+		"discard_origin_policy": "upper_left_from_each_player_perspective",
+		"discard_flow_by_seat": ["right_then_down", "right_then_down", "right_then_down", "right_then_down"],
+		"discard_local_axes_by_seat": {
+			"0": "right=+X,down=+Z",
+			"1": "right=+Z,down=-X",
+			"2": "right=-X,down=-Z",
+			"3": "right=-Z,down=+X",
+		},
 		"latest_marker_timing": "after_river_landing",
 		"hand_reflow_timing": "after_discard_landing",
 		"side_meld_layout": "single_side_rail_with_group_gaps",
 		"right_meld_axis": "same_yaw_and_z_flow_as_right_hand",
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
-		"meld_source_feedback": "compact_blue_second_tile_arrow_and_seat_label",
+		"meld_source_feedback": "compact_sky_blue_flat_face_arrow_on_second_tile_without_seat_label",
+		"winning_source_feedback": "compact_sky_blue_flat_face_arrow_without_seat_label",
+		"winning_source_text": false,
+		"tile_back_color": SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false),
 		"season_theme": "deep_emerald_refined_table",
 		"table_asset": "sichuan_table_v2_pbr",
 		"table_material_pipeline": "blender_pbr_preserved_without_flat_overrides",

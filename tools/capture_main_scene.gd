@@ -74,7 +74,7 @@ func _capture() -> void:
 		_force_clean_table_preview(root_node)
 	elif _capture_mode() in ["ding-que", "ding-que-selected", "ding-que-reduced"]:
 		_force_ding_que_preview(root_node)
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 	elif _capture_mode() in ["response-hu", "self-hu", "gang-self-hu", "action-1", "action-2", "action-3", "action-4"]:
@@ -115,7 +115,7 @@ func _capture() -> void:
 			_force_action_bar_preview(root_node)
 		for _frame in range(2):
 			await process_frame
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 		for _frame in range(2):
@@ -1260,19 +1260,22 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		players[ai_self_draw_seat]["has_won"] = true
 		players[ai_self_draw_seat]["winning_tile"] = all_hands[ai_self_draw_seat].back()
 		players[ai_self_draw_seat]["winning_source_seat"] = ai_self_draw_seat
-	elif _capture_mode() == "ai-discard-win":
-		players[1]["has_won"] = true
-		players[1]["winning_tile"] = all_hands[1].back()
-		players[1]["winning_source_seat"] = 0
+	elif _capture_mode().begins_with("ai-discard-win"):
+		var discard_win_seat := 1
+		if _capture_mode().begins_with("ai-discard-win-"):
+			discard_win_seat = clampi(int(_capture_mode().trim_prefix("ai-discard-win-")), 1, 3)
+		players[discard_win_seat]["has_won"] = true
+		players[discard_win_seat]["winning_tile"] = all_hands[discard_win_seat].back()
+		players[discard_win_seat]["winning_source_seat"] = 0
 	var recent_tile: Dictionary = {}
 	if not (players[3]["discards"] as Array).is_empty():
 		recent_tile = players[3]["discards"].back()
 	var snapshot := {
 		"players": players,
 		"wall_count": 40,
-		"current_turn_seat": 2 if _capture_mode() == "ai-discard-win" else (1 if _capture_mode() == "won" else 0),
+		"current_turn_seat": 2 if _capture_mode().begins_with("ai-discard-win") else (1 if _capture_mode() == "won" else 0),
 		"current_dealer_seat": 0,
-		"human_can_discard": _capture_mode() not in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "gang-self-hu"],
+		"human_can_discard": _capture_mode() not in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "gang-self-hu"],
 		"human_last_draw_tile_id": int(all_hands[0].back().get("id", -1)),
 		"recent_discard_tile_id": int(recent_tile.get("id", -1)),
 	}

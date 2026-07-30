@@ -2,19 +2,14 @@ class_name SichuanTile3D
 extends Node3D
 
 const TILE_BODY_SCENE := preload("res://res/art/3d/mahjong_tile_body.glb")
-const SELECTED_HAND_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_hand_pointer.svg")
-const SELECTED_HALO_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_jade_halo.svg")
-const SELECTED_ARROW_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_copper_arrow.svg")
-const SELECTED_CROWN_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_ink_crown.svg")
-const SELECTED_FOCUS_TEXTURE := preload("res://res/art/ui_3d_cartoon/markers/selected_amber_focus.svg")
-const DRAW_MARKER_STYLE_NAMES := ["铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印"]
-const SELECTED_MARKER_STYLE_NAMES := ["象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印"]
+const DRAW_MARKER_STYLE_NAMES := ["小号蓝色立体菱形"]
+const SELECTED_MARKER_STYLE_NAMES := ["无选中图案"]
 
-@export_enum("铜玉菱标", "翡翠环印", "金芒星签", "青黛双折", "琥珀方印")
-var draw_marker_style_variant := 1
+@export_enum("小号蓝色立体菱形")
+var draw_marker_style_variant := 0
 
-@export_enum("象牙手印", "翡翠勾选", "鎏金箭翎", "青黛冠标", "琥珀定位印")
-var selected_marker_style_variant := 1
+@export_enum("无选中图案")
+var selected_marker_style_variant := 0
 const TILE_SIZE := Vector3(0.42, 0.18, 0.58)
 # Blender 玉白牌体顶面 Y=0.18。亮牌不再叠加不透明白色内框，印刷符号直接落在
 # 圆润玉石表面上；暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
@@ -23,13 +18,20 @@ const FACE_SIZE := FACE_INSET_SIZE
 const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.018, 0.58 - 0.018)
 const FACE_Y := 0.181
 const MARKER_Y := 0.194
-const NEW_DRAW_MARKER_SPEED_DEGREES := 120.0
 const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
-const SELECTED_MARKER_PULSE_SPEED := 3.6
-const SELECTED_MARKER_FADE_SECONDS := 0.14
-const DUAL_MARKER_OFFSET_X := 0.115
+# 摸牌菱形刻意与黄色最新弃牌共用相同的旋转速率；两者只区分尺寸与颜色。
+const NEW_DRAW_MARKER_SPEED_DEGREES := LATEST_DISCARD_MARKER_SPEED_DEGREES
+const SELF_HAND_MARKER_COUNTER_TILT_DEGREES := -48.0
 const SELF_HAND_FACE_WHITE := Color("FAF8F3")
-const FLAT_RESULT_JADE_BACK := Color("0F6957")
+const NORMAL_TILE_BACK_COLOR := Color("073B32")
+const FLAT_RESULT_JADE_BACK := NORMAL_TILE_BACK_COLOR
+# 碰、杠和胡牌来源统一使用小号、平贴、无渐变的天蓝色箭头。箭头只表达方向，
+# 不再用黄色强调，也不再配座位文字。
+const SOURCE_ARROW_COLOR := Color("48C8FF")
+# GLB 牌体的圆角外缘高于面图层。0.122 让扁平箭头刚好压在外缘之上，避免被遮挡，
+# 同时不再呈现悬浮高度。
+const MELD_SOURCE_ARROW_FACE_OFFSET := 0.122
+const NEW_DRAW_MARKER_POSITION := Vector3(0.0, 0.282, -TILE_SIZE.z * 0.22)
 
 static var material_cache: Dictionary = {}
 
@@ -44,6 +46,7 @@ var face_mesh: MeshInstance3D
 var concealed_cap_mesh: MeshInstance3D
 var symbol_mesh: MeshInstance3D
 var state_marker: MeshInstance3D
+var new_draw_rotation_pivot: Node3D
 var new_draw_marker: MeshInstance3D
 var selected_marker: MeshInstance3D
 var latest_marker: MeshInstance3D
@@ -52,12 +55,12 @@ var winning_source_label: Label3D
 var winning_source_seat := -1
 var winner_seat := -1
 var source_marker_kind := ""
+var using_meld_source_arrow_mesh := false
 var face_content_rotation_degrees := 0.0
 var front_brightness_boost := false
 var concealed_surface_flip := false
 var flat_concealed_result := false
 var reduced_motion := false
-var marker_animation_time := 0.0
 
 
 func _ready() -> void:
@@ -69,11 +72,10 @@ func _process(delta: float) -> void:
 	if reduced_motion:
 		return
 	if new_draw_marker != null and new_draw_marker.visible:
+		# The counter-tilt belongs to the parent pivot. Rotating this child only
+		# therefore stays on the table's world-Y axis, exactly like a flat latest
+		# discard at the same rate, instead of precessing with the 48-degree self-hand rack.
 		new_draw_marker.rotation.y += deg_to_rad(NEW_DRAW_MARKER_SPEED_DEGREES) * delta
-	if selected_marker != null and selected_marker.visible:
-		marker_animation_time += delta
-		var pulse := 1.0 + sin(marker_animation_time * SELECTED_MARKER_PULSE_SPEED) * 0.055
-		selected_marker.scale = Vector3.ONE * pulse
 	if latest_marker != null and latest_marker.visible:
 		latest_marker.rotation.y += deg_to_rad(LATEST_DISCARD_MARKER_SPEED_DEGREES) * delta
 
@@ -97,7 +99,6 @@ func configure(
 	meld_owner: int = -1,
 	meld_type: String = ""
 ) -> void:
-	var was_selected := is_selected
 	tile_data = tile.duplicate(true)
 	tile_id = int(tile_data.get("id", -1))
 	pickable = can_pick and tile_id >= 0
@@ -139,77 +140,64 @@ func configure(
 		symbol_mesh.set_surface_override_material(0, _symbol_material())
 	_apply_state_marker(selected, new_draw, recommended, danger)
 	new_draw_marker.visible = new_draw
-	selected_marker.visible = selected
-	if selected:
-		if reduced_motion or was_selected:
-			selected_marker.transparency = 0.0
-		else:
-			selected_marker.transparency = 1.0
-			var marker_fade := selected_marker.create_tween()
-			marker_fade.tween_property(selected_marker, "transparency", 0.0, SELECTED_MARKER_FADE_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	else:
-		selected_marker.transparency = 0.0
-	_update_status_marker_positions(selected, new_draw)
+	# 选中牌只保留 Stage 的实体抬升，不再叠加勾号、光环或任何平面图案。
+	# 即便摸牌与选中同一张，蓝色小菱形仍保持正中，避免制造第二个选择符号。
+	selected_marker.visible = false
+	_update_status_marker_positions(new_draw)
 	latest_marker.visible = latest
-	set_process((new_draw or selected or latest) and not reduced_motion)
+	set_process((new_draw or latest) and not reduced_motion)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
 		and winning_source_seat != winner_seat
 	)
+	var is_meld_source := source_marker_kind in ["peng", "gang"]
 	if winning_source_marker.visible:
+		# 副露和胡牌共用同一套天蓝色平面方向语言；胡牌箭头仅略大，仍压在牌面，
+		# 不再使用上一版悬在牌外的大箭头。
+		if is_meld_source != using_meld_source_arrow_mesh:
+			winning_source_marker.mesh = (
+				_build_meld_source_arrow_mesh()
+				if is_meld_source
+				else _build_winning_arrow_mesh()
+			)
+			using_meld_source_arrow_mesh = is_meld_source
 		winning_source_marker.rotation.y = _winning_source_local_yaw(winner_seat, winning_source_seat)
-		var is_meld_source := source_marker_kind in ["peng", "gang"]
-		winning_source_marker.scale = Vector3.ONE * (0.90 if is_meld_source else 1.0)
+		winning_source_marker.scale = Vector3.ONE
 		winning_source_marker.position = (
-			Vector3(0.0, MARKER_Y + 0.125, -TILE_SIZE.z * 0.10)
+			Vector3(0.0, MARKER_Y + MELD_SOURCE_ARROW_FACE_OFFSET, -TILE_SIZE.z * 0.10)
 			if is_meld_source
-			else Vector3(0.0, MARKER_Y + 0.055, -TILE_SIZE.z * 0.66)
+			else Vector3(0.0, MARKER_Y + MELD_SOURCE_ARROW_FACE_OFFSET, -TILE_SIZE.z * 0.18)
 		)
-		var marker_color := Color("42A5FF") if is_meld_source else Color("F3B83E")
 		winning_source_marker.set_surface_override_material(
 			0,
-			_cartoon_source_arrow_material() if is_meld_source else _flat_material("winning_source", marker_color)
+			_source_arrow_material()
 		)
-	winning_source_label.visible = winning_source_marker.visible
-	if winning_source_label.visible:
-		var is_meld_source := source_marker_kind in ["peng", "gang"]
-		var seat_name: String = str(["本家", "上家", "对家", "下家"][clampi(winning_source_seat, 0, 3)])
-		winning_source_label.text = "%s出" % seat_name if is_meld_source else seat_name
-		winning_source_label.modulate = Color("D9EEFF") if is_meld_source else Color("FFF1C4")
-		winning_source_label.font_size = 25 if is_meld_source else 32
-		winning_source_label.pixel_size = 0.0044 if is_meld_source else 0.0052
-		winning_source_label.position = (
-			Vector3(0.0, MARKER_Y + 0.128, -TILE_SIZE.z * 0.48)
-			if is_meld_source
-			else Vector3(0.0, MARKER_Y + 0.061, -TILE_SIZE.z * 0.94)
-		)
+	# 来源只以箭头表达，碰、杠和胡牌都不得显示“上家/下家/对家”等文字。
+	winning_source_label.visible = false
+	winning_source_label.text = ""
 
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
 	var has_rotating_marker := (new_draw_marker != null and new_draw_marker.visible) \
-		or (selected_marker != null and selected_marker.visible) \
 		or (latest_marker != null and latest_marker.visible)
-	if reduced_motion and selected_marker != null:
-		selected_marker.scale = Vector3.ONE
 	set_process(has_rotating_marker and not reduced_motion)
 
 
-func set_draw_marker_style_variant(value: int) -> void:
-	draw_marker_style_variant = clampi(value, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+func set_draw_marker_style_variant(_value: int) -> void:
+	draw_marker_style_variant = 0
 	if new_draw_marker == null:
 		return
 	new_draw_marker.mesh = _build_new_draw_marker_mesh()
-	new_draw_marker.set_surface_override_material(0, _gold_marker_material())
+	new_draw_marker.set_surface_override_material(0, _blue_new_draw_marker_material())
 
 
-func set_selected_marker_style_variant(value: int) -> void:
-	selected_marker_style_variant = clampi(value, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
+func set_selected_marker_style_variant(_value: int) -> void:
+	selected_marker_style_variant = 0
 	if selected_marker == null:
 		return
-	selected_marker.mesh = _build_selected_marker_mesh()
-	selected_marker.set_surface_override_material(0, _selected_marker_material())
+	selected_marker.mesh = null
 
 
 func get_marker_style_contract() -> Dictionary:
@@ -218,7 +206,8 @@ func get_marker_style_contract() -> Dictionary:
 		"selected_draw_variant": draw_marker_style_variant,
 		"selection_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_variant": selected_marker_style_variant,
-		"independent_selection": true,
+		"independent_selection": false,
+		"selection_overlay": "none_physical_lift_only",
 	}
 
 
@@ -227,7 +216,6 @@ func set_latest_marker_visible(enabled: bool) -> void:
 		return
 	latest_marker.visible = enabled
 	var has_animated_marker := (new_draw_marker != null and new_draw_marker.visible) \
-		or (selected_marker != null and selected_marker.visible) \
 		or latest_marker.visible
 	set_process(has_animated_marker and not reduced_motion)
 
@@ -297,25 +285,32 @@ func _build_visuals() -> void:
 	state_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(state_marker)
 
-	# 摸牌反馈使用独立的金色立体锥形/钻石，不再用整张半透明底色。
-	# 标记位于本家站立牌的上沿之外，旋转时不遮挡任何牌面符号。
-	new_draw_marker = MeshInstance3D.new()
-	new_draw_marker.name = "NewDrawConeMarker"
-	new_draw_marker.mesh = _build_new_draw_marker_mesh()
-	new_draw_marker.position = Vector3(0.0, 0.245, -TILE_SIZE.z * 0.72)
-	new_draw_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	new_draw_marker.set_surface_override_material(0, _gold_marker_material())
-	new_draw_marker.visible = false
-	add_child(new_draw_marker)
+	# 摸牌反馈复用最后弃牌的实体菱锥语言，但缩小为蓝色版本。
+	# 用独立父节点抵消本家站立牌的倾角，再让子菱锥绕自身 Y 轴旋转：
+	# tile * counter_tilt * local_yaw = world_yaw。这样蓝菱形与黄色弃牌
+	# 采用完全一致的桌面竖直轴旋转，而不是随手牌斜轴翻转。
+	new_draw_rotation_pivot = Node3D.new()
+	new_draw_rotation_pivot.name = "NewDrawWorldYawPivot"
+	new_draw_rotation_pivot.rotation_degrees = Vector3(SELF_HAND_MARKER_COUNTER_TILT_DEGREES, 0.0, 0.0)
+	add_child(new_draw_rotation_pivot)
 
-	# 默认选牌反馈采用翡翠圆印加白色勾号，含义直接且不再出现手型。
-	# 它轻微呼吸悬浮，与摸牌旋转标记明确区分，也不会遮挡牌面。
+	new_draw_marker = MeshInstance3D.new()
+	new_draw_marker.name = "NewDrawRotatingBlueDiamond"
+	new_draw_marker.mesh = _build_new_draw_marker_mesh()
+	# 摸入牌的蓝菱形紧贴该牌的上缘：世界 Y 轴旋转仍由父节点负责，位置则不再
+	# 向桌心推出一整张牌的距离，避免读起来像桌面上的独立物件。
+	new_draw_marker.position = NEW_DRAW_MARKER_POSITION
+	new_draw_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	new_draw_marker.set_surface_override_material(0, _blue_new_draw_marker_material())
+	new_draw_marker.visible = false
+	new_draw_rotation_pivot.add_child(new_draw_marker)
+
+	# 保留节点仅为旧场景/测试调用兼容；选中视觉完全由桌面 Stage 的实体抬升负责。
+	# 它没有 mesh 和材质，因而绝不会再画出勾号或其他图案。
 	selected_marker = MeshInstance3D.new()
-	selected_marker.name = "SelectedTileMarker"
-	selected_marker.mesh = _build_selected_marker_mesh()
+	selected_marker.name = "SelectionVisualDisabled"
 	selected_marker.position = Vector3(0.0, 0.245, -TILE_SIZE.z * 0.72)
 	selected_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	selected_marker.set_surface_override_material(0, _selected_marker_material())
 	selected_marker.visible = false
 	add_child(selected_marker)
 
@@ -339,7 +334,7 @@ func _build_visuals() -> void:
 	# yellow directional marker, so its direction remains legible on a phone.
 	winning_source_marker.position = Vector3(0.0, MARKER_Y + 0.055, -TILE_SIZE.z * 0.66)
 	winning_source_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	winning_source_marker.set_surface_override_material(0, _flat_material("winning_source", Color("F3B83E")))
+	winning_source_marker.set_surface_override_material(0, _source_arrow_material())
 	winning_source_marker.visible = false
 	add_child(winning_source_marker)
 
@@ -444,34 +439,22 @@ func _apply_ivory_body_material(node: Node, bright_front: bool = false) -> void:
 
 
 func _jade_back_material() -> StandardMaterial3D:
-	# 牌背翡翠绿实体层材质。轻微清漆高光让绿背有注塑光泽，符合目标图牌背质感。
-	const CACHE_KEY := "body:jade_back_layer_v1"
+	# 所有方向、暗杠和胡牌结果共用同一块墨绿色牌背。这里使用稳定色而不再让
+	# 顶灯把水平扣牌照成青绿、把竖立牌照成近黑，避免同一副牌出现两种背色。
+	const CACHE_KEY := "body:normal_dark_emerald_back_v3"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("178B32")
-	result.roughness = 0.27
-	result.metallic = 0.02
-	result.clearcoat_enabled = true
-	result.clearcoat = 0.34
-	result.clearcoat_roughness = 0.20
+	result.albedo_color = NORMAL_TILE_BACK_COLOR
+	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
 	return result
 
 
 func _flat_concealed_jade_back_material() -> StandardMaterial3D:
-	const CACHE_KEY := "body:flat_result_jade_back_v2"
-	if material_cache.has(CACHE_KEY):
-		return material_cache[CACHE_KEY]
-	var result := StandardMaterial3D.new()
-	# 自摸后整手平扣，牌背必须在横跨整条牌轨的不同受光位置仍保持
-	# 同一深翡翠色。旧色 #168B32 在无光照材质上会变成荧光绿，破坏
-	# 深翡翠桌面的克制层级；这里与 TABLE_BASE 使用同一色值语义。
-	result.albedo_color = FLAT_RESULT_JADE_BACK
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material_cache[CACHE_KEY] = result
-	return result
+	# 结果扣牌不得另做一套亮青色材质，直接复用正常牌背。
+	return _jade_back_material()
 
 
 func _ivory_body_material(bright_front: bool = false) -> StandardMaterial3D:
@@ -540,8 +523,8 @@ func _build_rounded_plane_mesh(size: Vector2, radius: float, corner_segments: in
 func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, danger: bool) -> void:
 	var marker_color := Color(0.0, 0.0, 0.0, 0.0)
 	var marker_key := "none"
-	# 选中的牌永远不再使用整牌底色，即使它同时带建议或风险状态；悬浮勾选标记
-	# 负责表达选择，避免多个状态叠成用户指出的“大块背板”。
+	# 选中的牌永远不再使用整牌底色，即使它同时带建议或风险状态；由 Stage
+	# 的实体抬升负责表达选择，避免勾选图案或“大块背板”重新出现。
 	if selected:
 		pass
 	elif danger:
@@ -550,167 +533,44 @@ func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, dang
 	elif recommended:
 		marker_color = Color(0.28, 0.68, 0.43, 0.62)
 		marker_key = "recommended"
-	# new_draw 刻意不进入整牌底色分支；由 NewDrawConeMarker 独立表达。
+	# new_draw 刻意不进入整牌底色分支；由蓝色小菱锥独立表达。
 	state_marker.visible = marker_color.a > 0.0
 	if state_marker.visible:
 		state_marker.set_surface_override_material(0, _flat_material(marker_key, marker_color))
 
 
-func _gold_marker_material() -> StandardMaterial3D:
-	var colors := [
-		Color("F4B72E"),
-		Color("63D9A6"),
-		Color("F3C96A"),
-		Color("79B8B0"),
-		Color("DDAE5E"),
-	]
-	var marker_color: Color = colors[clampi(draw_marker_style_variant, 0, colors.size() - 1)]
-	var cache_key := "marker:new_draw_%d" % clampi(draw_marker_style_variant, 0, colors.size() - 1)
-	if material_cache.has(cache_key):
-		return material_cache[cache_key]
+func _blue_new_draw_marker_material() -> StandardMaterial3D:
+	const CACHE_KEY := "marker:new_draw_small_blue_diamond_flat_v2"
+	if material_cache.has(CACHE_KEY):
+		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = marker_color
-	result.metallic = 0.18
-	result.roughness = 0.28
-	result.emission_enabled = true
-	result.emission = marker_color.darkened(0.42)
-	result.emission_energy_multiplier = 0.32
-	material_cache[cache_key] = result
-	return result
-
-
-func _selected_marker_material() -> StandardMaterial3D:
-	var colors := [
-		Color("F8D98E"),
-		Color("C7F0D9"),
-		Color("FFE8A6"),
-		Color("B7E7DC"),
-		Color("F6C978"),
-	]
-	var textures: Array[Texture2D] = [
-		SELECTED_HAND_TEXTURE,
-		SELECTED_HALO_TEXTURE,
-		SELECTED_ARROW_TEXTURE,
-		SELECTED_CROWN_TEXTURE,
-		SELECTED_FOCUS_TEXTURE,
-	]
-	var variant := clampi(selected_marker_style_variant, 0, colors.size() - 1)
-	var marker_color: Color = colors[variant]
-	var cache_key := "marker:selected_vector_%d" % variant
-	if material_cache.has(cache_key):
-		return material_cache[cache_key]
-	var result := StandardMaterial3D.new()
-	result.albedo_color = marker_color
-	result.albedo_texture = textures[variant]
+	result.albedo_color = Color("42A5FF")
+	# 新摸提示必须是单一纯蓝，不让灯光、金属度、发光或清漆把四个菱面染成
+	# 深浅不同的渐变色。
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	result.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	result.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	material_cache[cache_key] = result
+	material_cache[CACHE_KEY] = result
 	return result
 
 
 func _build_new_draw_marker_mesh() -> ImmediateMesh:
-	match clampi(draw_marker_style_variant, 0, 4):
-		1:
-			return _build_flat_marker_ring_mesh()
-		2:
-			return _build_four_point_star_mesh()
-		3:
-			return _build_double_chevron_mesh()
-		4:
-			return _build_square_seal_mesh()
+	# 和最新弃牌同为实心菱锥：四面小菱形顶冠收束到一个下尖点。
+	# 本地宽度仅 0.16；即使本家手牌自身按 1.94 倍放大，屏幕尺寸仍小于
+	# 桌面弃牌的 0.34 菱锥，且保留实体光影而非图标贴片。
 	var mesh := ImmediateMesh.new()
-	var top := Vector3(0.0, 0.10, 0.0)
-	var bottom := Vector3(0.0, -0.12, 0.0)
-	var ring := [
-		Vector3(0.072, 0.0, 0.0),
-		Vector3(0.0, 0.0, 0.072),
-		Vector3(-0.072, 0.0, 0.0),
-		Vector3(0.0, 0.0, -0.072),
+	var pointer := Vector3(0.0, -0.095, 0.0)
+	var crown := [
+		Vector3(0.0, 0.072, -0.082), Vector3(0.080, 0.072, 0.0),
+		Vector3(0.0, 0.072, 0.082), Vector3(-0.080, 0.072, 0.0),
 	]
 	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
 	for index in range(4):
 		var next_index := (index + 1) % 4
-		mesh.surface_add_vertex(top)
-		mesh.surface_add_vertex(ring[index])
-		mesh.surface_add_vertex(ring[next_index])
-		mesh.surface_add_vertex(bottom)
-		mesh.surface_add_vertex(ring[next_index])
-		mesh.surface_add_vertex(ring[index])
-	mesh.surface_end()
-	return mesh
-
-
-func _build_selected_marker_mesh() -> PlaneMesh:
-	var mesh := PlaneMesh.new()
-	var sizes := [
-		Vector2(0.34, 0.25),
-		Vector2(0.32, 0.24),
-		Vector2(0.36, 0.27),
-		Vector2(0.31, 0.28),
-		Vector2(0.33, 0.26),
-	]
-	mesh.size = sizes[clampi(selected_marker_style_variant, 0, sizes.size() - 1)]
-	return mesh
-
-
-func _build_flat_marker_ring_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	var outer := [Vector3(0.0, 0.02, -0.11), Vector3(0.11, 0.02, 0.0), Vector3(0.0, 0.02, 0.11), Vector3(-0.11, 0.02, 0.0)]
-	var inner := [Vector3(0.0, 0.022, -0.055), Vector3(0.055, 0.022, 0.0), Vector3(0.0, 0.022, 0.055), Vector3(-0.055, 0.022, 0.0)]
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in range(4):
-		var next_index := (index + 1) % 4
-		mesh.surface_add_vertex(outer[index])
-		mesh.surface_add_vertex(outer[next_index])
-		mesh.surface_add_vertex(inner[next_index])
-		mesh.surface_add_vertex(outer[index])
-		mesh.surface_add_vertex(inner[next_index])
-		mesh.surface_add_vertex(inner[index])
-	mesh.surface_end()
-	return mesh
-
-
-func _build_four_point_star_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	var center := Vector3(0.0, 0.12, 0.0)
-	var points: Array[Vector3] = []
-	for index in range(8):
-		var angle := -PI * 0.5 + float(index) * TAU / 8.0
-		var radius := 0.12 if index % 2 == 0 else 0.045
-		points.append(Vector3(cos(angle) * radius, 0.12, sin(angle) * radius))
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in range(points.size()):
-		var next_index := (index + 1) % points.size()
-		mesh.surface_add_vertex(center)
-		mesh.surface_add_vertex(points[index])
-		mesh.surface_add_vertex(points[next_index])
-	mesh.surface_end()
-	return mesh
-
-
-func _build_double_chevron_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for offset in [-0.07, 0.07]:
-		mesh.surface_add_vertex(Vector3(offset - 0.045, 0.09, -0.09))
-		mesh.surface_add_vertex(Vector3(offset + 0.045, 0.09, 0.0))
-		mesh.surface_add_vertex(Vector3(offset - 0.045, 0.09, 0.09))
-	mesh.surface_end()
-	return mesh
-
-
-func _build_square_seal_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	var half := 0.085
-	var y := 0.08
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for vertex in [
-		Vector3(-half, y, -half), Vector3(half, y, -half), Vector3(half, y, half),
-		Vector3(-half, y, -half), Vector3(half, y, half), Vector3(-half, y, half),
-	]:
-		mesh.surface_add_vertex(vertex)
+		for vertex in [
+			Vector3(0.0, 0.072, 0.0), crown[index], crown[next_index],
+			pointer, crown[next_index], crown[index],
+		]:
+			mesh.surface_add_vertex(vertex)
 	mesh.surface_end()
 	return mesh
 
@@ -757,15 +617,9 @@ func _latest_discard_marker_material() -> StandardMaterial3D:
 	return result
 
 
-func _update_status_marker_positions(selected: bool, new_draw: bool) -> void:
-	var selected_marker_z := -TILE_SIZE.z * 0.59
-	var draw_marker_z := -TILE_SIZE.z * 0.72
-	if selected and new_draw:
-		selected_marker.position = Vector3(-DUAL_MARKER_OFFSET_X, 0.245, selected_marker_z)
-		new_draw_marker.position = Vector3(DUAL_MARKER_OFFSET_X, 0.245, draw_marker_z)
-	else:
-		selected_marker.position = Vector3(0.0, 0.245, selected_marker_z)
-		new_draw_marker.position = Vector3(0.0, 0.245, draw_marker_z)
+func _update_status_marker_positions(new_draw: bool) -> void:
+	if new_draw:
+		new_draw_marker.position = NEW_DRAW_MARKER_POSITION
 
 
 func _flat_material(key: String, color: Color) -> StandardMaterial3D:
@@ -781,17 +635,14 @@ func _flat_material(key: String, color: Color) -> StandardMaterial3D:
 	return result
 
 
-func _cartoon_source_arrow_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:compact_blue_meld_source_v1"
+func _source_arrow_material() -> StandardMaterial3D:
+	const CACHE_KEY := "marker:compact_sky_blue_source_flat_v5"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("42A5FF")
+	result.albedo_color = SOURCE_ARROW_COLOR
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	result.emission_enabled = true
-	result.emission = Color("1264C7")
-	result.emission_energy_multiplier = 0.32
 	material_cache[CACHE_KEY] = result
 	return result
 
@@ -799,11 +650,28 @@ func _cartoon_source_arrow_material() -> StandardMaterial3D:
 func _build_winning_arrow_mesh() -> ImmediateMesh:
 	var mesh := ImmediateMesh.new()
 	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	# Arrow tip points to local -Z; the stage rotates it toward the discarder.
+	# 胡牌来源使用简化的短杆箭头，体积仅比碰/杠箭头略大；尖端沿本地 -Z。
 	for vertex in [
-		Vector3(0.0, 0.0, -0.22), Vector3(0.12, 0.0, -0.035), Vector3(-0.12, 0.0, -0.035),
-		Vector3(-0.040, 0.0, -0.035), Vector3(0.040, 0.0, -0.035), Vector3(0.040, 0.0, 0.15),
-		Vector3(-0.040, 0.0, -0.035), Vector3(0.040, 0.0, 0.15), Vector3(-0.040, 0.0, 0.15),
+		Vector3(0.0, 0.0, -0.082), Vector3(0.056, 0.0, -0.002), Vector3(-0.056, 0.0, -0.002),
+		Vector3(0.019, 0.0, -0.002), Vector3(0.019, 0.0, 0.082), Vector3(-0.019, 0.0, 0.082),
+		Vector3(0.019, 0.0, -0.002), Vector3(-0.019, 0.0, 0.082), Vector3(-0.019, 0.0, -0.002),
+	]:
+		mesh.surface_add_vertex(vertex)
+	mesh.surface_end()
+	return mesh
+
+
+func _build_meld_source_arrow_mesh() -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	# 参考图的来源标记是压在牌面上的“细杆 + 小三角”扁平箭头；不要做成上一版
+	# 那种大三角或悬浮的 3D 指示牌。箭头尖端沿本地 -Z 指向来源玩家。
+	for vertex in [
+		# 小号实心箭头头部（宽度约为牌面四分之一）。
+		Vector3(0.0, 0.0, -0.060), Vector3(0.047, 0.0, 0.008), Vector3(-0.047, 0.0, 0.008),
+		# 窄短杆，让轮廓与参考图的“牌面来源箭头”一致，而非单独的三角块。
+		Vector3(0.017, 0.0, 0.008), Vector3(0.017, 0.0, 0.068), Vector3(-0.017, 0.0, 0.068),
+		Vector3(0.017, 0.0, 0.008), Vector3(-0.017, 0.0, 0.068), Vector3(-0.017, 0.0, 0.008),
 	]:
 		mesh.surface_add_vertex(vertex)
 	mesh.surface_end()

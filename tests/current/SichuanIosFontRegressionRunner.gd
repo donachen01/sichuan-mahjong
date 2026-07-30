@@ -185,11 +185,11 @@ func _check_required_typography_roles(root_node: Node, failures: Array[String]) 
 
 	var center_indicator: Control = root_node.get("center_turn_indicator")
 	var wall_count := center_indicator.get_node_or_null("%TurnChipLabel") as Label
-	_check_control_font_path(wall_count, "中央悬浮余牌文字", BODY_FONT_PATH, failures)
+	_check_control_font_path(wall_count, "中央静态余牌数字", BODY_FONT_PATH, failures)
 	var wall_count_size := wall_count.get_theme_font_size("font_size")
 	sizes["wall_count"] = wall_count_size
 	if wall_count_size < 30:
-		failures.append("floating wall count font size below standard minimum: %d" % wall_count_size)
+		failures.append("static wall count font size below standard minimum: %d" % wall_count_size)
 
 	var settlement: Control = root_node.get("settlement_overlay_v2")
 	var round_label := settlement.get_node_or_null("%RoundLabel") as Label

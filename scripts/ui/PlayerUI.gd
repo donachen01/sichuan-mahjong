@@ -33,6 +33,7 @@ const SIDE_GROUP_GAP := 12.0
 const SIDE_TRACK_GAP := 10.0
 const SIDE_MAX_ROWS := 7
 const SIDE_MELD_GROUPS_PER_COLUMN := 2
+const SOURCE_ARROW_COLOR := Color("48C8FF")
 @onready var root_panel: Panel = %RootPanel
 @onready var root_margin: MarginContainer = $RootPanel/Margin
 @onready var root_vbox: VBoxContainer = %VBox
@@ -1188,18 +1189,18 @@ func _build_meld_badge_style(meld: Dictionary) -> StyleBoxFlat:
 
 func _claim_arrow_text(viewer_seat: int, from_seat: int) -> String:
 	if from_seat == viewer_seat:
-		return "自摸"
+		return ""
 	match from_seat:
 		0:
-			return "↓本家"
+			return "↓"
 		1:
-			return "←上家"
+			return "←"
 		2:
-			return "↑对家"
+			return "↑"
 		3:
-			return "→下家"
+			return "→"
 		_:
-			return "自摸"
+			return ""
 
 
 func _claim_arrow_symbol(arrow_text: String) -> String:
@@ -1221,54 +1222,26 @@ func _create_claim_arrow_overlay(tile_size: Vector2, arrow_text: String, centere
 	overlay.anchor_right = 1.0
 	overlay.anchor_bottom = 1.0
 
-	var badge_size := Vector2(26, 22) if seat_dock in [SeatDock.LEFT, SeatDock.RIGHT] else Vector2(30, 24)
+	var badge_size := Vector2(18, 16) if seat_dock in [SeatDock.LEFT, SeatDock.RIGHT] else Vector2(20, 17)
 	var badge := Node2D.new()
+	badge.name = "CompactSkyBlueClaimArrow"
 	badge.position = tile_size * 0.5 if centered else Vector2(tile_size.x * 0.5, tile_size.y * 0.16)
 	badge.rotation = _claim_arrow_rotation(arrow_text)
 	overlay.add_child(badge)
 
-	var shadow := Polygon2D.new()
-	shadow.polygon = PackedVector2Array([
-		Vector2(0, -badge_size.y * 0.5),
-		Vector2(badge_size.x * 0.56, badge_size.y * 0.46),
-		Vector2(0, badge_size.y * 0.18),
-		Vector2(-badge_size.x * 0.56, badge_size.y * 0.46),
-	])
-	shadow.color = Color(0.34, 0.22, 0.02, 0.18)
-	shadow.position = Vector2(0, 2)
-	badge.add_child(shadow)
-
 	var arrow := Polygon2D.new()
+	arrow.name = "FlatSkyBlueArrow"
 	arrow.polygon = PackedVector2Array([
 		Vector2(0, -badge_size.y * 0.5),
-		Vector2(badge_size.x * 0.56, badge_size.y * 0.46),
-		Vector2(0, badge_size.y * 0.18),
-		Vector2(-badge_size.x * 0.56, badge_size.y * 0.46),
+		Vector2(badge_size.x * 0.5, 0),
+		Vector2(badge_size.x * 0.18, 0),
+		Vector2(badge_size.x * 0.18, badge_size.y * 0.5),
+		Vector2(-badge_size.x * 0.18, badge_size.y * 0.5),
+		Vector2(-badge_size.x * 0.18, 0),
+		Vector2(-badge_size.x * 0.5, 0),
 	])
-	arrow.color = Color(1.0, 0.84, 0.18, 0.72)
+	arrow.color = SOURCE_ARROW_COLOR
 	badge.add_child(arrow)
-
-	var highlight := Polygon2D.new()
-	highlight.polygon = PackedVector2Array([
-		Vector2(0, -badge_size.y * 0.42),
-		Vector2(badge_size.x * 0.28, badge_size.y * 0.12),
-		Vector2(-badge_size.x * 0.28, badge_size.y * 0.12),
-	])
-	highlight.color = Color(1.0, 0.97, 0.70, 0.36)
-	highlight.position = Vector2(0, -1)
-	badge.add_child(highlight)
-
-	var outline := Line2D.new()
-	outline.width = 1.6
-	outline.default_color = Color(0.70, 0.48, 0.04, 0.76)
-	outline.closed = true
-	outline.points = PackedVector2Array([
-		Vector2(0, -badge_size.y * 0.5),
-		Vector2(badge_size.x * 0.56, badge_size.y * 0.46),
-		Vector2(0, badge_size.y * 0.18),
-		Vector2(-badge_size.x * 0.56, badge_size.y * 0.46),
-	])
-	badge.add_child(outline)
 	return overlay
 
 

@@ -143,12 +143,12 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 	var directions: Array = center_contract.get("direction_labels", [])
 	if not directions.is_empty():
 		failures.append("中央区不应再显示本/上/对/下文字")
-	if str(center_contract.get("concept", "")) != "floating_wall_count_above_physical_center" \
+	if str(center_contract.get("concept", "")) != "static_wall_count_on_physical_center" \
 			or bool(center_contract.get("persistent_long_status_text", true)):
-		failures.append("中央区必须只保留悬浮余牌信息，不得常驻长状态句")
+		failures.append("中央区必须只保留贴在实体中心盘上的静态余牌数，不得常驻长状态句")
 	var wall_count := center.get_node_or_null("%TurnChipLabel") as Label
-	if wall_count == null or not wall_count.visible or not wall_count.text.begins_with("余"):
-		failures.append("余牌必须使用中心图形上方的无框悬浮文字")
+	if wall_count == null or not wall_count.visible or not wall_count.text.is_valid_int():
+		failures.append("余牌必须使用贴在中心图形上的纯数字")
 	var background := center.get_node_or_null("%BackgroundPanel") as Panel
 	var compass_overlay := center.get_node_or_null("%CompassVisual") as Control
 	if background == null or background.visible or compass_overlay == null or compass_overlay.visible:
@@ -357,6 +357,14 @@ func _verify_reveal_and_won_states(scene: Node, failures: Array[String]) -> void
 		failures.append("已胡手牌没有 %d/%d 全部倒下明牌" % [flat_revealed, all_hands[0].size()])
 	if arrow_count != 1:
 		failures.append("点炮胡来源箭头必须恰好一个，actual=%d" % arrow_count)
+	var compact_badge: Node = scene.call("_create_winning_source_badge", Vector2(84, 112), 1)
+	if compact_badge == null or compact_badge.get_child_count() != 1:
+		failures.append("2D 胡牌来源必须只保留一个简单箭头图形")
+	else:
+		var arrow := compact_badge.get_child(0) as Polygon2D
+		if arrow == null or not arrow.color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR) or arrow.polygon.size() != 7:
+			failures.append("2D 胡牌来源箭头不是统一的天蓝色简化轮廓")
+	compact_badge.free()
 	if not (stage.get("self_hand_keys") as Array).is_empty():
 		failures.append("已胡手牌仍暴露出牌点击目标")
 

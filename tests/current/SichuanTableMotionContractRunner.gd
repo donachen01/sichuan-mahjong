@@ -142,10 +142,10 @@ func _verify_center_text(failures: Array[String]) -> void:
 	var countdown := center.get_node_or_null("%CountLabel") as Label
 	if left_direction == null or left_direction.visible:
 		failures.append("center must not expose highlighted direction text")
-	if wall_count == null or wall_count.text != "余22":
-		failures.append("center must keep wall count as borderless floating text")
+	if wall_count == null or wall_count.text != "22":
+		failures.append("center must keep wall count as a borderless static number on the center surface")
 	elif not wall_count.rotation == 0.0:
-		failures.append("2D fallback count must remain still; the 3D stage owns the rotation")
+		failures.append("2D fallback count must remain still like the 3D center-surface number")
 	if countdown == null or countdown.visible:
 		failures.append("center compass must not expose a presentation countdown")
 	center.queue_free()

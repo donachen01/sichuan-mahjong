@@ -31,8 +31,8 @@ func _ready() -> void:
 	reduced_motion = bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
 	_hide_legacy_center_copy()
 	_apply_layout()
-	# 3D 对局使用 SichuanTableStage3D 里的立体余牌字模；这里仅保留
-	# 非 3D 降级路径的静态文本，不能再出现绕中心环行的旧动效。
+	# 3D 对局把数字直接贴在实体中心盘上；这里仅保留非 3D 降级路径
+	# 的静态数字，不能出现悬浮、绕行或旋转动效。
 	set_process(false)
 
 
@@ -41,7 +41,7 @@ func render(next_wall_count: int, turn_seat: int, _status_text: String = "") -> 
 	if next_seat != current_turn_seat:
 		current_turn_seat = next_seat
 	wall_count = maxi(0, next_wall_count)
-	wall_count_label.text = "余%d" % wall_count
+	wall_count_label.text = str(wall_count)
 
 
 func set_compact(compact_value: bool) -> void:
@@ -61,12 +61,12 @@ func get_active_direction_text() -> String:
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"concept": "floating_wall_count_above_physical_center",
+		"concept": "static_wall_count_on_physical_center",
 		"physical_asset": "res://res/art/3d/sichuan_center_compass_v2.glb",
-		"primary_information": "floating_wall_count",
-		"wall_count_surface": "static_2d_fallback_text_above_center_graphic",
-		"wall_count_format": "余%d",
-		"wall_count_motion": "3d_stage_primary_self_rotation",
+		"primary_information": "static_wall_count",
+		"wall_count_surface": "static_2d_fallback_number_on_center_graphic",
+		"wall_count_format": "%d",
+		"wall_count_motion": "none",
 		"direction_labels": [],
 		"active_encoding": [],
 		"overlay_frames": "removed",
@@ -87,7 +87,7 @@ func _apply_layout() -> void:
 	background_panel.add_theme_stylebox_override("panel", _transparent_style())
 	wall_count_label.visible = true
 	wall_count_label.add_theme_font_size_override("font_size", 30 if compact else 36)
-	wall_count_label.add_theme_color_override("font_color", Color("FFF0B8"))
+	wall_count_label.add_theme_color_override("font_color", Color("F6F5E9"))
 	wall_count_label.add_theme_color_override("font_outline_color", Color(0.01, 0.055, 0.042, 0.98))
 	wall_count_label.add_theme_constant_override("outline_size", 5)
 	wall_count_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.02, 0.01, 0.62))
@@ -110,13 +110,13 @@ func _layout_labels() -> void:
 	right_direction_label.position = Vector2(size.x - 56.0 * scale, (size.y - label_box.y) * 0.5)
 	countdown_label.size = Vector2(64.0, 58.0) * scale
 	countdown_label.position = (size - countdown_label.size) * 0.5
-	# The 2D fallback remains borderless and still.  In a normal 3D match this
-	# node is hidden by MainSceneV2 and the physical rotating text lives in the
-	# stage directly above the real centre object.
+	# The 2D fallback remains borderless and still. In a normal 3D match this
+	# node is hidden by MainSceneV2 and the physical number lies directly on the
+	# real centre object.
 	wall_count_label.size = Vector2(122.0, 54.0) * scale
 	wall_count_label.position = Vector2(
 		(size.x - wall_count_label.size.x) * 0.5,
-		12.0 * scale
+		(size.y - wall_count_label.size.y) * 0.5
 	)
 	wall_count_label.pivot_offset = wall_count_label.size * 0.5
 	wall_count_label.rotation = 0.0

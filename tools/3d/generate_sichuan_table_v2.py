@@ -27,7 +27,7 @@ TABLE_CENTER = np.array([0x18, 0x66, 0x46], dtype=np.float32) / 255.0
 TABLE_BASE = np.array([0x12, 0x55, 0x3B], dtype=np.float32) / 255.0
 TABLE_EDGE = np.array([0x0C, 0x42, 0x31], dtype=np.float32) / 255.0
 LEATHER_RAIL = np.array([0x12, 0x31, 0x25], dtype=np.float32) / 255.0
-WALNUT_WARM = np.array([0x69, 0x30, 0x16], dtype=np.float32) / 255.0
+WALNUT_WARM = np.array([0x58, 0x2C, 0x1A], dtype=np.float32) / 255.0
 PLAYFIELD_GROOVE = np.array([0x0E, 0x41, 0x30], dtype=np.float32) / 255.0
 
 
@@ -177,10 +177,9 @@ def generate_surface_maps(prefix: str, color: np.ndarray, size: int, seed: int, 
     fine = smooth_noise(size, seed + 1, 220)
     grain = (medium - 0.5) * 0.055 + (fine - 0.5) * 0.018
     if prefix == "walnut":
-        # Broad, gently wandering grain is visible from the gameplay camera.
-        # The former single 2% sine banding read as a flat painted strip; these
-        # nested frequencies keep the frame recognisably walnut without
-        # becoming a high-contrast decorative texture.
+        # Real furniture grain is carried by low-contrast colour, normal and
+        # roughness variation. It must not read as dark lines drawn over the
+        # rail from the gameplay camera.
         broad_grain = np.sin(
             (u * 5.0 + np.sin(v * 1.35 * math.pi) * 0.32 + medium * 0.18)
             * math.pi
@@ -191,15 +190,15 @@ def generate_surface_maps(prefix: str, color: np.ndarray, size: int, seed: int, 
             * math.pi
             * 2.0
         )
-        grain += broad_grain * 0.085 + fine_grain * 0.022
+        grain = (medium - 0.5) * 0.032 + (fine - 0.5) * 0.010
+        grain += broad_grain * 0.032 + fine_grain * 0.009
     rgb = color[None, None, :] * (1.0 + grain[:, :, None])
     if prefix == "walnut":
-        # Colour separation between earlywood and latewood makes the grain
-        # legible after Filmic tonemapping; a scalar-only orange texture lost
-        # all furniture character once the cool table key light was applied.
-        dark_vein = ((1.0 - broad_grain) * 0.5) ** 5
-        rgb *= 1.0 - dark_vein[:, :, None] * 0.24
-        warm_lift = np.array([0.040, 0.018, 0.008], dtype=np.float32)
+        # Preserve subtle earlywood/latewood separation without the previous
+        # near-black veins, then add a restrained warm satin lift.
+        dark_vein = ((1.0 - broad_grain) * 0.5) ** 7
+        rgb *= 1.0 - dark_vein[:, :, None] * 0.075
+        warm_lift = np.array([0.020, 0.009, 0.004], dtype=np.float32)
         rgb += warm_lift[None, None, :] * ((broad_grain + 1.0) * 0.5)[:, :, None]
     base = save_rgba_image(f"{prefix.title()}BaseColor", TEXTURE_DIR / f"{prefix}_basecolor.png", rgb)
     grad_y, grad_x = np.gradient(grain)
@@ -371,67 +370,13 @@ def rounded_rectangle_ring(
     return obj
 
 
-def walnut_grain_curves(material: bpy.types.Material):
-    """Add restrained lengthwise grain relief around the continuous frame."""
-    curve_data = bpy.data.curves.new("WalnutLongitudinalGrainCurve", type="CURVE")
-    curve_data.dimensions = "3D"
-    curve_data.resolution_u = 2
-    curve_data.bevel_depth = 0.008
-    curve_data.bevel_resolution = 2
-    curve_data.resolution_u = 2
-
-    line_specs = [
-        ("vertical", -7.07, -4.05, 4.05, 0.15),
-        ("vertical", -7.20, -4.00, 4.00, 1.10),
-        ("vertical", 7.07, -4.05, 4.05, 2.15),
-        ("vertical", 7.20, -4.00, 4.00, 3.10),
-        ("horizontal", -4.42, -6.45, 6.45, 0.65),
-        ("horizontal", -4.55, -6.35, 6.35, 1.60),
-        ("horizontal", 4.42, -6.45, 6.45, 2.65),
-        ("horizontal", 4.55, -6.35, 6.35, 3.60),
-    ]
-    point_count = 72
-    for orientation, fixed_axis, start, end, phase in line_specs:
-        spline = curve_data.splines.new("POLY")
-        spline.points.add(point_count - 1)
-        for index in range(point_count):
-            factor = index / float(point_count - 1)
-            primary = start * (1.0 - factor) + end * factor
-            wave = (
-                math.sin(factor * math.pi * 2.0 * 1.35 + phase) * 0.014
-                + math.sin(factor * math.pi * 2.0 * 0.52 + phase * 0.7) * 0.010
-            )
-            if orientation == "vertical":
-                coordinates = (fixed_axis + wave, primary, 0.229, 1.0)
-            else:
-                coordinates = (primary, fixed_axis + wave, 0.229, 1.0)
-            spline.points[index].co = coordinates
-
-    curve_object = bpy.data.objects.new("WalnutLongitudinalGrain", curve_data)
-    bpy.context.collection.objects.link(curve_object)
-    curve_data.materials.append(material)
-    bpy.context.view_layer.objects.active = curve_object
-    curve_object.select_set(True)
-    bpy.ops.object.convert(target="MESH")
-    result = bpy.context.active_object
-    result.name = "WalnutLongitudinalGrain"
-    result.select_set(False)
-    return result
-
-
 def build_table() -> list[bpy.types.Object]:
     felt_maps = generate_felt_maps()
     leather_maps = generate_surface_maps("leather", LEATHER_RAIL, 1024, 6101, 0.72, 0.0)
-    walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.64, 0.0)
+    walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.54, 0.0)
     felt = pbr_material("DeepEmeraldShortNapFelt", *felt_maps, normal_strength=0.52)
     leather = pbr_material("InkGreenLeather", *leather_maps)
-    walnut = pbr_material("WarmWalnutFrame", *walnut_maps, normal_strength=0.52)
-    walnut_grain = simple_material(
-        "WalnutLongitudinalGrainShadow",
-        np.array([0x35, 0x18, 0x0C], dtype=np.float32) / 255.0,
-        0.76,
-        0.0,
-    )
+    walnut = pbr_material("WarmWalnutFrame", *walnut_maps, normal_strength=0.38)
     groove = simple_material("PlayfieldRecessedGroove", PLAYFIELD_GROOVE, 0.94, 0.0)
 
     objects = [
@@ -466,7 +411,6 @@ def build_table() -> list[bpy.types.Object]:
             0.055,
             leather,
         ),
-        walnut_grain_curves(walnut_grain),
     ]
     # Low, rounded dark-green strips create the same recessed playfield
     # structure as the reference image. They sit just above the felt plane,

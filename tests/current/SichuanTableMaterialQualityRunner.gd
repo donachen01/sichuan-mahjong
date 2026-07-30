@@ -26,7 +26,7 @@ func _run() -> void:
 		_verify_mesh(table, "TableWalnutBase", Vector3(14.8, 0.56, 9.6), "WarmWalnutFrame")
 		_verify_mesh(table, "TableFelt", Vector3(13.38, 0.31, 8.18), "DeepEmeraldShortNapFelt")
 		_verify_material_family(table, "WalnutApronRing", "WarmWalnutFrame")
-		_verify_material_family(table, "WalnutLongitudinalGrain", "WalnutLongitudinalGrainShadow")
+		_check(table.find_child("WalnutLongitudinalGrain", true, false) == null, "raised dark grain lines are removed from the walnut frame")
 		_verify_material_family(table, "LeatherGasketRing", "InkGreenLeather")
 		for retired_trim_name in [
 			"WalnutApronTop", "WalnutApronBottom", "WalnutApronLeft", "WalnutApronRight",

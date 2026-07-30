@@ -93,8 +93,8 @@ func _verify_center_compass(failures: Array[String]) -> void:
 	indicator.call("render", 34, 3, "下家出牌中")
 	await process_frame
 	var visual_contract: Dictionary = indicator.call("get_visual_contract")
-	if str(visual_contract.get("concept", "")) != "floating_wall_count_above_physical_center":
-		failures.append("中央必须使用图形上方的悬浮余牌文字")
+	if str(visual_contract.get("concept", "")) != "static_wall_count_on_physical_center":
+		failures.append("中央必须使用贴在实体中心盘上的静态余牌数字")
 	if str(visual_contract.get("physical_asset", "")) != "res://res/art/3d/sichuan_center_compass_v2.glb":
 		failures.append("中央四向器必须声明可复现的 Blender 实体资产")
 	if str(visual_contract.get("visual_density", "")) != "low":
@@ -120,10 +120,10 @@ func _verify_center_compass(failures: Array[String]) -> void:
 		if compass.visible:
 			failures.append("中央方向高亮框必须随方向文字一并隐藏")
 	var turn_chip := indicator.get_node_or_null("%TurnChipLabel") as Label
-	if turn_chip == null or turn_chip.text != "余34":
-		failures.append("余牌数必须是中心图形上方的单行悬浮文字")
+	if turn_chip == null or turn_chip.text != "34":
+		failures.append("余牌数必须是贴在中心图形上的静态纯数字")
 	if str(visual_contract.get("overlay_frames", "")) != "removed":
-		failures.append("中央悬浮余牌不得保留背景暗框")
+		failures.append("中央静态余牌数字不得保留背景暗框")
 	var caption := indicator.get_node_or_null("%CaptionLabel") as Label
 	if caption == null or caption.visible:
 		failures.append("四向器顶部不应显示对家文字方向")
