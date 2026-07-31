@@ -124,6 +124,7 @@ rm -f "$GODOT_ANDROID_OUTPUT"
 
 "$GODOT_BIN" \
   --headless \
+  --rendering-method gl_compatibility \
   --editor \
   --path "$PROJECT_DIR" \
   --script "res://tools/export_android_direct.gd"
@@ -164,6 +165,11 @@ fi
 FINAL_GODOT_LIB_SHA256="$(unzip -p "$PRUNED_APK" 'lib/arm64-v8a/libgodot_android.so' | shasum -a 256 | awk '{print $1}')"
 if [[ "$FINAL_GODOT_LIB_SHA256" != "$MONO_ANDROID_LIB_SHA256" ]]; then
   echo "Release APK still does not contain the verified mono Android native library: $FINAL_GODOT_LIB_SHA256"
+  exit 1
+fi
+if ! unzip -p "$PRUNED_APK" 'assets/_cl_' | strings | grep -Fxq -- '--rendering-method' || \
+   ! unzip -p "$PRUNED_APK" 'assets/_cl_' | strings | grep -Fxq -- 'gl_compatibility'; then
+  echo "Release APK is missing the Android gl_compatibility runtime override."
   exit 1
 fi
 "$BUILD_TOOLS/zipalign" -f -p 4 "$PRUNED_APK" "$ALIGNED_APK"

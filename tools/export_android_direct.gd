@@ -82,6 +82,9 @@ func _export_android() -> void:
 	preset.set("screen/support_large", true)
 	preset.set("screen/support_xlarge", true)
 	preset.set("screen/background_color", Color.BLACK)
+	# Android must start in the compatibility renderer even though the shared
+	# mobile project setting remains Forward+ for the existing iOS pipeline.
+	preset.set("command_line/extra_args", "--rendering-method gl_compatibility")
 	preset.set("user_data_backup/allow", false)
 	preset.set("shader_baker/enabled", false)
 	preset.set("xr_features/xr_mode", 0)
