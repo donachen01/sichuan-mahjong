@@ -15,7 +15,7 @@ const HAND_STEP_SIDE := 0.62
 const HAND_STEP_FAR := 0.55
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
-const FAR_HAND_SCALE := 1.27
+const FAR_HAND_SCALE := 1.28
 const SIDE_WIN_RESULT_UPSHIFT_Z := 0.72
 const SIDE_WINNING_TILE_MAX_LOCAL_Z := 1.65
 const MELD_SCALE := 1.12
@@ -32,11 +32,14 @@ const DRAW_SETTLE_SECONDS := 0.05
 const DISCARD_TRAVEL_SECONDS := 0.20
 const DISCARD_SETTLE_SECONDS := 0.04
 const DISCARD_REFLOW_BEAT_SECONDS := 0.06
+# 翻扣只旋转同一块实体牌，不改变缩放。由于 GLB 原点位于背层底面，翻转后
+# 必须抬高完整的 0.24 牌厚，才能让底面仍落在原桌面高度。
+const CONCEALED_BACK_FLIP_Y_OFFSET := 0.24
 const SELF_RACK_TILT_DEGREES := 48.0
 # 对家、上家和下家的暗手按用户验收要求严格垂直于桌面，不再向桌心内倾。
 # 正负号只决定哪一实体表面朝向牌主；绝对值都必须保持 90°。
 const SIDE_RACK_TILT_DEGREES := 90.0
-const FAR_RACK_TILT_DEGREES := -90.0
+const FAR_RACK_TILT_DEGREES := 90.0
 const CENTER_INDICATOR_WORLD_Z := -1.60
 const DISCARD_GLOBAL_Z_SHIFT := -1.60
 const WALL_COUNT_SURFACE_HEIGHT := 0.64
@@ -415,16 +418,16 @@ func _append_hand_entries(
 	var winning_tile_id := int(winning_tile.get("id", -1))
 	var winning_source_seat := int(player.get("winning_source_seat", seat))
 	# 自摸牌本来就在手牌中：必须与全部手牌一起倒下，不能先抽出再当成点炮牌附加。
-	# 自摸结算时整手扣在桌面，只展示统一翡翠牌背，不能泄露全部牌面。
-	# 只有点炮胡才在原手牌旁附加一张外来胡牌，AI 点炮胡同时保留原站立手牌。
+	# AI 自摸和点炮胡后的保留手牌都整手扣在桌面，统一展示图 1 的明亮牌背；
+	# 只有点炮胡会在整手旁附加一张外来明牌。
 	var self_draw_win := has_won and not winning_tile.is_empty() and winning_source_seat == seat
 	var discard_win := has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	var ai_discard_win := seat != 0 and has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	# 三家明牌时统一平放正面，避免严格 90° 的侧家牌面与相机视线近乎平行，
 	# 看起来仍像牌背。胡牌展示与主动明牌共用真实 3D 牌，不引入额外 HUD 贴图。
 	var reveal_opponent_hand := show_face and seat != 0 and not has_won
-	var conceal_self_draw_result := self_draw_win and seat != 0
-	var lay_down_hand := (has_won and not ai_discard_win) or reveal_opponent_hand
+	var conceal_ai_win_result := has_won and not winning_tile.is_empty() and seat != 0
+	var lay_down_hand := has_won or reveal_opponent_hand
 	var display_hand: Array = hand.duplicate(true)
 	if seat == 0:
 		display_hand = _sort_human_hand_for_display(display_hand, str(player.get("ding_que", "")))
@@ -443,19 +446,28 @@ func _append_hand_entries(
 		var tile: Dictionary = display_hand[index]
 		var tile_id := int(tile.get("id", -1))
 		var position := _hand_position(seat, index, count, step)
-		# 侧家胡牌时整条保留手牌向桌面上方收紧，给本家手牌留出固定保护带。
+		# 侧家点炮胡的平扣结果继续沿用既有安全位移，给本家手牌与附加胡牌留出
+		# 保护带；这只是整条结果的平移，不改变牌距或桌面布局合同。
 		if ai_discard_win and seat in [1, 3]:
 			position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		if lay_down_hand:
 			position.y = 0.09
+		if conceal_ai_win_result:
+			# 牌体 GLB 的原点位于背层底面。绕本地 X 轴物理翻扣后，必须抬高
+			# 一整块牌的 0.24 高度，才能让实体翡翠层落在桌面上而不是沉入桌布。
+			position.y += CONCEALED_BACK_FLIP_Y_OFFSET
 		var selected := seat == 0 and tile_id == selected_id
 		if selected:
 			position.y += 0.11
-		var hand_basis := _flat_basis_for_seat(seat) if lay_down_hand else _standing_basis_for_seat(seat)
+		var hand_basis := (
+			_concealed_back_up_basis_for_seat(seat)
+			if conceal_ai_win_result
+			else (_flat_basis_for_seat(seat) if lay_down_hand else _standing_basis_for_seat(seat))
+		)
 		var key := "hand_%d_%d" % [seat, tile_id if tile_id >= 0 else index]
 		desired[key] = _entry(
 			tile,
-			(show_face or lay_down_hand) and not conceal_self_draw_result,
+			(show_face or lay_down_hand) and not conceal_ai_win_result,
 			Transform3D(hand_basis, position),
 			selected,
 			seat == 0 and (
@@ -471,22 +483,25 @@ func _append_hand_entries(
 			seat,
 			180.0 if seat != 0 else 0.0,
 			seat == 0,
-			conceal_self_draw_result or (seat == 2 and not show_face),
-			conceal_self_draw_result
+			false,
+			conceal_ai_win_result
 		)
 		if seat == 0 and not has_won:
 			self_hand_keys.append(key)
 	if discard_win:
 		var source_seat := winning_source_seat
 		var winning_position := _hand_position(seat, count, count + 1, step)
+		# 下家的 +Z 端紧邻本家安全区。点炮胡时把外来胡牌放到其牌列的 -Z 端，
+		# 与上家使用同一远离本家的安全侧，避免平扣整手后被 1.65 保护线压回牌列。
+		if ai_discard_win and seat == 3:
+			winning_position = _hand_position(seat, -1, count + 1, step)
 		if ai_discard_win and seat in [1, 3]:
 			winning_position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		# The winning tile is a separate result token, not another compressed hand
-		# tile. Point-winning AI racks need a larger break because the upright hand
-		# projects farther along the rail than a flat tile; human laid-down results
-		# retain the tighter established spacing.
+		# tile. Both human and AI point-win results are now flat, so they share the
+		# tighter established spacing while keeping one visible separation gap.
 		if count > 0:
-			var edge_break := (2.60 if seat in [1, 3] else 1.75) if ai_discard_win else 0.85
+			var edge_break := 0.85
 			match seat:
 				0:
 					winning_position.x += step * edge_break
@@ -495,7 +510,7 @@ func _append_hand_entries(
 				2:
 					winning_position.x -= step * edge_break
 				3:
-					winning_position.z += step * edge_break
+					winning_position.z += step * (-edge_break if ai_discard_win else edge_break)
 		# 下家原先沿 +Z 继续外摆，会侵入本家手牌。上下两家都受同一世界坐标
 		# 保护线约束，保持结果牌邻近自己的牌轨但绝不进入本家手牌区。
 		if ai_discard_win and seat in [1, 3]:
@@ -544,10 +559,17 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 			# 因此外侧正面也不会错误出现碰/杠来源箭头。
 			var show_face := not concealed_gang or tile_index == 0 or tile_index == meld_tiles.size() - 1
 			var is_claim_tile := not concealed_gang and source_seat != seat and tile_index == claim_index
+			if not show_face:
+				position.y += CONCEALED_BACK_FLIP_Y_OFFSET
+			var meld_basis := (
+				_flat_basis_for_seat(seat)
+				if show_face
+				else _concealed_back_up_basis_for_seat(seat)
+			)
 			desired[key] = _entry(
 				tile,
 				show_face,
-				Transform3D(_flat_basis_for_seat(seat), position),
+				Transform3D(meld_basis, position),
 				false,
 				false,
 				false,
@@ -559,7 +581,7 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				seat,
 				180.0 if seat != 0 else 0.0,
 				false,
-				not show_face,
+				false,
 				concealed_gang and not show_face,
 				source_seat if is_claim_tile else -1,
 				seat,
@@ -960,6 +982,12 @@ func _flat_basis_for_seat(seat: int) -> Basis:
 	return Basis(Vector3.UP, rotation)
 
 
+func _concealed_back_up_basis_for_seat(seat: int) -> Basis:
+	# GLB 的实体 MahjongTileBack 位于本地 -Y 面。暗杠和 AI 自摸的扣牌必须
+	# 真正把整块牌翻到背层朝上，不能只给 +Y 覆盖面换一张绿色材质。
+	return _flat_basis_for_seat(seat) * Basis(Vector3.RIGHT, PI)
+
+
 func _standing_basis_for_seat(seat: int) -> Basis:
 	# 本家保留便于读牌的 48° 牌架角；三家 AI 暗手严格 90° 正放在桌面上。
 	var yaw: float = float([0.0, -PI * 0.5, PI, PI * 0.5][clampi(seat, 0, 3)])
@@ -1049,21 +1077,26 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"self_hand_scale": SELF_HAND_SCALE,
 		"opponent_hand_scale": SIDE_HAND_SCALE,
 		"far_hand_scale": FAR_HAND_SCALE,
+		"meld_scale": MELD_SCALE,
+		"discard_scale": DISCARD_SCALE,
+		"tile_physical_size": SichuanTile3D.TILE_SIZE,
+		"tile_pose_geometry": "one_shared_0_42x0_24x0_58_model_uniform_scale_rotation_only",
+		"meld_model_geometry": "peng_ming_gang_an_gang_add_gang_share_one_model_uniform_scale_only",
 		"self_hand_pose": "standing_concealed",
 		"opponent_hand_pose": "standing_concealed",
 		"opponent_hand_face_rotation_degrees": 180.0,
 		"opponent_rack_tilt_degrees": absf(SIDE_RACK_TILT_DEGREES),
 		"far_rack_tilt_degrees": absf(FAR_RACK_TILT_DEGREES),
 		"opponent_concealed_surface": "jade_back_with_ivory_rim",
-		"opponent_concealed_owner_surface": "warm_ivory_front",
+		"opponent_concealed_owner_surface": "warm_ivory_sides_target_white_far",
 		"side_concealed_top_tilt": "perpendicular_to_table",
 		"self_hand_lighting": "unshaded_discard_white_face",
 		"won_hand_pose": "human_self_draw_revealed_ai_self_draw_concealed",
 		"self_draw_hand_pose": "human_face_up_with_draw_marker_ai_flat_concealed_back",
 		"opponent_reveal_pose": "three_flat_face_up_hands",
-		"opponent_back_material": "shared_shaded_jade",
+		"opponent_back_material": "all_three_shared_pbr_emerald_back",
 		"discard_win_hand_pose": "flat_revealed_for_human",
-		"ai_discard_win_presentation": "standing_hand_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
+		"ai_discard_win_presentation": "flat_concealed_back_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
 		"side_win_result_upshift_z": SIDE_WIN_RESULT_UPSHIFT_Z,
 		"side_winning_tile_max_local_z": SIDE_WINNING_TILE_MAX_LOCAL_Z,
 		"self_meld_zone": "left_of_concealed_hand",

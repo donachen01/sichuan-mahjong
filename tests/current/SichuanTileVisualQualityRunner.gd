@@ -51,7 +51,7 @@ func _run() -> void:
 			var overlay_size := face_mesh.get_aabb().size
 			_check(overlay_size.x >= 0.39 and overlay_size.x <= 0.41, "rounded overlay preserves the narrow ivory side lip")
 			_check(overlay_size.z >= 0.55 and overlay_size.z <= 0.57, "rounded overlay preserves the narrow ivory end lip")
-		_check(absf(face.position.y - 0.181) <= EPSILON, "rounded overlay sits just above the jade-rounded body")
+		_check(absf(face.position.y - 0.241) <= EPSILON, "rounded overlay sits just above the jade-rounded body")
 
 	if symbol != null:
 		var symbol_material := symbol.get_active_material(0) as StandardMaterial3D
@@ -73,8 +73,9 @@ func _run() -> void:
 	if body_mesh != null:
 		var body_size := _combined_aabb(body_root).size
 		_check(absf(body_size.x - 0.42) <= 0.01, "body width is 0.42")
-		_check(absf(body_size.y - 0.18) <= 0.01, "body thickness is 0.18")
+		_check(absf(body_size.y - 0.24) <= 0.01, "body thickness is the shared 0.24 physical depth")
 		_check(absf(body_size.z - 0.58) <= 0.01, "body height is 0.58")
+		_check(body_size.y / body_size.z >= 0.40, "shared tile proportions remain substantial when laid flat instead of reading as paper")
 		var body_material := body_mesh.material_override as StandardMaterial3D
 		_check(body_material != null, "body material exists")
 		if body_material != null:
@@ -113,14 +114,17 @@ func _run() -> void:
 	_check(jade_mesh != null, "independent jade back layer exists")
 	if jade_mesh != null:
 		var jade_size := jade_mesh.get_aabb().size
-		_check(jade_size.y >= 0.050 and jade_size.y <= 0.060, "jade back layer occupies the commercial-reference share of tile thickness")
+		_check(jade_size.y >= 0.070 and jade_size.y <= 0.078, "jade back layer preserves its share of the thicker physical tile")
 		var jade_material := jade_mesh.material_override as StandardMaterial3D
 		_check(jade_material != null, "jade back material exists")
 		if jade_material != null:
-			_check_color(jade_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "jade layer uses the normal dark-emerald back color")
-			_check(jade_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "jade layer color is stable under table lighting")
-			_check(jade_material.cull_mode == BaseMaterial3D.CULL_DISABLED, "jade layer remains visible from both winner and concealed-kong viewing angles")
-			_check(not jade_material.clearcoat_enabled and not jade_material.emission_enabled, "jade layer has no lighting tint or artificial glow")
+			_check_color(jade_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "jade layer restores the original emerald-resin source color")
+			_check(jade_material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED, "jade layer restores directional table-light response")
+			_check(jade_material.roughness >= 0.26 and jade_material.roughness <= 0.28, "jade layer restores the original resin roughness")
+			_check(jade_material.metallic <= 0.03, "jade layer remains resin-like instead of metallic")
+			_check(jade_material.clearcoat_enabled and jade_material.clearcoat >= 0.33 and jade_material.clearcoat <= 0.35, "jade layer restores the original controlled clearcoat")
+			_check(jade_material.clearcoat_roughness >= 0.19 and jade_material.clearcoat_roughness <= 0.21, "jade clearcoat keeps a soft highlight rolloff")
+			_check(not jade_material.emission_enabled, "jade layer receives light without artificial glow")
 
 	tile.call(
 		"configure",
@@ -145,13 +149,62 @@ func _run() -> void:
 		_check(owner_face_material.roughness >= 0.20 and owner_face_material.roughness <= 0.30, "concealed owner-facing ivory remains jade-smooth")
 	var concealed_back := tile.get("concealed_cap_mesh") as MeshInstance3D
 	_check(concealed_back != null and concealed_back.visible, "concealed tile shows a physical table-facing jade back")
+	if concealed_back != null and concealed_back.mesh != null:
+		_check(concealed_back.mesh.get_aabb().size.y >= 0.01, "concealed jade back keeps a physical resin-edge bevel")
 	var back_material := concealed_back.get_active_material(0) as StandardMaterial3D if concealed_back != null else null
 	_check(back_material != null, "table-facing jade back material exists")
 	if back_material != null:
-		_check_color(back_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "table-facing concealed back matches the normal dark-emerald back")
-		_check(back_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "concealed back color is stable under table lighting")
-		_check(back_material.cull_mode == BaseMaterial3D.CULL_DISABLED, "concealed back remains visible from both table views")
-		_check(not back_material.clearcoat_enabled and not back_material.emission_enabled, "concealed back has no lighting tint or artificial glow")
+		_check_color(back_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "table-facing concealed back matches the original emerald-resin source color")
+		_check(back_material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED, "concealed back restores directional table-light response")
+		_check(back_material.roughness >= 0.26 and back_material.roughness <= 0.28, "concealed back restores the original resin roughness")
+		_check(back_material.metallic <= 0.03, "concealed back remains resin-like instead of metallic")
+		_check(back_material.clearcoat_enabled and back_material.clearcoat >= 0.33 and back_material.clearcoat <= 0.35, "concealed back restores the original controlled clearcoat")
+		_check(back_material.clearcoat_roughness >= 0.19 and back_material.clearcoat_roughness <= 0.21, "concealed back clearcoat keeps a soft highlight rolloff")
+		_check(not back_material.emission_enabled, "concealed back receives light without artificial glow")
+
+	tile.call(
+		"configure",
+		{"id": 3105, "suit": "wan", "rank": 5},
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		false,
+		-1,
+		2,
+		0.0,
+		false,
+		false,
+		false
+	)
+	await process_frame
+	var far_owner_material := face.get_active_material(0) as StandardMaterial3D
+	_check(far_owner_material != null, "far rack keeps a locally bright owner-facing ivory cap")
+	if far_owner_material != null:
+		_check_color(far_owner_material.albedo_color, SichuanTile3D.FAR_RACK_IVORY_COLOR, "far rack owner-facing cap uses the figure-2 ivory source color")
+		_check(far_owner_material.emission_enabled and far_owner_material.emission_energy_multiplier >= 0.20, "far rack owner-facing cap stays white at the accepted vertical pose")
+	var far_back_material := concealed_back.get_active_material(0) as StandardMaterial3D
+	_check(far_back_material != null, "far rack display back material exists")
+	if far_back_material != null:
+		_check_color(far_back_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "far rack uses the same emerald source color as both side opponents")
+		_check(far_back_material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED, "far rack uses the shared PBR back instead of a special unshaded green")
+		_check(far_back_material.clearcoat_enabled, "far rack shared green face retains resin clearcoat")
+	var far_jade_mesh := _mesh_named(body_root, "back")
+	var far_jade_material := far_jade_mesh.material_override as StandardMaterial3D if far_jade_mesh != null else null
+	_check(far_jade_material != null, "far rack keeps an independent physical jade lip")
+	if far_jade_material != null:
+		_check(far_jade_material == far_back_material, "far rack physical jade lip and display back share the exact cached material")
+		_check_color(far_jade_material.albedo_color, SichuanTile3D.NORMAL_TILE_BACK_COLOR, "far rack physical jade lip uses the shared emerald source color")
+		_check(far_jade_material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED, "far rack physical jade lip retains PBR lighting")
+		_check(far_jade_material.clearcoat_enabled, "far rack physical jade lip retains resin clearcoat")
+	var far_body_mesh := _mesh_named(body_root, "body")
+	var far_body_material := far_body_mesh.material_override as StandardMaterial3D if far_body_mesh != null else null
+	_check(far_body_material != null, "far rack keeps an independent ivory body")
+	if far_body_material != null:
+		_check_color(far_body_material.albedo_color, SichuanTile3D.FAR_RACK_IVORY_COLOR, "far rack top body uses the figure-2 ivory source color")
+		_check(far_body_material.emission_enabled and far_body_material.emission_energy_multiplier >= 0.20, "far rack top body has a local white floor without changing table exposure")
 
 	tile.call(
 		"configure",
@@ -178,7 +231,7 @@ func _run() -> void:
 		if draw_yaw_pivot != null:
 			_check(absf(rad_to_deg(draw_yaw_pivot.rotation.x) + SELF_HAND_RACK_TILT_DEGREES) <= EPSILON, "new draw yaw pivot counteracts the self-hand tilt")
 		_check(new_draw_marker.position.z >= -0.14 and new_draw_marker.position.z <= -0.10, "new draw diamond stays tight to the drawn tile instead of floating toward the table")
-		_check(new_draw_marker.position.y >= 0.27 and new_draw_marker.position.y <= 0.30, "new draw diamond sits directly above the drawn tile")
+		_check(new_draw_marker.position.y >= 0.33 and new_draw_marker.position.y <= 0.36, "new draw diamond sits directly above the thicker drawn tile")
 		_check(tile.get("draw_marker_style_variant") == 0, "new-draw marker is the fixed blue-diamond style")
 		var draw_mesh := new_draw_marker.mesh as ImmediateMesh
 		_check(draw_mesh != null, "new draw uses solid 3D diamond geometry")

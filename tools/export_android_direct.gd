@@ -89,7 +89,9 @@ func _export_android() -> void:
 	preset.set("permissions/read_external_storage", is_debug)
 	preset.set("permissions/write_external_storage", is_debug)
 	preset.set("permissions/manage_external_storage", is_debug)
-	preset.set("dotnet/include_scripts_content", is_debug)
+	# Release 包也必须保留 .NET 脚本内容。仅排除调试符号，避免为了瘦身
+	# 裁掉 Godot .NET 在 Android 启动时需要的托管脚本元数据。
+	preset.set("dotnet/include_scripts_content", true)
 	preset.set("dotnet/include_debug_symbols", is_debug)
 	preset.set("dotnet/embed_build_outputs", true)
 	preset.set("dotnet/android_use_linux_bionic", false)

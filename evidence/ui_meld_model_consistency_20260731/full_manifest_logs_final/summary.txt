@@ -1,0 +1,11 @@
+四川麻将 2.6.14 碰杠牌模型一致性最终固定清单
+日期: 2026-07-31
+清单: docs/ui_rework/emerald_final_runner_manifest_V1.txt
+通过: 27
+失败: 0
+结论: 27/27 PASS
+
+说明:
+- 01-26 为 Godot 当前 Runner，包括布局、触控、规则、计分、3D 牌桌、牌体、四档空间布局、相机构图与灯光。
+- 09 的 Sichuan3DTableStageRunner 新增碰、明杠、暗杠、加杠共享模型和三轴等比缩放门禁。
+- 27 为 dotnet/AI.Core/AI.Core.csproj Release 编译。

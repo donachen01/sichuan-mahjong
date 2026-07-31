@@ -118,40 +118,6 @@ ensure_verified_mono_android_lib() {
   fi
 }
 
-prune_excluded_imports_from_apk() {
-  local manifest_file
-  manifest_file="$(mktemp)"
-  local excluded_root
-  local sidecar
-
-  for excluded_root in \
-    docs tests tools build evidence dotnet backups source_assets planning \
-    测试数据统计 设计文档 .tmp_tts .venv_tts; do
-    [[ -d "$PROJECT_DIR/$excluded_root" ]] || continue
-    while IFS= read -r -d '' sidecar; do
-      grep -oE 'res://[^\"]+' "$sidecar" || true
-    done < <(find "$PROJECT_DIR/$excluded_root" -type f -name '*.import' -print0)
-  done | sed 's#^res://#assets/#' | sort -u > "$manifest_file"
-
-  local -a delete_batch
-  local apk_entry
-  local target_count=0
-  while IFS= read -r apk_entry; do
-    [[ -n "$apk_entry" ]] || continue
-    delete_batch+=("$apk_entry")
-    target_count=$((target_count + 1))
-    if (( ${#delete_batch[@]} >= 100 )); then
-      zip -q -d "$PRUNED_APK" "${delete_batch[@]}" 2>/dev/null || true
-      delete_batch=()
-    fi
-  done < "$manifest_file"
-  if (( ${#delete_batch[@]} > 0 )); then
-    zip -q -d "$PRUNED_APK" "${delete_batch[@]}" 2>/dev/null || true
-  fi
-  rm -f "$manifest_file"
-  echo "Excluded imported APK entries targeted: $target_count"
-}
-
 echo "Using Godot: $("$GODOT_BIN" --version)"
 
 rm -f "$GODOT_ANDROID_OUTPUT"
@@ -177,9 +143,8 @@ echo "Base APK bytes: $BASE_APK_BYTES"
 
 cp "$FINAL_APK" "$PRUNED_APK"
 zip -q -d "$PRUNED_APK" 'assets/build/*' 'assets/tests/*' 'assets/tools/*' 'assets/evidence/*' 'assets/dotnet/*' 'assets/backups/*' 'assets/source_assets/*' 'assets/planning/*' 'assets/测试数据统计/*' 'assets/设计文档/*' 'assets/.tmp_tts/*' 'assets/.venv_tts/*' 2>/dev/null || true
-zip -q -d "$PRUNED_APK" 'assets/docs/*' 'assets/.godot/imported/main_scene_v1_0*' 'assets/.godot/imported/table_main_3d_cartoon*' 'assets/.godot/imported/table_refined_v17*' 'assets/.godot/imported/target_layout_zone*' 'assets/.godot/imported/tile_symbols_v1*' 'assets/.godot/imported/v17_final_template*' 'assets/.godot/imported/tile_face_options*' 'assets/.godot/imported/tile_face_f_rounded_variants*' 'assets/.godot/imported/tile_back_options*' 'assets/.godot/imported/table_3d_luxury_scheme*' 'assets/.godot/imported/table_scheme_b_v3*' 2>/dev/null || true
+zip -q -d "$PRUNED_APK" 'assets/docs/*' 2>/dev/null || true
 zip -q -d "$PRUNED_APK" 'assets/*/current_ai_*' 'assets/*/hell_training/*' 'assets/*/hell_marked_cases/*' 'assets/*/hell_replay/*' 'assets/*/*seedlive*' 'assets/*/*seed250514*' 2>/dev/null || true
-prune_excluded_imports_from_apk
 CURRENT_GODOT_LIB_SHA256="$(unzip -p "$PRUNED_APK" 'lib/arm64-v8a/libgodot_android.so' | shasum -a 256 | awk '{print $1}')"
 if [[ "$CURRENT_GODOT_LIB_SHA256" != "$MONO_ANDROID_LIB_SHA256" ]]; then
   ensure_verified_mono_android_lib

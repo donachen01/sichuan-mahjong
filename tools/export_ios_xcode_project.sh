@@ -69,8 +69,9 @@ fi
 IOS_BUILD_ROOT="$PROJECT_DIR/build/ios"
 EXPORT_DIR="$IOS_BUILD_ROOT/SichuanMahjong-${APP_VERSION}-ios-xcode"
 # Keep generated Xcode/DerivedData files out of the next Godot resource scan.
-# The whole iOS build root is reproducible and contains no signing secrets.
-rm -rf "$IOS_BUILD_ROOT"
+# Rebuild only the current version target. Older signed apps are retained as a
+# rollback boundary instead of being erased whenever a new iOS version exports.
+rm -rf "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
 export GODOT_IOS_OUTPUT="$EXPORT_DIR/SichuanMahjongIOS"
 

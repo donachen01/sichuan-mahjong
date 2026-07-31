@@ -10,28 +10,38 @@ var draw_marker_style_variant := 0
 
 @export_enum("无选中图案")
 var selected_marker_style_variant := 0
-const TILE_SIZE := Vector3(0.42, 0.18, 0.58)
-# Blender 玉白牌体顶面 Y=0.18。亮牌不再叠加不透明白色内框，印刷符号直接落在
-# 圆润玉石表面上；暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
+const TILE_SIZE := Vector3(0.42, 0.24, 0.58)
+# Blender 玉白牌体顶面 Y=0.24。所有姿态复用这一个加厚实体，平扣牌不能单独
+# 压缩成纸片。亮牌不再叠加不透明白色内框，印刷符号直接落在圆润玉石表面上；
+# 暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
 const FACE_INSET_SIZE := Vector2(0.42 - 0.066, 0.58 - 0.066)
 const FACE_SIZE := FACE_INSET_SIZE
 const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.018, 0.58 - 0.018)
-const FACE_Y := 0.181
-const MARKER_Y := 0.194
+const FACE_Y := TILE_SIZE.y + 0.001
+const MARKER_Y := FACE_Y + 0.013
 const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
 # 摸牌菱形刻意与黄色最新弃牌共用相同的旋转速率；两者只区分尺寸与颜色。
 const NEW_DRAW_MARKER_SPEED_DEGREES := LATEST_DISCARD_MARKER_SPEED_DEGREES
 const SELF_HAND_MARKER_COUNTER_TILT_DEGREES := -48.0
 const SELF_HAND_FACE_WHITE := Color("FAF8F3")
-const NORMAL_TILE_BACK_COLOR := Color("073B32")
-const FLAT_RESULT_JADE_BACK := NORMAL_TILE_BACK_COLOR
+# 上、下家实体背层继续使用翡翠树脂基色与材质参数；它同时保留在平扣牌的
+# 侧边厚度中，不能因为正面显示色校准而变成白边或二维贴片。
+const NORMAL_TILE_BACK_COLOR := Color("178B32")
+# 用户给出的 Display-P3 图 1 转为 sRGB 后，平扣牌中心稳定在约 RGB(55,151,55)。
+# 下面是按当前 Filmic/Metal 输出反推的源色，最终实拍回到该目标；图 1 要求
+# 整排明亮正绿，不应再沿用深墨绿树脂的朝向补偿色。
+const FLAT_RESULT_JADE_BACK := Color("2E762E")
+# 对家仍可按其朝向局部抬高白色牌身，但普通行牌中的三家暗手必须复用同一套
+# PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
+# 直接读成两副不同颜色的牌。
+const FAR_RACK_IVORY_COLOR := Color("FCFDFF")
 # 碰、杠和胡牌来源统一使用小号、平贴、无渐变的天蓝色箭头。箭头只表达方向，
 # 不再用黄色强调，也不再配座位文字。
 const SOURCE_ARROW_COLOR := Color("48C8FF")
 # GLB 牌体的圆角外缘高于面图层。0.122 让扁平箭头刚好压在外缘之上，避免被遮挡，
 # 同时不再呈现悬浮高度。
 const MELD_SOURCE_ARROW_FACE_OFFSET := 0.122
-const NEW_DRAW_MARKER_POSITION := Vector3(0.0, 0.282, -TILE_SIZE.z * 0.22)
+const NEW_DRAW_MARKER_POSITION := Vector3(0.0, TILE_SIZE.y + 0.102, -TILE_SIZE.z * 0.22)
 
 static var material_cache: Dictionary = {}
 
@@ -61,6 +71,8 @@ var front_brightness_boost := false
 var concealed_surface_flip := false
 var flat_concealed_result := false
 var reduced_motion := false
+var flat_surface_mesh: ArrayMesh
+var beveled_back_surface_mesh: ArrayMesh
 
 
 func _ready() -> void:
@@ -112,10 +124,15 @@ func configure(
 	concealed_surface_flip = flip_concealed_surfaces
 	flat_concealed_result = use_flat_concealed_result
 	_build_visuals()
-	_apply_ivory_body_material(body_root, front_brightness_boost)
+	# 只给隐藏牌背使用树脂倒角；亮牌字面继续使用原平面，避免本轮牌背修复
+	# 改变牌面符号、白边或既有排版。
+	face_mesh.mesh = beveled_back_surface_mesh if not show_face else flat_surface_mesh
+	var use_flat_back_material := not show_face and flat_concealed_result
+	var use_far_rack_material := not show_face and not flat_concealed_result and winner_seat == 2
+	_apply_ivory_body_material(body_root, front_brightness_boost, use_far_rack_material)
 	if not show_face and concealed_surface_flip:
-		# 对家仅翻转实体双面以让牌背朝向桌心，材质必须与上/下家共用同一
-		# 受光翡翠材质；只有胡牌后真正平扣的 AI 自摸结果才使用稳定不受光材质。
+		# 对家翻转实体双面以让牌背朝向桌心；胡牌后真正平扣的暗手继续使用
+		# PBR 翡翠树脂，只对正对顶灯的入射强度做朝向补偿，不能退回无光照纯色。
 		face_mesh.set_surface_override_material(
 			0,
 			_flat_concealed_jade_back_material() if flat_concealed_result else _jade_back_material()
@@ -124,9 +141,16 @@ func configure(
 	else:
 		face_mesh.set_surface_override_material(
 			0,
-			_bright_front_face_material() if show_face and bright_front else _face_material(show_face)
+			_far_rack_ivory_material()
+			if use_far_rack_material
+			else (_bright_front_face_material() if show_face and bright_front else _face_material(show_face))
 		)
-		concealed_cap_mesh.set_surface_override_material(0, _jade_back_material())
+		concealed_cap_mesh.set_surface_override_material(
+			0,
+			_flat_concealed_jade_back_material()
+			if use_flat_back_material
+			else _jade_back_material()
+		)
 	# 本家站立手牌的受光角度比桌面弃牌更容易落暗。仅在 bright_front 合同下
 	# 显示一张紧贴实体圆角牌身的稳定暖白面，使视觉白度与弃牌一致；符号、厚度、
 	# 阴影和触控仍来自原 3D 牌，不是 HUD 卡片。
@@ -248,7 +272,9 @@ func _build_visuals() -> void:
 
 	face_mesh = MeshInstance3D.new()
 	face_mesh.name = "TileFace"
-	face_mesh.mesh = _build_rounded_plane_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
+	flat_surface_mesh = _build_rounded_plane_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
+	beveled_back_surface_mesh = _build_rounded_beveled_back_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
+	face_mesh.mesh = flat_surface_mesh
 	face_mesh.position = Vector3(0.0, FACE_Y, 0.0)
 	face_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(face_mesh)
@@ -258,7 +284,7 @@ func _build_visuals() -> void:
 	# 点击或符号数据。
 	concealed_cap_mesh = MeshInstance3D.new()
 	concealed_cap_mesh.name = "ConcealedTableJadeBack"
-	concealed_cap_mesh.mesh = _build_rounded_plane_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
+	concealed_cap_mesh.mesh = beveled_back_surface_mesh
 	concealed_cap_mesh.position = Vector3(0.0, -0.001, 0.0)
 	concealed_cap_mesh.rotation_degrees = Vector3(180.0, 0.0, 0.0)
 	concealed_cap_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -309,7 +335,7 @@ func _build_visuals() -> void:
 	# 它没有 mesh 和材质，因而绝不会再画出勾号或其他图案。
 	selected_marker = MeshInstance3D.new()
 	selected_marker.name = "SelectionVisualDisabled"
-	selected_marker.position = Vector3(0.0, 0.245, -TILE_SIZE.z * 0.72)
+	selected_marker.position = Vector3(0.0, TILE_SIZE.y + 0.065, -TILE_SIZE.z * 0.72)
 	selected_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	selected_marker.visible = false
 	add_child(selected_marker)
@@ -424,37 +450,75 @@ func _symbol_material() -> StandardMaterial3D:
 	return result
 
 
-func _apply_ivory_body_material(node: Node, bright_front: bool = false) -> void:
+func _apply_ivory_body_material(
+	node: Node,
+	bright_front: bool = false,
+	use_far_rack_material: bool = false
+) -> void:
 	# 新分层牌体 GLB 含两块 mesh：MahjongTileBody(象牙白牌身) 与
 	# MahjongTileBack(翡翠绿背层)。按名字分别上材质，保留几何自带的绿背层次，
 	# 不再把整个牌体无脑染成象牙白。
 	if node is MeshInstance3D:
 		var mesh_instance := node as MeshInstance3D
 		if "back" in mesh_instance.name.to_lower():
+			# 三家普通暗手的大面与实体绿层必须共享同一缓存材质；对家只允许在
+			# 白色牌身上做朝向补偿，不能再拥有第二种牌背颜色。
 			mesh_instance.material_override = _jade_back_material()
 		else:
-			mesh_instance.material_override = _ivory_body_material(bright_front)
+			mesh_instance.material_override = (
+				_far_rack_ivory_material()
+				if use_far_rack_material
+				else _ivory_body_material(bright_front)
+			)
 	for child in node.get_children():
-		_apply_ivory_body_material(child, bright_front)
+		_apply_ivory_body_material(child, bright_front, use_far_rack_material)
 
 
 func _jade_back_material() -> StandardMaterial3D:
-	# 所有方向、暗杠和胡牌结果共用同一块墨绿色牌背。这里使用稳定色而不再让
-	# 顶灯把水平扣牌照成青绿、把竖立牌照成近黑，避免同一副牌出现两种背色。
-	const CACHE_KEY := "body:normal_dark_emerald_back_v3"
+	# 完整恢复图2的翡翠树脂层：基础漫反射负责绿色体积，低金属度与柔和清漆
+	# 共同形成受控高光。所有暗手、暗杠和自摸/胡牌扣牌复用该材质，让朝向变化
+	# 产生真实受光差异，同时保留独立绿色背层、象牙牌身和端面层次。
+	const CACHE_KEY := "body:reference_emerald_resin_back_v8"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
 	result.albedo_color = NORMAL_TILE_BACK_COLOR
+	result.roughness = 0.27
+	result.metallic = 0.02
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.34
+	result.clearcoat_roughness = 0.20
+	material_cache[CACHE_KEY] = result
+	return result
+
+
+func _flat_concealed_jade_back_material() -> StandardMaterial3D:
+	# 图 1 的平扣牌要求稳定的明亮正绿色。实体牌身、倒角、分牌缝和投影继续
+	# 提供厚度；显示面本身不再被顶灯洗亮或压暗，避免一排牌出现多种背色。
+	const CACHE_KEY := "body:flat_bright_green_back_v8"
+	if material_cache.has(CACHE_KEY):
+		return material_cache[CACHE_KEY]
+	var result := StandardMaterial3D.new()
+	result.albedo_color = FLAT_RESULT_JADE_BACK
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
 	return result
 
 
-func _flat_concealed_jade_back_material() -> StandardMaterial3D:
-	# 结果扣牌不得另做一套亮青色材质，直接复用正常牌背。
-	return _jade_back_material()
+func _far_rack_ivory_material() -> StandardMaterial3D:
+	# 对家立牌顶部必须读成图 2 的白色牌身。局部冷白亮度补偿只作用于该朝向，
+	# 不改变灯光、相机或其他座位的象牙材质。
+	const CACHE_KEY := "body:far_rack_ivory_v4"
+	if material_cache.has(CACHE_KEY):
+		return material_cache[CACHE_KEY]
+	var result := _ivory_body_material(false).duplicate() as StandardMaterial3D
+	result.albedo_color = FAR_RACK_IVORY_COLOR
+	result.emission_enabled = true
+	result.emission = Color("BFC9E8")
+	result.emission_energy_multiplier = 0.80
+	material_cache[CACHE_KEY] = result
+	return result
 
 
 func _ivory_body_material(bright_front: bool = false) -> StandardMaterial3D:
@@ -486,7 +550,7 @@ func _ivory_body_material(bright_front: bool = false) -> StandardMaterial3D:
 
 
 func _build_rounded_plane_mesh(size: Vector2, radius: float, corner_segments: int) -> ArrayMesh:
-	# 隐藏牌背用真实圆角轮廓，不再把一张直角 PlaneMesh 贴在玉白壳上。
+	# 亮牌字面的圆角承托面保持平整，不改变现有文字和符号视觉。
 	var vertices := PackedVector3Array([Vector3.ZERO])
 	var normals := PackedVector3Array([Vector3.UP])
 	var half := size * 0.5
@@ -510,6 +574,67 @@ func _build_rounded_plane_mesh(size: Vector2, radius: float, corner_segments: in
 		indices.append(0)
 		indices.append(index + 1)
 		indices.append((index + 1) % rim_count + 1)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
+func _build_rounded_beveled_back_mesh(size: Vector2, radius: float, corner_segments: int) -> ArrayMesh:
+	# 隐藏牌背使用一圈真实下沉倒角，不再只是一张所有法线都朝上的平面。
+	# 中心面负责深绿树脂主体，斜面法线接受方向光和清漆高光，由此在平扣、
+	# 竖立和侧立三种朝向中都能看到图2那种亮边与层次。
+	const BEVEL_WIDTH := 0.018
+	const BEVEL_DEPTH := 0.012
+	var perimeter := PackedVector2Array()
+	var perimeter_normals := PackedVector2Array()
+	var half := size * 0.5
+	var clamped_radius := minf(radius, minf(half.x, half.y))
+	var centers: Array[Vector2] = [
+		Vector2(half.x - clamped_radius, -half.y + clamped_radius),
+		Vector2(half.x - clamped_radius, half.y - clamped_radius),
+		Vector2(-half.x + clamped_radius, half.y - clamped_radius),
+		Vector2(-half.x + clamped_radius, -half.y + clamped_radius),
+	]
+	var start_angles: Array[float] = [-90.0, 0.0, 90.0, 180.0]
+	for corner_index in range(4):
+		for segment in range(corner_segments + 1):
+			var angle: float = deg_to_rad(start_angles[corner_index] + 90.0 * float(segment) / float(corner_segments))
+			var outward := Vector2(cos(angle), sin(angle))
+			perimeter.append(centers[corner_index] + outward * clamped_radius)
+			perimeter_normals.append(outward)
+	var vertices := PackedVector3Array([Vector3.ZERO])
+	var normals := PackedVector3Array([Vector3.UP])
+	for index in range(perimeter.size()):
+		var inner_point := perimeter[index] - perimeter_normals[index] * BEVEL_WIDTH
+		vertices.append(Vector3(inner_point.x, 0.0, inner_point.y))
+		normals.append(Vector3.UP)
+	for index in range(perimeter.size()):
+		var point := perimeter[index]
+		var outward := perimeter_normals[index]
+		vertices.append(Vector3(point.x, -BEVEL_DEPTH, point.y))
+		normals.append(Vector3(outward.x * 0.72, 0.69, outward.y * 0.72).normalized())
+	var indices := PackedInt32Array()
+	var rim_count := perimeter.size()
+	for index in range(rim_count):
+		indices.append(0)
+		indices.append(index + 1)
+		indices.append((index + 1) % rim_count + 1)
+	for index in range(rim_count):
+		var inner_current := index + 1
+		var inner_next := (index + 1) % rim_count + 1
+		var outer_current := rim_count + index + 1
+		var outer_next := rim_count + (index + 1) % rim_count + 1
+		indices.append(inner_current)
+		indices.append(outer_current)
+		indices.append(outer_next)
+		indices.append(inner_current)
+		indices.append(outer_next)
+		indices.append(inner_next)
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
 	arrays[Mesh.ARRAY_VERTEX] = vertices

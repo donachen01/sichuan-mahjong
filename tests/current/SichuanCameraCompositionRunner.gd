@@ -4,7 +4,9 @@ const STAGE_SCRIPT := preload("res://scripts/ui/3d/SichuanTableStage3D.gd")
 
 const MIN_SELF_TILE_HEIGHT_RATIO := 0.14
 const MAX_SELF_TILE_HEIGHT_RATIO := 0.21
-const MIN_FAR_SELF_HEIGHT_RATIO := 0.38
+# 同一实体牌从 0.18 加厚到 0.24 后，前景牌面更靠近透视相机，远/近高度比
+# 会自然下降约 0.2 个百分点；这是牌体深度的真实投影，不是相机或布局漂移。
+const MIN_FAR_SELF_HEIGHT_RATIO := 0.375
 const MAX_FAR_SELF_HEIGHT_RATIO := 0.45
 const MIN_SIDE_PERSPECTIVE_RATIO := 1.15
 const MAX_SIDE_PERSPECTIVE_RATIO := 1.30
@@ -204,7 +206,9 @@ func _max_min_ratio(values: Array) -> float:
 
 
 func _self_width_range(aspect_ratio: float) -> Vector2:
-	return Vector2(0.74, 0.80)
+	# 加厚后本家倾斜牌面的投影宽度为 80.28%，仍完整落在左右 8% 以上安全区内。
+	# 上限只放宽一个百分点以接纳实体厚度，不改变既有相机或手牌步距。
+	return Vector2(0.74, 0.81)
 
 
 func _check_range(label: String, value: float, minimum: float, maximum: float, failures: Array[String]) -> void:
