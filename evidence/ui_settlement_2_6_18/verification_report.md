@@ -40,4 +40,4 @@
 - IPA SHA-256：`c07b7690b0a25e5997d2585cb3f1a8a2d2f466ed0249fba00f6a6261a7c39e79`
 - Bundle ID `com.chendong.sichuanmahjong.iosdev`，短版本/构建版本 `2.6.18/2.6.18`，`codesign --deep --strict` 与 IPA ZIP 完整性通过。
 - iPhone 15（CoreDevice `516E99D2-18B6-5DD8-94E1-6993510A036D`）覆盖安装成功，设备数据库读回 `2.6.18/2.6.18`。
-- 本次启动命令被 CoreDevice 明确拒绝，原因为设备当前处于锁定状态（`FBSOpenApplicationServiceErrorDomain ... Locked`）；因此 iOS 本轮最强证据到签名构建、安装和版本读回，尚未把启动/PID或完整真机牌局写成已验证。设备解锁后需补一次 `devicectl device process launch` 与 PID 检查。
+- 首次启动时设备短暂处于锁定状态，CoreDevice 返回 `FBSOpenApplicationServiceErrorDomain ... Locked`；设备解锁后已用 `--terminate-existing` 重试成功。启动约 20 秒的进程检查仍为 `SichuanMahjongIOS` PID `92768`。因此本轮 iOS 自动化证据已到构建、安装、版本读回、前台启动和短时进程存活；完整一局、真实手指触控与长时性能仍需用户在手机上人工验收。
