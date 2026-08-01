@@ -1152,7 +1152,7 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		root_node.set("opponent_hands_enabled", false)
 		root_node.set("ai_helper_enabled", false)
 	var motion_recording := _capture_mode() in MOTION_RECORD_MODES
-	var hand_counts := [14, 13, 13, 13] if _capture_mode() == "camera" else ([2, 2, 2, 2] if _capture_mode() == "meld-pressure" else [11, 10, 10, 10])
+	var hand_counts := [14, 13, 13, 13] if _capture_mode() == "camera" else ([2, 10, 10, 10] if _capture_mode() == "max-meld" else ([2, 2, 2, 2] if _capture_mode() == "meld-pressure" else [11, 10, 10, 10]))
 	# The camera-reference frame mirrors the supplied ding-que screenshot: four
 	# concealed hands, no discards and no melds. Dense gameplay remains covered
 	# by the contract runner and the normal beauty-shot modes.
@@ -1163,7 +1163,7 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		var hand := _make_3d_demo_tiles(10000 + seat * 100, hand_counts[seat], seat)
 		var discards := _make_3d_demo_tiles(20000 + seat * 100, discard_counts[seat], seat + 1)
 		var source_matrix_gang := _capture_mode() == "meld-source-matrix" and seat in [1, 2]
-		var meld_tile_count := 13 if _capture_mode() == "meld-pressure" else (12 if seat == 0 and _capture_mode() == "max-meld" else (7 if seat == 3 and _capture_mode() == "right-meld" else (4 if seat == 2 or source_matrix_gang else 3)))
+		var meld_tile_count := 13 if _capture_mode() == "meld-pressure" else (16 if seat == 0 and _capture_mode() == "max-meld" else (7 if seat == 3 and _capture_mode() == "right-meld" else (4 if seat == 2 or source_matrix_gang else 3)))
 		var meld_tiles := _make_3d_demo_tiles(30000 + seat * 100, meld_tile_count, seat + 2)
 		all_hands.append(hand)
 		var preview_melds: Array = []
@@ -1192,14 +1192,15 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 						"from_seat": (seat + group_index + 1) % 4,
 					})
 			elif seat == 0 and _capture_mode() == "max-meld":
-				# Four exposed groups exercise the widest legal lower-left rail and
-				# prove that the shifted concealed hand still remains unobstructed.
+				# Four gangs plus two concealed tiles exercise the legal 18-tile
+				# pressure limit on the shared lower rail.
 				for group_index in range(4):
 					var group_tiles: Array = []
-					for tile_index in range(group_index * 3, group_index * 3 + 3):
+					for tile_index in range(group_index * 4, group_index * 4 + 4):
 						group_tiles.append(meld_tiles[tile_index])
 					preview_melds.append({
-						"type": "peng",
+						"type": "gang",
+						"gang_subtype": "ming_gang",
 						"tiles": group_tiles,
 						"from_seat": (seat + group_index + 1) % 4,
 					})

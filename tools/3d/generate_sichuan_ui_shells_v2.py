@@ -266,12 +266,6 @@ def render_ding_que_seal(suit: str, palette: tuple[str, str]) -> None:
     cylinder("JadeBody", 1.89, 0.22, 0.23, body, 0.075)
     cylinder("CopperKeyline", 1.61, 0.08, 0.36, copper, 0.04)
     cylinder("InsetSeal", 1.53, 0.11, 0.41, inset, 0.045)
-    # Three restrained relief dots give the shell a recognisable authored seal
-    # silhouette without baking text or state into the raster asset.
-    for index, x in enumerate((-0.52, 0.0, 0.52)):
-        dot = cylinder(f"ReliefDot{index}", 0.055, 0.035, 0.49, rim, 0.018)
-        dot.location.x = x
-        dot.location.y = -1.18
     add_camera_and_lights(ortho_scale=4.95)
     output = OUTPUT_DIR / f"ding_que_{suit}.png"
     configure_render(384, 384, output)
@@ -284,6 +278,11 @@ def main() -> None:
     if "--settlement-only" in sys.argv:
         render_settlement_panel()
         print(f"Generated settlement nine-slice in {OUTPUT_DIR}")
+        return
+    if "--ding-que-only" in sys.argv:
+        for suit, palette in DING_QUE.items():
+            render_ding_que_seal(suit, palette)
+        print(f"Generated dot-free ding-que seals in {OUTPUT_DIR}")
         return
     render_hud_shell()
     for action, hex_value in (("hu", HU), ("gang", GANG), ("peng", PENG), ("pass", PASS)):

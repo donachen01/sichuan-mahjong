@@ -87,6 +87,7 @@ func _run() -> void:
 		_verify_pick_mapping(stage, failures)
 
 	await _verify_side_meld_pressure(stage, snapshot, all_hands, failures)
+	await _verify_self_row_pressure(stage, snapshot, all_hands, failures)
 	stage.render_snapshot(snapshot, all_hands, false, -1, {})
 	await process_frame
 
@@ -196,8 +197,15 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("tile pose contract must rotate one shared model without pose-specific compression")
 	if str(contract.get("meld_model_geometry", "")) != "peng_ming_gang_an_gang_add_gang_share_one_model_uniform_scale_only":
 		failures.append("peng and all gang variants must share one uniformly scaled tile model")
-	if absf(float(contract.get("meld_scale", 0.0)) - SichuanTableStage3D.MELD_SCALE) > 0.001:
-		failures.append("meld scale contract does not match the runtime settled scale")
+	if absf(float(contract.get("self_meld_scale", 0.0)) - float(contract.get("self_hand_scale", 0.0))) > 0.001:
+		failures.append("human melds and concealed hand must share one uniform runtime scale")
+	if int(contract.get("self_layout_max_tiles", -1)) != 18 \
+			or int(contract.get("self_layout_total_tiles", -1)) != hand_counts[0] + 3:
+		failures.append("human row must expose the legal 18-tile shared-layout contract")
+	if float(contract.get("self_layout_span", INF)) > float(contract.get("self_layout_available_width", 0.0)) + 0.001:
+		failures.append("human hand and melds exceed the shared lower rail")
+	if absf(float(contract.get("self_flat_visual_scale_factor", 0.0)) - SichuanTableStage3D.SELF_FLAT_VISUAL_SCALE_FACTOR) > 0.001:
+		failures.append("flat human hand lost its explicit perceived-size compensation")
 	if str(contract.get("opponent_hand_pose", "")) != "standing_concealed":
 		failures.append("AI concealed hands must use a standing presentation")
 	var opponent_tilt := float(contract.get("opponent_rack_tilt_degrees", 0.0))
@@ -226,12 +234,12 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("AI concealed hands must remain perpendicular to the table")
 	if str(contract.get("self_hand_lighting", "")) != "unshaded_discard_white_face":
 		failures.append("human hand lost its discard-white brightness contract")
-	if str(contract.get("self_meld_zone", "")) != "left_of_concealed_hand":
-		failures.append("human melds must occupy the lower-left slot beside the concealed hand")
+	if str(contract.get("self_meld_zone", "")) != "continuous_left_segment_of_shared_18_tile_row":
+		failures.append("human melds must occupy the continuous left segment of the shared 18-tile row")
 	if int(contract.get("self_meld_tile_count", -1)) != 3:
 		failures.append("human meld pressure was not included in the hand anchor")
-	if absf(float(contract.get("self_hand_center_x", 0.0)) - 1.39) > 0.01:
-		failures.append("human hand did not shift right by the accepted meld-space formula")
+	if float(contract.get("self_hand_center_x", INF)) > SichuanTableStage3D.SELF_LAYOUT_RIGHT_X:
+		failures.append("human concealed hand departed from the shared lower rail")
 	if str(contract.get("human_ding_que_sort", "")) != "rightmost_then_rank_then_tile_id":
 		failures.append("3D human hand lost the rightmost ding-que sort contract")
 	if str(contract.get("new_draw_feedback", "")) != "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile":
@@ -542,12 +550,15 @@ func _verify_meld_tile_model_consistency(
 	var reference_body_mesh: Mesh
 	var reference_back_mesh: Mesh
 	var meld_count := 0
-	var expected_scale := Vector3.ONE * SichuanTableStage3D.MELD_SCALE
-	var expected_world_size := SichuanTile3D.TILE_SIZE * SichuanTableStage3D.MELD_SCALE
+	var contract := stage.get_visual_contract()
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		if not str(key_value).begins_with("meld_"):
 			continue
 		meld_count += 1
+		var owner_seat := int(str(key_value).split("_")[1])
+		var expected_scalar := float(contract.get("self_meld_scale", 0.0)) if owner_seat == 0 else SichuanTableStage3D.MELD_SCALE
+		var expected_scale := Vector3.ONE * expected_scalar
+		var expected_world_size := SichuanTile3D.TILE_SIZE * expected_scalar
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
 		if not tile.scale.is_equal_approx(expected_scale):
 			failures.append("%s %s uses non-uniform or wrong settled meld scale: %s" % [fixture_name, key_value, tile.scale])
@@ -573,8 +584,9 @@ func _verify_meld_tile_model_consistency(
 
 func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures: Array[String]) -> void:
 	var nodes: Dictionary = stage.get("tile_nodes")
+	var contract := stage.get_visual_contract()
 	var expected_centers := [
-		Vector3(1.39, 0.25, 3.57),
+		Vector3(float(contract.get("self_hand_center_x", 0.0)), 0.25, 3.57),
 		Vector3(-5.92, 0.36, -1.22),
 		Vector3(-1.40, 0.36, -6.00),
 		Vector3(5.92, 0.36, -1.22),
@@ -595,7 +607,7 @@ func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures:
 	for key_value in nodes.keys():
 		if str(key_value).begins_with("meld_0_"):
 			self_meld_z.append((nodes[key_value] as Node3D).position.z)
-	if self_meld_z.is_empty() or self_meld_z.min() < 3.1 or self_meld_z.max() > 3.3:
+	if self_meld_z.is_empty() or self_meld_z.min() < 3.52 or self_meld_z.max() > 3.62:
 		failures.append("human melds are not aligned with the lower-left hand rail")
 	var self_hand_left := INF
 	var self_meld_right := -INF
@@ -605,8 +617,10 @@ func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures:
 			self_hand_left = minf(self_hand_left, (nodes[key_value] as Node3D).position.x)
 		elif key.begins_with("meld_0_"):
 			self_meld_right = maxf(self_meld_right, (nodes[key_value] as Node3D).position.x)
-	if self_meld_right >= self_hand_left - 0.45:
-		failures.append("human melds do not leave a clear gap before the concealed hand")
+	var tile_width := SichuanTile3D.TILE_SIZE.x * float(contract.get("self_hand_scale", 0.0))
+	var edge_gap := self_hand_left - self_meld_right - tile_width
+	if edge_gap < 0.04 or edge_gap > 0.35:
+		failures.append("human meld/hand edge gap is not compact and readable: %.3f" % edge_gap)
 
 
 func _verify_latest_marker(stage: SichuanTableStage3D, failures: Array[String]) -> void:
@@ -916,6 +930,60 @@ func _verify_side_meld_pressure(stage: SichuanTableStage3D, base_snapshot: Dicti
 			group_rects.append(group_rect)
 
 
+func _verify_self_row_pressure(stage: SichuanTableStage3D, base_snapshot: Dictionary, base_hands: Array, failures: Array[String]) -> void:
+	var pressure_snapshot := base_snapshot.duplicate(true)
+	var pressure_players: Array = pressure_snapshot.get("players", []).duplicate(true)
+	var pressure_hands: Array = base_hands.duplicate(true)
+	pressure_hands[0] = _tiles(57000, 2, 0)
+	var melds: Array = []
+	for meld_index in range(4):
+		melds.append({
+			"type": "gang",
+			"gang_subtype": "ming_gang",
+			"from_seat": (meld_index + 1) % 4,
+			"tiles": _tiles(57100 + meld_index * 10, 4, meld_index),
+		})
+	pressure_players[0]["melds"] = melds
+	pressure_snapshot["players"] = pressure_players
+	stage.render_snapshot(pressure_snapshot, pressure_hands, false, -1, {})
+	await process_frame
+
+	var contract := stage.get_visual_contract()
+	var layout_scale := float(contract.get("self_hand_scale", 0.0))
+	if int(contract.get("self_layout_total_tiles", -1)) != 18 \
+			or int(contract.get("self_layout_max_tiles", -1)) != 18:
+		failures.append("four gangs plus two concealed tiles must exercise exactly the 18-tile layout limit")
+	if float(contract.get("self_layout_span", INF)) > float(contract.get("self_layout_available_width", 0.0)) + 0.001:
+		failures.append("18-tile human pressure layout overflows the available lower rail")
+	if layout_scale >= SichuanTableStage3D.SELF_HAND_SCALE \
+			or layout_scale < SichuanTableStage3D.SELF_LAYOUT_MIN_SCALE:
+		failures.append("18-tile pressure layout did not apply the bounded automatic scale: %.3f" % layout_scale)
+	if absf(layout_scale - float(contract.get("self_meld_scale", 0.0))) > 0.001:
+		failures.append("18-tile pressure layout scales hand and meld tiles differently")
+
+	var hand_left := INF
+	var meld_right := -INF
+	var self_tile_count := 0
+	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
+		var key := str(key_value)
+		if not key.begins_with("hand_0_") and not key.begins_with("meld_0_"):
+			continue
+		self_tile_count += 1
+		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
+		if not tile.scale.is_equal_approx(Vector3.ONE * layout_scale):
+			failures.append("18-tile pressure row contains a differently scaled tile: %s" % key)
+		if key.begins_with("hand_0_"):
+			hand_left = minf(hand_left, tile.position.x)
+		else:
+			meld_right = maxf(meld_right, tile.position.x)
+	if self_tile_count != 18:
+		failures.append("18-tile pressure fixture rendered %d human row tiles" % self_tile_count)
+	var tile_width := SichuanTile3D.TILE_SIZE.x * layout_scale
+	var edge_gap := hand_left - meld_right - tile_width
+	if edge_gap < 0.04 or edge_gap > 0.35:
+		failures.append("18-tile pressure row meld/hand edge gap is not compact: %.3f" % edge_gap)
+
+
 func _projected_prefix_rect(stage: SichuanTableStage3D, prefix: String) -> Rect2:
 	var result := Rect2()
 	var found := false
@@ -991,6 +1059,12 @@ func _verify_human_self_draw_full_hand(stage: SichuanTableStage3D, expected_tile
 	var source_arrow_count := 0
 	var draw_marker_count := 0
 	var winning_tile_id := int((expected_tiles.back() as Dictionary).get("id", -1))
+	var contract := stage.get_visual_contract()
+	var expected_scale := float(contract.get("self_hand_scale", 0.0))
+	if not bool(contract.get("self_layout_is_flat", false)):
+		failures.append("human self-draw result did not activate the flat-row layout contract")
+	if absf(expected_scale - SichuanTableStage3D.SELF_HAND_SCALE * SichuanTableStage3D.SELF_FLAT_VISUAL_SCALE_FACTOR) > 0.01:
+		failures.append("human flat hand did not apply the requested perceived-size compensation")
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		var key := str(key_value)
 		if key.begins_with("winning_0_"):
@@ -1000,6 +1074,8 @@ func _verify_human_self_draw_full_hand(stage: SichuanTableStage3D, expected_tile
 			continue
 		hand_count += 1
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
+		if not tile.scale.is_equal_approx(Vector3.ONE * expected_scale):
+			failures.append("human flat hand uses a different/non-uniform scale at %s" % key)
 		if expected_ids.has(tile.tile_id):
 			expected_ids[tile.tile_id] = int(expected_ids[tile.tile_id]) + 1
 		else:

@@ -19,6 +19,7 @@ func _run() -> void:
 	scene.set("draw_transition_active", false)
 
 	await _verify_ding_que_modal(scene, failures)
+	_verify_opening_roll_phase_contract(scene, failures)
 	_verify_hud_and_center(scene, failures)
 	await _verify_hu_and_cancel(scene, failures)
 	await _verify_utility_reliability(scene, failures)
@@ -65,6 +66,7 @@ func _verify_ding_que_modal(scene: Node, failures: Array[String]) -> void:
 		failures.append("定缺三枚玉印必须直接浮在桌面上，不能残留外层提示卡")
 	var expected_texts := ["条", "筒", "万"]
 	var rects: Array[Rect2] = []
+	scene.call("_reset_ding_que_visual_state")
 	for index in range(buttons.size()):
 		var button := buttons[index]
 		if button == null or button.text != expected_texts[index]:
@@ -77,6 +79,10 @@ func _verify_ding_que_modal(scene: Node, failures: Array[String]) -> void:
 		if style == null or style.texture == null or focus == null \
 				or focus.corner_radius_top_left < 108 or focus.get_border_width(SIDE_TOP) < 4:
 			failures.append("定缺按钮必须使用 Blender 翡翠印章外壳和 Godot 聚焦光环")
+		if style != null and absf(style.content_margin_top - style.content_margin_bottom) > 0.01:
+			failures.append("定缺文字上下内边距必须一致，确保条/筒/万在圆内居中")
+		if button.has_focus():
+			failures.append("定缺出现时不得预先给任一选项亮圈")
 		if button.get_theme_font_size("font_size") < 68 or button.get_theme_constant("outline_size") < 2:
 			failures.append("定缺文字字号或深色描边低于可读门槛")
 		rects.append(button.get_global_rect())
@@ -85,6 +91,49 @@ func _verify_ding_que_modal(scene: Node, failures: Array[String]) -> void:
 			if rects[first].intersects(rects[second], true):
 				failures.append("定缺圆印真实点击区发生重叠")
 	overlay.visible = was_visible
+
+
+func _verify_opening_roll_phase_contract(scene: Node, failures: Array[String]) -> void:
+	var contract: Dictionary = scene.call("get_opening_roll_visual_contract")
+	var visual_seconds := float(contract.get("total_visual_seconds", 0.0))
+	var audio_seconds := float(contract.get("audio_seconds", 0.0))
+	if not bool(contract.get("hidden_during_ding_que", false)):
+		failures.append("骰子必须在定缺阶段开始前隐藏")
+	if str(contract.get("completion_clock", "")) != "monotonic_deadline_independent_of_rendered_tick_count":
+		failures.append("投骰结束必须使用与帧率无关的单调时钟截止时间")
+	if visual_seconds < audio_seconds or visual_seconds - audio_seconds > 0.08:
+		failures.append("骰子动画结束时刻必须与3秒投骰声音对齐")
+	var commit_timer: Timer = scene.get("opening_roll_commit_timer")
+	if commit_timer == null or not commit_timer.one_shot or absf(commit_timer.wait_time - visual_seconds) > 0.001:
+		failures.append("投骰完成计时器必须在动画开始时独立锁定3.05秒截止点")
+	var tick_timer: Timer = scene.get("opening_roll_timer")
+	if tick_timer != null:
+		scene.set("opening_roll_payload", {"die_a": 2, "die_b": 5})
+		scene.set("opening_roll_animation_started_msec", Time.get_ticks_msec() - int((audio_seconds - 0.20) * 1000.0))
+		tick_timer.start()
+		scene.call("_on_opening_roll_timer_timeout")
+		if not tick_timer.is_stopped():
+			failures.append("低帧率跳过换点回调时，骰子没有按单调时钟切到最终点数")
+
+	var opening_snapshot := {
+		"current_phase": int(contract.get("visible_phase", 2)),
+		"players": [{"seat": 0, "ding_que": ""}],
+		"rules": {"use_ding_que_phase": true},
+		"opening_roll": {"die_a": 2, "die_b": 5},
+		"wall_count": 55,
+	}
+	scene.call("_refresh_opening_roll_ui", opening_snapshot)
+	var dice_layer: Control = scene.get("dice_overlay_layer")
+	if dice_layer == null or not dice_layer.visible:
+		failures.append("开局投骰阶段必须显示骰子")
+	var ding_que_snapshot := opening_snapshot.duplicate(true)
+	ding_que_snapshot["current_phase"] = 3
+	scene.call("_refresh_opening_roll_ui", ding_que_snapshot)
+	if dice_layer != null and dice_layer.visible:
+		failures.append("投骰声音和动画完成进入定缺后，骰子仍然可见")
+	var center_indicator: Control = scene.get("center_turn_indicator")
+	if center_indicator != null and center_indicator.visible:
+		failures.append("等待玩家定缺时不得用中央余牌数遮挡三个选项")
 
 
 func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:

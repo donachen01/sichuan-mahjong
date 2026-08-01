@@ -28,6 +28,7 @@ func _run() -> void:
 	else:
 		_verify_normal_round(root_node, utility_bar, failures)
 		_verify_settlement_visibility(utility_bar, failures)
+		await _verify_ios_settlement_close_and_next_round(root_node, utility_bar, failures)
 	await _verify_action_bar(root_node, failures)
 	_verify_summer_ding_que_controls(root_node, failures)
 	await _verify_hand_layout_pressure(failures)
@@ -132,6 +133,49 @@ func _verify_settlement_visibility(utility_bar: Control, failures: Array[String]
 		var rect: Rect2 = utility_bar.call("get_touch_rect", action)
 		if rect.size.x < MIN_TOUCH_SIZE.x or rect.size.y < MIN_TOUCH_SIZE.y:
 			failures.append("%s settlement touch target is smaller than 76x76" % action)
+
+
+func _verify_ios_settlement_close_and_next_round(root_node: Node, utility_bar: Control, failures: Array[String]) -> void:
+	var manager: Node = root_node.get("game_manager")
+	var game_state: Node = manager.get("game_state") if manager != null else null
+	var overlay: Control = root_node.get("settlement_overlay")
+	var close_button: Button = root_node.get("settlement_close_button")
+	if game_state == null or overlay == null or close_button == null:
+		failures.append("iOS 结算触控测试缺少 GameState 或结算按钮")
+		return
+	game_state.set("current_phase", 7)
+	manager.set("latest_snapshot", {})
+	manager.call("get_fresh_snapshot")
+	root_node.set("settlement_dismissed", false)
+	overlay.visible = true
+	utility_bar.call("set_collapsed", true)
+	root_node.call("_layout_settlement_overlay")
+	await process_frame
+
+	var close_touch := InputEventScreenTouch.new()
+	close_touch.position = close_button.get_global_rect().get_center()
+	close_touch.pressed = true
+	root_node.call("_input", close_touch)
+	await process_frame
+	if overlay.visible:
+		failures.append("iOS 原生触摸没有关闭积分结算层")
+	if bool(utility_bar.call("is_collapsed")):
+		failures.append("关闭积分后必须自动展开工具栏并露出下一局入口")
+	var next_round_button: Button = utility_bar.call("get_button", "next_round")
+	if next_round_button == null or not next_round_button.is_visible_in_tree() or next_round_button.disabled:
+		failures.append("关闭积分后下一局按钮不可见或不可点击")
+		return
+
+	var round_before := int(game_state.get("round_index"))
+	var next_touch := InputEventScreenTouch.new()
+	next_touch.position = next_round_button.get_global_rect().get_center()
+	next_touch.pressed = true
+	root_node.call("_input", next_touch)
+	await process_frame
+	if int(game_state.get("round_index")) != round_before + 1:
+		failures.append("iOS 原生触摸下一局后 round_index 没有推进")
+	if int(game_state.get("current_phase")) != 2:
+		failures.append("iOS 下一局触摸没有进入新一局投骰阶段")
 
 
 func _verify_action_bar(root_node: Node, failures: Array[String]) -> void:
@@ -248,7 +292,18 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		failures.append("定缺选中印章的视觉抬升必须为8-12px")
 	if bool(visual_contract.get("extra_confirmation_step", true)):
 		failures.append("定缺不得增加二次确认步骤")
+	if str(visual_contract.get("initial_focus_ring", "")) != "none":
+		failures.append("定缺出现时不得预选条并只给条显示亮圈")
+	root_node.call("_reset_ding_que_visual_state")
+	for button in buttons:
+		var normal_style := button.get_theme_stylebox("normal") as StyleBoxTexture
+		if button.has_focus():
+			failures.append("定缺初始状态仍有单个选项获得亮圈")
+		if normal_style != null and absf(normal_style.content_margin_top - normal_style.content_margin_bottom) > 0.01:
+			failures.append("定缺文字没有在圆印内垂直居中")
 	root_node.call("_apply_ding_que_selection_state", "tong")
+	if not buttons[1].has_focus() or buttons[0].has_focus() or buttons[2].has_focus():
+		failures.append("只有用户明确选择后，亮圈才应跟随被选中的筒")
 	var selected_style := buttons[1].get_theme_stylebox("normal") as StyleBoxTexture
 	if selected_style == null or selected_style.expand_margin_top < 8.0 or selected_style.expand_margin_top > 12.0:
 		failures.append("定缺选中印章没有按合同向上抬升")

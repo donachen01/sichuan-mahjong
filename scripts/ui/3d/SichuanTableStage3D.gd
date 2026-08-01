@@ -16,6 +16,15 @@ const HAND_STEP_FAR := 0.55
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
 const FAR_HAND_SCALE := 1.28
+const SELF_FLAT_VISUAL_SCALE_FACTOR := 0.90
+const SELF_LAYOUT_MAX_TILES := 18
+const SELF_LAYOUT_LEFT_X := -5.95
+const SELF_LAYOUT_RIGHT_X := 6.15
+const SELF_LAYOUT_CENTER_X := 0.10
+const SELF_TILE_PITCH_PER_SCALE := HAND_STEP_SELF / SELF_HAND_SCALE
+const SELF_MELD_GROUP_GAP_PER_SCALE := 0.12
+const SELF_MELD_HAND_GAP_PER_SCALE := 0.10
+const SELF_LAYOUT_MIN_SCALE := 1.42
 const SIDE_WIN_RESULT_UPSHIFT_Z := 0.72
 const SIDE_WINNING_TILE_MAX_LOCAL_Z := 1.65
 const MELD_SCALE := 1.12
@@ -79,6 +88,13 @@ var last_contract: Dictionary = {}
 var reduced_motion := false
 var interaction_enabled := false
 var self_meld_tile_count := 0
+var self_meld_group_count := 0
+var self_layout_hand_count := 0
+var self_layout_scale := SELF_HAND_SCALE
+var self_layout_pitch := HAND_STEP_SELF
+var self_layout_start_x := 0.0
+var self_layout_span := 0.0
+var self_layout_is_flat := false
 var meld_tile_counts_by_seat: Array[int] = [0, 0, 0, 0]
 var discard_slots_by_seat: Array[Dictionary] = [{}, {}, {}, {}]
 var active_motion_tweens: Array[Tween] = []
@@ -113,7 +129,12 @@ func render_snapshot(
 	var new_draw_id := int(snapshot.get("human_last_draw_tile_id", -1))
 	var recommended_id := int(markers.get("recommended_tile_id", -1))
 	var danger_ids: Array = markers.get("danger_tile_ids", [])
-	self_meld_tile_count = _meld_tile_count(_player_by_seat(players, 0).get("melds", []))
+	var self_player := _player_by_seat(players, 0)
+	self_meld_tile_count = _meld_tile_count(self_player.get("melds", []))
+	_configure_self_row_layout(
+		all_hands[0].size() if not all_hands.is_empty() else 0,
+		self_player
+	)
 	for seat in range(4):
 		meld_tile_counts_by_seat[seat] = _meld_tile_count(_player_by_seat(players, seat).get("melds", []))
 
@@ -576,7 +597,7 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				false,
 				false,
 				false,
-				Vector3.ONE * MELD_SCALE,
+				Vector3.ONE * (self_layout_scale if seat == 0 else MELD_SCALE),
 				-1,
 				seat,
 				180.0 if seat != 0 else 0.0,
@@ -861,7 +882,7 @@ func _hand_position(seat: int, index: int, count: int, step: float) -> Vector3:
 	var centered := (float(index) - float(count - 1) * 0.5) * step
 	match seat:
 		0:
-			return Vector3(centered + _self_hand_center_x(), 0.25, _self_hand_depth())
+			return Vector3(_self_hand_tile_x(index), 0.25, _self_hand_depth())
 		1:
 			# 左家沿导轨排成世界空间直线：X 固定，仅 Z 随牌位变化。之前的
 			# `- centered * 0.044` 横向斜移让每张牌左右错开，在透视下呈锯齿边；
@@ -891,9 +912,7 @@ func _self_hand_depth() -> float:
 
 func _hand_step_for_seat(seat: int) -> float:
 	if seat == 0:
-		# 1.94 倍牌宽约 0.815；0.80 只保留约 1.8% 的轻微搭接，让圆角分界仍
-		# 清楚可见，同时把 14 张满手稳定在目标图 74%–80% 画宽和手机可读高度。
-		return HAND_STEP_SELF
+		return self_layout_pitch
 	if seat == 2:
 		return HAND_STEP_FAR
 	return HAND_STEP_SIDE
@@ -901,17 +920,61 @@ func _hand_step_for_seat(seat: int) -> float:
 
 func _hand_scale_for_seat(seat: int) -> float:
 	if seat == 0:
-		return SELF_HAND_SCALE
+		return self_layout_scale
 	if seat == 2:
 		return FAR_HAND_SCALE
 	return SIDE_HAND_SCALE
 
 
 func _self_hand_center_x() -> float:
-	# The reference layout reserves the lower-left rail for exposed sets and lets
-	# the remaining concealed hand slide right as more sets are formed. The cap
-	# keeps short end-game hands away from the action buttons and right safe edge.
-	return clampf(0.25 + float(self_meld_tile_count) * 0.38, 0.25, 3.10)
+	if self_layout_hand_count <= 0:
+		return SELF_LAYOUT_CENTER_X
+	return (_self_hand_tile_x(0) + _self_hand_tile_x(self_layout_hand_count - 1)) * 0.5
+
+
+func _configure_self_row_layout(hand_count: int, player: Dictionary) -> void:
+	self_layout_hand_count = maxi(0, hand_count)
+	var melds: Array = player.get("melds", [])
+	self_meld_group_count = melds.size()
+	self_layout_is_flat = bool(player.get("has_won", false))
+	var base_scale := SELF_HAND_SCALE * (SELF_FLAT_VISUAL_SCALE_FACTOR if self_layout_is_flat else 1.0)
+	var total_tile_count := self_layout_hand_count + self_meld_tile_count
+	var group_gap_count := maxi(0, self_meld_group_count - 1)
+	var has_meld_hand_gap := self_meld_tile_count > 0 and self_layout_hand_count > 0
+	var span_per_scale := 0.0
+	if total_tile_count > 0:
+		span_per_scale = SichuanTile3D.TILE_SIZE.x \
+			+ float(maxi(0, total_tile_count - 1)) * SELF_TILE_PITCH_PER_SCALE \
+			+ float(group_gap_count) * SELF_MELD_GROUP_GAP_PER_SCALE \
+			+ (SELF_MELD_HAND_GAP_PER_SCALE if has_meld_hand_gap else 0.0)
+	var available_width := SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X
+	self_layout_scale = base_scale
+	if span_per_scale > 0.0:
+		self_layout_scale = minf(base_scale, available_width / span_per_scale)
+	# The rules contract caps the combined physical row at 18 tiles. The lower
+	# bound is only a defensive guard for malformed debug snapshots beyond that
+	# contract; legal 18-tile rows still fit without crossing it.
+	self_layout_scale = maxf(SELF_LAYOUT_MIN_SCALE, self_layout_scale)
+	self_layout_pitch = SELF_TILE_PITCH_PER_SCALE * self_layout_scale
+	self_layout_span = span_per_scale * self_layout_scale
+	var tile_width := SichuanTile3D.TILE_SIZE.x * self_layout_scale
+	self_layout_start_x = SELF_LAYOUT_CENTER_X - self_layout_span * 0.5 + tile_width * 0.5
+
+
+func _self_meld_tile_x(flat_index: int, meld_index: int) -> float:
+	return self_layout_start_x \
+		+ float(flat_index) * self_layout_pitch \
+		+ float(meld_index) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
+
+
+func _self_hand_tile_x(index: int) -> float:
+	var x := self_layout_start_x
+	if self_meld_tile_count > 0:
+		x += float(self_meld_tile_count) * self_layout_pitch
+		x += float(maxi(0, self_meld_group_count - 1)) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
+		if self_layout_hand_count > 0:
+			x += SELF_MELD_HAND_GAP_PER_SCALE * self_layout_scale
+	return x + float(index) * self_layout_pitch
 
 
 func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int, concealed_gang: bool = false) -> Vector3:
@@ -920,12 +983,10 @@ func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int
 	# complete groups inside the left 27% without touching the concealed rack.
 	match seat:
 		0:
-			# 暗杠四张牌必须逐张看清。普通副露沿用紧凑 0.40 节距；
-			# 暗杠组内额外拉开 0.08，最终 0.48 大于 1.12 倍牌宽，
-			# 中间两张不会再熔成一整块无边界的浅色长条。
-			var concealed_spacing := float(tile_index) * 0.08 if concealed_gang else 0.0
-			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.23 + concealed_spacing
-			return Vector3(-5.95 + self_offset, 0.09, 3.20)
+			# 本家副露与剩余手牌共用一条最多 18 张的连续牌轨。牌组间距和
+			# 副露/手牌间距都随统一三轴缩放变化，既不会形成截图中的大空洞，
+			# 也不会通过压薄牌体来挤进安全区。
+			return Vector3(_self_meld_tile_x(flat_index, meld_index), 0.09, _self_hand_depth())
 		1:
 			# 侧家所有碰杠沿同一条手牌方向的副露导轨连续摆放；组间加 0.10 缝。
 			# 这样第二至第四组不会横向侵入对家副露带，座位归属始终清楚。
@@ -1074,10 +1135,17 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"meld_tile_counts": meld_tile_counts,
 		"rendered_tile_nodes": desired.size(),
 		"self_pickable_count": self_hand_keys.size(),
-		"self_hand_scale": SELF_HAND_SCALE,
+		"self_hand_scale": self_layout_scale,
 		"opponent_hand_scale": SIDE_HAND_SCALE,
 		"far_hand_scale": FAR_HAND_SCALE,
 		"meld_scale": MELD_SCALE,
+		"self_meld_scale": self_layout_scale,
+		"self_flat_visual_scale_factor": SELF_FLAT_VISUAL_SCALE_FACTOR,
+		"self_layout_max_tiles": SELF_LAYOUT_MAX_TILES,
+		"self_layout_total_tiles": self_layout_hand_count + self_meld_tile_count,
+		"self_layout_span": self_layout_span,
+		"self_layout_available_width": SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X,
+		"self_layout_is_flat": self_layout_is_flat,
 		"discard_scale": DISCARD_SCALE,
 		"tile_physical_size": SichuanTile3D.TILE_SIZE,
 		"tile_pose_geometry": "one_shared_0_42x0_24x0_58_model_uniform_scale_rotation_only",
@@ -1099,7 +1167,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"ai_discard_win_presentation": "flat_concealed_back_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
 		"side_win_result_upshift_z": SIDE_WIN_RESULT_UPSHIFT_Z,
 		"side_winning_tile_max_local_z": SIDE_WINNING_TILE_MAX_LOCAL_Z,
-		"self_meld_zone": "left_of_concealed_hand",
+		"self_meld_zone": "continuous_left_segment_of_shared_18_tile_row",
 		"self_meld_tile_count": self_meld_tile_count,
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",

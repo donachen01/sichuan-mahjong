@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.6.15`
+- 版本：`2.6.16`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -87,7 +87,7 @@
 
 ## 参考蓝桌 3D 与旧功能恢复
 
-`2.6.15` 修复 Android 使用 Forward+ / Vulkan 时在部分运行环境启动后黑屏的问题：Android 单独改用 `gl_compatibility`，继续保留 Godot .NET/Mono 原生库、C# autoload 和完整牌局资源；iOS 及其他移动平台保持既有 Forward+ 配置，规则、计分、AI、牌体尺寸、布局和触控合同不变。
+`2.6.16` 修正投骰完成后残留、定缺印章装饰点与初始单项亮圈、本家倒牌视觉尺寸、碰杠/手牌尺寸和间距，以及 iOS 结算关闭后的下一局入口。底部牌列按碰杠加手牌最多 18 张共用一条轨道并统一等比缩放；Android 延续 `gl_compatibility`，iOS 延续 Forward+。
 
 `2.6.14` 为碰、明杠、暗杠和加杠补齐逐类型、逐座位、动画落定后的模型一致性门禁：所有副露继续复用唯一的 `0.42×0.24×0.58` 牌体，牌根节点和实体子节点都禁止非等比压薄。真实 Metal 同屏、最大副露压力和四种碰杠动作均纳入发布验收；相机、牌距、规则、计分、AI、布局和触控合同不变。
 

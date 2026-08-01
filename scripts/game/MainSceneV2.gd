@@ -39,7 +39,9 @@ const DIAGNOSTIC_EXPORT_UI_ENABLED := false
 const DEBUG_DIAGNOSTIC_EXPORT_UI_ENABLED := false
 const RELEASE_USER_BUILD_UI := true
 const OPENING_ROLL_TICK := 0.04
-const OPENING_ROLL_TICKS := 10
+const OPENING_ROLL_TICKS := 69
+const OPENING_ROLL_FINAL_HOLD_SECONDS := 0.25
+const OPENING_ROLL_AUDIO_SECONDS := 3.0
 const BOARD_TARGET_RATIO := 1065.0 / 772.0
 const TABLE_SCREEN_MARGIN := 6
 const SELF_HAND_BOTTOM_HEIGHT := 232
@@ -272,6 +274,7 @@ var ai_reaction_timer: Timer
 var ai_watchdog_timer: Timer
 var opening_roll_timer: Timer
 var opening_roll_commit_timer: Timer
+var opening_roll_animation_started_msec := 0
 var draw_transition_timer: Timer
 var tile_voice_player: AudioStreamPlayer
 var action_voice_player: AudioStreamPlayer
@@ -455,6 +458,11 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		var touch_event := event as InputEventScreenTouch
 		if touch_event.pressed:
+			if settlement_overlay != null and settlement_overlay.visible:
+				_handle_settlement_overlay_click(touch_event.position)
+				_arm_emulated_mouse_suppression(touch_event.position)
+				get_viewport().set_input_as_handled()
+				return
 			if ding_que_overlay != null and ding_que_overlay.visible:
 				_handle_ding_que_overlay_click(touch_event.position)
 				_arm_emulated_mouse_suppression(touch_event.position)
@@ -484,6 +492,10 @@ func _input(event: InputEvent) -> void:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			if _consume_emulated_mouse_press(mouse_event.position):
+				get_viewport().set_input_as_handled()
+				return
+			if settlement_overlay != null and settlement_overlay.visible:
+				_handle_settlement_overlay_click(mouse_event.position)
 				get_viewport().set_input_as_handled()
 				return
 			if ding_que_overlay != null and ding_que_overlay.visible:
@@ -693,6 +705,38 @@ func _handle_ding_que_overlay_click(global_pos: Vector2) -> bool:
 	return overlay_rect.has_point(global_pos)
 
 
+func _handle_settlement_overlay_click(global_pos: Vector2) -> bool:
+	if settlement_overlay == null or not settlement_overlay.visible:
+		return false
+	# iOS delivers a native touch before the emulated mouse event. Dispatch the
+	# two round-result actions explicitly so they do not depend on a second GUI
+	# event crossing the full-screen settlement shade.
+	for entry in [
+		{"button": next_round_button, "action": "next_round"},
+		{"button": settlement_close_button, "action": "close"},
+	]:
+		var button := entry.get("button") as Button
+		if button == null or not is_instance_valid(button):
+			continue
+		if not button.is_visible_in_tree() or button.disabled:
+			continue
+		var rect := button.get_global_rect()
+		if rect.size.x <= 1.0 or rect.size.y <= 1.0 or not rect.has_point(global_pos):
+			continue
+		if str(entry.get("action", "")) == "next_round":
+			_on_next_round_pressed()
+		else:
+			_on_settlement_close_pressed()
+		return true
+	if not settlement_overlay.get_global_rect().has_point(global_pos):
+		return false
+	# Preserve the desktop shade-to-close behaviour while still consuming taps
+	# inside the ledger panel. This keeps mouse and iOS touch semantics aligned.
+	if settlement_panel != null and not settlement_panel.get_global_rect().has_point(global_pos):
+		_on_settlement_close_pressed()
+	return true
+
+
 func _bind_board_square_layout() -> void:
 	if board_area != null and not board_area.resized.is_connected(_queue_board_square_layout):
 		board_area.resized.connect(_queue_board_square_layout)
@@ -769,7 +813,7 @@ func _setup_opening_roll_timers() -> void:
 
 	opening_roll_commit_timer = Timer.new()
 	opening_roll_commit_timer.one_shot = true
-	opening_roll_commit_timer.wait_time = 0.18
+	opening_roll_commit_timer.wait_time = OPENING_ROLL_AUDIO_SECONDS + 0.05
 	add_child(opening_roll_commit_timer)
 	opening_roll_commit_timer.timeout.connect(_on_opening_roll_commit_timer_timeout)
 
@@ -3033,13 +3077,15 @@ func _refresh_opening_roll_ui(snapshot: Dictionary) -> void:
 	var self_player := _player_by_seat(snapshot.get("players", []), 0)
 	var use_ding_que := bool(snapshot.get("rules", {}).get("use_ding_que_phase", true))
 	var ding_que_done := not use_ding_que or str(self_player.get("ding_que", "")) != ""
+	var opening_roll_active := int(snapshot.get("current_phase", -1)) == GameState.RoundPhase.TABLE_SETUP
+	var show_center_count := ding_que_done and not opening_roll_active
 	if dice_overlay_layer != null:
-		dice_overlay_layer.visible = not ding_que_done
+		dice_overlay_layer.visible = opening_roll_active
 	if center_turn_indicator != null:
-		center_turn_indicator.visible = ding_que_done and not table_3d_enabled
+		center_turn_indicator.visible = show_center_count and not table_3d_enabled
 	if table_stage_3d != null:
-		table_stage_3d.call("set_center_wall_count_visible", ding_que_done)
-	if ding_que_done:
+		table_stage_3d.call("set_center_wall_count_visible", show_center_count)
+	if not opening_roll_active:
 		if center_turn_indicator != null:
 			var interaction_seat := _active_interaction_seat(snapshot)
 			center_turn_indicator.call(
@@ -3074,11 +3120,13 @@ func _start_opening_roll_animation_if_needed(opening_roll: Dictionary) -> void:
 func _begin_opening_roll_animation(opening_roll: Dictionary) -> void:
 	opening_roll_payload = opening_roll.duplicate(true)
 	opening_roll_animation_ticks = OPENING_ROLL_TICKS
+	opening_roll_animation_started_msec = Time.get_ticks_msec()
 	opening_roll_commit_timer.stop()
-	_play_system_audio_delayed(DICE_ROLL_AUDIO_PATH, "1.35", 3.0, 0.05)
+	_play_system_audio_delayed(DICE_ROLL_AUDIO_PATH, "1.35", OPENING_ROLL_AUDIO_SECONDS, 0.05)
 	_show_dice_faces()
 	_set_opening_roll_faces(opening_roll_visual_rng.randi_range(1, 6), opening_roll_visual_rng.randi_range(1, 6))
 	opening_roll_timer.start()
+	opening_roll_commit_timer.start()
 
 
 func _on_opening_roll_started(data: Dictionary) -> void:
@@ -3088,18 +3136,23 @@ func _on_opening_roll_started(data: Dictionary) -> void:
 
 
 func _on_opening_roll_timer_timeout() -> void:
-	if opening_roll_animation_ticks > 0:
-		opening_roll_animation_ticks -= 1
-		_set_opening_roll_faces(opening_roll_visual_rng.randi_range(1, 6), opening_roll_visual_rng.randi_range(1, 6))
-		return
-	opening_roll_timer.stop()
 	if opening_roll_payload.is_empty():
+		opening_roll_timer.stop()
 		return
-	_set_opening_roll_faces(int(opening_roll_payload.get("die_a", 1)), int(opening_roll_payload.get("die_b", 1)))
-	opening_roll_commit_timer.start()
+	var elapsed_seconds := float(Time.get_ticks_msec() - opening_roll_animation_started_msec) / 1000.0
+	var final_face_seconds := OPENING_ROLL_AUDIO_SECONDS - OPENING_ROLL_FINAL_HOLD_SECONDS
+	if elapsed_seconds >= final_face_seconds:
+		opening_roll_timer.stop()
+		_set_opening_roll_faces(int(opening_roll_payload.get("die_a", 1)), int(opening_roll_payload.get("die_b", 1)))
+		return
+	opening_roll_animation_ticks = maxi(0, opening_roll_animation_ticks - 1)
+	_set_opening_roll_faces(opening_roll_visual_rng.randi_range(1, 6), opening_roll_visual_rng.randi_range(1, 6))
 
 
 func _on_opening_roll_commit_timer_timeout() -> void:
+	opening_roll_timer.stop()
+	if not opening_roll_payload.is_empty():
+		_set_opening_roll_faces(int(opening_roll_payload.get("die_a", 1)), int(opening_roll_payload.get("die_b", 1)))
 	if not game_manager.complete_opening_roll():
 		return
 
@@ -4032,9 +4085,7 @@ func _refresh_ding_que_panel(snapshot: Dictionary) -> void:
 	ding_que_tong_button.disabled = not options.has("tong")
 	ding_que_wan_button.disabled = not options.has("wan")
 	for button in [ding_que_tiao_button, ding_que_tong_button, ding_que_wan_button]:
-		if not button.disabled:
-			button.call_deferred("grab_focus")
-			break
+		button.release_focus()
 
 
 func _apply_self_ding_que_style(suit: String = "") -> void:
@@ -4403,8 +4454,10 @@ func _ding_que_shell_style(button: Button, pressed: bool, selected: bool) -> Sty
 	style.modulate_color = Color(0.80, 0.80, 0.80, 1.0) if pressed else Color.WHITE
 	style.content_margin_left = 18.0
 	style.content_margin_right = 18.0
-	style.content_margin_top = 13.0 if pressed else 7.0
-	style.content_margin_bottom = 7.0 if pressed else 13.0
+	# Equal vertical content margins keep 条/筒/万 optically centred. Pressed
+	# feedback is handled by the shell modulation instead of moving the glyph.
+	style.content_margin_top = 10.0
+	style.content_margin_bottom = 10.0
 	style.expand_margin_left = 4.0 if selected else 2.0
 	style.expand_margin_right = 4.0 if selected else 2.0
 	style.expand_margin_top = 12.0 if selected else 2.0
@@ -4450,6 +4503,7 @@ func _reset_ding_que_visual_state() -> void:
 		return
 	pending_ding_que_suit = ""
 	for button in [ding_que_tiao_button, ding_que_tong_button, ding_que_wan_button]:
+		button.release_focus()
 		button.modulate = Color.WHITE
 		button.add_theme_stylebox_override("normal", _ding_que_shell_style(button, false, false))
 		button.add_theme_stylebox_override("hover", _ding_que_shell_style(button, false, false))
@@ -4465,10 +4519,24 @@ func get_ding_que_visual_contract() -> Dictionary:
 		"shell_pipeline": "blender_orthographic_baked_jade_seals",
 		"shade_alpha": 0.13,
 		"selected_visual_lift_px": 12.0,
-		"selected_glow": "native_focus_ring",
+		"initial_focus_ring": "none",
+		"selected_glow": "native_focus_ring_after_explicit_selection_only",
 		"selection_feedback_seconds": 0.14,
 		"extra_confirmation_step": false,
 		"reduced_motion": "static_selected_state_without_delay",
+	}
+
+
+func get_opening_roll_visual_contract() -> Dictionary:
+	return {
+		"visible_phase": GameState.RoundPhase.TABLE_SETUP,
+		"hidden_during_ding_que": true,
+		"tick_seconds": OPENING_ROLL_TICK,
+		"random_tick_budget": OPENING_ROLL_TICKS,
+		"final_hold_seconds": OPENING_ROLL_FINAL_HOLD_SECONDS,
+		"audio_seconds": OPENING_ROLL_AUDIO_SECONDS,
+		"total_visual_seconds": OPENING_ROLL_AUDIO_SECONDS + 0.05,
+		"completion_clock": "monotonic_deadline_independent_of_rendered_tick_count",
 	}
 
 
@@ -7739,6 +7807,10 @@ func _on_settlement_close_pressed() -> void:
 		settlement_overlay_v2.visible = false
 	_apply_settlement_backdrop_state(false)
 	if table_utility_bar != null:
+		# Closing keeps the ledger reviewable, but immediately exposes the two
+		# round-complete actions. This removes the iPhone-only dead end where the
+		# next-round action remained hidden inside the collapsed utility drawer.
+		table_utility_bar.call("set_collapsed", false)
 		var snapshot := game_manager.get_snapshot()
 		var preset_name := str(snapshot.get("ai_tuning_config", {}).get("preset_name", "bone_ash"))
 		table_utility_bar.call("render", ai_helper_enabled, true, true, str(AI_PRESET_LABELS.get(preset_name, "骨灰")), opponent_hands_enabled)

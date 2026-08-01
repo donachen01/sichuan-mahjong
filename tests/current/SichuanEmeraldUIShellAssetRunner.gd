@@ -54,6 +54,9 @@ func _run() -> void:
 
 func _verify_sources_and_images() -> void:
 	_check(FileAccess.file_exists("res://tools/3d/generate_sichuan_ui_shells_v2.py"), "Blender UI shell generator is versioned")
+	var generator := FileAccess.get_file_as_string("res://tools/3d/generate_sichuan_ui_shells_v2.py")
+	_check(not generator.contains("ReliefDot"), "ding-que generator does not bake decorative dots under the glyph")
+	_check(generator.contains("--ding-que-only"), "ding-que shells can be regenerated without rewriting unrelated UI assets")
 	_check(FileAccess.file_exists("res://tools/3d/generate_sichuan_center_compass_v2.py"), "Blender center compass generator is versioned")
 	_check(ResourceLoader.exists("res://res/art/3d/sichuan_center_compass_v2.glb"), "Blender center compass GLB is loadable")
 	_check(FileAccess.file_exists(UI_ROOT + "README.md"), "UI shell provenance/readme is versioned")
