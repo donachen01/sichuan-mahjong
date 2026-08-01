@@ -70,6 +70,7 @@ func _run() -> void:
 	_verify_right_meld_matches_hand_direction(stage, failures)
 	_verify_far_meld_ownership_zone(stage, failures)
 	_verify_discard_row_clearance(stage, discard_counts, failures)
+	_verify_discard_back_layer(stage, failures)
 	_verify_pick_mapping(stage, failures)
 	_verify_assets(failures)
 	await _verify_four_source_meld_matrix(stage, snapshot, all_hands, failures)
@@ -209,8 +210,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("human row must expose the legal 18-tile shared-layout contract")
 	if float(contract.get("self_layout_span", INF)) > float(contract.get("self_layout_available_width", 0.0)) + 0.001:
 		failures.append("human hand and melds exceed the shared lower rail")
-	if absf(float(contract.get("self_flat_visual_scale_factor", 0.0)) - SichuanTableStage3D.SELF_FLAT_VISUAL_SCALE_FACTOR) > 0.001:
-		failures.append("flat human hand lost its explicit perceived-size compensation")
+	if absf(float(contract.get("self_flat_visual_scale_factor", 0.0)) - 1.0) > 0.001:
+		failures.append("standing and flat human hands must use one uniform scale")
 	if str(contract.get("opponent_hand_pose", "")) != "standing_concealed":
 		failures.append("AI concealed hands must use a standing presentation")
 	var opponent_tilt := float(contract.get("opponent_rack_tilt_degrees", 0.0))
@@ -895,6 +896,33 @@ func _verify_discard_row_clearance(stage: SichuanTableStage3D, discard_counts: A
 				failures.append("seat %d discard rows 1 and 2 overlap at column %d" % [seat, column + 1])
 
 
+func _verify_discard_back_layer(stage: SichuanTableStage3D, failures: Array[String]) -> void:
+	var found := false
+	var nodes: Dictionary = stage.get("tile_nodes")
+	var desired: Dictionary = stage.get("last_desired_entries")
+	for key_value in nodes.keys():
+		if not str(key_value).begins_with("discard_"):
+			continue
+		found = true
+		var tile := nodes[key_value] as SichuanTile3D
+		if not tile.showing_face or tile.symbol_mesh == null or not tile.symbol_mesh.visible:
+			failures.append("discard river tiles must remain face-up")
+			return
+		if tile.concealed_cap_mesh == null or not tile.concealed_cap_mesh.visible:
+			failures.append("discard river tiles lost the explicit green underside layer")
+			return
+		var back_material := tile.concealed_cap_mesh.get_surface_override_material(0) as StandardMaterial3D
+		if back_material == null or back_material.albedo_color.g <= back_material.albedo_color.r * 1.5:
+			failures.append("discard river underside is not the jade back material")
+			return
+		if not bool(desired.get(key_value, {}).get("show_flat_back_layer", false)):
+			failures.append("discard river entry does not declare its physical green underside")
+			return
+		break
+	if not found:
+		failures.append("discard river visual contract had no tiles to inspect")
+
+
 func _verify_side_meld_pressure(stage: SichuanTableStage3D, base_snapshot: Dictionary, base_hands: Array, failures: Array[String]) -> void:
 	var pressure_snapshot := base_snapshot.duplicate(true)
 	var pressure_players: Array = pressure_snapshot.get("players", []).duplicate(true)
@@ -1068,8 +1096,8 @@ func _verify_human_self_draw_full_hand(stage: SichuanTableStage3D, expected_tile
 	var expected_scale := float(contract.get("self_hand_scale", 0.0))
 	if not bool(contract.get("self_layout_is_flat", false)):
 		failures.append("human self-draw result did not activate the flat-row layout contract")
-	if absf(expected_scale - SichuanTableStage3D.SELF_HAND_SCALE * SichuanTableStage3D.SELF_FLAT_VISUAL_SCALE_FACTOR) > 0.01:
-		failures.append("human flat hand did not apply the requested perceived-size compensation")
+	if absf(expected_scale - SichuanTableStage3D.SELF_HAND_SCALE) > 0.01:
+		failures.append("human flat hand did not preserve the standing tile scale")
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		var key := str(key_value)
 		if key.begins_with("winning_0_"):

@@ -109,7 +109,8 @@ func configure(
 	use_flat_concealed_result: bool = false,
 	meld_source: int = -1,
 	meld_owner: int = -1,
-	meld_type: String = ""
+	meld_type: String = "",
+	show_flat_back_layer: bool = false
 ) -> void:
 	tile_data = tile.duplicate(true)
 	tile_id = int(tile_data.get("id", -1))
@@ -155,7 +156,10 @@ func configure(
 	# 显示一张紧贴实体圆角牌身的稳定暖白面，使视觉白度与弃牌一致；符号、厚度、
 	# 阴影和触控仍来自原 3D 牌，不是 HUD 卡片。
 	face_mesh.visible = not show_face or (show_face and bright_front)
-	concealed_cap_mesh.visible = not show_face
+	# Face-up discard tiles still rest on a physical green underside. Keep that
+	# layer explicit because the imported body alone reads as an all-white base
+	# from the tabletop camera. This flag is limited to the discard river.
+	concealed_cap_mesh.visible = not show_face or show_flat_back_layer
 	symbol_mesh.visible = show_face
 	# Rotate only the printed content in its own face plane. Rotating the whole
 	# tile would also move the ivory top lip and change the accepted rack pose.

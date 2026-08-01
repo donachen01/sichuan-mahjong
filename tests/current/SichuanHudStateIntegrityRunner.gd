@@ -79,8 +79,8 @@ func _verify_ding_que_modal(scene: Node, failures: Array[String]) -> void:
 		if style == null or style.texture == null or focus == null \
 				or focus.corner_radius_top_left < 108 or focus.get_border_width(SIDE_TOP) < 4:
 			failures.append("定缺按钮必须使用 Blender 翡翠印章外壳和 Godot 聚焦光环")
-		if style != null and absf((style.content_margin_top - style.content_margin_bottom) - 14.0) > 0.01:
-			failures.append("定缺文字必须按 CJK 字面重心向下补偿 7px，确保条/筒/万在圆内视觉居中")
+		if style != null and absf((style.content_margin_top - style.content_margin_bottom) + 14.0) > 0.01:
+			failures.append("定缺文字必须按 CJK 字面重心向上补偿 7px，确保条/筒/万在圆内视觉居中")
 		if button.has_focus():
 			failures.append("定缺出现时不得预先给任一选项亮圈")
 		if button.get_theme_font_size("font_size") < 68 or button.get_theme_constant("outline_size") < 2:

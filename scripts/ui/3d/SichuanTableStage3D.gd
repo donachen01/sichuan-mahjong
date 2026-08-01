@@ -16,7 +16,9 @@ const HAND_STEP_FAR := 0.55
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
 const FAR_HAND_SCALE := 1.28
-const SELF_FLAT_VISUAL_SCALE_FACTOR := 0.90
+# Standing and flat result tiles use one shared GLB and one uniform runtime
+# scale. A rotation changes pose only; it must not compress a winning hand.
+const SELF_FLAT_VISUAL_SCALE_FACTOR := 1.0
 const SELF_LAYOUT_MAX_TILES := 18
 const SELF_LAYOUT_LEFT_X := -5.95
 const SELF_LAYOUT_RIGHT_X := 6.15
@@ -676,7 +678,7 @@ func _append_discard_entries(desired: Dictionary, seat: int, discards: Array, la
 			used_slots[free_slot] = true
 		var position := _discard_position(seat, int(slots[tile_id]))
 		var key := "discard_%d_%d" % [seat, tile_id]
-		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat)
+		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat, 0.0, false, false, false, -1, -1, "", true)
 
 
 func _apply_entries(desired: Dictionary) -> void:
@@ -726,7 +728,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			bool(data.get("flat_concealed_result", false)),
 			int(data.get("meld_source_seat", -1)),
 			int(data.get("meld_owner_seat", -1)),
-			str(data.get("meld_source_type", ""))
+			str(data.get("meld_source_type", "")),
+			bool(data.get("show_flat_back_layer", false))
 		)
 		var target_transform: Transform3D = data.get("transform", Transform3D.IDENTITY)
 		var target_scale: Vector3 = data.get("scale", Vector3.ONE)
@@ -857,7 +860,8 @@ func _entry(
 	flat_concealed_result: bool = false,
 	meld_source_seat: int = -1,
 	meld_owner_seat: int = -1,
-	meld_source_type: String = ""
+	meld_source_type: String = "",
+	show_flat_back_layer: bool = false
 ) -> Dictionary:
 	return {
 		"tile": tile,
@@ -879,6 +883,7 @@ func _entry(
 		"meld_source_seat": meld_source_seat,
 		"meld_owner_seat": meld_owner_seat,
 		"meld_source_type": meld_source_type,
+		"show_flat_back_layer": show_flat_back_layer,
 	}
 
 

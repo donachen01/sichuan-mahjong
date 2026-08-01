@@ -1509,6 +1509,10 @@ func _layout_settlement_overlay() -> void:
 		target_size = Vector2(maxf(0.0, viewport_size.x - compact_margin * 2.0), maxf(0.0, viewport_size.y - compact_margin * 2.0))
 	settlement_panel.custom_minimum_size = target_size
 	settlement_panel.size = target_size
+	settlement_panel.clip_contents = true
+	settlement_content.clip_contents = true
+	settlement_detail_card.clip_contents = true
+	settlement_player_list_card.clip_contents = true
 
 	# Scale against both axes and never enlarge beyond the authored 1.0 layout.
 	# The previous height-only 1.3x path made the ledger's combined minimum size
@@ -1533,10 +1537,23 @@ func _layout_settlement_overlay() -> void:
 	settlement_hand_row.add_theme_constant_override("separation", int(round(10.0 * scale)))
 	settlement_breakdown_vbox.add_theme_constant_override("separation", int(round(8.0 * scale)))
 	settlement_breakdown_list.add_theme_constant_override("separation", int(round(8.0 * scale)))
-	settlement_player_list_card.custom_minimum_size = Vector2(maxf(284.0, target_size.x * 0.22), 0.0)
-	settlement_hero_card.custom_minimum_size = Vector2(0.0, 128.0 * scale)
-	settlement_hand_card.custom_minimum_size = Vector2(0.0, 160.0 * scale)
-	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, 280.0 * scale)
+	# Reserve the content lane explicitly from the panel's usable height. The
+	# old independent minimum heights added up beyond the panel on 1365x768 and
+	# ultra-wide screens, which pushed the footer and gold frame outside bounds.
+	var header_height := 48.0 * scale
+	var round_height := 28.0 * scale
+	var footer_height := 68.0 * scale
+	var vertical_gaps := 40.0 * scale
+	var usable_height := target_size.y - (56.0 * scale + header_height + round_height + footer_height + vertical_gaps)
+	var content_height := maxf(220.0 * scale, usable_height)
+	settlement_content.custom_minimum_size = Vector2(0.0, content_height)
+	settlement_content.size_flags_vertical = Control.SIZE_FILL
+	settlement_player_list_card.custom_minimum_size = Vector2(maxf(284.0 * scale, target_size.x * 0.22), content_height)
+	settlement_detail_card.custom_minimum_size = Vector2(0.0, content_height)
+	settlement_hero_card.custom_minimum_size = Vector2(0.0, clampf(content_height * 0.19, 92.0 * scale, 148.0 * scale))
+	settlement_hand_card.custom_minimum_size = Vector2(0.0, clampf(content_height * 0.25, 118.0 * scale, 190.0 * scale))
+	var fixed_detail_height := settlement_hero_card.custom_minimum_size.y + settlement_hand_card.custom_minimum_size.y + 20.0 * scale
+	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, maxf(112.0 * scale, content_height - fixed_detail_height))
 	settlement_close_button.custom_minimum_size = Vector2(112.0 * scale, 48.0 * scale)
 	settlement_header_left_spacer.custom_minimum_size = settlement_close_button.custom_minimum_size
 	next_round_button.custom_minimum_size = Vector2(260.0 * scale, 68.0 * scale)
@@ -4476,10 +4493,10 @@ func _ding_que_shell_style(button: Button, pressed: bool, selected: bool) -> Sty
 	style.content_margin_left = 18.0
 	style.content_margin_right = 18.0
 	# Noto CJK's visible ink sits above its line-box centre. Shift the live glyph
-	# seven pixels downward inside the circular shell so 条/筒/万 are optically,
+	# seven pixels upward inside the circular shell so 条/筒/万 are optically,
 	# not merely metrically, centred. Pressed feedback never moves the glyph.
-	style.content_margin_top = 17.0
-	style.content_margin_bottom = 3.0
+	style.content_margin_top = 3.0
+	style.content_margin_bottom = 17.0
 	style.expand_margin_left = 4.0 if selected else 2.0
 	style.expand_margin_right = 4.0 if selected else 2.0
 	style.expand_margin_top = 12.0 if selected else 2.0
@@ -5270,15 +5287,18 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 	header_margin.add_child(header)
 
 	var header_reason := Label.new()
-	header_reason.custom_minimum_size = Vector2(360, 0) * scale
+	header_reason.custom_minimum_size = Vector2(180, 0) * scale
 	header_reason.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_reason.size_flags_stretch_ratio = 4.2
 	header_reason.text = "分数来源"
 	_apply_settlement_label_style(header_reason, true, false, true)
 	_apply_settlement_breakdown_label_style(header_reason, true)
 	header.add_child(header_reason)
 
 	var header_source := Label.new()
-	header_source.custom_minimum_size = Vector2(280, 0) * scale
+	header_source.custom_minimum_size = Vector2(100, 0) * scale
+	header_source.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_source.size_flags_stretch_ratio = 2.0
 	header_source.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	header_source.text = "对象"
 	_apply_settlement_label_style(header_source, true, false, true)
@@ -5286,7 +5306,9 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 	header.add_child(header_source)
 
 	var header_factor := Label.new()
-	header_factor.custom_minimum_size = Vector2(300, 0) * scale
+	header_factor.custom_minimum_size = Vector2(120, 0) * scale
+	header_factor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_factor.size_flags_stretch_ratio = 2.2
 	header_factor.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	header_factor.text = "番/分"
 	_apply_settlement_label_style(header_factor, true, false, true)
@@ -5294,7 +5316,9 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 	header.add_child(header_factor)
 
 	var header_score := Label.new()
-	header_score.custom_minimum_size = Vector2(150, 0) * scale
+	header_score.custom_minimum_size = Vector2(80, 0) * scale
+	header_score.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_score.size_flags_stretch_ratio = 1.4
 	header_score.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	header_score.text = "本局得分"
 	_apply_settlement_label_style(header_score, true, false, true)
@@ -5325,17 +5349,24 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 		row_margin.add_child(row)
 
 		var reason_label := Label.new()
-		reason_label.custom_minimum_size = Vector2(360, 0) * scale
+		reason_label.custom_minimum_size = Vector2(180, 0) * scale
 		reason_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		reason_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		reason_label.size_flags_stretch_ratio = 4.2
 		reason_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		reason_label.clip_text = true
 		reason_label.text = str(item.get("reason", "-"))
 		_apply_settlement_label_style(reason_label, true)
 		_apply_settlement_breakdown_label_style(reason_label)
 		row.add_child(reason_label)
 
 		var source_label := Label.new()
-		source_label.custom_minimum_size = Vector2(280, 0) * scale
+		source_label.custom_minimum_size = Vector2(100, 0) * scale
+		source_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		source_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		source_label.size_flags_stretch_ratio = 2.0
 		source_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		source_label.clip_text = true
 		source_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		source_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		source_label.text = str(item.get("source", "-"))
@@ -5344,8 +5375,12 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 		row.add_child(source_label)
 
 		var factor_label := Label.new()
-		factor_label.custom_minimum_size = Vector2(300, 0) * scale
+		factor_label.custom_minimum_size = Vector2(120, 0) * scale
+		factor_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		factor_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		factor_label.size_flags_stretch_ratio = 2.2
 		factor_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		factor_label.clip_text = true
 		factor_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		factor_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		factor_label.text = str(item.get("factor", "-"))
@@ -5354,7 +5389,11 @@ func _render_settlement_breakdown(players: Array, settlement_data: Dictionary, f
 		row.add_child(factor_label)
 
 		var score_label := Label.new()
-		score_label.custom_minimum_size = Vector2(150, 0) * scale
+		score_label.custom_minimum_size = Vector2(80, 0) * scale
+		score_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		score_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		score_label.size_flags_stretch_ratio = 1.4
+		score_label.clip_text = true
 		score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		score_label.text = str(item.get("score", "-"))
 		_apply_settlement_label_style(score_label, true, false, true)
