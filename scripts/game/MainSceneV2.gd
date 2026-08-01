@@ -91,7 +91,7 @@ const UI_PREFS_KEY_AI_DRAWER_POSITIONED := "ai_drawer_positioned"
 const UI_PREFS_KEY_AI_DRAWER_LAYOUT_VERSION := "ai_drawer_layout_version"
 const AI_DRAWER_LAYOUT_VERSION := 2
 const TILE_VISUAL_BASE_SIZE := Vector2(92.0, 140.0)
-const SETTLEMENT_PANEL_SCREEN_RATIO := Vector2(0.985, 0.965)
+const SETTLEMENT_PANEL_SCREEN_RATIO := Vector2(0.94, 0.92)
 const SETTLEMENT_PANEL_MAX_SIZE := Vector2(4096.0, 4096.0)
 const SETTLEMENT_PANEL_MIN_SIZE := Vector2(1320.0, 760.0)
 const SETTLEMENT_TILE_SCALE := 0.47
@@ -245,6 +245,7 @@ enum SeatDock {
 @onready var settlement_breakdown_title: Label = %SettlementBreakdownTitle
 @onready var settlement_breakdown_list: VBoxContainer = %SettlementBreakdownList
 @onready var settlement_close_button: Button = %SettlementCloseButton
+@onready var settlement_header_left_spacer: Control = %SettlementHeaderLeftSpacer
 @onready var next_round_button: Button = %NextRoundButton
 @onready var settlement_margin: MarginContainer = $UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin
 @onready var settlement_vbox: VBoxContainer = $UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox
@@ -267,6 +268,7 @@ var right_ui
 var an_gang_button: Button
 var selected_tile_id: int = -1
 var settlement_selected_seat: int = -1
+var settlement_player_buttons: Dictionary = {}
 var settlement_layout_scale: float = 1.0
 var last_snapshot: Dictionary = {}
 var ai_turn_timer: Timer
@@ -727,6 +729,20 @@ func _handle_settlement_overlay_click(global_pos: Vector2) -> bool:
 			_on_next_round_pressed()
 		else:
 			_on_settlement_close_pressed()
+		return true
+	# Full-screen settlement input is dispatched manually on iOS and on the
+	# emulated mouse path. Route the four player rows here as well; otherwise the
+	# overlay consumes the press before the dynamically-created Button can emit.
+	for seat in settlement_player_buttons.keys():
+		var player_button := settlement_player_buttons.get(seat) as Button
+		if player_button == null or not is_instance_valid(player_button):
+			continue
+		if not player_button.is_visible_in_tree() or player_button.disabled:
+			continue
+		var player_rect := player_button.get_global_rect()
+		if player_rect.size.x <= 1.0 or player_rect.size.y <= 1.0 or not player_rect.has_point(global_pos):
+			continue
+		_on_settlement_player_selected(int(seat))
 		return true
 	if not settlement_overlay.get_global_rect().has_point(global_pos):
 		return false
@@ -1479,8 +1495,8 @@ func _layout_settlement_overlay() -> void:
 		viewport_size = get_viewport_rect().size
 	if viewport_size.x <= 1.0 or viewport_size.y <= 1.0:
 		return
-	var outer_margin := 10.0
-	var compact_margin := 6.0
+	var outer_margin := 24.0
+	var compact_margin := 12.0
 	var max_size := Vector2(
 		minf(SETTLEMENT_PANEL_MAX_SIZE.x, maxf(0.0, viewport_size.x - outer_margin * 2.0)),
 		minf(SETTLEMENT_PANEL_MAX_SIZE.y, maxf(0.0, viewport_size.y - outer_margin * 2.0))
@@ -1494,9 +1510,13 @@ func _layout_settlement_overlay() -> void:
 	settlement_panel.custom_minimum_size = target_size
 	settlement_panel.size = target_size
 
-	var scale := clampf(target_size.y / 1000.0, 0.72, 1.30)
+	# Scale against both axes and never enlarge beyond the authored 1.0 layout.
+	# The previous height-only 1.3x path made the ledger's combined minimum size
+	# larger than its panel on wide mobile screens, pushing the title into the
+	# frame and the footer toward the screen edge.
+	var scale := clampf(minf(target_size.x / 2048.0, target_size.y / 1152.0), 0.70, 1.0)
 	settlement_layout_scale = scale
-	_set_margin_constants(settlement_margin, 28.0 * scale, 12.0 * scale, 28.0 * scale, 16.0 * scale)
+	_set_margin_constants(settlement_margin, 32.0 * scale, 28.0 * scale, 32.0 * scale, 24.0 * scale)
 	_set_margin_constants(settlement_player_list_margin, 18.0 * scale, 18.0 * scale, 18.0 * scale, 18.0 * scale)
 	_set_margin_constants(settlement_detail_margin, 20.0 * scale, 14.0 * scale, 20.0 * scale, 14.0 * scale)
 	_set_margin_constants(settlement_hero_margin, 22.0 * scale, 14.0 * scale, 22.0 * scale, 14.0 * scale)
@@ -1513,12 +1533,13 @@ func _layout_settlement_overlay() -> void:
 	settlement_hand_row.add_theme_constant_override("separation", int(round(10.0 * scale)))
 	settlement_breakdown_vbox.add_theme_constant_override("separation", int(round(8.0 * scale)))
 	settlement_breakdown_list.add_theme_constant_override("separation", int(round(8.0 * scale)))
-	settlement_player_list_card.custom_minimum_size = Vector2(maxf(292.0, target_size.x * 0.24), 0.0)
-	settlement_hero_card.custom_minimum_size = Vector2(0.0, 148.0 * scale)
-	settlement_hand_card.custom_minimum_size = Vector2(0.0, 190.0 * scale)
-	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, 330.0 * scale)
-	settlement_close_button.custom_minimum_size = Vector2(124.0 * scale, 52.0 * scale)
-	next_round_button.custom_minimum_size = Vector2(300.0 * scale, 82.0 * scale)
+	settlement_player_list_card.custom_minimum_size = Vector2(maxf(284.0, target_size.x * 0.22), 0.0)
+	settlement_hero_card.custom_minimum_size = Vector2(0.0, 128.0 * scale)
+	settlement_hand_card.custom_minimum_size = Vector2(0.0, 160.0 * scale)
+	settlement_breakdown_card.custom_minimum_size = Vector2(0.0, 280.0 * scale)
+	settlement_close_button.custom_minimum_size = Vector2(112.0 * scale, 48.0 * scale)
+	settlement_header_left_spacer.custom_minimum_size = settlement_close_button.custom_minimum_size
+	next_round_button.custom_minimum_size = Vector2(260.0 * scale, 68.0 * scale)
 
 
 func _setup_discard_helper_panel() -> void:
@@ -4454,10 +4475,11 @@ func _ding_que_shell_style(button: Button, pressed: bool, selected: bool) -> Sty
 	style.modulate_color = Color(0.80, 0.80, 0.80, 1.0) if pressed else Color.WHITE
 	style.content_margin_left = 18.0
 	style.content_margin_right = 18.0
-	# Equal vertical content margins keep 条/筒/万 optically centred. Pressed
-	# feedback is handled by the shell modulation instead of moving the glyph.
-	style.content_margin_top = 10.0
-	style.content_margin_bottom = 10.0
+	# Noto CJK's visible ink sits above its line-box centre. Shift the live glyph
+	# seven pixels downward inside the circular shell so 条/筒/万 are optically,
+	# not merely metrically, centred. Pressed feedback never moves the glyph.
+	style.content_margin_top = 17.0
+	style.content_margin_bottom = 3.0
 	style.expand_margin_left = 4.0 if selected else 2.0
 	style.expand_margin_right = 4.0 if selected else 2.0
 	style.expand_margin_top = 12.0 if selected else 2.0
@@ -4893,6 +4915,7 @@ func _resolve_settlement_best_seats(players: Array, score_changes: Dictionary) -
 
 func _render_settlement_player_list(players: Array, score_changes: Dictionary, focus_seat: int, dealer_seat: int, best_seats: Array[int]) -> void:
 	_clear_children(settlement_player_list)
+	settlement_player_buttons.clear()
 	var scale := _settlement_content_scale()
 	var sorted_players := players.duplicate()
 	sorted_players.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -4907,7 +4930,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		row_button.focus_mode = Control.FOCUS_NONE
 		row_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		row_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row_button.custom_minimum_size = Vector2(0, 118 * scale)
+		row_button.custom_minimum_size = Vector2(0, 104 * scale)
 		row_button.add_theme_stylebox_override("normal", _build_settlement_list_row_style(seat == focus_seat, delta))
 		row_button.add_theme_stylebox_override("hover", _build_settlement_list_row_hover_style(seat == focus_seat, delta))
 		row_button.add_theme_stylebox_override("pressed", _build_settlement_list_row_style(seat == focus_seat, delta))
@@ -4916,6 +4939,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		row_button.add_theme_color_override("font_color", Color(0, 0, 0, 0))
 		row_button.add_theme_font_size_override("font_size", 1)
 		settlement_player_list.add_child(row_button)
+		settlement_player_buttons[seat] = row_button
 
 		var card := Panel.new()
 		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -4928,9 +4952,9 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 		margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		margin.add_theme_constant_override("margin_left", int(round(16 * scale)))
-		margin.add_theme_constant_override("margin_top", int(round(10 * scale)))
+		margin.add_theme_constant_override("margin_top", int(round(8 * scale)))
 		margin.add_theme_constant_override("margin_right", int(round(16 * scale)))
-		margin.add_theme_constant_override("margin_bottom", int(round(10 * scale)))
+		margin.add_theme_constant_override("margin_bottom", int(round(8 * scale)))
 		card.add_child(margin)
 
 		var inner := HBoxContainer.new()
@@ -4939,7 +4963,7 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 		margin.add_child(inner)
 
 		var avatar := Label.new()
-		avatar.custom_minimum_size = Vector2(76, 76) * scale
+		avatar.custom_minimum_size = Vector2(68, 68) * scale
 		avatar.text = _settlement_avatar_text(seat)
 		avatar.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		avatar.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -5492,34 +5516,6 @@ func _build_settlement_breakdown_lines(players: Array, settlement_data: Dictiona
 				"score": score_text,
 			})
 
-	# 已胡玩家通常不会再进入 draw_assessment，但牌墙流局时仍按规则参与
-	# 查大叫收付。过去总账已经计入这笔钱，明细却漏掉，造成画面上
-	# “自摸 +4、暗杠 +6，最终却 +11”的假象。这里逐项镜像计分器的
-	# winner draw targets，让最终收分严格等于用户能看到的明细合计。
-	var winner_draw_targets := _build_settlement_winner_draw_targets(settlement_data)
-	var focus_winner_draw_score := int(winner_draw_targets.get(focus_seat, 0))
-	if focus_winner_draw_score > 0:
-		for item in settlement_data.get("draw_assessment", []):
-			if bool(item.get("hua_zhu", false)) or bool(item.get("is_ting", false)):
-				continue
-			lines.append({
-				"reason": "查大叫收益（已胡）",
-				"source": _seat_name(int(item.get("seat", -1))),
-				"factor": "已胡最大牌分",
-				"score": "+%d" % focus_winner_draw_score,
-			})
-	elif not focus_assessment.is_empty() and not bool(focus_assessment.get("hua_zhu", false)) and not bool(focus_assessment.get("is_ting", false)):
-		for winner_seat in winner_draw_targets.keys():
-			var winner_score := int(winner_draw_targets.get(winner_seat, 0))
-			if winner_score <= 0 or int(winner_seat) == focus_seat:
-				continue
-			lines.append({
-				"reason": "查大叫赔付（对方已胡）",
-				"source": _seat_name(int(winner_seat)),
-				"factor": "已胡最大牌分",
-				"score": "-%d" % winner_score,
-			})
-
 	if lines.is_empty():
 		lines.append({"reason": "本局暂无细分事件", "source": _seat_name(focus_seat), "factor": "-", "score": "%s%d" % ["+" if round_delta > 0 else "", round_delta]})
 	else:
@@ -5535,19 +5531,6 @@ func _build_settlement_breakdown_lines(players: Array, settlement_data: Dictiona
 				"score": "%+d" % undisplayed_delta,
 			})
 	return lines
-
-
-func _build_settlement_winner_draw_targets(settlement_data: Dictionary) -> Dictionary:
-	var targets := {}
-	for event in settlement_data.get("win_events", []):
-		var winner_seat := int(event.get("winner_seat", -1))
-		var fan_detail: Dictionary = event.get("fan_detail", {})
-		var capped_fan := int(fan_detail.get("capped_fan", 0))
-		# 查大叫对已胡玩家只取胡牌基础分；自摸固定加底已经包含在自摸
-		# 明细中，不在这里重复放大或重复支付。
-		var hand_score := int(fan_detail.get("hand_score", _resolve_basic_score_from_fan(capped_fan)))
-		targets[winner_seat] = maxi(int(targets.get(winner_seat, 0)), hand_score)
-	return targets
 
 
 func _sum_settlement_breakdown_scores(lines: Array[Dictionary]) -> int:

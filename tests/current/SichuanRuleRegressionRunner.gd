@@ -33,6 +33,7 @@ func _init() -> void:
 	_run_test("hu_jiao_zhuan_yi_transfers_gang_score_to_winner", _test_hu_jiao_zhuan_yi_transfers_gang_score_to_winner, failures)
 	_run_test("draw_does_not_refund_immediate_gang_money", _test_draw_does_not_refund_immediate_gang_money, failures)
 	_run_test("draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments", _test_draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments, failures)
+	_run_test("draw_cha_jiao_excludes_already_won_players", _test_draw_cha_jiao_excludes_already_won_players, failures)
 	_run_test("legacy_tui_gang_refunds_are_ignored", _test_legacy_tui_gang_refunds_are_ignored, failures)
 	_run_test("fan_combinations_follow_sichuan_table_and_cap", _test_fan_combinations_follow_sichuan_table_and_cap, failures)
 	_run_test("sea_bottom_never_adds_fan", _test_sea_bottom_never_adds_fan, failures)
@@ -42,7 +43,7 @@ func _init() -> void:
 	_run_test("multi_payer_gang_is_never_refunded", _test_multi_payer_gang_is_never_refunded, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 33/33")
+		print("RULE REGRESSION OK: 34/34")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -1090,6 +1091,38 @@ func _test_draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments():
 		return "expected no_ting seat to pay 2, got %s" % [changes]
 	if int(changes.get(2, 0)) != -16:
 		return "expected hua_zhu seat to pay fixed capped 16, got %s" % [changes]
+	return true
+
+
+func _test_draw_cha_jiao_excludes_already_won_players():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "tiao", []),
+		_make_player(1, "wan", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	players[0]["has_won"] = true
+	var settlement_data: Dictionary = game_state._create_empty_settlement_data()
+	# Retain a real win event so this fixture catches any future attempt to turn
+	# winners back into draw-settlement targets. Its payer list is intentionally
+	# empty so only the cha-jiao adjustment is measured below.
+	settlement_data["win_events"] = [{
+		"winner_seat": 0,
+		"payer_seats": [],
+		"win_type": "discard_win",
+		"fan_detail": {"capped_fan": 2, "hand_score": 4},
+	}]
+	settlement_data["draw_assessment"] = [
+		{"seat": 1, "hua_zhu": false, "is_ting": true, "cha_jiao_score": 2},
+		{"seat": 2, "hua_zhu": false, "is_ting": false, "cha_jiao_score": 0},
+		{"seat": 3, "hua_zhu": false, "is_ting": false, "cha_jiao_score": 0},
+	]
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
+	if int(changes.get(0, 99)) != 0:
+		return "already-won seat must not receive cha-jiao again, got %s" % [changes]
+	if int(changes.get(1, 0)) != 4 or int(changes.get(2, 0)) != -2 or int(changes.get(3, 0)) != -2:
+		return "cha-jiao must settle only among unresolved seats, got %s" % [changes]
 	return true
 
 

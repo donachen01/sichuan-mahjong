@@ -185,6 +185,11 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("every self-hand tile must remain pickable")
 	if int(contract.get("light_count", -1)) != 2 or int(contract.get("shadow_casting_light_count", -1)) != 1:
 		failures.append("mobile lighting budget must be two lights with one shadow caster")
+	if int(contract.get("mobile_directional_shadow_size", 0)) < 4096 \
+			or int(contract.get("mobile_soft_shadow_filter_quality", 0)) < 2 \
+			or float(contract.get("directional_shadow_max_distance", 0.0)) < 20.0 \
+			or float(contract.get("directional_shadow_max_distance", 99.0)) > 26.0:
+		failures.append("mobile tile shadows must use a 4096 map, medium soft filtering, and the full table shadow range")
 	if int(contract.get("physics_tiles", -1)) != 0:
 		failures.append("tile presentation must not use per-tile physics")
 	if int(contract.get("tripo_calls", -1)) != 0:

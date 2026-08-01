@@ -129,35 +129,13 @@ func _apply_draw_adjustments(changes: Dictionary, settlement_data: Dictionary, r
 			var target: int = int(item.get("seat", -1))
 			_apply_payment(changes, target, hua_zhu_seat, hua_zhu_payment)
 
-	# 查大叫：未下叫者分别向每位下叫者、以及本局已经胡牌的玩家赔付。
-	# 下叫者使用其最大可胡分；已胡者使用其本局最高实际胡牌基础分。
+	# 查大叫只在牌墙耗尽时仍未胡的玩家之间结算。已经胡牌的玩家已按
+	# 胡牌事件收过一次分，不能再被重新加入查叫收款目标。
 	for no_ting_seat in no_ting_seats:
 		for item in ting_items:
 			var target: int = int(item.get("seat", -1))
 			var payment := _resolve_draw_assessment_payment(item)
 			_apply_payment(changes, target, no_ting_seat, payment)
-		for target in _build_winner_draw_targets(settlement_data, rules_config):
-			_apply_payment(
-				changes,
-				int(target.get("seat", -1)),
-				no_ting_seat,
-				int(target.get("score", 0))
-			)
-
-
-func _build_winner_draw_targets(settlement_data: Dictionary, rules_config) -> Array[Dictionary]:
-	var by_seat := {}
-	for event in settlement_data.get("win_events", []):
-		var seat := int(event.get("winner_seat", -1))
-		var fan_detail: Dictionary = event.get("fan_detail", {})
-		var fan := int(fan_detail.get("capped_fan", 0))
-		var score := int(fan_detail.get("hand_score", _resolve_hand_basic_score(fan, rules_config)))
-		if score > int(by_seat.get(seat, 0)):
-			by_seat[seat] = score
-	var result: Array[Dictionary] = []
-	for seat in by_seat.keys():
-		result.append({"seat": int(seat), "score": int(by_seat[seat])})
-	return result
 
 func _resolve_draw_assessment_payment(item: Dictionary) -> int:
 	return maxi(1, int(item.get("cha_jiao_score", 1)))

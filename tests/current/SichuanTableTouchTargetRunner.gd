@@ -299,8 +299,8 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		var normal_style := button.get_theme_stylebox("normal") as StyleBoxTexture
 		if button.has_focus():
 			failures.append("定缺初始状态仍有单个选项获得亮圈")
-		if normal_style != null and absf(normal_style.content_margin_top - normal_style.content_margin_bottom) > 0.01:
-			failures.append("定缺文字没有在圆印内垂直居中")
+		if normal_style != null and absf((normal_style.content_margin_top - normal_style.content_margin_bottom) - 14.0) > 0.01:
+			failures.append("定缺文字没有按 CJK 字面重心在圆印内视觉居中")
 	root_node.call("_apply_ding_que_selection_state", "tong")
 	if not buttons[1].has_focus() or buttons[0].has_focus() or buttons[2].has_focus():
 		failures.append("只有用户明确选择后，亮圈才应跟随被选中的筒")

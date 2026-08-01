@@ -197,9 +197,9 @@ func _verify_draw_table() -> void:
 			{"seat": 2, "is_ting": false, "hua_zhu": true, "cha_jiao_score": 0},
 		],
 	}, rules)
-	# 胡牌事件先让 0 向 3 支付 4；流局时 1 再向下叫 0 付 2、向已胡 3 付 4；
-	# 花猪 2 只向仍下叫的 0 固定支付 16。
-	_check(draw == {0: 14, 1: -6, 2: -16, 3: 8}, "draw settlement must combine fixed flower-pig and max-ready/winner big-call payments")
+	# 胡牌事件先让 0 向 3 支付 4；流局时 1 再向下叫 0 付 2；花猪 2
+	# 只向仍下叫的 0 固定支付 16。已胡的 3 不得再次成为查叫收款目标。
+	_check(draw == {0: 14, 1: -2, 2: -16, 3: 4}, "draw settlement must combine fixed flower-pig and unresolved-player big-call payments without paying an already-won seat twice")
 
 
 func _detail(hand: Array, melds: Array, win_type: String) -> Dictionary:

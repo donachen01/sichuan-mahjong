@@ -285,7 +285,11 @@ func _setup_world() -> void:
 	# the supplied commercial reference instead of the former right/up shadow.
 	key_light.rotation_degrees = Vector3(-60.0, -165.0, -8.0)
 	key_light.shadow_enabled = true
-	key_light.directional_shadow_max_distance = 24.0
+	# The table occupies a compact plane. Restricting the orthogonal shadow map to
+	# the visible play area gives every tile edge more texels, while the mobile
+	# project override enables medium soft filtering instead of the jagged hard
+	# filter used by Compatibility by default.
+	key_light.directional_shadow_max_distance = 22.0
 	key_light.shadow_opacity = 0.94
 	key_light.shadow_blur = 1.55
 	key_light.shadow_bias = 0.035
@@ -1211,6 +1215,9 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
+		"directional_shadow_max_distance": 22.0,
+		"mobile_directional_shadow_size": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/size.mobile", 0)),
+		"mobile_soft_shadow_filter_quality": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile", 0)),
 		"physics_tiles": 0,
 		"tripo_calls": 0,
 	}

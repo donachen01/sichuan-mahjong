@@ -370,6 +370,26 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 		if textured_style.texture == null or not textured_style.texture.resource_path.ends_with("settlement_panel_9slice.png"):
 			failures.append("结算主面板九宫格资源路径不正确")
 
+	# Exercise the same explicit ScreenTouch path used on iOS. The full-screen
+	# overlay must route a player-row press before it consumes the event.
+	scene.set("last_snapshot", snapshot)
+	var player_buttons: Dictionary = scene.get("settlement_player_buttons")
+	var target_button := player_buttons.get(2) as Button
+	if target_button == null:
+		failures.append("结算玩家行没有暴露可点击的对家按钮")
+	else:
+		var player_touch := InputEventScreenTouch.new()
+		player_touch.position = target_button.get_global_rect().get_center()
+		player_touch.pressed = true
+		scene.call("_input", player_touch)
+		await process_frame
+		await process_frame
+		var hero_name: Label = scene.get("settlement_hero_name")
+		if int(scene.get("settlement_selected_seat")) != 2 or hero_name == null or not hero_name.text.contains("对家"):
+			failures.append("点击任一玩家后必须切换到该家的手牌与具体分数来源")
+
+	await _verify_settlement_responsive_bounds(scene, failures)
+
 	var wall_draw_after_win := {
 		"end_reason": "draw_wall_empty",
 		"winner_seats": [0],
@@ -400,20 +420,58 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 		snapshot.get("players", []),
 		wall_draw_after_win,
 		0,
-		11
+		10
 	)
 	var wall_draw_total := int(scene.call("_sum_settlement_breakdown_scores", wall_draw_lines))
-	if wall_draw_total != 11:
-		failures.append("结算明细合计必须严格等于最终收分：期望 +11，实际 %+d" % wall_draw_total)
+	if wall_draw_total != 10:
+		failures.append("已胡玩家不得重复查叫：胡牌与杠分合计期望 +10，实际 %+d" % wall_draw_total)
 	var has_winner_cha_jiao := false
 	var has_generic_reconciliation := false
 	for line in wall_draw_lines:
 		has_winner_cha_jiao = has_winner_cha_jiao or str(line.get("reason", "")).contains("查大叫收益（已胡）")
 		has_generic_reconciliation = has_generic_reconciliation or str(line.get("reason", "")) == "其他结算调整"
-	if not has_winner_cha_jiao:
-		failures.append("牌墙流局后已胡玩家收到的查大叫必须作为独立明细显示")
+	if has_winner_cha_jiao:
+		failures.append("已胡玩家的分数明细不得再次出现查大叫收益")
 	if has_generic_reconciliation:
-		failures.append("已知查大叫收益不得退化成无法解释的其他结算调整")
+		failures.append("修正后的权威总账不得依赖无法解释的其他结算调整")
+
+
+func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) -> void:
+	var original_size := get_root().size
+	for viewport_size in [Vector2i(1365, 768), Vector2i(2048, 1152), Vector2i(2400, 1080), Vector2i(2556, 1179)]:
+		get_root().size = viewport_size
+		await process_frame
+		scene.call("_layout_settlement_overlay")
+		await process_frame
+		await process_frame
+		var root_ui: Control = scene.get("root_ui")
+		var panel: Control = scene.get("settlement_panel")
+		var content: Control = scene.get("settlement_content")
+		var next_button: Control = scene.get("next_round_button")
+		if root_ui == null or panel == null or content == null or next_button == null:
+			failures.append("结算四档布局验证缺少必要控件")
+			break
+		var root_rect := root_ui.get_global_rect()
+		var panel_rect := panel.get_global_rect()
+		if not _rect_contains_with_tolerance(root_rect, panel_rect, 1.0):
+			failures.append("结算面板在 %dx%d 超出界面：%s / %s" % [viewport_size.x, viewport_size.y, panel_rect, root_rect])
+		for entry in [
+			{"name": "主体内容", "rect": content.get_global_rect()},
+			{"name": "下一局", "rect": next_button.get_global_rect()},
+		]:
+			if not _rect_contains_with_tolerance(panel_rect, entry.get("rect"), 1.0):
+				failures.append("结算%s在 %dx%d 超出主面板" % [entry.get("name"), viewport_size.x, viewport_size.y])
+	get_root().size = original_size
+	await process_frame
+	scene.call("_layout_settlement_overlay")
+	await process_frame
+
+
+func _rect_contains_with_tolerance(outer: Rect2, inner: Rect2, tolerance: float) -> bool:
+	return inner.position.x >= outer.position.x - tolerance \
+		and inner.position.y >= outer.position.y - tolerance \
+		and inner.end.x <= outer.end.x + tolerance \
+		and inner.end.y <= outer.end.y + tolerance
 
 
 func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:

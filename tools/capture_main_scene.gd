@@ -807,7 +807,7 @@ func _force_settlement_preview(root_node: Node) -> void:
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
 		player["nickname"] = ["陈旭", "舒燕", "陈东", "舒玲"][index]
-		player["score"] = [15, 3, -11, -7][index]
+		player["score"] = [14, 3, -11, -6][index]
 		player["has_won"] = index == 0
 		players[index] = player
 	var winning_tile: Dictionary = players[0].get("hand_tiles", [{}]).back() if not players[0].get("hand_tiles", []).is_empty() else {"id": 9999, "suit": "wan", "rank": 9}
@@ -819,7 +819,7 @@ func _force_settlement_preview(root_node: Node) -> void:
 		"dealer_seat": 1,
 		"end_reason": "draw_wall_empty",
 		"winner_seats": [0],
-		"score_changes": {0: 11, 1: -2, 2: -2, 3: -7},
+		"score_changes": {0: 10, 1: -2, 2: -2, 3: -6},
 		"win_events": [{
 			"winner_seat": 0,
 			"source_seat": 0,
