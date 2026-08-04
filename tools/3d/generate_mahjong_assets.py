@@ -161,13 +161,15 @@ def generate_tile_body() -> None:
         box_material=ivory,
     )
 
-    # 翡翠绿背：薄薄一层贴在反面，宽度略窄于牌身(内缩 0.018)使象牙侧面在四周
-    # 连续露出，读起来是"象牙牌身、背面镀了层绿"，而不是绿块。
+    # 翡翠绿背：薄薄一层贴在反面，只保留 3mm 的真实象牙唇边。
+    # 旧的 18mm 总内缩在平扣/副露透视下会让白面明显“大一圈”，绿背像一块
+    # 没有盖住牌体的独立小片；收紧到 3mm 后仍有制造分层，但白绿边界读成同一
+    # 块完整麻将牌。平扣运行时覆盖层也复用这一尺寸。
     back = rounded_box(
         name="MahjongTileBack",
-        size=(0.42 - 0.018, 0.58 - 0.018, back_thickness),
+        size=(0.42 - 0.006, 0.58 - 0.006, back_thickness),
         location=(0.0, 0.0, back_thickness * 0.5),
-        bevel=0.018,
+        bevel=0.022,
         bevel_segments=6,
         box_material=jade_back,
     )

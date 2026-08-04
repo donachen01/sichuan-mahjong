@@ -218,11 +218,34 @@ func _verify_center_and_discard_layer(scene: Node, failures: Array[String]) -> v
 		failures.append("shared CenterTurnIndicator component missing")
 	else:
 		indicator.call("set_compact", false)
-		indicator.call("render", 55, 3, "下家出牌中")
 		if indicator.size.x < 190.0 or indicator.size.x > 220.0 or indicator.size.y < 190.0 or indicator.size.y > 220.0:
 			failures.append("center indicator must stay within 190x190 and 220x220")
-		if not str(indicator.call("get_active_direction_text")).is_empty():
-			failures.append("中心四向风盘不应再暴露本上对下文字")
+		var expected_directions := ["西", "北", "东", "南"]
+		var expected_segments := [2, 3, 0, 1]
+		var direction_labels: Array[Label] = [
+			indicator.get_node("%CaptionLabel") as Label,
+			indicator.get_node("%RightDirectionLabel") as Label,
+			indicator.get_node("%StatusLabel") as Label,
+			indicator.get_node("%LeftDirectionLabel") as Label,
+		]
+		for seat in range(4):
+			indicator.call("render", 55, seat, "")
+			if str(indicator.call("get_active_direction_text")) != expected_directions[seat]:
+				failures.append("2D center seat %d must map to %s" % [seat, expected_directions[seat]])
+			for index in range(4):
+				var expected_color := Color("FFF4E0") if index == expected_segments[seat] else Color.WHITE
+				var expected_outline := Color("2A090B") if index == expected_segments[seat] else Color("071713")
+				if direction_labels[index].get_theme_color("font_color") != expected_color \
+						or direction_labels[index].get_theme_color("font_outline_color") != expected_outline:
+					failures.append("2D center seat %d must highlight only the %s segment" % [seat, expected_directions[seat]])
+		indicator.call("render", 55, -1, "")
+		if str(indicator.call("get_active_direction_text")) != "":
+			failures.append("2D center must expose no active direction in the neutral state")
+		for direction_label in direction_labels:
+			if direction_label.get_theme_color("font_color") != Color.WHITE \
+					or direction_label.get_theme_color("font_outline_color") != Color("071713"):
+				failures.append("2D center neutral state must not falsely highlight a direction")
+				break
 
 	var discard_layer: Control = scene.get("table_discard_layer")
 	if discard_layer == null or discard_layer.get_script() == null or discard_layer.get_script().resource_path != DISCARD_LAYER_PATH:

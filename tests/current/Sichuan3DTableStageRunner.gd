@@ -42,6 +42,7 @@ func _run() -> void:
 	var snapshot := {
 		"players": players,
 		"wall_count": 40,
+		"current_turn_seat": 0,
 		"human_can_discard": true,
 		"human_last_draw_tile_id": int(all_hands[0].back().get("id", -1)),
 		"recent_discard_tile_id": int(latest.get("id", -1)),
@@ -74,6 +75,7 @@ func _run() -> void:
 	_verify_pick_mapping(stage, failures)
 	_verify_assets(failures)
 	await _verify_four_source_meld_matrix(stage, snapshot, all_hands, failures)
+	await _verify_concealed_gang_matrix(stage, snapshot, all_hands, failures)
 	stage.render_snapshot(snapshot, all_hands, false, -1, {})
 	await process_frame
 
@@ -177,8 +179,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("four-seat meld tiles were not rendered exactly")
 	if int(contract.get("wall_count", -1)) != 40:
 		failures.append("numeric wall count does not match snapshot")
-	if int(contract.get("rendered_wall_tile_count", -1)) != 0 or str(contract.get("wall_representation", "")) != "static_numeric_count_embedded_on_center_compass":
-		failures.append("undrawn wall must use the static numeric count on the center compass")
+	if int(contract.get("rendered_wall_tile_count", -1)) != 0 or str(contract.get("wall_representation", "")) != "static_numeric_count_on_blender_four_way_instrument":
+		failures.append("undrawn wall must use the static numeric count in the Blender center instrument")
 	if str(contract.get("wall_count_motion", "")) != "none_static_on_table_surface" \
 			or not bool(contract.get("wall_count_3d_node", false)):
 		failures.append("wall count must be a static physical 3D text node on the table surface")
@@ -186,11 +188,11 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("every self-hand tile must remain pickable")
 	if int(contract.get("light_count", -1)) != 2 or int(contract.get("shadow_casting_light_count", -1)) != 1:
 		failures.append("mobile lighting budget must be two lights with one shadow caster")
-	if int(contract.get("mobile_directional_shadow_size", 0)) < 4096 \
-			or int(contract.get("mobile_soft_shadow_filter_quality", 0)) < 2 \
+	if int(contract.get("mobile_directional_shadow_size", 0)) != 2048 \
+			or int(contract.get("mobile_soft_shadow_filter_quality", -1)) != 0 \
 			or float(contract.get("directional_shadow_max_distance", 0.0)) < 20.0 \
 			or float(contract.get("directional_shadow_max_distance", 99.0)) > 26.0:
-		failures.append("mobile tile shadows must use a 4096 map, medium soft filtering, and the full table shadow range")
+		failures.append("mobile tile shadows must use Godot's 2048/quality-0 mobile budget and the bounded table range")
 	if int(contract.get("physics_tiles", -1)) != 0:
 		failures.append("tile presentation must not use per-tile physics")
 	if int(contract.get("tripo_calls", -1)) != 0:
@@ -199,12 +201,21 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("mobile readability scale is below the enlarged tile threshold")
 	if not (contract.get("tile_physical_size", Vector3.ZERO) as Vector3).is_equal_approx(Vector3(0.42, 0.24, 0.58)):
 		failures.append("standing and flat poses do not share the thicker physical tile dimensions")
+	var flat_back_cover_size := contract.get("flat_back_cover_size", Vector2.ZERO) as Vector2
+	if flat_back_cover_size.x < 0.413 or flat_back_cover_size.x > 0.415 \
+			or flat_back_cover_size.y < 0.573 or flat_back_cover_size.y > 0.575:
+		failures.append("flat/meld jade back cover must nearly fill the shared tile footprint")
+	if str(contract.get("flat_back_cover_contract", "")) != "shared_jade_back_nearly_full_footprint_with_3mm_ivory_lip":
+		failures.append("flat/meld jade back cover contract is missing the coherent 3D rim")
 	if str(contract.get("tile_pose_geometry", "")) != "one_shared_0_42x0_24x0_58_model_uniform_scale_rotation_only":
 		failures.append("tile pose contract must rotate one shared model without pose-specific compression")
 	if str(contract.get("meld_model_geometry", "")) != "peng_ming_gang_an_gang_add_gang_share_one_model_uniform_scale_only":
 		failures.append("peng and all gang variants must share one uniformly scaled tile model")
-	if absf(float(contract.get("self_meld_scale", 0.0)) - float(contract.get("self_hand_scale", 0.0))) > 0.001:
-		failures.append("human melds and concealed hand must share one uniform runtime scale")
+	var expected_self_meld_scale := float(contract.get("self_hand_scale", 0.0)) * SichuanTableStage3D.SELF_MELD_VISUAL_SCALE_FACTOR
+	if absf(float(contract.get("self_meld_scale", 0.0)) - expected_self_meld_scale) > 0.001:
+		failures.append("human melds must expose the reduced but still uniform runtime scale")
+	if absf(float(contract.get("self_meld_visual_scale_factor", 0.0)) - SichuanTableStage3D.SELF_MELD_VISUAL_SCALE_FACTOR) > 0.001:
+		failures.append("human meld visual scale factor contract drifted")
 	if int(contract.get("self_layout_max_tiles", -1)) != 18 \
 			or int(contract.get("self_layout_total_tiles", -1)) != hand_counts[0] + 3:
 		failures.append("human row must expose the legal 18-tile shared-layout contract")
@@ -212,6 +223,11 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("human hand and melds exceed the shared lower rail")
 	if absf(float(contract.get("self_flat_visual_scale_factor", 0.0)) - 1.0) > 0.001:
 		failures.append("standing and flat human hands must use one uniform scale")
+	if absf(float(contract.get("flat_concealed_result_scale_factor", 0.0)) - SichuanTableStage3D.FLAT_CONCEALED_RESULT_SCALE_FACTOR) > 0.001:
+		failures.append("flat concealed results must expose the fixed uniform readability scale factor")
+	if absf(float(contract.get("side_flat_concealed_result_scale", 0.0)) - SichuanTableStage3D.SIDE_FLAT_CONCEALED_RESULT_SCALE) > 0.001 \
+			or absf(float(contract.get("far_flat_concealed_result_scale", 0.0)) - SichuanTableStage3D.FAR_FLAT_CONCEALED_RESULT_SCALE) > 0.001:
+		failures.append("AI flat winning hands must expose the seat-specific perspective scale compensation")
 	if str(contract.get("opponent_hand_pose", "")) != "standing_concealed":
 		failures.append("AI concealed hands must use a standing presentation")
 	var opponent_tilt := float(contract.get("opponent_rack_tilt_degrees", 0.0))
@@ -293,8 +309,46 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("3D stage must preserve Blender PBR materials without runtime flat overrides")
 	if str(contract.get("discard_origin_policy", "")) != "upper_left_from_each_player_perspective":
 		failures.append("discard rivers must start from the upper-left in each player's perspective")
-	if str(contract.get("center_display_asset", "")) != "unified_octagonal_wall_count_tile":
-		failures.append("center graphic and wall count must be one unified display asset")
+	if str(contract.get("center_display_asset", "")) != "blender_authored_flush_glass_four_way_inlay":
+		failures.append("center graphic must expose the Blender-authored flush glass four-way inlay contract")
+	if str(contract.get("center_display_shape", "")) != "flush_chamfered_glass_inlay_with_circular_counter" \
+			or str(contract.get("center_display_material", "")) != "imported_blender_pbr_glass_graphite_bronze_and_vivid_red_lacquer":
+		failures.append("center display must use the flush imported Blender PBR glass inlay")
+	if str(contract.get("center_display_detail", "")) != "continuous_smoked_glass_with_clean_outer_edges_graphite_hairlines_counter_bronze_and_arc_cutout_vivid_red_active_sector" \
+			or str(contract.get("center_display_mobile_cost", "")) != "static_shadowless_imported_glb_no_process_animation_under_3000_triangles":
+		failures.append("center display must retain glossy glass detail within its static mobile budget")
+	if str(contract.get("center_display_source", "")) != "res://tools/3d/generate_sichuan_center_compass_v2.py" \
+			or int(contract.get("center_display_triangle_budget", -1)) != 1044 \
+			or int(contract.get("center_display_material_count", -1)) != 4 \
+			or int(contract.get("center_display_object_count", -1)) != 9 \
+			or bool(contract.get("center_display_runtime_mesh_generation", true)):
+		failures.append("center display Blender provenance or mobile geometry budget contract mismatch")
+	if str(contract.get("center_glass_finish", "")) != "gloss_clearcoat_alpha_blend_with_light_transmission" \
+			or str(contract.get("center_outer_keyline", "")) != "removed_clean_glass_and_recess_silhouette" \
+			or float(contract.get("center_inlay_max_rise_world", INF)) > 0.0061 \
+			or str(contract.get("wall_count_surface_plane", "")) != "flush_coplanar_glass_inlay_without_visible_sidewalls_at_felt_y_0_155":
+		failures.append("center display must remain a glossy glass inlay flush with the felt")
+	if contract.get("center_direction_labels", []) != ["东", "南", "西", "北"] \
+			or str(contract.get("center_component_boundaries", "")) != "continuous_glass_plane_separated_by_coplanar_graphite_hairlines_without_colour_overlap" \
+			or contract.get("center_active_encoding", []) != ["opaque_vivid_red_main_field_and_both_chamfer_fills", "warm_ivory_direction_glyph_with_dark_outline"] \
+			or str(contract.get("center_active_color_hex", "")) != "A13D2D" \
+			or str(contract.get("center_active_geometry", "")) != "segmented_coplanar_top_faces_with_circular_counter_cutout_without_extrusion_or_dark_sidewalls" \
+			or absf(float(contract.get("center_counter_bezel_radius", 0.0)) - 0.455) > 0.0001 \
+			or absf(float(contract.get("center_active_counter_cutout_radius", 0.0)) - 0.460) > 0.0001 \
+			or str(contract.get("center_counter_highlight", "")) != "restrained_antique_bronze_high_roughness_low_clearcoat":
+		failures.append("center turn panel lost its four directions or redundant active-turn encoding")
+	if str(contract.get("self_hand_pitch_policy", "")) != "compact_visible_seam_0_83" \
+			or absf(float(contract.get("self_hand_world_pitch", 0.0)) - 0.83) > 0.001:
+		failures.append("human hand must use the compact 0.83 centre pitch with a visible seam")
+	var self_hand_gap := float(contract.get("self_hand_world_gap", INF))
+	if self_hand_gap < 0.010 or self_hand_gap > 0.022:
+		failures.append("human hand compact pitch must retain a restrained positive physical gap")
+	if str(contract.get("table_divider_finish", "")) != "subsurface_low_contrast_felt_dark_weave":
+		failures.append("table playfield dividers must read as low-contrast felt dark weave")
+	if str(contract.get("opponent_hand_contact_policy", "")) != "shared_glb_half_height_plus_12mm_felt_clearance" \
+			or absf(float(contract.get("opponent_hand_contact_clearance", 0.0)) - 0.012) > 0.001 \
+			or str(contract.get("opponent_hand_shadow", "")) != "physical_body_casts_single_key_contact_shadow":
+		failures.append("opponent racks must sit above the felt with a physical contact-shadow contract")
 	if str(contract.get("concealed_gang_presentation", "")) != "outer_faces_middle_jade_backs":
 		failures.append("concealed kong contract must expose the two outer faces and conceal the two middle tiles")
 	if str(contract.get("camera_profile", "")) != "commercial_reference_perspective_v2":
@@ -311,7 +365,7 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("all discard regions must share the center panel's upward translation")
 	if str(contract.get("center_compass_asset", "")) != "res://res/art/3d/sichuan_center_compass_v2.glb" \
 			or not bool(contract.get("center_compass_pbr_preserved", false)):
-		failures.append("center compass must use the Blender-generated PBR asset")
+		failures.append("center compass provenance asset must remain available")
 	var camera_fov := float(contract.get("camera_fov", 0.0))
 	if camera_fov < 49.0 or camera_fov > 50.0:
 		failures.append("3D stage horizontal FOV is outside the camera reconstruction gate")
@@ -420,6 +474,9 @@ func _verify_hand_surface_and_upright_pose(stage: SichuanTableStage3D, failures:
 				return
 			var physical_back_material := physical_back.material_override as StandardMaterial3D
 			var physical_body_material := physical_body.material_override as StandardMaterial3D
+			if physical_body.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF:
+				failures.append("AI seat %d manufactured body cannot cast its physical contact shadow" % seat)
+				return
 			if not _is_reference_normal_tile_back_material(back_material) \
 					or physical_back_material != back_material:
 				failures.append("AI seat %d physical jade layer and table-facing cover do not share one PBR material" % seat)
@@ -451,6 +508,15 @@ func _verify_hand_surface_and_upright_pose(stage: SichuanTableStage3D, failures:
 				failures.append(
 					"AI seat %d concealed tile is not exactly perpendicular to the table (top=%s horizontal=%.5f)"
 					% [seat, top_axis, horizontal_top.length()]
+				)
+				return
+			var half_height := SichuanTile3D.TILE_SIZE.z * tile.scale.y * 0.5
+			var physical_bottom_y := tile.global_position.y - half_height
+			var expected_bottom_y := SichuanTableStage3D.TABLETOP_CONTACT_Y + SichuanTableStage3D.UPRIGHT_HAND_CLEARANCE_Y
+			if absf(physical_bottom_y - expected_bottom_y) > 0.002:
+				failures.append(
+					"AI seat %d upright rack is embedded or floating (bottom=%.4f expected=%.4f)"
+					% [seat, physical_bottom_y, expected_bottom_y]
 				)
 				return
 			break
@@ -506,46 +572,91 @@ func _verify_human_orientation(stage: SichuanTableStage3D, failures: Array[Strin
 
 
 func _verify_concealed_gang(stage: SichuanTableStage3D, failures: Array[String]) -> void:
-	var gang_tiles: Array[SichuanTile3D] = []
+	var groups: Dictionary = {}
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
-		if not str(key_value).begins_with("meld_2_0_"):
+		var key := str(key_value)
+		if not key.begins_with("meld_"):
 			continue
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		gang_tiles.append(tile)
-	if gang_tiles.size() != 4:
-		failures.append("concealed kong must contain four distinct tiles, count=%d" % gang_tiles.size())
+		if tile == null:
+			continue
+		var parts := key.split("_")
+		if parts.size() < 4:
+			continue
+		var group_prefix := "meld_%s_%s_" % [parts[1], parts[2]]
+		if not groups.has(group_prefix):
+			groups[group_prefix] = []
+		(groups[group_prefix] as Array).append(tile)
+	# Only concealed-gang groups have the layered flat-result flag. Keep the two
+	# outer face-up tiles in the group so the four-tile contract can validate the
+	# complete physical formation, not just the two middle backs.
+	for group_prefix in groups.keys().duplicate():
+		var has_flat_middle := false
+		for tile_value in groups[group_prefix] as Array:
+			if (tile_value as SichuanTile3D).flat_concealed_result:
+				has_flat_middle = true
+				break
+		if not has_flat_middle:
+			groups.erase(group_prefix)
+	if groups.is_empty():
+		failures.append("concealed kong matrix has no physical middle jade-back tiles")
 		return
-	gang_tiles.sort_custom(func(a: SichuanTile3D, b: SichuanTile3D) -> bool: return a.position.x < b.position.x)
+	for group_prefix in groups.keys():
+		_verify_concealed_gang_group(str(group_prefix), groups[group_prefix] as Array, failures)
+
+
+func _verify_concealed_gang_group(group_prefix: String, gang_tiles: Array, failures: Array[String]) -> void:
+	if gang_tiles.size() != 4:
+		failures.append("%s concealed kong must contain four distinct tiles, count=%d" % [group_prefix, gang_tiles.size()])
+		return
+	gang_tiles.sort_custom(func(a: SichuanTile3D, b: SichuanTile3D) -> bool: return a.tile_id < b.tile_id)
 	for index in range(gang_tiles.size()):
-		var tile := gang_tiles[index]
+		var tile := gang_tiles[index] as SichuanTile3D
 		var should_show_face := index == 0 or index == gang_tiles.size() - 1
 		if tile.showing_face != should_show_face:
-			failures.append("concealed kong tile %d face state violates outer-face/middle-back contract" % index)
+			failures.append("%s tile %d face state violates outer-face/middle-back contract" % [group_prefix, index])
 		if not should_show_face and not tile.flat_concealed_result:
-			failures.append("concealed kong middle tile %d must use the layered jade-back surface" % index)
+			failures.append("%s middle tile %d must use the layered jade-back surface" % [group_prefix, index])
 		if not should_show_face:
 			if tile.concealed_surface_flip:
-				failures.append("concealed kong middle tile %d still fakes the back by swapping cover materials" % index)
+				failures.append("%s middle tile %d still fakes the back by swapping cover materials" % [group_prefix, index])
 				continue
 			if tile.position.y < 0.32:
-				failures.append("concealed kong middle tile %d sinks into the table after the physical back flip" % index)
+				failures.append("%s middle tile %d sinks into the table after the physical back flip" % [group_prefix, index])
 			var back_material := tile.concealed_cap_mesh.get_surface_override_material(0) as StandardMaterial3D
 			if not _is_reference_flat_tile_back_material(back_material):
-				failures.append("concealed kong middle tile %d does not use the reference-equivalent PBR back material" % index)
+				failures.append("%s middle tile %d does not use the compensated deep-emerald PBR back material" % [group_prefix, index])
 			elif tile.concealed_cap_mesh.mesh == null or tile.concealed_cap_mesh.mesh.get_aabb().size.y < 0.01:
-				failures.append("concealed kong middle tile %d lost the physical resin-edge bevel" % index)
+				failures.append("%s middle tile %d lost the physical resin-edge bevel" % [group_prefix, index])
 			var physical_back := tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
 			var physical_body := tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
 			var physical_material := physical_back.material_override as StandardMaterial3D if physical_back != null else null
 			if physical_back == null or physical_body == null \
-					or not _is_reference_normal_tile_back_material(physical_material):
-				failures.append("concealed kong middle tile %d physical jade layer is missing or still white" % index)
+					or not _is_reference_flat_tile_back_material(physical_material):
+				failures.append("%s middle tile %d physical jade layer is missing or still white" % [group_prefix, index])
 			elif _mesh_world_center(physical_back).y <= _mesh_world_center(physical_body).y + 0.001:
-				failures.append("concealed kong middle tile %d physical jade layer is not facing upward" % index)
-	for index in range(1, gang_tiles.size()):
-		if gang_tiles[index].position.x - gang_tiles[index - 1].position.x < 0.50:
-				failures.append("concealed kong middle tiles still overlap instead of showing four boundaries")
-				break
+				failures.append("%s middle tile %d physical jade layer is not facing upward" % [group_prefix, index])
+
+
+func _verify_concealed_gang_matrix(
+	stage: SichuanTableStage3D,
+	base_snapshot: Dictionary,
+	all_hands: Array,
+	failures: Array[String]
+) -> void:
+	var matrix_snapshot := base_snapshot.duplicate(true)
+	var matrix_players: Array = (base_snapshot.get("players", []) as Array).duplicate(true)
+	for seat in range(4):
+		matrix_players[seat]["melds"] = [{
+			"type": "gang",
+			"gang_subtype": "an_gang",
+			"from_seat": seat,
+			"tiles": _tiles(62000 + seat * 100, 4, seat + 2),
+		}]
+	matrix_snapshot["players"] = matrix_players
+	stage.render_snapshot(matrix_snapshot, all_hands, false, -1, {})
+	await process_frame
+	_verify_concealed_gang(stage, failures)
 
 
 func _verify_meld_tile_model_consistency(
@@ -561,17 +672,30 @@ func _verify_meld_tile_model_consistency(
 		if not str(key_value).begins_with("meld_"):
 			continue
 		meld_count += 1
+		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
 		var owner_seat := int(str(key_value).split("_")[1])
 		var expected_scalar := float(contract.get("self_meld_scale", 0.0)) if owner_seat == 0 else SichuanTableStage3D.MELD_SCALE
+		var group_prefix := "meld_%d_%d_" % [owner_seat, int(str(key_value).split("_")[2])]
+		var flat_group := false
+		for sibling_key in (stage.get("tile_nodes") as Dictionary).keys():
+			if str(sibling_key).begins_with(group_prefix) and ((stage.get("tile_nodes") as Dictionary)[sibling_key] as SichuanTile3D).flat_concealed_result:
+				flat_group = true
+				break
+		# 暗杠中间两张翻扣只改变姿态；副露组仍沿用座位原有的统一倍率。
 		var expected_scale := Vector3.ONE * expected_scalar
 		var expected_world_size := SichuanTile3D.TILE_SIZE * expected_scalar
-		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
 		if not tile.scale.is_equal_approx(expected_scale):
 			failures.append("%s %s uses non-uniform or wrong settled meld scale: %s" % [fixture_name, key_value, tile.scale])
 			continue
 		var world_size := SichuanTile3D.TILE_SIZE * tile.scale
 		if not world_size.is_equal_approx(expected_world_size):
 			failures.append("%s %s changes tile width/thickness/length proportions: %s" % [fixture_name, key_value, world_size])
+		if tile.flat_concealed_result:
+			var flat_bounds := _flat_physical_world_aabb(tile)
+			if flat_bounds.position.y < 0.085:
+				failures.append("%s %s concealed tile body is embedded in the table (min_y=%.3f)" % [fixture_name, key_value, flat_bounds.position.y])
+			if flat_bounds.size.y < SichuanTile3D.TILE_SIZE.y * expected_scalar - 0.006:
+				failures.append("%s %s concealed tile lost physical thickness after the flip (height=%.3f)" % [fixture_name, key_value, flat_bounds.size.y])
 		var physical_body := tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
 		var physical_back := tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
 		if physical_body == null or physical_back == null:
@@ -593,9 +717,9 @@ func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures:
 	var contract := stage.get_visual_contract()
 	var expected_centers := [
 		Vector3(float(contract.get("self_hand_center_x", 0.0)), 0.25, 3.57),
-		Vector3(-5.92, 0.36, -1.22),
-		Vector3(-1.40, 0.36, -6.00),
-		Vector3(5.92, 0.36, -1.22),
+		Vector3(-5.92, SichuanTableStage3D.TABLETOP_CONTACT_Y + SichuanTile3D.TILE_SIZE.z * SichuanTableStage3D.SIDE_HAND_SCALE * 0.5 + SichuanTableStage3D.UPRIGHT_HAND_CLEARANCE_Y, -1.22),
+		Vector3(-1.40, SichuanTableStage3D.TABLETOP_CONTACT_Y + SichuanTile3D.TILE_SIZE.z * SichuanTableStage3D.FAR_HAND_SCALE * 0.5 + SichuanTableStage3D.UPRIGHT_HAND_CLEARANCE_Y, -6.00),
+		Vector3(5.92, SichuanTableStage3D.TABLETOP_CONTACT_Y + SichuanTile3D.TILE_SIZE.z * SichuanTableStage3D.SIDE_HAND_SCALE * 0.5 + SichuanTableStage3D.UPRIGHT_HAND_CLEARANCE_Y, -1.22),
 	]
 	for seat in range(4):
 		var positions: Array[Vector3] = []
@@ -649,12 +773,131 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 		failures.append("center 3D wall count text does not match the current wall")
 	if stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DRotor") != null:
 		failures.append("center wall count must not retain the rotating rotor")
-	var unified_surface := stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DUnifiedSurface") as MeshInstance3D
-	var unified_inset := stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DUnifiedInset") as MeshInstance3D
-	if unified_surface == null or unified_inset == null:
-		failures.append("center wall count must use one unified octagonal physical counter surface")
-	if absf(anchor.position.y - 0.64) > 0.001 or absf(anchor.rotation_degrees.x + 90.0) > 0.01:
-		failures.append("center 3D wall count must lie flat on the physical center compass")
+	var model := stage.get_node_or_null("CenterWallCount3DAnchor/PremiumBlenderCenterPanel") as Node3D
+	if model == null:
+		failures.append("center panel must mount the imported Blender instrument as its physical hierarchy")
+		return
+	for mesh_name in [
+		"CenterRecessBed", "CenterGlassInlay", "DirectionSeparatorHairlines",
+		"CounterBronzeBezel", "CounterGlassLens",
+	]:
+		if model.find_child(mesh_name, true, false) as MeshInstance3D == null:
+			failures.append("Blender center instrument is missing authored mesh %s" % mesh_name)
+	var imported_meshes: Array[MeshInstance3D] = []
+	_collect_center_meshes(model, imported_meshes)
+	if model.find_child("CenterBronzeKeyline", true, false) != null:
+		failures.append("center instrument outer bronze/yellow keyline must remain removed")
+	if imported_meshes.size() != 9:
+		failures.append("Blender center instrument must retain its simplified 9-object mobile render budget")
+	var highest_surface_y := -INF
+	var found_glossy_transparent_glass := false
+	var found_flat_recess_bed := false
+	var flat_active_sector_count := 0
+	var exact_active_red_sector_count := 0
+	var counter_clear_active_sector_count := 0
+	var minimum_active_vertex_radius := INF
+	var first_active_red_diagnostic := "missing"
+	for mesh_instance in imported_meshes:
+		if mesh_instance.cast_shadow != GeometryInstance3D.SHADOW_CASTING_SETTING_OFF \
+				or mesh_instance.gi_mode != GeometryInstance3D.GI_MODE_DISABLED:
+			failures.append("Blender center meshes must not add mobile shadow or GI cost: %s" % mesh_instance.name)
+			break
+		if mesh_instance.material_override != null:
+			failures.append("Blender center PBR material must not be replaced at runtime: %s" % mesh_instance.name)
+			break
+		if mesh_instance.mesh == null or mesh_instance.mesh.get_surface_count() < 1 \
+				or not (mesh_instance.mesh.surface_get_material(0) is BaseMaterial3D):
+			failures.append("Blender center mesh must retain an imported PBR surface material: %s" % mesh_instance.name)
+			break
+		var material := mesh_instance.mesh.surface_get_material(0) as BaseMaterial3D
+		if mesh_instance.name in [&"CenterGlassInlay", &"CounterGlassLens"] \
+				and material.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED \
+				and material.albedo_color.a < 0.98 \
+				and material.roughness <= 0.12 \
+				and material.metallic < 0.10:
+			found_glossy_transparent_glass = true
+		var world_bounds: AABB = mesh_instance.global_transform * mesh_instance.mesh.get_aabb()
+		if mesh_instance.name == &"CenterRecessBed" and world_bounds.size.y <= 0.0005:
+			found_flat_recess_bed = true
+		if str(mesh_instance.name).begins_with("DirectionActive"):
+			if first_active_red_diagnostic == "missing":
+				first_active_red_diagnostic = "albedo=%s shading=%d emission=%s clearcoat=%s" % [
+					material.albedo_color,
+					material.shading_mode,
+					material.emission_enabled,
+					material.clearcoat_enabled,
+				]
+			if world_bounds.size.y <= 0.0005:
+				flat_active_sector_count += 1
+			var sector_minimum_radius := INF
+			for surface_index in range(mesh_instance.mesh.get_surface_count()):
+				var arrays := mesh_instance.mesh.surface_get_arrays(surface_index)
+				var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+				for local_vertex in vertices:
+					var world_vertex: Vector3 = mesh_instance.global_transform * local_vertex
+					var center_offset := world_vertex - anchor.global_position
+					sector_minimum_radius = minf(
+						sector_minimum_radius,
+						Vector2(center_offset.x, center_offset.z).length()
+					)
+			minimum_active_vertex_radius = minf(minimum_active_vertex_radius, sector_minimum_radius)
+			if sector_minimum_radius >= 0.458:
+				counter_clear_active_sector_count += 1
+			var expected_active_red := Color("7F3226")
+			if material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED \
+					and material.albedo_color.is_equal_approx(expected_active_red) \
+					and not material.emission_enabled \
+					and not material.clearcoat_enabled:
+				exact_active_red_sector_count += 1
+		highest_surface_y = maxf(highest_surface_y, world_bounds.end.y)
+	if not found_glossy_transparent_glass:
+		failures.append("center inlay must retain imported transparent low-roughness clearcoat glass")
+	if not found_flat_recess_bed:
+		failures.append("center recess bed must be a coplanar face without an outer dark side wall")
+	if flat_active_sector_count != 4:
+		failures.append("all four active sectors must be coplanar top faces without dark side walls")
+	if counter_clear_active_sector_count != 4:
+		failures.append("all four active sectors must remain outside the counter bezel (minimum vertex radius %.4f)" % minimum_active_vertex_radius)
+	if exact_active_red_sector_count != 4:
+		failures.append("all four active sectors must import the unlit filmic-compensated #A13D2D material without emission or clearcoat drift (%s)" % first_active_red_diagnostic)
+	if highest_surface_y > SichuanTableStage3D.TABLETOP_CONTACT_Y + 0.0101:
+		failures.append("center inlay rises too far above the felt plane: %.4f" % highest_surface_y)
+	if absf(anchor.position.y - SichuanTableStage3D.TABLETOP_CONTACT_Y) > 0.001 \
+			or not anchor.rotation_degrees.is_zero_approx():
+		failures.append("center turn panel must be fitted at the physical tabletop plane")
+	var segments: Array[MeshInstance3D] = stage.get("center_direction_active_overlays")
+	var direction_labels: Array[Label3D] = stage.get("center_direction_labels")
+	if segments.size() != 4 or direction_labels.size() != 4:
+		failures.append("center turn panel must expose exactly four Blender lacquer overlays and labels")
+	else:
+		for index in range(4):
+			if direction_labels[index].text != ["东", "南", "西", "北"][index]:
+				failures.append("center direction label order does not match the supplied reference")
+		var expected_segments := [2, 3, 0, 1]
+		var expected_directions := ["西", "北", "东", "南"]
+		for seat in range(4):
+			stage.call("_set_center_panel_state", 40, seat)
+			var expected_segment: int = expected_segments[seat]
+			if int(stage.get("center_active_turn_seat")) != seat:
+				failures.append("3D center did not retain current seat %d" % seat)
+			for index in range(4):
+				var should_be_active := index == expected_segment
+				var expected_color := Color("FFF4E0") if should_be_active else Color.WHITE
+				var expected_outline := Color("2A090B") if should_be_active else Color("071713")
+				if segments[index].visible != should_be_active \
+						or segments[index].material_override != null \
+						or direction_labels[index].modulate != expected_color \
+						or direction_labels[index].outline_modulate != expected_outline:
+					failures.append("seat %d must activate only the %s segment in the 3D center" % [seat, expected_directions[seat]])
+		stage.call("_set_center_panel_state", 40, -1)
+		if int(stage.get("center_active_turn_seat")) != -1:
+			failures.append("3D center must preserve a neutral state when no turn seat exists")
+		for index in range(4):
+			if segments[index].visible or direction_labels[index].modulate != Color.WHITE \
+					or direction_labels[index].outline_modulate != Color("071713"):
+				failures.append("3D center neutral state must not falsely highlight a direction")
+				break
+		stage.call("_set_center_panel_state", 40, 0)
 	stage.set_reduced_motion(false)
 	var transform_before := anchor.transform
 	for _frame in range(4):
@@ -662,6 +905,13 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 	if not anchor.transform.is_equal_approx(transform_before):
 		failures.append("center wall count must remain static without rotation or bobbing")
 	stage.set_reduced_motion(true)
+
+
+func _collect_center_meshes(node: Node, result: Array[MeshInstance3D]) -> void:
+	if node is MeshInstance3D:
+		result.append(node as MeshInstance3D)
+	for child in node.get_children():
+		_collect_center_meshes(child, result)
 
 
 func _verify_new_draw_marker(stage: SichuanTableStage3D, draw_tile_id: int, failures: Array[String]) -> void:
@@ -991,8 +1241,7 @@ func _verify_self_row_pressure(stage: SichuanTableStage3D, base_snapshot: Dictio
 	if layout_scale >= SichuanTableStage3D.SELF_HAND_SCALE \
 			or layout_scale < SichuanTableStage3D.SELF_LAYOUT_MIN_SCALE:
 		failures.append("18-tile pressure layout did not apply the bounded automatic scale: %.3f" % layout_scale)
-	if absf(layout_scale - float(contract.get("self_meld_scale", 0.0))) > 0.001:
-		failures.append("18-tile pressure layout scales hand and meld tiles differently")
+	var pressure_meld_scale := float(contract.get("self_meld_scale", 0.0))
 
 	var hand_left := INF
 	var meld_right := -INF
@@ -1003,7 +1252,8 @@ func _verify_self_row_pressure(stage: SichuanTableStage3D, base_snapshot: Dictio
 			continue
 		self_tile_count += 1
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		if not tile.scale.is_equal_approx(Vector3.ONE * layout_scale):
+		var expected_tile_scale := layout_scale if key.begins_with("hand_0_") else pressure_meld_scale
+		if not tile.scale.is_equal_approx(Vector3.ONE * expected_tile_scale):
 			failures.append("18-tile pressure row contains a differently scaled tile: %s" % key)
 		if key.begins_with("hand_0_"):
 			hand_left = minf(hand_left, tile.position.x)
@@ -1161,13 +1411,18 @@ func _verify_ai_self_draw_full_hand(
 		if tile.position.y < 0.32:
 			failures.append("AI seat %d self-draw hand sinks into the table after the physical back flip" % seat)
 			return
-		var expected_scale := SichuanTableStage3D.FAR_HAND_SCALE if seat == 2 else SichuanTableStage3D.SIDE_HAND_SCALE
+		var expected_scale := SichuanTableStage3D.FAR_FLAT_CONCEALED_RESULT_SCALE if seat == 2 else SichuanTableStage3D.SIDE_FLAT_CONCEALED_RESULT_SCALE
 		if not tile.scale.is_equal_approx(Vector3.ONE * expected_scale):
-			failures.append("AI seat %d flat result changes the shared tile model with pose-specific scaling" % seat)
+			failures.append("AI seat %d flat result lost its uniform readability scale" % seat)
 			return
+		var physical_bounds := _flat_physical_world_aabb(tile)
+		if physical_bounds.position.y < 0.085:
+			failures.append("AI seat %d self-draw physical tile is embedded in the table (min_y=%.3f)" % [seat, physical_bounds.position.y])
+		if physical_bounds.size.y < SichuanTile3D.TILE_SIZE.y * expected_scale - 0.006:
+			failures.append("AI seat %d self-draw physical tile is thinner than its shared GLB thickness (height=%.3f)" % [seat, physical_bounds.size.y])
 		var back_material := tile.concealed_cap_mesh.get_surface_override_material(0) as StandardMaterial3D
 		if not _is_reference_flat_tile_back_material(back_material):
-			failures.append("AI seat %d self-draw backs do not share the reference-equivalent PBR back material" % seat)
+			failures.append("AI seat %d self-draw backs do not use the compensated deep-emerald PBR back material" % seat)
 			return
 		if tile.concealed_cap_mesh.mesh == null or tile.concealed_cap_mesh.mesh.get_aabb().size.y < 0.01:
 			failures.append("AI seat %d self-draw backs lost the physical resin-edge bevel" % seat)
@@ -1176,7 +1431,7 @@ func _verify_ai_self_draw_full_hand(
 		var physical_body := tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
 		var physical_material := physical_back.material_override as StandardMaterial3D if physical_back != null else null
 		if physical_back == null or physical_body == null \
-				or not _is_reference_normal_tile_back_material(physical_material):
+				or not _is_reference_flat_tile_back_material(physical_material):
 			failures.append("AI seat %d self-draw physical jade layer is missing or still white" % seat)
 			return
 		if _mesh_world_center(physical_back).y <= _mesh_world_center(physical_body).y + 0.001:
@@ -1184,15 +1439,6 @@ func _verify_ai_self_draw_full_hand(
 			return
 	if hand_count != expected_tiles.size():
 		failures.append("AI seat %d self-draw must show all %d backs, got %d" % [seat, expected_tiles.size(), hand_count])
-
-
-func _is_reference_flat_tile_back_material(material: StandardMaterial3D) -> bool:
-	return material != null \
-		and material.albedo_color.is_equal_approx(SichuanTile3D.FLAT_RESULT_JADE_BACK) \
-		and material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED \
-		and material.cull_mode == BaseMaterial3D.CULL_DISABLED \
-		and not material.clearcoat_enabled \
-		and not material.emission_enabled
 
 
 func _is_far_rack_ivory_material(material: StandardMaterial3D) -> bool:
@@ -1214,8 +1460,39 @@ func _is_reference_normal_tile_back_material(material: StandardMaterial3D) -> bo
 		and not material.emission_enabled
 
 
+func _is_reference_flat_tile_back_material(material: StandardMaterial3D) -> bool:
+	return material != null \
+		and material.albedo_color.is_equal_approx(SichuanTile3D.FLAT_RESULT_JADE_BACK) \
+		and material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED \
+		and absf(material.roughness - 0.27) <= 0.01 \
+		and material.metallic <= 0.03 \
+		and material.clearcoat_enabled \
+		and absf(material.clearcoat - 0.34) <= 0.01 \
+		and absf(material.clearcoat_roughness - 0.20) <= 0.01 \
+		and not material.emission_enabled
+
+
 func _mesh_world_center(mesh_instance: MeshInstance3D) -> Vector3:
 	return mesh_instance.global_transform * mesh_instance.get_aabb().get_center()
+
+
+func _flat_physical_world_aabb(tile: SichuanTile3D) -> AABB:
+	var back := tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
+	var body := tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
+	return _mesh_world_aabb(back).merge(_mesh_world_aabb(body))
+
+
+func _mesh_world_aabb(mesh_instance: MeshInstance3D) -> AABB:
+	var local := mesh_instance.get_aabb()
+	var corners: Array[Vector3] = []
+	for x in [local.position.x, local.end.x]:
+		for y in [local.position.y, local.end.y]:
+			for z in [local.position.z, local.end.z]:
+				corners.append(mesh_instance.global_transform * Vector3(x, y, z))
+	var result := AABB(corners[0], Vector3.ZERO)
+	for corner in corners.slice(1):
+		result = result.expand(corner)
+	return result
 
 
 func _verify_ai_discard_win_with_preserved_hand(stage: SichuanTableStage3D, seat: int, expected_hand_count: int, failures: Array[String]) -> void:
@@ -1240,9 +1517,17 @@ func _verify_ai_discard_win_with_preserved_hand(stage: SichuanTableStage3D, seat
 				failures.append("AI point-win preserved hand must lie flat")
 			if not hand_tile.flat_concealed_result or hand_tile.concealed_surface_flip:
 				failures.append("AI point-win preserved hand must use the physical flat-back result")
+			var expected_scale := SichuanTableStage3D.FAR_FLAT_CONCEALED_RESULT_SCALE if seat == 2 else SichuanTableStage3D.SIDE_FLAT_CONCEALED_RESULT_SCALE
+			if not hand_tile.scale.is_equal_approx(Vector3.ONE * expected_scale):
+				failures.append("AI point-win preserved hand did not use the uniform flat-result scale")
+			var physical_bounds := _flat_physical_world_aabb(hand_tile)
+			if physical_bounds.position.y < 0.085:
+				failures.append("AI seat %d point-win physical tile is embedded in the table (min_y=%.3f)" % [seat, physical_bounds.position.y])
+			if physical_bounds.size.y < SichuanTile3D.TILE_SIZE.y * expected_scale - 0.006:
+				failures.append("AI seat %d point-win physical tile is thinner than its shared GLB thickness (height=%.3f)" % [seat, physical_bounds.size.y])
 			var back_material := hand_tile.concealed_cap_mesh.get_surface_override_material(0) as StandardMaterial3D
 			if not _is_reference_flat_tile_back_material(back_material):
-				failures.append("AI point-win preserved hand lost the figure-1 bright green back")
+				failures.append("AI point-win preserved hand lost the compensated deep-emerald PBR back")
 			if hand_tile.position.y < 0.32:
 				failures.append("AI point-win preserved hand sinks into the table after the physical back flip")
 		elif key.begins_with("winning_%d_" % seat):

@@ -39,6 +39,10 @@ func _run() -> void:
 			"CenterGrooveTop", "CenterGrooveBottom", "CenterGrooveLeft", "CenterGrooveRight"
 		]:
 			_verify_material_family(table, groove_name, "PlayfieldRecessedGroove")
+			var groove := table.find_child(groove_name, true, false) as MeshInstance3D
+			if groove != null:
+				var groove_top := groove.position.y + groove.get_aabb().size.y * 0.5
+				_check(groove_top <= 0.157, "%s must remain embedded as a felt dark-weave hairline" % groove_name)
 		_verify_triangle_budget(table)
 		_verify_no_flat_overrides(table)
 
@@ -50,8 +54,12 @@ func _run() -> void:
 	_check(str(contract.get("table_asset", "")) == "sichuan_table_v2_pbr", "stage exposes the V2 PBR asset")
 	_check(str(contract.get("table_material_pipeline", "")) == "blender_pbr_preserved_without_flat_overrides", "stage exposes preserved Blender PBR pipeline")
 	_check(
-		str(contract.get("table_surface_finish", "")) == "dense_directional_microfibre_velvet_with_restrained_shu_brocade_edge",
+		str(contract.get("table_surface_finish", "")) == "clean_uniform_short_nap_felt_with_directional_microfibre_normals",
 		"stage exposes the dense directional velvet surface contract"
+	)
+	_check(
+		str(contract.get("table_divider_finish", "")) == "subsurface_low_contrast_felt_dark_weave",
+		"stage exposes the subdued felt-divider contract"
 	)
 
 	stage.queue_free()

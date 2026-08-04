@@ -49,8 +49,8 @@ func _run() -> void:
 			var vertices := arrays[Mesh.ARRAY_VERTEX] as PackedVector3Array
 			_check(vertices.size() >= 25, "concealed overlay has enough contour vertices for smooth corners")
 			var overlay_size := face_mesh.get_aabb().size
-			_check(overlay_size.x >= 0.39 and overlay_size.x <= 0.41, "rounded overlay preserves the narrow ivory side lip")
-			_check(overlay_size.z >= 0.55 and overlay_size.z <= 0.57, "rounded overlay preserves the narrow ivory end lip")
+			_check(overlay_size.x >= 0.413 and overlay_size.x <= 0.415, "rounded overlay closes the oversized ivory side lip while retaining a 3mm manufactured rim")
+			_check(overlay_size.z >= 0.573 and overlay_size.z <= 0.575, "rounded overlay closes the oversized ivory end lip while retaining a 3mm manufactured rim")
 		_check(absf(face.position.y - 0.241) <= EPSILON, "rounded overlay sits just above the jade-rounded body")
 
 	if symbol != null:
@@ -114,6 +114,8 @@ func _run() -> void:
 	_check(jade_mesh != null, "independent jade back layer exists")
 	if jade_mesh != null:
 		var jade_size := jade_mesh.get_aabb().size
+		var shell_size := body_mesh.get_aabb().size if body_mesh != null else Vector3.ZERO
+		_check(jade_size.x >= shell_size.x * 0.985 and jade_size.z >= shell_size.z * 0.985, "shared jade back nearly covers the ivory shell footprint with one coherent 3D rim")
 		_check(jade_size.y >= 0.070 and jade_size.y <= 0.078, "jade back layer preserves its share of the thicker physical tile")
 		var jade_material := jade_mesh.material_override as StandardMaterial3D
 		_check(jade_material != null, "jade back material exists")

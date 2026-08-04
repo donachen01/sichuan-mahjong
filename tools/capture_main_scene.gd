@@ -74,7 +74,7 @@ func _capture() -> void:
 		_force_clean_table_preview(root_node)
 	elif _capture_mode() in ["ding-que", "ding-que-selected", "ding-que-reduced"]:
 		_force_ding_que_preview(root_node)
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-2", "ai-discard-win-3", "an-gang-static", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 	elif _capture_mode() in ["response-hu", "self-hu", "gang-self-hu", "action-1", "action-2", "action-3", "action-4"]:
@@ -115,7 +115,7 @@ func _capture() -> void:
 			_force_action_bar_preview(root_node)
 		for _frame in range(2):
 			await process_frame
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-2", "ai-discard-win-3", "an-gang-static", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 		for _frame in range(2):
@@ -1167,7 +1167,14 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		var meld_tiles := _make_3d_demo_tiles(30000 + seat * 100, meld_tile_count, seat + 2)
 		all_hands.append(hand)
 		var preview_melds: Array = []
-		if motion_recording:
+		if _capture_mode() == "an-gang-static":
+			preview_melds = [{
+				"type": "gang",
+				"gang_subtype": "an_gang",
+				"tiles": meld_tiles,
+				"from_seat": seat,
+			}]
+		elif motion_recording:
 			if _capture_mode() == "motion-add-gang" and seat == 3:
 				preview_melds = [{
 					"type": "peng",
@@ -1309,11 +1316,15 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		"recommended_tile_id": int(self_hand_for_markers[recommended_index].get("id", -1)),
 		"danger_tile_ids": [int(self_hand_for_markers[danger_index].get("id", -1))],
 	})
+	# The synthetic fixture bypasses MainSceneV2's normal phase visibility refresh.
+	# Make the live-game center surface explicit so beauty shots verify the actual
+	# glass diamond and wall number instead of inheriting opening-roll visibility.
+	stage.call("set_center_wall_count_visible", true)
 	if root_node.has_method("_update_seat_huds"):
 		root_node.call("_update_seat_huds", snapshot)
 	var center_indicator := root_node.get("center_turn_indicator") as Control
+	var evidence_turn_seat := _capture_turn_seat()
 	if center_indicator != null and center_indicator.has_method("render"):
-		var evidence_turn_seat := _capture_turn_seat()
 		if evidence_turn_seat >= 0:
 			center_indicator.call("render", 40, evidence_turn_seat)
 		elif _capture_mode() == "won":
@@ -1326,6 +1337,10 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 			center_indicator.call("render", 40, 0, "等待本家响应" if _capture_mode() != "self-hu" else "本家操作中")
 		else:
 			center_indicator.call("render", 40, int(snapshot.get("current_turn_seat", 0)))
+	# The 3D stage owns the visible production panel. Drive it explicitly for
+	# direction-state evidence instead of only changing the hidden 2D fallback.
+	if evidence_turn_seat >= 0:
+		stage.call("_set_center_panel_state", 40, evidence_turn_seat)
 	root_node.call("_layout_3d_center_indicator")
 
 

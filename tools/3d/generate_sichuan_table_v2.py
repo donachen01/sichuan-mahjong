@@ -28,7 +28,10 @@ TABLE_BASE = np.array([0x12, 0x55, 0x3B], dtype=np.float32) / 255.0
 TABLE_EDGE = np.array([0x0C, 0x42, 0x31], dtype=np.float32) / 255.0
 LEATHER_RAIL = np.array([0x12, 0x31, 0x25], dtype=np.float32) / 255.0
 WALNUT_WARM = np.array([0x58, 0x2C, 0x1A], dtype=np.float32) / 255.0
-PLAYFIELD_GROOVE = np.array([0x0E, 0x41, 0x30], dtype=np.float32) / 255.0
+# A near-neighbour of the felt, not a black painted outline.  Together with the
+# sub-surface geometry below this reads as a woven recess only when light catches
+# it, which keeps the table calm behind the tiles.
+PLAYFIELD_GROOVE = np.array([0x14, 0x57, 0x3F], dtype=np.float32) / 255.0
 
 
 def srgb_to_linear(value: np.ndarray) -> np.ndarray:
@@ -101,21 +104,20 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     medium = smooth_noise(size, 5201, 42)
     broad = smooth_noise(size, 5202, 14)
     fine = smooth_noise(size, 5203, 180)
-    # Short velvet needs three readable scales: a slow brushed-pile shift, a
-    # dense directional fibre grain, and tiny irregular cross fibres. Keeping
-    # colour variation restrained avoids a noisy printed pattern; the normal
-    # and roughness channels carry most of the tactile response under Metal.
+    # Keep the colour field visually clean. Broad/medium noise is used only to
+    # perturb the fibre phase, never to tint the base colour: low-frequency
+    # colour blotches read as puddles at gameplay distance. The tactile felt
+    # response is carried by dense directional normal and roughness detail.
     brush_a = np.sin((u * 14.0 + v * 3.2 + broad * 0.42) * math.pi * 2.0)
     brush_b = np.sin((u * 5.5 - v * 11.5 + medium * 0.26) * math.pi * 2.0)
     brushed_pile = brush_a * 0.66 + brush_b * 0.34
     fibre_main = 0.5 + 0.5 * np.sin((u * 1180.0 + v * 92.0 + fine * 0.72) * math.pi * 2.0)
     fibre_cross = 0.5 + 0.5 * np.sin((u * 172.0 - v * 830.0 + medium * 0.34) * math.pi * 2.0)
     fibre = fibre_main * 0.78 + fibre_cross * 0.22
-    nap = (medium - 0.5) * 0.080 + (broad - 0.5) * 0.042 + brushed_pile * 0.014 + (fibre - 0.5) * 0.010
+    nap = (fine - 0.5) * 0.014 + (fibre - 0.5) * 0.008
 
-    base = TABLE_BASE[None, None, :] * (1.0 - centre[:, :, None] * 0.045)
-    base += TABLE_CENTER[None, None, :] * (centre[:, :, None] * 0.045)
-    base = base * (1.0 - edge[:, :, None] * 0.065) + TABLE_EDGE[None, None, :] * (edge[:, :, None] * 0.065)
+    clean_felt_color = TABLE_BASE * 0.88 + TABLE_CENTER * 0.12
+    base = np.broadcast_to(clean_felt_color[None, None, :], (size, size, 3)).copy()
     base *= 1.0 + nap[:, :, None]
     # Display calibration for the fixed Godot Metal/Filmic table-lighting rig.
     # The previous pass over-compensated the green channel and rendered the
@@ -124,26 +126,22 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     # restrained enough to avoid drifting back toward cyan.
     base *= np.array([0.27, 1.01, 0.98], dtype=np.float32)[None, None, :]
 
-    # A low-contrast Shu-brocade meander is restricted to the outer 9%.
+    # Keep the legacy audit mask deterministic, but do not tint the production
+    # base colour with it. The runtime table is clean short-nap felt throughout.
     perimeter = np.clip((edge_distance - 0.82) / 0.10, 0.0, 1.0)
     wave_a = np.sin((u * 13.0 + np.sin(v * 8.0 * math.pi) * 0.18) * math.pi * 2.0)
     wave_b = np.sin((v * 11.0 + np.sin(u * 7.0 * math.pi) * 0.16) * math.pi * 2.0)
     brocade = ((wave_a * wave_b) * 0.5 + 0.5) * perimeter
-    base *= 1.0 + (brocade[:, :, None] - 0.5 * perimeter[:, :, None]) * 0.024
     mask_rgba = np.ones((size, size, 4), dtype=np.float32)
     mask_rgba[:, :, :3] = brocade[:, :, None]
     save_non_color_image("FeltBrocadeMask2048", TEXTURE_DIR / "brocade_mask.png", mask_rgba)
     felt_base = save_rgba_image("FeltBaseColor2048", TEXTURE_DIR / "felt_basecolor.png", base)
 
-    # Normal carries the compressed pile direction. Fine high-frequency ridges
-    # are blended with broad brushed strokes so the surface reads as dense
-    # velour at normal gameplay distance rather than as a flat colour field.
+    # Normal carries only short, dense fibres. Removing medium and broad height
+    # fields prevents large lighting islands while retaining real felt sparkle.
     height = (
-        (medium - 0.5) * 0.26
-        + (fine - 0.5) * 0.06
-        + brushed_pile * 0.11
-        + (fibre - 0.5) * 0.08
-        + (brocade - 0.5 * perimeter) * 0.04
+        (fine - 0.5) * 0.10
+        + (fibre - 0.5) * 0.18
     )
     grad_y, grad_x = np.gradient(height)
     normal = np.dstack((-grad_x * 3.25, -grad_y * 3.25, np.ones_like(height)))
@@ -153,16 +151,14 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     felt_normal = save_non_color_image("FeltNormal2048", TEXTURE_DIR / "felt_normal.png", normal_rgba)
 
     roughness = np.clip(
-        0.81
-        + (medium - 0.5) * 0.045
-        + brushed_pile * 0.020
-        + (0.5 - fibre) * 0.022
-        + brocade * 0.006,
-        0.73,
-        0.89,
+        0.82
+        + (fine - 0.5) * 0.018
+        + (0.5 - fibre) * 0.026,
+        0.78,
+        0.86,
     )
     orm = np.ones((size, size, 4), dtype=np.float32)
-    orm[:, :, 0] = np.clip(0.96 - edge * 0.035, 0.0, 1.0)  # AO
+    orm[:, :, 0] = 0.97  # AO stays uniform; geometry provides the edge depth.
     orm[:, :, 1] = roughness
     orm[:, :, 2] = 0.0  # metallic
     felt_orm = save_non_color_image("FeltORM2048", TEXTURE_DIR / "felt_orm.png", orm)
@@ -412,19 +408,18 @@ def build_table() -> list[bpy.types.Object]:
             leather,
         ),
     ]
-    # Low, rounded dark-green strips create the same recessed playfield
-    # structure as the reference image. They sit just above the felt plane,
-    # remain deliberately lower contrast than a painted line, and do not
-    # overlap any gameplay tile because they are part of the table asset only.
+    # Hairline recesses sit almost entirely inside the felt top (Y=0.155 after
+    # import).  Only their upper millimetre can catch light, so they read as a
+    # quiet woven boundary rather than the raised black bars seen in 2.6.26.
     objects.extend([
-        rounded_box("PlayfieldGrooveTop", (11.72, 0.028, 0.012), (0.0, -3.02, 0.161), 0.006, 2, groove),
-        rounded_box("PlayfieldGrooveBottom", (11.72, 0.028, 0.012), (0.0, 3.02, 0.161), 0.006, 2, groove),
-        rounded_box("PlayfieldGrooveLeft", (0.028, 5.90, 0.012), (-5.84, 0.0, 0.161), 0.006, 2, groove),
-        rounded_box("PlayfieldGrooveRight", (0.028, 5.90, 0.012), (5.84, 0.0, 0.161), 0.006, 2, groove),
-        rounded_box("CenterGrooveTop", (7.40, 0.024, 0.010), (0.0, -1.72, 0.160), 0.005, 2, groove),
-        rounded_box("CenterGrooveBottom", (7.40, 0.024, 0.010), (0.0, 1.72, 0.160), 0.005, 2, groove),
-        rounded_box("CenterGrooveLeft", (0.024, 3.42, 0.010), (-3.70, 0.0, 0.160), 0.005, 2, groove),
-        rounded_box("CenterGrooveRight", (0.024, 3.42, 0.010), (3.70, 0.0, 0.160), 0.005, 2, groove),
+        rounded_box("PlayfieldGrooveTop", (11.72, 0.018, 0.004), (0.0, -3.02, 0.154), 0.003, 2, groove),
+        rounded_box("PlayfieldGrooveBottom", (11.72, 0.018, 0.004), (0.0, 3.02, 0.154), 0.003, 2, groove),
+        rounded_box("PlayfieldGrooveLeft", (0.018, 5.90, 0.004), (-5.84, 0.0, 0.154), 0.003, 2, groove),
+        rounded_box("PlayfieldGrooveRight", (0.018, 5.90, 0.004), (5.84, 0.0, 0.154), 0.003, 2, groove),
+        rounded_box("CenterGrooveTop", (7.40, 0.016, 0.004), (0.0, -1.72, 0.154), 0.003, 2, groove),
+        rounded_box("CenterGrooveBottom", (7.40, 0.016, 0.004), (0.0, 1.72, 0.154), 0.003, 2, groove),
+        rounded_box("CenterGrooveLeft", (0.016, 3.42, 0.004), (-3.70, 0.0, 0.154), 0.003, 2, groove),
+        rounded_box("CenterGrooveRight", (0.016, 3.42, 0.004), (3.70, 0.0, 0.154), 0.003, 2, groove),
     ])
     return objects
 

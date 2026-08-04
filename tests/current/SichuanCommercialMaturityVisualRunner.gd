@@ -93,10 +93,10 @@ func _verify_center_compass(failures: Array[String]) -> void:
 	indicator.call("render", 34, 3, "下家出牌中")
 	await process_frame
 	var visual_contract: Dictionary = indicator.call("get_visual_contract")
-	if str(visual_contract.get("concept", "")) != "static_wall_count_on_physical_center":
-		failures.append("中央必须使用贴在实体中心盘上的静态余牌数字")
-	if str(visual_contract.get("physical_asset", "")) != "res://res/art/3d/sichuan_center_compass_v2.glb":
-		failures.append("中央四向器必须声明可复现的 Blender 实体资产")
+	if str(visual_contract.get("concept", "")) != "reference_four_way_turn_panel":
+		failures.append("中央必须使用参考图四向仪表盘与静态余牌数字")
+	if str(visual_contract.get("physical_asset", "")) != "blender_authored_flush_glass_four_way_inlay":
+		failures.append("中央四向器必须声明 Blender 原创的齐平亮面玻璃嵌件")
 	if str(visual_contract.get("visual_density", "")) != "low":
 		failures.append("中央方向器必须保持低信息密度")
 	if bool(visual_contract.get("persistent_long_status_text", true)):
@@ -109,34 +109,35 @@ func _verify_center_compass(failures: Array[String]) -> void:
 			failures.append("中央简洁底板图形脚本必须正常加载")
 		else:
 			var compass_contract: Dictionary = compass.call("get_visual_contract")
-			if str(compass_contract.get("form", "")) != "blender_pbr_low_profile_four_way_compass":
-				failures.append("中央图形层必须与 Blender PBR 四向器匹配")
-			if int(compass_contract.get("radial_divisions", -1)) != 4:
-				failures.append("中央图形层必须保留四向形状编码")
+			if str(compass_contract.get("form", "")) != "reference_four_way_turn_panel":
+				failures.append("中央图形层必须使用参考图四向仪表盘")
+			if str(compass_contract.get("shape", "")) != "flush_chamfered_glass_inlay_with_circular_counter":
+				failures.append("中央图形层必须保留齐平玻璃切角嵌件和圆形计数器")
 			if not bool(compass_contract.get("motion_safe", false)):
 				failures.append("中央四向器必须提供 reduced-motion 合同")
 		if compass.mouse_filter != Control.MOUSE_FILTER_IGNORE:
 			failures.append("中央仪表图形层不得拦截弃牌与按钮触控")
-		if compass.visible:
-			failures.append("中央方向高亮框必须随方向文字一并隐藏")
+		if not compass.visible:
+			failures.append("中央图形层必须保留可用的 2D 四向回退")
 	var turn_chip := indicator.get_node_or_null("%TurnChipLabel") as Label
 	if turn_chip == null or turn_chip.text != "34":
 		failures.append("余牌数必须是贴在中心图形上的静态纯数字")
-	if str(visual_contract.get("overlay_frames", "")) != "removed":
-		failures.append("中央静态余牌数字不得保留背景暗框")
+	if str(visual_contract.get("overlay_frames", "")) != "owned_by_3d_table_stage_without_duplicate_2d_panel":
+		failures.append("中央四向实体盘不得重复叠加 2D 暗框")
 	var caption := indicator.get_node_or_null("%CaptionLabel") as Label
-	if caption == null or caption.visible:
-		failures.append("四向器顶部不应显示对家文字方向")
+	if caption == null or not caption.visible or caption.text != "东":
+		failures.append("四向器顶部必须显示东")
 	var count := indicator.get_node_or_null("%CountLabel") as Label
 	var status := indicator.get_node_or_null("%StatusLabel") as Label
 	if count == null or count.visible:
 		failures.append("中央不应显示本地表现倒计时")
-	if status == null or status.visible:
-		failures.append("四向器底部不应显示本家文字方向")
+	if status == null or not status.visible or status.text != "西":
+		failures.append("四向器底部必须显示西")
 	var left_label := indicator.get_node_or_null("%LeftDirectionLabel") as Label
 	var right_label := indicator.get_node_or_null("%RightDirectionLabel") as Label
-	if left_label == null or left_label.visible or right_label == null or right_label.visible:
-		failures.append("四向器左右不应显示上/下文字编码")
+	if left_label == null or not left_label.visible or left_label.text != "北" \
+			or right_label == null or not right_label.visible or right_label.text != "南":
+		failures.append("四向器左右必须显示北/南")
 	indicator.queue_free()
 	await process_frame
 

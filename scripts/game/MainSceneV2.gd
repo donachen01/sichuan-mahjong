@@ -3379,7 +3379,10 @@ func _update_self_hu_tile_display(winning_tile: Dictionary, winning_source_seat:
 	var wrapper := Control.new()
 	wrapper.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var tile := TILE_SCENE.instantiate()
-	tile.call("configure", winning_tile, SELF_ROW_TILE_VISUAL_SCALE * 1.10, false, false, false, false, true)
+	# The winning tile is a semantic marker, not a larger tile. Keep its exact
+	# scale aligned with the flat self-hand tiles so the winning hand reads as one
+	# manufactured set rather than a separate oversized token.
+	tile.call("configure", winning_tile, SELF_ROW_TILE_VISUAL_SCALE, false, false, false, false, true)
 	var tile_size: Vector2 = tile.custom_minimum_size
 	wrapper.custom_minimum_size = tile_size
 	wrapper.size = wrapper.custom_minimum_size

@@ -105,6 +105,7 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	var has_won := bool(player.get("has_won", false))
 	dealer_badge.visible = bool(player.get("_is_dealer", false))
 	won_badge.visible = has_won
+	won_badge.text = _won_badge_text(player) if has_won else ""
 	# Turn ownership is communicated by the continuously breathing nameplate ring,
 	# never by a "出牌" word sitting on top of the player's name.
 	turn_badge.visible = false
@@ -170,6 +171,7 @@ func get_visual_contract() -> Dictionary:
 		"active_treatment": "pulsing_emerald_copper_nameplate_ring",
 		"dealer_badge": "gold_corner_seal",
 		"won_treatment": "identity_preserved_with_cinnabar_stamp",
+		"won_badge_texts": ["点炮", "自摸"],
 		"active_text_badge": "none",
 		"active_arrival_seconds": 0.18,
 		"active_followup": "continuous_edge_blink_without_move_or_scale",
@@ -419,3 +421,14 @@ func _stop_score_tweens() -> void:
 
 func _seat_name(seat_value: int) -> String:
 	return ["本家", "上家", "对家", "下家"][clampi(seat_value, 0, 3)]
+
+
+func _won_badge_text(player: Dictionary) -> String:
+	var win_type := str(player.get("win_type", ""))
+	if win_type in ["self_draw", "gang_self_draw"]:
+		return "自摸"
+	if win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
+		return "点炮"
+	var seat_value := int(player.get("seat", seat))
+	var source_seat := int(player.get("winning_source_seat", seat_value))
+	return "自摸" if source_seat == seat_value else "点炮"

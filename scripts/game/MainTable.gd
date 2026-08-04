@@ -1056,7 +1056,15 @@ func _apply_winner_badge(label: Label, player: Dictionary) -> void:
 	label.visible = has_won
 	if not has_won:
 		return
-	label.text = "已和"
+	var win_type := str(player.get("win_type", ""))
+	if win_type in ["self_draw", "gang_self_draw"]:
+		label.text = "自摸"
+		return
+	if win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
+		label.text = "点炮"
+		return
+	var seat := int(player.get("seat", 0))
+	label.text = "自摸" if int(player.get("winning_source_seat", seat)) == seat else "点炮"
 
 
 func _refresh_action_panel(snapshot: Dictionary) -> void:

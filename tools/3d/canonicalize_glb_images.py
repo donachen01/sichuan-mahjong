@@ -6,7 +6,7 @@ import io
 import json
 import math
 import struct
-import sys
+import argparse
 from pathlib import Path
 
 from PIL import Image
@@ -43,7 +43,7 @@ def align4(data: bytearray, fill: int = 0) -> None:
         data.append(fill)
 
 
-def canonicalise(path: Path) -> None:
+def canonicalise(path: Path, unlit_materials: set[str] | None = None) -> None:
     raw = path.read_bytes()
     magic, version, _ = struct.unpack_from("<III", raw, 0)
     if magic != 0x46546C67 or version != 2:
@@ -53,6 +53,22 @@ def canonicalise(path: Path) -> None:
         raise ValueError("GLB JSON chunk missing")
     json_start = 20
     document = json.loads(raw[json_start:json_start + json_length].decode("utf-8").rstrip(" \0"))
+    requested_unlit_materials = unlit_materials or set()
+    found_unlit_materials: set[str] = set()
+    for material in document.get("materials", []):
+        material_name = str(material.get("name", ""))
+        if material_name not in requested_unlit_materials:
+            continue
+        material.setdefault("extensions", {})["KHR_materials_unlit"] = {}
+        found_unlit_materials.add(material_name)
+    missing_unlit_materials = requested_unlit_materials - found_unlit_materials
+    if missing_unlit_materials:
+        missing = ", ".join(sorted(missing_unlit_materials))
+        raise ValueError(f"Requested unlit GLB materials were not found: {missing}")
+    if found_unlit_materials:
+        extensions_used = document.setdefault("extensionsUsed", [])
+        if "KHR_materials_unlit" not in extensions_used:
+            extensions_used.append("KHR_materials_unlit")
     bin_header = json_start + json_length
     bin_length, bin_type = struct.unpack_from("<II", raw, bin_header)
     if bin_type != BIN_CHUNK:
@@ -97,4 +113,8 @@ def canonicalise(path: Path) -> None:
 
 
 if __name__ == "__main__":
-    canonicalise(Path(sys.argv[1]))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("path", type=Path)
+    parser.add_argument("--unlit-material", action="append", default=[])
+    arguments = parser.parse_args()
+    canonicalise(arguments.path, set(arguments.unlit_material))

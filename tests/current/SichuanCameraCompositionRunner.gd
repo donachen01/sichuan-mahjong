@@ -206,9 +206,10 @@ func _max_min_ratio(values: Array) -> float:
 
 
 func _self_width_range(aspect_ratio: float) -> Vector2:
-	# 加厚后本家倾斜牌面的投影宽度为 80.28%，仍完整落在左右 8% 以上安全区内。
-	# 上限只放宽一个百分点以接纳实体厚度，不改变既有相机或手牌步距。
-	return Vector2(0.74, 0.81)
+	# 0.83 keeps the reference's compact rack while leaving a real physical seam
+	# between 0.8148-wide normal tiles. The upper bound still rejects 2.6.23's
+	# visibly scattered 0.873 pitch and preserves the action-safe margins.
+	return Vector2(0.77, 0.84)
 
 
 func _check_range(label: String, value: float, minimum: float, maximum: float, failures: Array[String]) -> void:

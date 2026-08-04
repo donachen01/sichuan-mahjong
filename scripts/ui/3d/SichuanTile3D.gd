@@ -16,7 +16,12 @@ const TILE_SIZE := Vector3(0.42, 0.24, 0.58)
 # 暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
 const FACE_INSET_SIZE := Vector2(0.42 - 0.066, 0.58 - 0.066)
 const FACE_SIZE := FACE_INSET_SIZE
-const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.018, 0.58 - 0.018)
+# The physical green back layer is only 3mm inset from the ivory shell. The old
+# 18mm inset made every opponent flat/meld tile read as a white tile with a
+# smaller green card floating inside it. Keep the same footprint as the GLB
+# MahjongTileBack so the cap and manufactured layer fuse into one tile.
+const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.006, 0.58 - 0.006)
+const CONCEALED_BACK_CORNER_RADIUS := 0.022
 const FACE_Y := TILE_SIZE.y + 0.001
 const MARKER_Y := FACE_Y + 0.013
 const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
@@ -27,10 +32,10 @@ const SELF_HAND_FACE_WHITE := Color("FAF8F3")
 # 上、下家实体背层继续使用翡翠树脂基色与材质参数；它同时保留在平扣牌的
 # 侧边厚度中，不能因为正面显示色校准而变成白边或二维贴片。
 const NORMAL_TILE_BACK_COLOR := Color("178B32")
-# 用户给出的 Display-P3 图 1 转为 sRGB 后，平扣牌中心稳定在约 RGB(55,151,55)。
-# 下面是按当前 Filmic/Metal 输出反推的源色，最终实拍回到该目标；图 1 要求
-# 整排明亮正绿，不应再沿用深墨绿树脂的朝向补偿色。
-const FLAT_RESULT_JADE_BACK := Color("2E762E")
+# 平扣牌与立牌/暗杠共用同一套 PBR 参数，但平扣朝上会直接吃到顶灯，必须做
+# 一次受光补偿才能在最终 Metal 画面中回到下家立牌的深翡翠目标色。它不是
+# 无光照平面，也不是另一套模型；只校准相同树脂材质的源色。
+const FLAT_RESULT_JADE_BACK := Color("0C5729")
 # 对家仍可按其朝向局部抬高白色牌身，但普通行牌中的三家暗手必须复用同一套
 # PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
 # 直接读成两副不同颜色的牌。
@@ -131,6 +136,12 @@ func configure(
 	var use_flat_back_material := not show_face and flat_concealed_result
 	var use_far_rack_material := not show_face and not flat_concealed_result and winner_seat == 2
 	_apply_ivory_body_material(body_root, front_brightness_boost, use_far_rack_material)
+	if not show_face and flat_concealed_result:
+		# 平扣结果的真实 GLB 背层也使用同一套受光补偿，避免绿色表面和实体
+		# 厚度边缘出现两种颜色；几何、厚度和子节点缩放仍保持原样。
+		var flat_physical_back := body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
+		if flat_physical_back != null:
+			flat_physical_back.material_override = _flat_concealed_jade_back_material()
 	if not show_face and concealed_surface_flip:
 		# 对家翻转实体双面以让牌背朝向桌心；胡牌后真正平扣的暗手继续使用
 		# PBR 翡翠树脂，只对正对顶灯的入射强度做朝向补偿，不能退回无光照纯色。
@@ -277,7 +288,7 @@ func _build_visuals() -> void:
 	face_mesh = MeshInstance3D.new()
 	face_mesh.name = "TileFace"
 	flat_surface_mesh = _build_rounded_plane_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
-	beveled_back_surface_mesh = _build_rounded_beveled_back_mesh(CONCEALED_BACK_SIZE, 0.032, 6)
+	beveled_back_surface_mesh = _build_rounded_beveled_back_mesh(CONCEALED_BACK_SIZE, CONCEALED_BACK_CORNER_RADIUS, 6)
 	face_mesh.mesh = flat_surface_mesh
 	face_mesh.position = Vector3(0.0, FACE_Y, 0.0)
 	face_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -497,15 +508,13 @@ func _jade_back_material() -> StandardMaterial3D:
 
 
 func _flat_concealed_jade_back_material() -> StandardMaterial3D:
-	# 图 1 的平扣牌要求稳定的明亮正绿色。实体牌身、倒角、分牌缝和投影继续
-	# 提供厚度；显示面本身不再被顶灯洗亮或压暗，避免一排牌出现多种背色。
-	const CACHE_KEY := "body:flat_bright_green_back_v8"
+	# 平扣仍使用与立牌完全相同的树脂 PBR 参数；仅降低源色，抵消朝上平面的
+	# 顶灯入射，避免最终画面变成亮绿。禁止退回 unshaded 或二维覆盖材质。
+	const CACHE_KEY := "body:flat_emerald_resin_compensated_v1"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
-	var result := StandardMaterial3D.new()
+	var result := _jade_back_material().duplicate() as StandardMaterial3D
 	result.albedo_color = FLAT_RESULT_JADE_BACK
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
 	return result
 

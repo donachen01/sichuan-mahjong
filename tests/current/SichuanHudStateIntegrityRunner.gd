@@ -178,8 +178,8 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 	var self_won := (seat_huds.get(0) as Control).get_node_or_null("%WonBadge") as Label
 	var dealer := (seat_huds.get(2) as Control).get_node_or_null("%DealerBadge") as Label
 	var turn := (seat_huds.get(1) as Control).get_node_or_null("%TurnBadge") as Label
-	if self_won == null or not self_won.visible or self_won.text != "已胡":
-		failures.append("已胡 HUD 缺少文字状态")
+	if self_won == null or not self_won.visible or self_won.text != "自摸":
+		failures.append("自摸 HUD 缺少文字状态")
 	if dealer == null or not dealer.visible or dealer.text != "庄":
 		failures.append("庄家 HUD 缺少文字状态")
 	if turn == null or turn.visible:
@@ -190,18 +190,22 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 		return
 	var center_contract: Dictionary = center.call("get_visual_contract")
 	var directions: Array = center_contract.get("direction_labels", [])
-	if not directions.is_empty():
-		failures.append("中央区不应再显示本/上/对/下文字")
-	if str(center_contract.get("concept", "")) != "static_wall_count_on_physical_center" \
+	if directions != ["东", "南", "西", "北"]:
+		failures.append("中央区必须按参考图提供东/南/西/北四向")
+	if center_contract.get("active_encoding", []) != ["opaque_vivid_red_main_field_and_both_chamfer_fills", "warm_ivory_direction_glyph_with_dark_outline"]:
+		failures.append("中央当前方位必须同时使用红色梯形和亮色文字，不得只靠颜色")
+	if str(center_contract.get("active_color_hex", "")) != "A13D2D":
+		failures.append("中央当前方位的 2D 降级色必须保持为 #A13D2D")
+	if str(center_contract.get("concept", "")) != "reference_four_way_turn_panel" \
 			or bool(center_contract.get("persistent_long_status_text", true)):
-		failures.append("中央区必须只保留贴在实体中心盘上的静态余牌数，不得常驻长状态句")
+		failures.append("中央区必须使用参考图四向仪表盘，且不得常驻长状态句")
 	var wall_count := center.get_node_or_null("%TurnChipLabel") as Label
 	if wall_count == null or not wall_count.visible or not wall_count.text.is_valid_int():
 		failures.append("余牌必须使用贴在中心图形上的纯数字")
 	var background := center.get_node_or_null("%BackgroundPanel") as Panel
 	var compass_overlay := center.get_node_or_null("%CompassVisual") as Control
-	if background == null or background.visible or compass_overlay == null or compass_overlay.visible:
-		failures.append("中央方向文字移除后不得残留暗框或方向高亮框")
+	if background == null or background.visible or compass_overlay == null or not compass_overlay.visible:
+		failures.append("中央组件必须保留完整 2D 四向回退；3D 模式由父节点整体隐藏而不是破坏回退内容")
 
 
 func _verify_hu_and_cancel(scene: Node, failures: Array[String]) -> void:
