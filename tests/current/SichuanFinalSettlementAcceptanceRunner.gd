@@ -45,32 +45,53 @@ func _run() -> void:
 func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dictionary) -> void:
 	var panel: Panel = scene.get("settlement_panel") as Panel
 	var style := panel.get_theme_stylebox("panel") if panel != null else null
-	var texture_path := ""
-	if not style is StyleBoxTexture:
-		failures.append("rich settlement panel is not backed by a Blender nine-slice StyleBoxTexture")
-	else:
-		var textured_style := style as StyleBoxTexture
-		texture_path = textured_style.texture.resource_path if textured_style.texture != null else ""
-		if not texture_path.ends_with("settlement_panel_9slice.png"):
-			failures.append("settlement nine-slice texture path mismatch: %s" % texture_path)
-		if minf(textured_style.texture_margin_left, textured_style.texture_margin_top) < 80.0:
-			failures.append("settlement nine-slice margins are too small to preserve the authored frame")
-	var texture := load("res://res/art/ui/table_v2/settlement_panel_9slice.png") as Texture2D
-	if texture == null or texture.get_width() != 1024 or texture.get_height() != 640:
-		failures.append("settlement nine-slice must be the audited 1024x640 RGBA asset")
-	var blend_source_path := ProjectSettings.globalize_path("res://source_assets/ui/settlement/settlement_panel_9slice.blend")
-	if not FileAccess.file_exists(blend_source_path):
-		failures.append("editable Blender source for the settlement panel is missing")
+	if not style is StyleBoxFlat:
+		failures.append("rich settlement panel must use the restrained single-shell StyleBoxFlat")
+	elif _style_border_total(style as StyleBoxFlat) > 4:
+		failures.append("settlement outer shell must use only one subtle one-pixel outline")
+	var section_styles := {
+		"player_list": _panel_style(scene.get("settlement_player_list_card")),
+		"detail": _panel_style(scene.get("settlement_detail_card")),
+		"hand": _panel_style(scene.get("settlement_hand_card")),
+		"breakdown": _panel_style(scene.get("settlement_breakdown_card")),
+	}
+	for section_name in section_styles:
+		var section_style := section_styles[section_name] as StyleBoxFlat
+		if section_style == null or _style_border_total(section_style) != 0:
+			failures.append("settlement %s section must remain borderless" % section_name)
+	var hero_style := _panel_style(scene.get("settlement_hero_card"))
+	if hero_style == null \
+			or hero_style.get_border_width(SIDE_LEFT) < 4 \
+			or hero_style.get_border_width(SIDE_LEFT) > 6 \
+			or hero_style.get_border_width(SIDE_TOP) != 0 \
+			or hero_style.get_border_width(SIDE_RIGHT) != 0 \
+			or hero_style.get_border_width(SIDE_BOTTOM) != 0:
+		failures.append("settlement focus hero must use one left copper accent without a surrounding box")
 	metrics["visual"] = {
-		"theme": "deep_emerald_ink_jade_aged_copper",
+		"theme": "deep_emerald_single_shell_borderless_sections",
 		"style_type": style.get_class() if style != null else "null",
-		"texture_path": texture_path,
-		"texture_size": [texture.get_width(), texture.get_height()] if texture != null else [0, 0],
-		"editable_blender_source": FileAccess.file_exists(blend_source_path),
+		"outer_border_total": _style_border_total(style as StyleBoxFlat) if style is StyleBoxFlat else -1,
+		"nested_section_borders": "none_except_single_left_focus_accent",
 		"detail_columns": ["分数来源", "对象", "番/分", "本局得分"],
 		"winning_row_highlight": "emerald_active_plus_aged_copper",
 		"score_is_primary_focus": true,
 	}
+
+
+func _panel_style(control: Variant) -> StyleBoxFlat:
+	var panel := control as Panel
+	if panel == null:
+		return null
+	return panel.get_theme_stylebox("panel") as StyleBoxFlat
+
+
+func _style_border_total(style: StyleBoxFlat) -> int:
+	if style == null:
+		return -1
+	return style.get_border_width(SIDE_LEFT) \
+		+ style.get_border_width(SIDE_TOP) \
+		+ style.get_border_width(SIDE_RIGHT) \
+		+ style.get_border_width(SIDE_BOTTOM)
 
 
 func _verify_authoritative_ledgers(scene: Node, failures: Array[String], metrics: Dictionary) -> void:

@@ -79,6 +79,7 @@ const TABLETOP_CONTACT_Y := 0.155
 const CENTER_PANEL_TOP_Y := 0.006
 const CENTER_COUNTER_BEZEL_RADIUS := 0.455
 const CENTER_ACTIVE_CUTOUT_RADIUS := 0.460
+const CENTER_SEPARATOR_CORNER_ANGLE_DEGREES := 27.75854
 const UPRIGHT_HAND_CLEARANCE_Y := 0.012
 const CENTER_PANEL_DIRECTIONS := ["东", "南", "西", "北"]
 # Segment order is top, right, bottom, left. Seats are self, left, opposite,
@@ -1234,6 +1235,8 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"center_active_geometry": "segmented_coplanar_top_faces_with_circular_counter_cutout_without_extrusion_or_dark_sidewalls",
 		"center_counter_bezel_radius": CENTER_COUNTER_BEZEL_RADIUS,
 		"center_active_counter_cutout_radius": CENTER_ACTIVE_CUTOUT_RADIUS,
+		"center_separator_corner_angle_degrees": CENTER_SEPARATOR_CORNER_ANGLE_DEGREES,
+		"center_active_sector_spans_degrees": [124.48292, 55.51708, 124.48292, 55.51708],
 		"center_counter_highlight": "restrained_antique_bronze_high_roughness_low_clearcoat",
 		"center_active_turn_seat": center_active_turn_seat,
 		"center_active_segment": CENTER_PANEL_SEGMENT_FOR_SEAT[center_active_turn_seat] if center_active_turn_seat >= 0 else -1,

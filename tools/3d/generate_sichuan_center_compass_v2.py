@@ -33,6 +33,15 @@ COUNTER_LENS_RADIUS = 0.365
 # keeps the straight chords between sampled arc points from crossing the ring.
 ACTIVE_SECTOR_CUTOUT_RADIUS = COUNTER_BEZEL_RADIUS + 0.005
 ACTIVE_SECTOR_ARC_SEGMENTS = 8
+SEPARATOR_INNER_X = 0.38
+SEPARATOR_INNER_Y = 0.20
+# The separator hairlines do not divide the wide panel into four equal 90°
+# wedges. Top/bottom span about 124.5°, while left/right span about 55.5°.
+# Active lacquer must use the same rays or East/West leave dark wedges beside
+# the counter even though their outer bands look red.
+SEPARATOR_CORNER_ANGLE_DEGREES = math.degrees(
+    math.atan2(SEPARATOR_INNER_Y, SEPARATOR_INNER_X)
+)
 
 
 def srgb_to_linear(value: float) -> float:
@@ -351,18 +360,41 @@ def direction_polygon_pieces() -> list[list[list[tuple[float, float]]]]:
     # All four sectors use the same physical cutout radius. The earlier top and
     # bottom fields stopped at y=+/-0.20 while the side fields stopped at
     # x=+/-0.38, which let East/West red enamel show through the counter lens.
+    corner_angle = SEPARATOR_CORNER_ANGLE_DEGREES
+    upper_left_angle = 180.0 - corner_angle
+    lower_left_angle = -180.0 + corner_angle
     return [
         sector_with_counter_cutout(
-            (-1.025, 0.90), (1.025, 0.90), (-1.22, 0.705), (1.22, 0.705), 135.0, 45.0
+            (-1.025, 0.90),
+            (1.025, 0.90),
+            (-1.22, 0.705),
+            (1.22, 0.705),
+            upper_left_angle,
+            corner_angle,
         ),
         sector_with_counter_cutout(
-            (1.22, 0.705), (1.22, -0.705), (1.025, 0.90), (1.025, -0.90), 45.0, -45.0
+            (1.22, 0.705),
+            (1.22, -0.705),
+            (1.025, 0.90),
+            (1.025, -0.90),
+            corner_angle,
+            -corner_angle,
         ),
         sector_with_counter_cutout(
-            (1.025, -0.90), (-1.025, -0.90), (1.22, -0.705), (-1.22, -0.705), -45.0, -135.0
+            (1.025, -0.90),
+            (-1.025, -0.90),
+            (1.22, -0.705),
+            (-1.22, -0.705),
+            -corner_angle,
+            lower_left_angle,
         ),
         sector_with_counter_cutout(
-            (-1.22, -0.705), (-1.22, 0.705), (-1.025, -0.90), (-1.025, 0.90), -135.0, -225.0
+            (-1.22, -0.705),
+            (-1.22, 0.705),
+            (-1.025, -0.90),
+            (-1.025, 0.90),
+            lower_left_angle,
+            -180.0 - corner_angle,
         ),
     ]
 
@@ -411,10 +443,10 @@ def build() -> list[bpy.types.Object]:
         flat_line_segments(
             "DirectionSeparatorHairlines",
             [
-                ((-0.38, 0.20), (-1.20, 0.70)),
-                ((0.38, 0.20), (1.20, 0.70)),
-                ((0.38, -0.20), (1.20, -0.70)),
-                ((-0.38, -0.20), (-1.20, -0.70)),
+                ((-SEPARATOR_INNER_X, SEPARATOR_INNER_Y), (-1.20, 0.70)),
+                ((SEPARATOR_INNER_X, SEPARATOR_INNER_Y), (1.20, 0.70)),
+                ((SEPARATOR_INNER_X, -SEPARATOR_INNER_Y), (1.20, -0.70)),
+                ((-SEPARATOR_INNER_X, -SEPARATOR_INNER_Y), (-1.20, -0.70)),
             ],
             0.010,
             0.0044,

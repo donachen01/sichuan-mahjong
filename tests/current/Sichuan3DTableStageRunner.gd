@@ -335,8 +335,10 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 			or str(contract.get("center_active_geometry", "")) != "segmented_coplanar_top_faces_with_circular_counter_cutout_without_extrusion_or_dark_sidewalls" \
 			or absf(float(contract.get("center_counter_bezel_radius", 0.0)) - 0.455) > 0.0001 \
 			or absf(float(contract.get("center_active_counter_cutout_radius", 0.0)) - 0.460) > 0.0001 \
+			or absf(float(contract.get("center_separator_corner_angle_degrees", 0.0)) - 27.75854) > 0.0001 \
+			or contract.get("center_active_sector_spans_degrees", []) != [124.48292, 55.51708, 124.48292, 55.51708] \
 			or str(contract.get("center_counter_highlight", "")) != "restrained_antique_bronze_high_roughness_low_clearcoat":
-		failures.append("center turn panel lost its four directions or redundant active-turn encoding")
+		failures.append("center turn panel lost its four directions, separator-aligned coverage, or redundant active-turn encoding")
 	if str(contract.get("self_hand_pitch_policy", "")) != "compact_visible_seam_0_83" \
 			or absf(float(contract.get("self_hand_world_pitch", 0.0)) - 0.83) > 0.001:
 		failures.append("human hand must use the compact 0.83 centre pitch with a visible seam")
@@ -369,6 +371,20 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 	var camera_fov := float(contract.get("camera_fov", 0.0))
 	if camera_fov < 49.0 or camera_fov > 50.0:
 		failures.append("3D stage horizontal FOV is outside the camera reconstruction gate")
+
+
+func _smallest_circular_span_degrees(angles: Array[float]) -> float:
+	if angles.size() < 2:
+		return 0.0
+	angles.sort()
+	var largest_gap := 0.0
+	for index in range(angles.size()):
+		var current_angle := angles[index]
+		var next_angle := angles[(index + 1) % angles.size()]
+		if index == angles.size() - 1:
+			next_angle += TAU
+		largest_gap = maxf(largest_gap, next_angle - current_angle)
+	return rad_to_deg(TAU - largest_gap)
 
 
 func _verify_hidden_hands(stage: SichuanTableStage3D, failures: Array[String]) -> void:
@@ -795,6 +811,7 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 	var flat_active_sector_count := 0
 	var exact_active_red_sector_count := 0
 	var counter_clear_active_sector_count := 0
+	var separator_aligned_active_sector_count := 0
 	var minimum_active_vertex_radius := INF
 	var first_active_red_diagnostic := "missing"
 	for mesh_instance in imported_meshes:
@@ -830,6 +847,7 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 			if world_bounds.size.y <= 0.0005:
 				flat_active_sector_count += 1
 			var sector_minimum_radius := INF
+			var near_counter_angles: Array[float] = []
 			for surface_index in range(mesh_instance.mesh.get_surface_count()):
 				var arrays := mesh_instance.mesh.surface_get_arrays(surface_index)
 				var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
@@ -840,9 +858,17 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 						sector_minimum_radius,
 						Vector2(center_offset.x, center_offset.z).length()
 					)
+					var radial_distance := Vector2(center_offset.x, center_offset.z).length()
+					if radial_distance >= 0.455 and radial_distance <= 0.465:
+						near_counter_angles.append(fposmod(atan2(center_offset.z, center_offset.x), TAU))
 			minimum_active_vertex_radius = minf(minimum_active_vertex_radius, sector_minimum_radius)
 			if sector_minimum_radius >= 0.458:
 				counter_clear_active_sector_count += 1
+			var sector_index := int(str(mesh_instance.name).trim_prefix("DirectionActive"))
+			var expected_span := 124.48292 if sector_index % 2 == 0 else 55.51708
+			var actual_span := _smallest_circular_span_degrees(near_counter_angles)
+			if absf(actual_span - expected_span) <= 0.25:
+				separator_aligned_active_sector_count += 1
 			var expected_active_red := Color("7F3226")
 			if material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED \
 					and material.albedo_color.is_equal_approx(expected_active_red) \
@@ -858,6 +884,8 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 		failures.append("all four active sectors must be coplanar top faces without dark side walls")
 	if counter_clear_active_sector_count != 4:
 		failures.append("all four active sectors must remain outside the counter bezel (minimum vertex radius %.4f)" % minimum_active_vertex_radius)
+	if separator_aligned_active_sector_count != 4:
+		failures.append("all four active sectors must span the exact separator-defined region instead of equal 90-degree wedges")
 	if exact_active_red_sector_count != 4:
 		failures.append("all four active sectors must import the unlit filmic-compensated #A13D2D material without emission or clearcoat drift (%s)" % first_active_red_diagnostic)
 	if highest_surface_y > SichuanTableStage3D.TABLETOP_CONTACT_Y + 0.0101:

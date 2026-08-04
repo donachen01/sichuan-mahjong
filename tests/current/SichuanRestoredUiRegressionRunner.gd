@@ -363,12 +363,28 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	if panel != null and root_ui != null and (panel.size.x > root_ui.size.x + 1.0 or panel.size.y > root_ui.size.y + 1.0):
 		failures.append("结算面板不得超出屏幕")
 	var panel_style := panel.get_theme_stylebox("panel") if panel != null else null
-	if not panel_style is StyleBoxTexture:
-		failures.append("结算主面板必须使用 Blender 生成的深翡翠九宫格资源")
+	if not panel_style is StyleBoxFlat:
+		failures.append("结算主面板必须使用简洁的单层深翡翠外壳")
 	else:
-		var textured_style := panel_style as StyleBoxTexture
-		if textured_style.texture == null or not textured_style.texture.resource_path.ends_with("settlement_panel_9slice.png"):
-			failures.append("结算主面板九宫格资源路径不正确")
+		var flat_style := panel_style as StyleBoxFlat
+		var border_total := flat_style.get_border_width(SIDE_LEFT) \
+			+ flat_style.get_border_width(SIDE_TOP) \
+			+ flat_style.get_border_width(SIDE_RIGHT) \
+			+ flat_style.get_border_width(SIDE_BOTTOM)
+		if border_total > 4:
+			failures.append("结算主面板外框线过重，必须保持单像素轮廓")
+	for card_name in ["settlement_player_list_card", "settlement_detail_card", "settlement_hand_card", "settlement_breakdown_card"]:
+		var section := scene.get(card_name) as Panel
+		var section_style := section.get_theme_stylebox("panel") as StyleBoxFlat if section != null else null
+		if section_style == null:
+			failures.append("结算区域 %s 缺少简洁底色" % card_name)
+			continue
+		var section_border_total := section_style.get_border_width(SIDE_LEFT) \
+			+ section_style.get_border_width(SIDE_TOP) \
+			+ section_style.get_border_width(SIDE_RIGHT) \
+			+ section_style.get_border_width(SIDE_BOTTOM)
+		if section_border_total != 0:
+			failures.append("结算区域 %s 不应再套一层完整框线" % card_name)
 
 	# Exercise the same explicit ScreenTouch path used on iOS. The full-screen
 	# overlay must route a player-row press before it consumes the event.
@@ -448,6 +464,8 @@ func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) 
 		var panel: Control = scene.get("settlement_panel")
 		var content: Control = scene.get("settlement_content")
 		var next_button: Control = scene.get("next_round_button")
+		var player_list: VBoxContainer = scene.get("settlement_player_list")
+		var breakdown_list: VBoxContainer = scene.get("settlement_breakdown_list")
 		if root_ui == null or panel == null or content == null or next_button == null:
 			failures.append("结算四档布局验证缺少必要控件")
 			break
@@ -461,6 +479,12 @@ func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) 
 		]:
 			if not _rect_contains_with_tolerance(panel_rect, entry.get("rect"), 1.0):
 				failures.append("结算%s在 %dx%d 超出主面板" % [entry.get("name"), viewport_size.x, viewport_size.y])
+		if panel.size.x > root_ui.size.x * 0.92 + 2.0 or panel.size.y > root_ui.size.y * 0.90 + 2.0:
+			failures.append("结算面板在 %dx%d 仍占满屏幕，未形成简洁留白" % [viewport_size.x, viewport_size.y])
+		if player_list != null and _children_height_ratio(player_list) < 0.72:
+			failures.append("结算四家列表在 %dx%d 留白过多" % [viewport_size.x, viewport_size.y])
+		if breakdown_list != null and _children_height_ratio(breakdown_list) < 0.72:
+			failures.append("结算明细区域在 %dx%d 留白过多" % [viewport_size.x, viewport_size.y])
 	get_root().size = original_size
 	await process_frame
 	scene.call("_layout_settlement_overlay")
@@ -472,6 +496,17 @@ func _rect_contains_with_tolerance(outer: Rect2, inner: Rect2, tolerance: float)
 		and inner.position.y >= outer.position.y - tolerance \
 		and inner.end.x <= outer.end.x + tolerance \
 		and inner.end.y <= outer.end.y + tolerance
+
+
+func _children_height_ratio(container: Control) -> float:
+	if container == null or container.size.y <= 1.0:
+		return 0.0
+	var occupied := 0.0
+	for child in container.get_children():
+		var control := child as Control
+		if control != null and control.visible:
+			occupied += control.size.y
+	return occupied / container.size.y
 
 
 func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:

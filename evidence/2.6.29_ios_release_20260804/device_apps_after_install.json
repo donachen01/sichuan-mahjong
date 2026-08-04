@@ -1,0 +1,52 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "info",
+      "apps",
+      "--device",
+      "516E99D2-18B6-5DD8-94E1-6993510A036D",
+      "--bundle-id",
+      "com.chendong.sichuanmahjong.iosdev",
+      "--columns",
+      "*",
+      "--timeout",
+      "60",
+      "--json-output",
+      "evidence/2.6.29_ios_release_20260804/device_apps_after_install.json",
+      "--log-output",
+      "evidence/2.6.29_ios_release_20260804/device_apps_after_install.log"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 3,
+    "outcome" : "success",
+    "version" : "518.33"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.chendong.sichuanmahjong.iosdev",
+        "bundleVersion" : "2.6.29",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "四川麻将新版",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/846ADFC9-F2DD-4B9A-9E32-7414DACA9B51/SichuanMahjongIOS.app/",
+        "version" : "2.6.29"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "matchingBundleIdentifier" : "com.chendong.sichuanmahjong.iosdev",
+    "removableAppsIncluded" : true
+  }
+}

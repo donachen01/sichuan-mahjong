@@ -10,9 +10,13 @@ from PIL import Image
 
 EXPECTED_SIZE = (2048, 1152)
 COUNTER_PROBE_POINTS_BY_SEAT = {
-    0: [(975, 495), (1075, 495)],
+    # The East/West sectors are wider than 90 degrees. Their separator-aligned
+    # wedges legitimately occupy the projected corners outside the circular
+    # bezel, so probe the real counter interior instead of those former missing
+    # wedges. The imported-mesh runner separately enforces cutout >= bezel radius.
+    0: [(990, 486), (1000, 486), (1048, 486), (1058, 486)],
     1: [(976, 465), (974, 475), (977, 485)],
-    2: [(1000, 445), (1047, 445), (975, 450), (1075, 450)],
+    2: [(990, 470), (1000, 460), (1048, 460), (1058, 470)],
     3: [(1070, 465), (1072, 475), (1073, 485)],
 }
 

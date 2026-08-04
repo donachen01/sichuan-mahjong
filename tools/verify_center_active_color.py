@@ -11,9 +11,11 @@ from PIL import Image
 TARGET_RGB = (161, 61, 45)
 EXPECTED_SIZE = (2048, 1152)
 SAMPLE_POINTS_BY_SEAT = {
-    0: [(900, 532), (930, 532), (1120, 532)],
+    # East/West include the two separator-adjacent wedges beside the bezel;
+    # these were the exact dark gaps reported in the acceptance screenshot.
+    0: [(900, 532), (930, 532), (1120, 532), (975, 495), (1075, 495)],
     1: [(891, 470), (891, 490), (891, 510)],
-    2: [(930, 424), (1115, 424)],
+    2: [(930, 424), (1115, 424), (975, 450), (1075, 450)],
     3: [(1154, 470), (1154, 490), (1154, 510)],
 }
 

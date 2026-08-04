@@ -262,14 +262,14 @@ func _check_rich_settlement_typography(root_node: Node, failures: Array[String])
 	var hero_score := root_node.get("settlement_hero_score") as Label
 	var breakdown_title := root_node.get("settlement_breakdown_title") as Label
 	for entry in [
-		{"control": title, "label": "运行时结算主标题", "path": DISPLAY_FONT_PATH, "minimum": 34, "maximum": 40},
-		{"control": hero_badge, "label": "运行时结算短标题", "path": DISPLAY_FONT_PATH, "minimum": 18, "maximum": 30},
-		{"control": breakdown_title, "label": "运行时结算明细标题", "path": DISPLAY_FONT_PATH, "minimum": 30, "maximum": 36},
-		{"control": round_label, "label": "运行时结算局数正文", "path": BODY_FONT_PATH, "minimum": 22, "maximum": 28},
-		{"control": hero_name, "label": "运行时结算玩家名", "path": BODY_FONT_PATH, "minimum": 24, "maximum": 34},
-		{"control": hero_hu, "label": "运行时结算胡牌统计", "path": BODY_FONT_PATH, "minimum": 22, "maximum": 28},
-		{"control": hero_fan, "label": "运行时结算番数统计", "path": BODY_FONT_PATH, "minimum": 22, "maximum": 28},
-		{"control": hero_score, "label": "运行时结算焦点分数", "path": BODY_FONT_PATH, "minimum": 60, "maximum": 72},
+		{"control": title, "label": "运行时结算主标题", "path": DISPLAY_FONT_PATH, "minimum": 38, "maximum": 46},
+		{"control": hero_badge, "label": "运行时结算短标题", "path": DISPLAY_FONT_PATH, "minimum": 22, "maximum": 30},
+		{"control": breakdown_title, "label": "运行时结算明细标题", "path": DISPLAY_FONT_PATH, "minimum": 32, "maximum": 40},
+		{"control": round_label, "label": "运行时结算局数正文", "path": BODY_FONT_PATH, "minimum": 26, "maximum": 32},
+		{"control": hero_name, "label": "运行时结算玩家名", "path": BODY_FONT_PATH, "minimum": 32, "maximum": 42},
+		{"control": hero_hu, "label": "运行时结算胡牌统计", "path": BODY_FONT_PATH, "minimum": 27, "maximum": 34},
+		{"control": hero_fan, "label": "运行时结算番数统计", "path": BODY_FONT_PATH, "minimum": 27, "maximum": 34},
+		{"control": hero_score, "label": "运行时结算焦点分数", "path": BODY_FONT_PATH, "minimum": 72, "maximum": 88},
 	]:
 		var control := entry.get("control") as Control
 		var label_text := str(entry.get("label"))
