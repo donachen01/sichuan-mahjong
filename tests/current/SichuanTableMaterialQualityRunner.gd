@@ -54,8 +54,8 @@ func _run() -> void:
 	_check(str(contract.get("table_asset", "")) == "sichuan_table_v2_pbr", "stage exposes the V2 PBR asset")
 	_check(str(contract.get("table_material_pipeline", "")) == "blender_pbr_preserved_without_flat_overrides", "stage exposes preserved Blender PBR pipeline")
 	_check(
-		str(contract.get("table_surface_finish", "")) == "clean_uniform_short_nap_felt_with_directional_microfibre_normals",
-		"stage exposes the dense directional velvet surface contract"
+		str(contract.get("table_surface_finish", "")) == "splash_matched_natural_warm_green_balanced_short_nap_felt",
+		"stage exposes the splash-matched balanced short-nap felt contract"
 	)
 	_check(
 		str(contract.get("table_divider_finish", "")) == "subsurface_low_contrast_felt_dark_weave",
