@@ -271,12 +271,11 @@ func _setup_world() -> void:
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color("202A43")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	# Keep ambient fill restrained so the authored #167A64/#0F6957 felt does
-	# not wash into cyan under Metal's filmic tonemapper. Mahjong tiles receive
-	# their own layer-2 fill below, so reducing table ambient does not cost glyph
-	# readability.
-	environment.ambient_light_color = Color("8FB3A9")
-	environment.ambient_light_energy = 0.18
+	# A restrained warm-grey ambient keeps the splash-matched felt natural under
+	# Metal's filmic tonemapper. Mahjong tiles receive their own layer-2 fill
+	# below, so this table calibration does not cost glyph readability.
+	environment.ambient_light_color = Color("A9B79C")
+	environment.ambient_light_energy = 0.16
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	# Small-radius SSAO grounds adjacent tiles without turning the ivory faces
@@ -314,8 +313,8 @@ func _setup_world() -> void:
 	# the forest-green felt from drifting toward cyan. Tile faces still receive
 	# the dedicated layer-2 fill light, so this table calibration does not cost
 	# glyph readability.
-	key_light.light_color = Color("FFF0E3")
-	key_light.light_energy = 0.91
+	key_light.light_color = Color("FFF1E1")
+	key_light.light_energy = 0.88
 	# DirectionalLight3D shines along local -Z. The -146-degree yaw points the
 	# ground component toward the player's right/down screen quadrant, matching
 	# the supplied commercial reference instead of the former right/up shadow.
@@ -339,7 +338,7 @@ func _setup_world() -> void:
 	fill_light.light_energy = 1.60
 	fill_light.omni_range = 18.0
 	# Layer 2 is reserved for Mahjong tiles. A camera-side fill preserves glyph
-	# readability on upright faces without washing out the blue table or filling
+	# readability on upright faces without washing out the green table or filling
 	# the single key shadow.
 	fill_light.light_cull_mask = 1 << 1
 	fill_light.shadow_enabled = false

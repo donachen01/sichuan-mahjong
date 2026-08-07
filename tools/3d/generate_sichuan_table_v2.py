@@ -125,10 +125,10 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     )
     base *= 1.0 + tone[:, :, None]
     # Display calibration for the fixed Godot Metal/Filmic table-lighting rig.
-    # The blue reduction is deliberate: the old map rendered cyan even though
-    # its source looked green. These values target the splash screen's natural
-    # forest green under the existing gameplay lights.
-    base *= np.array([0.28, 0.88, 0.62], dtype=np.float32)[None, None, :]
+    # Author a natural warm green in the source map. These channel gains account
+    # for the fixed warm Metal/Filmic lighting rig without returning to the old
+    # cyan-biased result.
+    base *= np.array([0.66, 1.03, 0.90], dtype=np.float32)[None, None, :]
 
     # Keep the legacy audit mask deterministic, but do not tint the production
     # base colour with it. The runtime table is clean short-nap felt throughout.
