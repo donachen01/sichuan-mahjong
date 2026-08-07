@@ -23,9 +23,9 @@ ART_ROOT = PROJECT_ROOT / "res" / "art"
 OUTPUT_GLB = ART_ROOT / "3d" / "sichuan_table_v2.glb"
 TEXTURE_DIR = ART_ROOT / "materials" / "table_v2"
 
-TABLE_CENTER = np.array([0x18, 0x66, 0x46], dtype=np.float32) / 255.0
-TABLE_BASE = np.array([0x12, 0x55, 0x3B], dtype=np.float32) / 255.0
-TABLE_EDGE = np.array([0x0C, 0x42, 0x31], dtype=np.float32) / 255.0
+TABLE_CENTER = np.array([0x32, 0x78, 0x43], dtype=np.float32) / 255.0
+TABLE_BASE = np.array([0x29, 0x69, 0x39], dtype=np.float32) / 255.0
+TABLE_EDGE = np.array([0x20, 0x55, 0x31], dtype=np.float32) / 255.0
 LEATHER_RAIL = np.array([0x12, 0x31, 0x25], dtype=np.float32) / 255.0
 WALNUT_WARM = np.array([0x58, 0x2C, 0x1A], dtype=np.float32) / 255.0
 # A near-neighbour of the felt, not a black painted outline.  Together with the
@@ -101,30 +101,34 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     edge = np.clip((edge_distance - 0.70) / 0.30, 0.0, 1.0)
     centre = np.clip(1.0 - np.sqrt(((u - 0.5) / 0.72) ** 2 + ((v - 0.5) / 0.72) ** 2), 0.0, 1.0)
 
-    medium = smooth_noise(size, 5201, 42)
-    broad = smooth_noise(size, 5202, 14)
-    fine = smooth_noise(size, 5203, 180)
-    # Keep the colour field visually clean. Broad/medium noise is used only to
-    # perturb the fibre phase, never to tint the base colour: low-frequency
-    # colour blotches read as puddles at gameplay distance. The tactile felt
-    # response is carried by dense directional normal and roughness detail.
-    brush_a = np.sin((u * 14.0 + v * 3.2 + broad * 0.42) * math.pi * 2.0)
-    brush_b = np.sin((u * 5.5 - v * 11.5 + medium * 0.26) * math.pi * 2.0)
-    brushed_pile = brush_a * 0.66 + brush_b * 0.34
-    fibre_main = 0.5 + 0.5 * np.sin((u * 1180.0 + v * 92.0 + fine * 0.72) * math.pi * 2.0)
-    fibre_cross = 0.5 + 0.5 * np.sin((u * 172.0 - v * 830.0 + medium * 0.34) * math.pi * 2.0)
-    fibre = fibre_main * 0.78 + fibre_cross * 0.22
-    nap = (fine - 0.5) * 0.014 + (fibre - 0.5) * 0.008
+    broad = smooth_noise(size, 5301, 28)
+    medium = smooth_noise(size, 5302, 96)
+    fine = smooth_noise(size, 5303, 360)
+    phase_noise = smooth_noise(size, 5304, 180)
 
-    clean_felt_color = TABLE_BASE * 0.88 + TABLE_CENTER * 0.12
+    # Equal-weight fibres from four unrelated directions remove the previous
+    # vertical ribbing while retaining a fine, even short-nap response.
+    fibre_fields = (
+        np.sin((u * 760.0 + v * 250.0 + phase_noise * 0.34) * math.tau),
+        np.sin((-u * 310.0 + v * 830.0 + fine * 0.28) * math.tau),
+        np.sin((u * 610.0 - v * 690.0 + phase_noise * 0.30) * math.tau),
+        np.sin((u * 520.0 + v * 540.0 + medium * 0.18) * math.tau),
+    )
+    fibre = sum(fibre_fields) * 0.125 + 0.5
+
+    clean_felt_color = TABLE_BASE * 0.82 + TABLE_CENTER * 0.18
     base = np.broadcast_to(clean_felt_color[None, None, :], (size, size, 3)).copy()
-    base *= 1.0 + nap[:, :, None]
+    tone = (
+        (broad - 0.5) * 0.028
+        + (medium - 0.5) * 0.018
+        + (fine - 0.5) * 0.006
+    )
+    base *= 1.0 + tone[:, :, None]
     # Display calibration for the fixed Godot Metal/Filmic table-lighting rig.
-    # The previous pass over-compensated the green channel and rendered the
-    # tabletop nearly black.  This lift lands the Metal render closer to the
-    # supplied target's calm forest-green midtone while keeping the red channel
-    # restrained enough to avoid drifting back toward cyan.
-    base *= np.array([0.27, 1.01, 0.98], dtype=np.float32)[None, None, :]
+    # The blue reduction is deliberate: the old map rendered cyan even though
+    # its source looked green. These values target the splash screen's natural
+    # forest green under the existing gameplay lights.
+    base *= np.array([0.28, 0.88, 0.62], dtype=np.float32)[None, None, :]
 
     # Keep the legacy audit mask deterministic, but do not tint the production
     # base colour with it. The runtime table is clean short-nap felt throughout.
@@ -137,25 +141,22 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     save_non_color_image("FeltBrocadeMask2048", TEXTURE_DIR / "brocade_mask.png", mask_rgba)
     felt_base = save_rgba_image("FeltBaseColor2048", TEXTURE_DIR / "felt_basecolor.png", base)
 
-    # Normal carries only short, dense fibres. Removing medium and broad height
-    # fields prevents large lighting islands while retaining real felt sparkle.
-    height = (
-        (fine - 0.5) * 0.10
-        + (fibre - 0.5) * 0.18
-    )
+    # Normal carries only short, dense fibres. Broad and medium fields are kept
+    # out of height so the surface cannot form puddles or visible woven bands.
+    height = sum(field * 0.05 for field in fibre_fields) + (fine - 0.5) * 0.045
     grad_y, grad_x = np.gradient(height)
-    normal = np.dstack((-grad_x * 3.25, -grad_y * 3.25, np.ones_like(height)))
+    normal = np.dstack((-grad_x * 2.15, -grad_y * 2.15, np.ones_like(height)))
     normal /= np.linalg.norm(normal, axis=2, keepdims=True)
     normal_rgba = np.ones((size, size, 4), dtype=np.float32)
     normal_rgba[:, :, :3] = normal * 0.5 + 0.5
     felt_normal = save_non_color_image("FeltNormal2048", TEXTURE_DIR / "felt_normal.png", normal_rgba)
 
     roughness = np.clip(
-        0.82
+        0.88
         + (fine - 0.5) * 0.018
-        + (0.5 - fibre) * 0.026,
-        0.78,
+        + (fibre - 0.5) * 0.014,
         0.86,
+        0.90,
     )
     orm = np.ones((size, size, 4), dtype=np.float32)
     orm[:, :, 0] = 0.97  # AO stays uniform; geometry provides the edge depth.
@@ -370,7 +371,7 @@ def build_table() -> list[bpy.types.Object]:
     felt_maps = generate_felt_maps()
     leather_maps = generate_surface_maps("leather", LEATHER_RAIL, 1024, 6101, 0.72, 0.0)
     walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.54, 0.0)
-    felt = pbr_material("DeepEmeraldShortNapFelt", *felt_maps, normal_strength=0.52)
+    felt = pbr_material("DeepEmeraldShortNapFelt", *felt_maps, normal_strength=0.34)
     leather = pbr_material("InkGreenLeather", *leather_maps)
     walnut = pbr_material("WarmWalnutFrame", *walnut_maps, normal_strength=0.38)
     groove = simple_material("PlayfieldRecessedGroove", PLAYFIELD_GROOVE, 0.94, 0.0)
