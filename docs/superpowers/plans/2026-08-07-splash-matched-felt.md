@@ -323,6 +323,12 @@ Skip this commit when Step 3 was not needed.
 ### Task 5: Focused Regression And Evidence Report
 
 **Files:**
+- Modify: `VERSION`
+- Modify: `VERSION.md`
+- Modify: `README.md`
+- Modify: `CHANGELOG.md`
+- Modify: `project.godot`
+- Modify: `export_presets.cfg`
 - Create: `evidence/ui_splash_matched_felt_20260807/verification_report.md`
 - Modify: `.codex/交接/当前.md`
 
@@ -330,13 +336,17 @@ Skip this commit when Step 3 was not needed.
 - Consumes: source-map metrics, deterministic hashes, four Metal captures and runner logs.
 - Produces: an evidence-layered report that stops at local Metal rendering.
 
-- [ ] **Step 1: Run focused regressions**
+- [ ] **Step 1: Upgrade the source version to 2.6.30**
+
+Set `VERSION`, `project.godot`, all desktop/iOS short/build versions, Android `version/name`, README and VERSION documentation to `2.6.30`; set Android `version/code=290`. Add a `2.6.30 - 2026-08-07` changelog entry describing only the splash-matched felt change and its frozen gameplay/UI scope. Do not build a mobile package in this task.
+
+- [ ] **Step 2: Run focused regressions**
 
 Run these runners independently and preserve each log: `SichuanTableMaterialQualityRunner.gd`, `Sichuan3DTableStageRunner.gd`, `SichuanPremiumTableVisualContractRunner.gd`, `SichuanTileVisualQualityRunner.gd`, `SichuanTableLayoutContractRunner.gd`, `SichuanTableTouchTargetRunner.gd`, `SichuanCameraCompositionRunner.gd`, and `SichuanLightingQualityRunner.gd`.
 
 Expected: 8/8 exit 0 with no explicit FAIL marker.
 
-- [ ] **Step 2: Run spatial contracts and C# build**
+- [ ] **Step 3: Run spatial contracts and C# build**
 
 Run `SichuanSpatialLayoutRunner.gd` with `1365x768`, `2048x1152`, `2400x1080`, and `2556x1179`, then:
 
@@ -347,14 +357,14 @@ git diff --check
 
 Expected: spatial 4/4 pass; C# has 0 warnings and 0 errors; diff check exits 0.
 
-- [ ] **Step 3: Write the report and handoff**
+- [ ] **Step 4: Write the report and handoff**
 
 Report exact source commit, changed files, map metrics, hashes, Metal renderer, four viewport results, focused runner totals, C# result, comparison image and evidence boundary. State explicitly that no iOS package was built or installed and no phone rendering/touch claim is made. Add the same verified boundary at the top of `.codex/交接/当前.md` using `apply_patch`, then read both files back.
 
-- [ ] **Step 4: Commit evidence metadata**
+- [ ] **Step 5: Commit version and evidence metadata**
 
 Commit only the report, handoff entry and small JSON/text metrics. Large screenshots remain evidence files unless the containing directory is already tracked by project convention.
 
-- [ ] **Step 5: Present comparison and stop before iOS**
+- [ ] **Step 6: Present comparison and stop before iOS**
 
 Show `splash_before_after_contact_sheet.png`, summarize exact metrics and regression evidence, and wait for user visual approval before any version bump, iOS signing, installation or launch.
