@@ -36,7 +36,7 @@ func _run() -> void:
 	_check(fill != null, "single fill exists")
 	if key != null:
 		_check(key.shadow_enabled, "key light casts the only real-time shadow")
-		_check(key.light_energy >= 0.90 and key.light_energy <= 1.35, "key energy stays inside gate")
+		_check(key.light_energy >= 0.86 and key.light_energy <= 0.90, "splash-matched key energy stays inside gate")
 		_check(key.shadow_opacity >= 0.88 and key.shadow_opacity <= 1.0, "key shadow opacity stays inside gate")
 		_check(key.shadow_blur >= 1.1 and key.shadow_blur <= 2.2, "Compatibility shadow blur is explicit")
 		_check(key.light_angular_distance == 0.0, "lighting does not rely on Forward+-only directional PCSS")
