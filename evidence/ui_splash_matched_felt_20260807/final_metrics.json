@@ -1,0 +1,121 @@
+{
+  "maps": {
+    "root": "res/art/materials/table_v2",
+    "metrics": {
+      "normal_energy_x": 0.016995687987061022,
+      "normal_energy_y": 0.013952034462969474,
+      "normal_energy_ratio": 1.218151233224789,
+      "base_luminance_cv": 0.0068706586681579725,
+      "roughness_median": 0.8784313725490196,
+      "roughness_span": 0.03137254901960784,
+      "metallic_max": 0.0
+    },
+    "checks": {
+      "balanced_normal_energy": true,
+      "subtle_base_variation": true,
+      "high_roughness": true,
+      "restrained_roughness_span": true,
+      "non_metallic": true
+    },
+    "passed": true
+  },
+  "renders": [
+    {
+      "path": "evidence/ui_splash_matched_felt_20260807/after/table_1365x768.png",
+      "metrics": {
+        "image_size": [
+          1366,
+          768
+        ],
+        "felt_pixel_count": 525804,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_splash_matched_felt_20260807/after/table_2048x1152.png",
+      "metrics": {
+        "image_size": [
+          2048,
+          1152
+        ],
+        "felt_pixel_count": 1183974,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_splash_matched_felt_20260807/after/table_2400x1080.png",
+      "metrics": {
+        "image_size": [
+          2400,
+          1080
+        ],
+        "felt_pixel_count": 1330893,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_splash_matched_felt_20260807/after/table_2556x1179.png",
+      "metrics": {
+        "image_size": [
+          2556,
+          1180
+        ],
+        "felt_pixel_count": 1533422,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}
