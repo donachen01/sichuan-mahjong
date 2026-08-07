@@ -1,0 +1,49 @@
+{
+  "maps": {
+    "root": "res/art/materials/table_v2",
+    "metrics": {
+      "normal_energy_x": 0.006369210301523526,
+      "normal_energy_y": 0.0030448399081407992,
+      "normal_energy_ratio": 2.0918046576092766,
+      "base_luminance_cv": 0.00374684401580561,
+      "roughness_median": 0.8196078431372549,
+      "roughness_span": 0.04313725490196074,
+      "metallic_max": 0.0
+    },
+    "checks": {
+      "balanced_normal_energy": false,
+      "subtle_base_variation": false,
+      "high_roughness": false,
+      "restrained_roughness_span": true,
+      "non_metallic": true
+    },
+    "passed": false
+  },
+  "renders": [
+    {
+      "path": "evidence/ui_latest_discard_velvet_20260728/final_table_2556x1179.png",
+      "metrics": {
+        "image_size": [
+          2556,
+          1180
+        ],
+        "felt_pixel_count": 1361635,
+        "median_rgb8": [
+          37,
+          122,
+          100
+        ],
+        "red_green_ratio": 0.30327868852459017,
+        "blue_green_ratio": 0.8196721311475409,
+        "luminance": 0.4013356862745098
+      },
+      "checks": {
+        "warm_green_red_ratio": false,
+        "reduced_cyan_blue_ratio": false,
+        "splash_matched_luminance": true
+      },
+      "passed": false
+    }
+  ],
+  "passed": false
+}
