@@ -101,7 +101,6 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     edge = np.clip((edge_distance - 0.70) / 0.30, 0.0, 1.0)
     centre = np.clip(1.0 - np.sqrt(((u - 0.5) / 0.72) ** 2 + ((v - 0.5) / 0.72) ** 2), 0.0, 1.0)
 
-    broad = smooth_noise(size, 5301, 28)
     medium = smooth_noise(size, 5302, 96)
     fine = smooth_noise(size, 5303, 360)
     phase_noise = smooth_noise(size, 5304, 180)
@@ -116,14 +115,11 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     )
     fibre = sum(fibre_fields) * 0.125 + 0.5
 
+    # BaseColor is deliberately uniform. All visible short-nap response lives
+    # in the micro-scale Normal and roughness maps so mipmaps cannot reveal
+    # broad colour clouds on mobile devices.
     clean_felt_color = TABLE_BASE * 0.82 + TABLE_CENTER * 0.18
     base = np.broadcast_to(clean_felt_color[None, None, :], (size, size, 3)).copy()
-    tone = (
-        (broad - 0.5) * 0.028
-        + (medium - 0.5) * 0.018
-        + (fine - 0.5) * 0.006
-    )
-    base *= 1.0 + tone[:, :, None]
     # Display calibration for the fixed Godot Metal/Filmic table-lighting rig.
     # Author a natural warm green in the source map. These channel gains account
     # for the fixed warm Metal/Filmic lighting rig without returning to the old
@@ -141,8 +137,8 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     save_non_color_image("FeltBrocadeMask2048", TEXTURE_DIR / "brocade_mask.png", mask_rgba)
     felt_base = save_rgba_image("FeltBaseColor2048", TEXTURE_DIR / "felt_basecolor.png", base)
 
-    # Normal carries only short, dense fibres. Broad and medium fields are kept
-    # out of height so the surface cannot form puddles or visible woven bands.
+    # Normal carries only short, dense fibres. Medium fields affect phase only,
+    # never height amplitude, so the surface cannot form puddles or woven bands.
     height = sum(field * 0.05 for field in fibre_fields) + (fine - 0.5) * 0.045
     grad_y, grad_x = np.gradient(height)
     normal = np.dstack((-grad_x * 2.15, -grad_y * 2.15, np.ones_like(height)))

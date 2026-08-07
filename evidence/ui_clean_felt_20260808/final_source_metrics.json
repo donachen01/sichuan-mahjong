@@ -1,0 +1,32 @@
+{
+  "maps": {
+    "root": "res/art/materials/table_v2",
+    "metrics": {
+      "normal_energy_x": 0.016995687987061022,
+      "normal_energy_y": 0.013952034462969474,
+      "normal_energy_ratio": 1.218151233224789,
+      "base_luminance_cv": 9.683849753183637e-15,
+      "base_lowpass_std_fraction": 0.0,
+      "base_lowfreq_p99_p1": 0.0,
+      "normal_lowpass_std_fraction": 0.0027392332561256027,
+      "roughness_median": 0.8784313725490196,
+      "roughness_span": 0.03137254901960784,
+      "roughness_p99_p1": 0.019607843137254832,
+      "metallic_max": 0.0
+    },
+    "checks": {
+      "balanced_normal_energy": true,
+      "subtle_base_variation": true,
+      "clean_base_low_frequency": true,
+      "restrained_base_lowfreq_span": true,
+      "clean_normal_low_frequency": true,
+      "high_roughness": true,
+      "restrained_roughness_span": true,
+      "restrained_roughness_percentiles": true,
+      "non_metallic": true
+    },
+    "passed": true
+  },
+  "renders": [],
+  "passed": true
+}
