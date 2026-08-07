@@ -13,9 +13,15 @@ from PIL import Image
 
 EXPECTED_MAP_SIZE = (2048, 2048)
 NORMAL_ENERGY_RATIO_MAX = 1.30
-BASE_LUMINANCE_CV_RANGE = (0.006, 0.018)
+BASE_LUMINANCE_CV_MAX = 0.004
+BASE_LOWPASS_STD_FRACTION_MAX = 0.20
+BASE_LOWFREQ_P99_P1_MAX = 1.5 / 255.0
+NORMAL_LOWPASS_STD_FRACTION_MAX = 0.05
 ROUGHNESS_MEDIAN_RANGE = (0.86, 0.90)
 ROUGHNESS_SPAN_MAX = 0.06
+ROUGHNESS_P99_P1_MAX = 0.02
+TOP_FACE_UV_BOUNDS = (0.6556, 0.9423, 0.5037, 0.9799)
+LOWPASS_GRID_SIZE = (28, 28)
 RENDER_RED_GREEN_RANGE = (0.35, 0.50)
 RENDER_BLUE_GREEN_RANGE = (0.40, 0.62)
 RENDER_LUMINANCE_RANGE = (0.36, 0.46)
@@ -32,6 +38,32 @@ def _load_rgb(path: Path) -> np.ndarray:
     return np.asarray(image, dtype=np.float64) / 255.0
 
 
+def _top_face_crop(field: np.ndarray) -> np.ndarray:
+    u0, u1, v0, v1 = TOP_FACE_UV_BOUNDS
+    height, width = field.shape[:2]
+    return field[
+        round((1.0 - v1) * height):round((1.0 - v0) * height),
+        round(u0 * width):round(u1 * width),
+    ]
+
+
+def _lowpass(field: np.ndarray) -> np.ndarray:
+    source = Image.fromarray(field.astype(np.float32))
+    return np.asarray(
+        source.resize(LOWPASS_GRID_SIZE, Image.Resampling.BOX).resize(
+            source.size, Image.Resampling.BILINEAR
+        ),
+        dtype=np.float64,
+    )
+
+
+def _lowpass_std_fraction(field: np.ndarray) -> float:
+    total_std = float(np.std(field))
+    if total_std <= 1e-12:
+        return 0.0
+    return float(np.std(_lowpass(field)) / total_std)
+
+
 def analyze_maps(root: Path) -> dict[str, object]:
     base = _load_rgb(root / "felt_basecolor.png")
     normal = _load_rgb(root / "felt_normal.png")
@@ -44,25 +76,54 @@ def analyze_maps(root: Path) -> dict[str, object]:
     energy_y = float(np.mean(tangent_y * tangent_y))
     energy_ratio = max(energy_x, energy_y) / max(min(energy_x, energy_y), 1e-12)
     roughness = orm[:, :, 1]
+    top_luminance = _top_face_crop(luminance)
+    top_lowpass = _lowpass(top_luminance)
+    base_luminance_cv = float(np.std(luminance) / np.mean(luminance))
+    base_lowpass_std_fraction = _lowpass_std_fraction(top_luminance)
+    base_lowfreq_p99_p1 = float(
+        np.percentile(top_lowpass, 99) - np.percentile(top_lowpass, 1)
+    )
+    normal_lowpass_std_fraction = max(
+        _lowpass_std_fraction(_top_face_crop(tangent_x)),
+        _lowpass_std_fraction(_top_face_crop(tangent_y)),
+    )
+    top_roughness = _top_face_crop(roughness)
+    roughness_p99_p1 = float(
+        np.percentile(top_roughness, 99) - np.percentile(top_roughness, 1)
+    )
 
     metrics = {
         "normal_energy_x": energy_x,
         "normal_energy_y": energy_y,
         "normal_energy_ratio": energy_ratio,
-        "base_luminance_cv": float(np.std(luminance) / np.mean(luminance)),
+        "base_luminance_cv": base_luminance_cv,
+        "base_lowpass_std_fraction": base_lowpass_std_fraction,
+        "base_lowfreq_p99_p1": base_lowfreq_p99_p1,
+        "normal_lowpass_std_fraction": normal_lowpass_std_fraction,
         "roughness_median": float(np.median(roughness)),
         "roughness_span": float(np.max(roughness) - np.min(roughness)),
+        "roughness_p99_p1": roughness_p99_p1,
         "metallic_max": float(np.max(orm[:, :, 2])),
     }
     checks = {
         "balanced_normal_energy": metrics["normal_energy_ratio"] <= NORMAL_ENERGY_RATIO_MAX,
-        "subtle_base_variation": _in_range(
-            metrics["base_luminance_cv"], BASE_LUMINANCE_CV_RANGE
+        "subtle_base_variation": metrics["base_luminance_cv"] <= BASE_LUMINANCE_CV_MAX,
+        "clean_base_low_frequency": (
+            metrics["base_lowpass_std_fraction"] <= BASE_LOWPASS_STD_FRACTION_MAX
+        ),
+        "restrained_base_lowfreq_span": (
+            metrics["base_lowfreq_p99_p1"] <= BASE_LOWFREQ_P99_P1_MAX
+        ),
+        "clean_normal_low_frequency": (
+            metrics["normal_lowpass_std_fraction"] <= NORMAL_LOWPASS_STD_FRACTION_MAX
         ),
         "high_roughness": _in_range(
             metrics["roughness_median"], ROUGHNESS_MEDIAN_RANGE
         ),
         "restrained_roughness_span": metrics["roughness_span"] <= ROUGHNESS_SPAN_MAX,
+        "restrained_roughness_percentiles": (
+            metrics["roughness_p99_p1"] <= ROUGHNESS_P99_P1_MAX
+        ),
         "non_metallic": metrics["metallic_max"] == 0.0,
     }
     return {"root": str(root), "metrics": metrics, "checks": checks, "passed": all(checks.values())}
