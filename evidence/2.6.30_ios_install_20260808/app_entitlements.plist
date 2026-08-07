@@ -1,0 +1,10 @@
+[Dict]
+	[Key] application-identifier
+	[Value]
+		[String] FCB4ZVWWD8.com.chendong.sichuanmahjong.iosdev
+	[Key] com.apple.developer.team-identifier
+	[Value]
+		[String] FCB4ZVWWD8
+	[Key] get-task-allow
+	[Value]
+		[Bool] true
