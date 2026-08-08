@@ -267,15 +267,21 @@ func _run() -> void:
 	)
 	await process_frame
 	var latest_marker := tile.get("latest_marker") as MeshInstance3D
-	_check(latest_marker != null and latest_marker.visible, "latest discard uses one visible low-profile bronze chevron")
+	_check(latest_marker != null and latest_marker.visible, "latest discard uses one visible rotating golden diamond")
 	if latest_marker != null:
-		_check(latest_marker.name == "LatestDiscardLowProfileBronzeChevron", "latest discard exposes the integrated bronze-chevron contract")
-		_check(latest_marker.position.z == 0.0 and latest_marker.position.y >= 0.34 and latest_marker.position.y <= 0.40, "latest chevron stays close to the tile instead of floating high")
+		_check(latest_marker.name == "LatestDiscardRotatingGoldenDiamond", "latest discard restores the rotating golden-diamond contract")
+		_check(latest_marker.position.z == 0.0 and latest_marker.position.y >= 0.60 and latest_marker.position.y <= 0.63, "latest golden diamond floats clearly above the discarded tile")
 		var latest_mesh := latest_marker.mesh as ImmediateMesh
-		_check(latest_mesh != null and latest_mesh.get_aabb().size.x >= 0.20 and latest_mesh.get_aabb().size.x <= 0.24, "latest chevron is compact")
+		_check(latest_mesh != null and latest_mesh.get_aabb().size.x >= 0.33 and latest_mesh.get_aabb().size.x <= 0.35, "latest golden diamond restores its original silhouette")
+		var latest_material := latest_marker.get_surface_override_material(0) as StandardMaterial3D
+		_check(latest_material != null and latest_material.albedo_color == Color("FFD45A") and latest_material.emission_enabled, "latest golden diamond restores its gold and warm emission")
 		tile.call("set_reduced_motion", false)
-		_check(not tile.is_processing(), "latest chevron and retired draw marker require no per-frame processing")
-		_check(latest_marker.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "latest chevron does not add a floating shadow")
+		_check(tile.is_processing(), "latest golden diamond enables rotation processing while visible")
+		if tile.has_method("_process"):
+			var rotation_before := latest_marker.rotation.y
+			tile.call("_process", 0.5)
+			_check(absf(latest_marker.rotation.y - rotation_before - deg_to_rad(63.0)) <= 0.001, "latest golden diamond rotates at the original 126 degrees per second")
+		_check(latest_marker.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_ON, "latest golden diamond restores its physical cast shadow")
 
 	tile.call(
 		"configure",

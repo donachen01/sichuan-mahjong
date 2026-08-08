@@ -277,8 +277,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("selected tile must keep only its physical lift without a checkmark graphic")
 	if (contract.get("selected_marker_variants", []) as Array).size() != 1:
 		failures.append("selection-marker contract must expose only the no-icon presentation")
-	if str(contract.get("latest_discard_feedback", "")) != "static_low_profile_antique_bronze_chevron_close_to_tile":
-		failures.append("latest discard does not expose the integrated low-profile bronze-chevron contract")
+	if str(contract.get("latest_discard_feedback", "")) != "rotating_solid_golden_diamond_above_latest_discard":
+		failures.append("latest discard does not expose the restored rotating golden-diamond contract")
 	if absf(float(contract.get("discard_travel_seconds", 0.0)) - 0.20) > 0.001 \
 			or absf(float(contract.get("discard_settle_seconds", 0.0)) - 0.04) > 0.001 \
 			or float(contract.get("discard_reflow_beat_seconds", 0.0)) < 0.05 \
@@ -778,6 +778,8 @@ func _verify_latest_marker(stage: SichuanTableStage3D, failures: Array[String]) 
 		var tile := tile_value as SichuanTile3D
 		if tile.latest_marker != null and tile.latest_marker.visible:
 			marker_count += 1
+			if tile.latest_marker.name != "LatestDiscardRotatingGoldenDiamond":
+				failures.append("latest-discard marker must use the restored rotating golden diamond")
 	if marker_count != 1:
 		failures.append("exactly one latest-discard marker must remain visible")
 

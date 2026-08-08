@@ -23,8 +23,7 @@ const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.006, 0.58 - 0.006)
 const CONCEALED_BACK_CORNER_RADIUS := 0.022
 const FACE_Y := TILE_SIZE.y + 0.001
 const MARKER_Y := FACE_Y + 0.013
-# 蓝色摸牌提示保留短促、可关闭的世界竖轴旋转；最新弃牌已改为静态铜色折角，
-# 两种状态不再共享持续运动语言。
+const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
 const SELF_HAND_FACE_WHITE := Color("E7E2D9")
 # 上、下家实体背层继续使用翡翠树脂基色与材质参数；它同时保留在平扣牌的
 # 侧边厚度中，不能因为正面显示色校准而变成白边或二维贴片。
@@ -79,6 +78,13 @@ var beveled_back_surface_mesh: ArrayMesh
 func _ready() -> void:
 	_build_visuals()
 	set_process(false)
+
+
+func _process(delta: float) -> void:
+	if reduced_motion:
+		return
+	if latest_marker != null and latest_marker.visible:
+		latest_marker.rotation.y += deg_to_rad(LATEST_DISCARD_MARKER_SPEED_DEGREES) * delta
 
 
 func configure(
@@ -168,7 +174,7 @@ func configure(
 	# 即便摸牌与选中同一张，蓝色小菱形仍保持正中，避免制造第二个选择符号。
 	selected_marker.visible = false
 	latest_marker.visible = latest
-	set_process(false)
+	set_process(latest and not reduced_motion)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
@@ -203,7 +209,7 @@ func configure(
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	set_process(false)
+	set_process(not reduced_motion and latest_marker != null and latest_marker.visible)
 
 
 func set_draw_marker_style_variant(_value: int) -> void:
@@ -232,7 +238,7 @@ func set_latest_marker_visible(enabled: bool) -> void:
 	if latest_marker == null:
 		return
 	latest_marker.visible = enabled
-	set_process(false)
+	set_process(enabled and not reduced_motion)
 
 
 func get_screen_rect(camera: Camera3D) -> Rect2:
@@ -313,12 +319,10 @@ func _build_visuals() -> void:
 	add_child(selected_marker)
 
 	latest_marker = MeshInstance3D.new()
-	# 最新弃牌使用低矮的古铜折角，靠形状与颜色双重编码。标记贴近牌面、
-	# 不旋转也不投影，避免在桌面中央制造第二个悬浮视觉中心。
-	latest_marker.name = "LatestDiscardLowProfileBronzeChevron"
+	latest_marker.name = "LatestDiscardRotatingGoldenDiamond"
 	latest_marker.mesh = _build_latest_discard_marker_mesh()
-	latest_marker.position = Vector3(0.0, MARKER_Y + 0.12, 0.0)
-	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	latest_marker.position = Vector3(0.0, MARKER_Y + 0.36, 0.0)
+	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	latest_marker.set_surface_override_material(0, _latest_discard_marker_material())
 	latest_marker.visible = false
 	add_child(latest_marker)
@@ -631,37 +635,41 @@ func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, dang
 
 
 func _build_latest_discard_marker_mesh() -> ImmediateMesh:
-	# A shallow folded chevron keeps the state semantic close to the discarded
-	# tile. Its small physical thickness is enough to read as an in-world marker
-	# without becoming a floating faceted object or adding another cast shadow.
 	var mesh := ImmediateMesh.new()
-	var outline := [
-		Vector2(-0.110, -0.070), Vector2(0.0, -0.015), Vector2(0.110, -0.070),
-		Vector2(0.055, 0.080), Vector2(0.0, 0.045), Vector2(-0.055, 0.080),
+	var pointer := Vector3(0.0, -0.205, 0.0)
+	var crown := [
+		Vector3(0.0, 0.155, -0.180),
+		Vector3(0.170, 0.155, 0.0),
+		Vector3(0.0, 0.155, 0.180),
+		Vector3(-0.170, 0.155, 0.0),
 	]
 	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in range(outline.size()):
-		var next_index := (index + 1) % outline.size()
-		for vertex in [Vector3(0.0, 0.022, 0.010), Vector3(outline[index].x, 0.022, outline[index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y)]:
-			mesh.surface_add_vertex(vertex)
-		for vertex in [Vector3(outline[index].x, -0.022, outline[index].y), Vector3(outline[next_index].x, -0.022, outline[next_index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y), Vector3(outline[index].x, -0.022, outline[index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y), Vector3(outline[index].x, 0.022, outline[index].y)]:
+	for index in range(4):
+		var next_index := (index + 1) % 4
+		for vertex in [
+			Vector3(0.0, 0.155, 0.0), crown[index], crown[next_index],
+			pointer, crown[next_index], crown[index],
+		]:
 			mesh.surface_add_vertex(vertex)
 	mesh.surface_end()
 	return mesh
 
 
 func _latest_discard_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:latest_low_profile_antique_bronze_chevron_v1"
+	const CACHE_KEY := "marker:latest_solid_golden_diamond_v3"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("C49A55")
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	result.metallic = 0.0
-	result.roughness = 0.58
+	result.albedo_color = Color("FFD45A")
+	result.metallic = 0.34
+	result.roughness = 0.26
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	result.emission_enabled = false
-	result.clearcoat_enabled = false
+	result.emission_enabled = true
+	result.emission = Color("E79512")
+	result.emission_energy_multiplier = 0.52
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.36
+	result.clearcoat_roughness = 0.18
 	material_cache[CACHE_KEY] = result
 	return result
 

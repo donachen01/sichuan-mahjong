@@ -1353,7 +1353,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
 		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
-		"latest_discard_feedback": "static_low_profile_antique_bronze_chevron_close_to_tile",
+		"latest_discard_feedback": "rotating_solid_golden_diamond_above_latest_discard",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,
