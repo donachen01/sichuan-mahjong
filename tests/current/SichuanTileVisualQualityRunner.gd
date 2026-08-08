@@ -226,38 +226,8 @@ func _run() -> void:
 	var state_marker := tile.get("state_marker") as MeshInstance3D
 	var new_draw_marker := tile.get("new_draw_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "new draw no longer paints a full-tile color plane")
-	_check(new_draw_marker != null and new_draw_marker.visible, "new draw uses one visible small blue 3D diamond")
-	if new_draw_marker != null:
-		_check(new_draw_marker.name == "NewDrawRotatingBlueDiamond", "new draw exposes the blue-diamond node contract")
-		var draw_yaw_pivot := new_draw_marker.get_parent() as Node3D
-		_check(draw_yaw_pivot != null and draw_yaw_pivot.name == "NewDrawWorldYawPivot", "new draw diamond owns a dedicated world-yaw pivot")
-		if draw_yaw_pivot != null:
-			_check(absf(rad_to_deg(draw_yaw_pivot.rotation.x) + SELF_HAND_RACK_TILT_DEGREES) <= EPSILON, "new draw yaw pivot counteracts the self-hand tilt")
-		_check(new_draw_marker.position.z >= -0.14 and new_draw_marker.position.z <= -0.10, "new draw diamond stays tight to the drawn tile instead of floating toward the table")
-		_check(new_draw_marker.position.y >= 0.33 and new_draw_marker.position.y <= 0.36, "new draw diamond sits directly above the thicker drawn tile")
-		_check(tile.get("draw_marker_style_variant") == 0, "new-draw marker is the fixed blue-diamond style")
-		var draw_mesh := new_draw_marker.mesh as ImmediateMesh
-		_check(draw_mesh != null, "new draw uses solid 3D diamond geometry")
-		if draw_mesh != null:
-			_check(draw_mesh.get_aabb().size.x >= 0.15 and draw_mesh.get_aabb().size.x <= 0.17, "new draw diamond is compact")
-		var draw_material := new_draw_marker.get_active_material(0) as StandardMaterial3D
-		_check(draw_material != null, "new draw blue material exists")
-		if draw_material != null:
-			_check_color(draw_material.albedo_color, Color("42A5FF"), "new draw diamond is blue")
-			_check(draw_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED, "new draw diamond uses one flat blue without lighting gradients")
-			_check(not draw_material.emission_enabled and not draw_material.clearcoat_enabled, "new draw diamond has no glow or clearcoat gradient")
-		tile.call("set_reduced_motion", false)
-		var rotation_before := new_draw_marker.rotation.y
-		tile.call("_process", 0.5)
-		_check(absf(rad_to_deg(new_draw_marker.rotation.y - rotation_before) - 63.0) <= 0.2, "new draw diamond rotates at 126 degrees per second")
-		tile.transform.basis = Basis(Vector3.RIGHT, deg_to_rad(SELF_HAND_RACK_TILT_DEGREES))
-		await process_frame
-		var world_yaw_axis := new_draw_marker.global_transform.basis.y.normalized()
-		_check(world_yaw_axis.dot(Vector3.UP) >= 0.999, "new draw diamond rotates around the same world-vertical axis as the latest discard")
-		tile.call("set_reduced_motion", true)
-		var reduced_rotation := new_draw_marker.rotation.y
-		tile.call("_process", 0.5)
-		_check(absf(new_draw_marker.rotation.y - reduced_rotation) <= EPSILON, "reduced motion freezes the draw cone without hiding it")
+	_check(new_draw_marker == null, "new draw creates no icon, mesh, material or animation node")
+	_check(not tile.is_processing(), "new draw does not enable per-frame processing")
 
 	tile.call(
 		"configure",
@@ -276,7 +246,7 @@ func _run() -> void:
 	var selected_marker := tile.get("selected_marker") as MeshInstance3D
 	_check(state_marker != null and not state_marker.visible, "selected tile suppresses every full-tile color plane")
 	_check(selected_marker != null and not selected_marker.visible, "selected tile does not show a checkmark or any overlay graphic")
-	_check(new_draw_marker != null and not new_draw_marker.visible, "selection marker is independent from the new-draw diamond")
+	_check(new_draw_marker == null, "selection state does not recreate the retired draw marker")
 	if selected_marker != null:
 		_check(selected_marker.name == "SelectionVisualDisabled", "selection compatibility node cannot render an icon")
 		_check(selected_marker.mesh == null, "selected tile has no checkmark mesh or texture plane")
@@ -303,15 +273,8 @@ func _run() -> void:
 		_check(latest_marker.position.z == 0.0 and latest_marker.position.y >= 0.34 and latest_marker.position.y <= 0.40, "latest chevron stays close to the tile instead of floating high")
 		var latest_mesh := latest_marker.mesh as ImmediateMesh
 		_check(latest_mesh != null and latest_mesh.get_aabb().size.x >= 0.20 and latest_mesh.get_aabb().size.x <= 0.24, "latest chevron is compact")
-		if latest_mesh != null and new_draw_marker != null and new_draw_marker.mesh is ImmediateMesh:
-			_check(
-				(new_draw_marker.mesh as ImmediateMesh).get_aabb().size.x < latest_mesh.get_aabb().size.x,
-				"new draw blue diamond stays smaller than the latest-discard chevron"
-			)
 		tile.call("set_reduced_motion", false)
-		var latest_rotation_before := latest_marker.rotation.y
-		tile.call("_process", 0.5)
-		_check(absf(latest_marker.rotation.y - latest_rotation_before) <= EPSILON, "latest chevron remains static after its short arrival")
+		_check(not tile.is_processing(), "latest chevron and retired draw marker require no per-frame processing")
 		_check(latest_marker.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_OFF, "latest chevron does not add a floating shadow")
 
 	tile.call(
@@ -328,8 +291,7 @@ func _run() -> void:
 		-1
 	)
 	await process_frame
-	_check(not selected_marker.visible and new_draw_marker.visible, "selected drawn tile preserves only the blue new-draw diamond")
-	_check(absf(new_draw_marker.position.x) <= EPSILON, "blue diamond remains centred when its tile is selected")
+	_check(not selected_marker.visible and new_draw_marker == null, "selected drawn tile uses only physical stage positioning")
 
 	if failures.is_empty():
 		print("SICHUAN_TILE_VISUAL_QUALITY_PASS")

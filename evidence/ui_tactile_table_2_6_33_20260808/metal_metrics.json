@@ -1,0 +1,109 @@
+{
+  "maps": {
+    "root": "res/art/materials/table_v2",
+    "metrics": {
+      "normal_energy_x": 0.009560847738897376,
+      "normal_energy_y": 0.007889004816966813,
+      "normal_energy_ratio": 1.213336102369832,
+      "normal_direction_energy_ratio": 1.213336102369832,
+      "normal_low_frequency_ratio": 0.00016331833432905952,
+      "normal_mid_frequency_ratio": 0.11034677565886966,
+      "base_luminance_cv": 9.683849753183637e-15,
+      "base_lowpass_std_fraction": 0.0,
+      "base_lowfreq_p99_p1": 0.0,
+      "normal_lowpass_std_fraction": 0.0066279221635562975,
+      "roughness_median": 0.8509803921568627,
+      "roughness_span": 0.03529411764705881,
+      "roughness_p99_p1": 0.02352941176470591,
+      "metallic_max": 0.0
+    },
+    "checks": {
+      "balanced_normal_energy": true,
+      "subtle_base_variation": true,
+      "clean_base_low_frequency": true,
+      "restrained_base_lowfreq_span": true,
+      "clean_normal_low_frequency": true,
+      "visible_mid_scale_nap": true,
+      "tactile_roughness": true,
+      "restrained_roughness_span": true,
+      "restrained_roughness_percentiles": true,
+      "non_metallic": true
+    },
+    "passed": true
+  },
+  "renders": [
+    {
+      "path": "evidence/ui_tactile_table_2_6_33_20260808/detached_1365x768.png",
+      "metrics": {
+        "image_size": [
+          1364,
+          768
+        ],
+        "felt_pixel_count": 458984,
+        "median_rgb8": [
+          53,
+          132,
+          65
+        ],
+        "red_green_ratio": 0.4015151515151515,
+        "blue_green_ratio": 0.4924242424242423,
+        "luminance": 0.43281254901960786
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_tactile_table_2_6_33_20260808/detached_2048x1152.png",
+      "metrics": {
+        "image_size": [
+          2048,
+          1152
+        ],
+        "felt_pixel_count": 1038539,
+        "median_rgb8": [
+          53,
+          132,
+          65
+        ],
+        "red_green_ratio": 0.4015151515151515,
+        "blue_green_ratio": 0.4924242424242423,
+        "luminance": 0.43281254901960786
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_tactile_table_2_6_33_20260808/detached_2556x1179.png",
+      "metrics": {
+        "image_size": [
+          2556,
+          1178
+        ],
+        "felt_pixel_count": 1330321,
+        "median_rgb8": [
+          53,
+          132,
+          64
+        ],
+        "red_green_ratio": 0.4015151515151515,
+        "blue_green_ratio": 0.4848484848484848,
+        "luminance": 0.4325294117647059
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}
