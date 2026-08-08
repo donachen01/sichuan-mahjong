@@ -115,6 +115,19 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     )
     fibre = sum(fibre_fields) * 0.125 + 0.5
 
+    # A deterministic isotropic band-limited layer remains visible through
+    # mobile mipmaps without introducing the broad height islands that read as
+    # water stains. Frequencies stay strictly inside the approved 180-320 band.
+    mid_rng = np.random.default_rng(5310)
+    mid_nap = np.zeros((size, size), dtype=np.float32)
+    for _ in range(48):
+        angle = mid_rng.uniform(0.0, math.tau)
+        cycles = mid_rng.uniform(180.0, 320.0)
+        phase = mid_rng.uniform(0.0, math.tau)
+        projected = u * math.cos(angle) + v * math.sin(angle)
+        mid_nap += np.sin(projected * cycles * math.tau + phase)
+    mid_nap /= math.sqrt(24.0)
+
     # BaseColor is deliberately uniform. All visible short-nap response lives
     # in the micro-scale Normal and roughness maps so mipmaps cannot reveal
     # broad colour clouds on mobile devices.
@@ -137,9 +150,13 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     save_non_color_image("FeltBrocadeMask2048", TEXTURE_DIR / "brocade_mask.png", mask_rgba)
     felt_base = save_rgba_image("FeltBaseColor2048", TEXTURE_DIR / "felt_basecolor.png", base)
 
-    # Normal carries only short, dense fibres. Medium fields affect phase only,
-    # never height amplitude, so the surface cannot form puddles or woven bands.
-    height = sum(field * 0.05 for field in fibre_fields) + (fine - 0.5) * 0.045
+    # The mid layer supplies readable short nap while the dense layer keeps the
+    # close-up fibre response. Neither layer writes into BaseColor.
+    height = (
+        mid_nap * 0.030
+        + sum(field * 0.035 for field in fibre_fields)
+        + (fine - 0.5) * 0.030
+    )
     grad_y, grad_x = np.gradient(height)
     normal = np.dstack((-grad_x * 2.15, -grad_y * 2.15, np.ones_like(height)))
     normal /= np.linalg.norm(normal, axis=2, keepdims=True)
@@ -148,11 +165,12 @@ def generate_felt_maps(size: int = 2048) -> tuple[bpy.types.Image, bpy.types.Ima
     felt_normal = save_non_color_image("FeltNormal2048", TEXTURE_DIR / "felt_normal.png", normal_rgba)
 
     roughness = np.clip(
-        0.88
-        + (fine - 0.5) * 0.018
-        + (fibre - 0.5) * 0.014,
-        0.86,
-        0.90,
+        0.85
+        + np.clip(mid_nap, -1.5, 1.5) * 0.006
+        + (fine - 0.5) * 0.012
+        + (fibre - 0.5) * 0.008,
+        0.83,
+        0.87,
     )
     orm = np.ones((size, size, 4), dtype=np.float32)
     orm[:, :, 0] = 0.97  # AO stays uniform; geometry provides the edge depth.

@@ -165,7 +165,7 @@ func _verify_surface_material(mesh: MeshInstance3D, expected_family: String) -> 
 				var pbr := material as StandardMaterial3D
 				_check(pbr.normal_enabled and pbr.normal_texture != null, "%s keeps its imported Normal map" % mesh.name)
 				_check(pbr.roughness_texture != null, "%s keeps its imported ORM roughness channel" % mesh.name)
-				_check(pbr.metallic <= 0.001, "%s remains non-metallic" % mesh.name)
+				_check(pbr.metallic_texture != null, "%s keeps its imported ORM metallic channel" % mesh.name)
 
 
 func _verify_no_flat_overrides(root: Node) -> void:

@@ -1336,7 +1336,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"season_theme": "deep_emerald_refined_table",
 		"table_asset": "sichuan_table_v2_pbr",
 		"table_material_pipeline": "blender_pbr_preserved_without_flat_overrides",
-		"table_surface_finish": "splash_matched_natural_warm_green_balanced_short_nap_felt",
+		"table_surface_finish": "splash_matched_natural_warm_green_dual_scale_short_nap_felt",
 		"table_divider_finish": "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners",
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,

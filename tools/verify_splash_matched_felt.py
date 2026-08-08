@@ -65,16 +65,6 @@ def _lowpass_std_fraction(field: np.ndarray) -> float:
     return float(np.std(_lowpass(field)) / total_std)
 
 
-def _resampled_lowpass(field: np.ndarray, grid_size: tuple[int, int]) -> np.ndarray:
-    source = Image.fromarray(field.astype(np.float32))
-    return np.asarray(
-        source.resize(grid_size, Image.Resampling.BOX).resize(
-            source.size, Image.Resampling.BILINEAR
-        ),
-        dtype=np.float64,
-    )
-
-
 def analyze_normal_frequency_bands(normal_rgb: np.ndarray) -> dict[str, float]:
     """Measure normal energy on the actual felt top-face UV footprint."""
     tangent_x = _top_face_crop(normal_rgb[:, :, 0] * 2.0 - 1.0)
@@ -89,21 +79,26 @@ def analyze_normal_frequency_bands(normal_rgb: np.ndarray) -> dict[str, float]:
 
     energy_x = float(np.mean(tangent_x * tangent_x))
     energy_y = float(np.mean(tangent_y * tangent_y))
-    low_x = _resampled_lowpass(tangent_x, LOWPASS_GRID_SIZE)
-    low_y = _resampled_lowpass(tangent_y, LOWPASS_GRID_SIZE)
-    # 160x160 retains the intended 180-320-cycle nap over this UV crop while
-    # rejecting the existing 520-830-cycle micro fibres.
-    mid_x = _resampled_lowpass(tangent_x, (160, 160))
-    mid_y = _resampled_lowpass(tangent_y, (160, 160))
-    low_energy = float(np.mean(low_x * low_x + low_y * low_y))
+    height, width = tangent_x.shape
+    u_span = TOP_FACE_UV_BOUNDS[1] - TOP_FACE_UV_BOUNDS[0]
+    v_span = TOP_FACE_UV_BOUNDS[3] - TOP_FACE_UV_BOUNDS[2]
+    window = np.hanning(height)[:, None] * np.hanning(width)[None, :]
+    spectrum_x = np.fft.rfft2((tangent_x - np.mean(tangent_x)) * window)
+    spectrum_y = np.fft.rfft2((tangent_y - np.mean(tangent_y)) * window)
+    power = np.abs(spectrum_x) ** 2 + np.abs(spectrum_y) ** 2
+    cycles_x = np.fft.rfftfreq(width) * width / u_span
+    cycles_y = np.fft.fftfreq(height) * height / v_span
+    radial_cycles = np.hypot(cycles_y[:, None], cycles_x[None, :])
+    spectral_total = float(np.sum(power))
+    low_energy = float(np.sum(power[radial_cycles < 100.0]))
     mid_energy = float(
-        np.mean((mid_x - low_x) ** 2 + (mid_y - low_y) ** 2)
+        np.sum(power[(radial_cycles >= 180.0) & (radial_cycles <= 320.0)])
     )
     return {
         "normal_direction_energy_ratio": max(energy_x, energy_y)
         / max(min(energy_x, energy_y), 1e-12),
-        "normal_low_frequency_ratio": low_energy / total_energy,
-        "normal_mid_frequency_ratio": mid_energy / total_energy,
+        "normal_low_frequency_ratio": low_energy / max(spectral_total, 1e-12),
+        "normal_mid_frequency_ratio": mid_energy / max(spectral_total, 1e-12),
     }
 
 
