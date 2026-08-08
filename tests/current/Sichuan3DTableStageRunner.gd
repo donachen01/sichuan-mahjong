@@ -789,6 +789,10 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 		return
 	if label.text != "40":
 		failures.append("center 3D wall count text does not match the current wall")
+	if not label.modulate.is_equal_approx(Color("E8DFC8")) \
+			or not label.outline_modulate.is_equal_approx(Color("071713")) \
+			or label.outline_size < 4 or label.outline_size > 6:
+		failures.append("center wall count must use warm ivory with a restrained dark 4-6px outline")
 	if stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DRotor") != null:
 		failures.append("center wall count must not retain the rotating rotor")
 	var model := stage.get_node_or_null("CenterWallCount3DAnchor/PremiumBlenderCenterPanel") as Node3D
@@ -809,6 +813,7 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 		failures.append("Blender center instrument must retain its simplified 9-object mobile render budget")
 	var highest_surface_y := -INF
 	var restrained_smoked_glass_count := 0
+	var found_matte_counter := false
 	var found_flat_recess_bed := false
 	var found_integrated_recess_material := false
 	var found_restrained_bronze_material := false
@@ -831,13 +836,22 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 			failures.append("Blender center mesh must retain an imported PBR surface material: %s" % mesh_instance.name)
 			break
 		var material := mesh_instance.mesh.surface_get_material(0) as BaseMaterial3D
-		if mesh_instance.name in [&"CenterGlassInlay", &"CounterGlassLens"] \
+		if mesh_instance.name == &"CenterGlassInlay" \
 				and material.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED \
 				and Color(material.albedo_color, 1.0).is_equal_approx(Color("123E35")) \
 				and absf(material.albedo_color.a - 0.92) <= 0.01 \
 				and absf(material.roughness - 0.18) <= 0.01 \
 				and absf(material.metallic - 0.02) <= 0.01:
 			restrained_smoked_glass_count += 1
+		if mesh_instance.name == &"CounterGlassLens" \
+				and material.resource_name == "CenterMatteSmokedJadeCounter" \
+				and material.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED \
+				and material.albedo_color.is_equal_approx(Color("163B32")) \
+				and absf(material.albedo_color.a - 1.0) <= 0.001 \
+				and material.roughness >= 0.68 and material.roughness <= 0.76 \
+				and material.metallic <= 0.03 \
+				and not material.emission_enabled:
+			found_matte_counter = true
 		if mesh_instance.name == &"CenterRecessBed" \
 				and material.albedo_color.is_equal_approx(Color("0B2C26")) \
 				and absf(material.roughness - 0.58) <= 0.01 \
@@ -891,8 +905,10 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 					and not material.clearcoat_enabled:
 				exact_active_red_sector_count += 1
 		highest_surface_y = maxf(highest_surface_y, world_bounds.end.y)
-	if restrained_smoked_glass_count != 2:
-		failures.append("both center glass surfaces must retain the exact restrained smoked-jade imported PBR values")
+	if restrained_smoked_glass_count != 1:
+		failures.append("the outer center inlay must retain its restrained smoked-jade glass")
+	if not found_matte_counter:
+		failures.append("the wall-count lens must use the separate opaque matte smoked-jade material")
 	if not found_integrated_recess_material:
 		failures.append("center recess must retain the lighter high-roughness graphite-jade material")
 	if not found_restrained_bronze_material:
