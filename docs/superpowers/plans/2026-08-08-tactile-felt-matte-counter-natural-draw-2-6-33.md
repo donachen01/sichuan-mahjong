@@ -136,14 +136,18 @@ git commit -m "test: require visible clean mid-scale felt nap"
 
 - [ ] **Step 1: Implement the band-limited mid layer**
 
-Keep BaseColor generation byte-identical. Combine fixed-seed 220–320-cell noise and subtract a 64-cell reconstruction before normalization:
+Keep BaseColor generation byte-identical. Build an isotropic band-limited field from fixed-seed waves whose frequencies are restricted to `180–320` cycles across the texture. Randomized directions/phases and at least 48 components prevent a dominant weave direction, while the explicit frequency floor prevents low-frequency height islands:
 
 ```python
-mid_a = smooth_noise(size, 5310, 256)
-mid_b = smooth_noise(size, 5311, 320)
-mid_low = smooth_noise(size, 5312, 64)
-mid_nap = mid_a * 0.55 + mid_b * 0.45 - mid_low
-mid_nap = (mid_nap - mid_nap.mean()) / max(mid_nap.std(), 1e-6)
+mid_rng = np.random.default_rng(5310)
+mid_nap = np.zeros((size, size), dtype=np.float32)
+for _ in range(48):
+    angle = mid_rng.uniform(0.0, math.tau)
+    cycles = mid_rng.uniform(180.0, 320.0)
+    phase = mid_rng.uniform(0.0, math.tau)
+    projected = u * math.cos(angle) + v * math.sin(angle)
+    mid_nap += np.sin(projected * cycles * math.tau + phase)
+mid_nap /= math.sqrt(24.0)
 height = mid_nap * 0.020 + sum(field * 0.035 for field in fibre_fields) + (fine - 0.5) * 0.030
 ```
 
