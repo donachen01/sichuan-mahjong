@@ -430,6 +430,15 @@ def build() -> list[bpy.types.Object]:
         alpha=0.92,
         transmission=0.08,
     )
+    matte_counter = make_material(
+        "CenterMatteSmokedJadeCounter",
+        "163B32",
+        metallic=0.01,
+        roughness=0.72,
+        coat=0.0,
+        alpha=1.0,
+        transmission=0.0,
+    )
     exact_active_red = make_material(
         "CenterExactActiveRed",
         ACTIVE_RED_FILMIC_AUTHORING_HEX,
@@ -468,7 +477,7 @@ def build() -> list[bpy.types.Object]:
         )
     objects.extend([
         add_cylinder("CounterBronzeBezel", COUNTER_BEZEL_RADIUS, 0.001, 0.005, counter_bronze, vertices=40, bevel=0.0015),
-        add_cylinder("CounterGlassLens", COUNTER_LENS_RADIUS, 0.003, 0.006, smoked_glass, vertices=40, bevel=0.001),
+        add_cylinder("CounterGlassLens", COUNTER_LENS_RADIUS, 0.003, 0.006, matte_counter, vertices=40, bevel=0.001),
     ])
     return objects
 

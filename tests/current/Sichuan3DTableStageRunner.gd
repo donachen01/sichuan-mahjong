@@ -312,18 +312,19 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 	if str(contract.get("center_display_asset", "")) != "blender_authored_flush_glass_four_way_inlay":
 		failures.append("center graphic must expose the Blender-authored flush glass four-way inlay contract")
 	if str(contract.get("center_display_shape", "")) != "flush_chamfered_glass_inlay_with_circular_counter" \
-			or str(contract.get("center_display_material", "")) != "imported_blender_pbr_glass_graphite_bronze_and_vivid_red_lacquer":
+			or str(contract.get("center_display_material", "")) != "imported_blender_pbr_glass_matte_counter_graphite_bronze_and_vivid_red_lacquer":
 		failures.append("center display must use the flush imported Blender PBR glass inlay")
-	if str(contract.get("center_display_detail", "")) != "continuous_smoked_glass_with_clean_outer_edges_graphite_hairlines_counter_bronze_and_arc_cutout_vivid_red_active_sector" \
+	if str(contract.get("center_display_detail", "")) != "continuous_smoked_glass_with_matte_counter_graphite_hairlines_bronze_and_arc_cutout_vivid_red_active_sector" \
 			or str(contract.get("center_display_mobile_cost", "")) != "static_shadowless_imported_glb_no_process_animation_under_3000_triangles":
 		failures.append("center display must retain glossy glass detail within its static mobile budget")
 	if str(contract.get("center_display_source", "")) != "res://tools/3d/generate_sichuan_center_compass_v2.py" \
 			or int(contract.get("center_display_triangle_budget", -1)) != 1044 \
-			or int(contract.get("center_display_material_count", -1)) != 4 \
+			or int(contract.get("center_display_material_count", -1)) != 5 \
 			or int(contract.get("center_display_object_count", -1)) != 9 \
 			or bool(contract.get("center_display_runtime_mesh_generation", true)):
 		failures.append("center display Blender provenance or mobile geometry budget contract mismatch")
 	if str(contract.get("center_glass_finish", "")) != "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission" \
+			or str(contract.get("center_counter_finish", "")) != "opaque_matte_smoked_jade_without_emission_or_transmission" \
 			or str(contract.get("center_outer_keyline", "")) != "removed_clean_glass_and_recess_silhouette" \
 			or float(contract.get("center_inlay_max_rise_world", INF)) > 0.0061 \
 			or str(contract.get("wall_count_surface_plane", "")) != "flush_coplanar_glass_inlay_without_visible_sidewalls_at_felt_y_0_155":

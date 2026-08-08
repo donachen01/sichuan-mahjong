@@ -404,9 +404,9 @@ func _setup_center_wall_count() -> void:
 	center_wall_count_label.text = "55"
 	center_wall_count_label.font_size = 90
 	center_wall_count_label.pixel_size = 0.0058
-	center_wall_count_label.modulate = Color("F3E7C6")
-	center_wall_count_label.outline_modulate = Color("061512")
-	center_wall_count_label.outline_size = 12
+	center_wall_count_label.modulate = Color("E8DFC8")
+	center_wall_count_label.outline_modulate = Color("071713")
+	center_wall_count_label.outline_size = 5
 	center_wall_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_wall_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	center_wall_count_label.no_depth_test = false
@@ -1210,19 +1210,20 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"wall_count": int(snapshot.get("wall_count", 0)),
 		"rendered_wall_tile_count": 0,
 		"wall_representation": "static_numeric_count_on_blender_four_way_instrument",
-		"wall_count_surface": "central_gloss_smoked_jade_glass_counter_flush_with_felt",
+		"wall_count_surface": "central_opaque_matte_smoked_jade_counter_flush_with_felt",
 		"center_display_asset": "blender_authored_flush_glass_four_way_inlay",
 		"center_display_shape": "flush_chamfered_glass_inlay_with_circular_counter",
-		"center_display_material": "imported_blender_pbr_glass_graphite_bronze_and_vivid_red_lacquer",
+		"center_display_material": "imported_blender_pbr_glass_matte_counter_graphite_bronze_and_vivid_red_lacquer",
 		"center_display_nodes": ["CenterRecessBed", "CenterGlassInlay", "DirectionSeparatorHairlines", "CounterBronzeBezel", "CounterGlassLens", "CenterWallCount3DText"],
-		"center_display_detail": "continuous_smoked_glass_with_clean_outer_edges_graphite_hairlines_counter_bronze_and_arc_cutout_vivid_red_active_sector",
+		"center_display_detail": "continuous_smoked_glass_with_matte_counter_graphite_hairlines_bronze_and_arc_cutout_vivid_red_active_sector",
 		"center_display_mobile_cost": "static_shadowless_imported_glb_no_process_animation_under_3000_triangles",
 		"center_display_source": "res://tools/3d/generate_sichuan_center_compass_v2.py",
 		"center_display_triangle_budget": 1044,
-		"center_display_material_count": 4,
+		"center_display_material_count": 5,
 		"center_display_object_count": 9,
 		"center_display_runtime_mesh_generation": false,
 		"center_glass_finish": "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission",
+		"center_counter_finish": "opaque_matte_smoked_jade_without_emission_or_transmission",
 		"center_outer_keyline": "removed_clean_glass_and_recess_silhouette",
 		"center_inlay_max_rise_world": CENTER_PANEL_TOP_Y,
 		"center_inlay_flush_tolerance_world": 0.010,
