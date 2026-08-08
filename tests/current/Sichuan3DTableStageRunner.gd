@@ -264,12 +264,12 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("human concealed hand departed from the shared lower rail")
 	if str(contract.get("human_ding_que_sort", "")) != "rightmost_then_rank_then_tile_id":
 		failures.append("3D human hand lost the rightmost ding-que sort contract")
-	if str(contract.get("new_draw_feedback", "")) != "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile":
-		failures.append("new draw must use the flat pure-blue diamond tight to the drawn tile with latest-discard world yaw")
-	if str(contract.get("new_draw_rotation", "")) != "world_vertical_axis_126_degrees_per_second":
-		failures.append("new draw must retain its accessible world-vertical 126-degree rotation contract")
-	if (contract.get("new_draw_marker_variants", []) as Array).size() != 1:
-		failures.append("draw-marker contract must expose one fixed blue-diamond presentation")
+	if str(contract.get("new_draw_feedback", "")) != "detached_rightmost_physical_tile_without_marker":
+		failures.append("new draw must use a detached rightmost physical tile without an icon")
+	if str(contract.get("new_draw_rotation", "")) != "none":
+		failures.append("new draw must not retain continuous marker rotation")
+	if float(contract.get("self_new_draw_gap_per_scale", 0.0)) < 0.099:
+		failures.append("new draw must expose the fixed natural separation gap")
 	if absf(float(contract.get("new_draw_travel_seconds", 0.0)) - 0.20) > 0.001 \
 			or absf(float(contract.get("new_draw_settle_seconds", 0.0)) - 0.05) > 0.001:
 		failures.append("draw animation must use a 200ms travel plus 50ms settle")
@@ -979,38 +979,22 @@ func _collect_center_meshes(node: Node, result: Array[MeshInstance3D]) -> void:
 
 
 func _verify_new_draw_marker(stage: SichuanTableStage3D, draw_tile_id: int, failures: Array[String]) -> void:
-	var marker_count := 0
-	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
-		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		if tile.new_draw_marker != null and tile.new_draw_marker.visible:
-			marker_count += 1
-			if tile.tile_id != draw_tile_id:
-				failures.append("new-draw marker is attached to the wrong tile id")
-			if tile.state_marker != null and tile.state_marker.visible:
-				failures.append("new-draw tile still carries a full-tile color plane")
-			if tile.new_draw_marker.name != "NewDrawRotatingBlueDiamond":
-				failures.append("new-draw tile does not expose the blue-diamond marker")
-			var draw_yaw_pivot := tile.new_draw_marker.get_parent() as Node3D
-			if draw_yaw_pivot == null or draw_yaw_pivot.name != "NewDrawWorldYawPivot":
-				failures.append("new-draw marker does not isolate its table-world yaw from the self-hand tilt")
-			else:
-				var world_yaw_axis := tile.new_draw_marker.global_transform.basis.y.normalized()
-				if world_yaw_axis.dot(Vector3.UP) < 0.999:
-					failures.append("new-draw marker does not rotate around the same world-vertical axis as the latest discard")
-			if tile.new_draw_marker.position.y < 0.33 or tile.new_draw_marker.position.y > 0.36:
-				failures.append("new-draw diamond is not seated tightly above the drawn tile")
-			if tile.new_draw_marker.position.z < -0.14 or tile.new_draw_marker.position.z > -0.10:
-				failures.append("new-draw diamond still sits too far toward the table")
-			var mesh := tile.new_draw_marker.mesh as ImmediateMesh
-			if mesh == null or mesh.get_aabb().size.x < 0.15 or mesh.get_aabb().size.x > 0.17:
-				failures.append("new-draw diamond is not the requested compact solid geometry")
-			var material := tile.new_draw_marker.get_surface_override_material(0) as StandardMaterial3D
-			if material == null or not material.albedo_color.is_equal_approx(Color("42A5FF")):
-				failures.append("new-draw diamond is not blue")
-			elif material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED or material.emission_enabled or material.clearcoat_enabled:
-				failures.append("new-draw diamond must remain pure blue without a lighting gradient")
-	if marker_count != 1:
-		failures.append("exactly one new-draw marker must be visible")
+	var keys: Array[String] = stage.get("self_hand_keys")
+	if keys.size() < 2:
+		failures.append("new-draw separation requires at least two hand tiles")
+		return
+	var nodes: Dictionary = stage.get("tile_nodes")
+	var drawn := nodes.get(keys.back()) as SichuanTile3D
+	var previous := nodes.get(keys[keys.size() - 2]) as SichuanTile3D
+	if drawn == null or drawn.tile_id != draw_tile_id:
+		failures.append("drawn tile must be the rightmost physical hand tile")
+		return
+	var expected_extra := SichuanTableStage3D.SELF_NEW_DRAW_GAP_PER_SCALE * drawn.scale.x
+	var actual_extra := drawn.position.x - previous.position.x - float(stage.get_visual_contract().get("self_hand_world_pitch", 0.0))
+	if absf(actual_extra - expected_extra) > 0.01:
+		failures.append("drawn tile does not have the fixed natural right-edge separation")
+	if drawn.new_draw_marker != null:
+		failures.append("drawn tile must not create a blue marker node")
 
 
 func _verify_selected_marker(stage: SichuanTableStage3D, selected_tile_id: int, failures: Array[String]) -> void:
@@ -1446,8 +1430,8 @@ func _verify_human_self_draw_full_hand(stage: SichuanTableStage3D, expected_tile
 		failures.append("self-draw must not extract a separate winning tile node")
 	if source_arrow_count != 0:
 		failures.append("self-draw must not display a discard-source arrow")
-	if draw_marker_count != 1:
-		failures.append("human self-draw must mark exactly one winning tile, got %d" % draw_marker_count)
+	if draw_marker_count != 0:
+		failures.append("human self-draw result must not retain a draw marker")
 	if not (stage.get("self_hand_keys") as Array).is_empty():
 		failures.append("self-draw result must disable all discard pick targets")
 
