@@ -1021,7 +1021,9 @@ func _verify_human_ding_que_rightmost(stage: SichuanTableStage3D, ding_que_suit:
 	var reached_ding_que := false
 	var previous_rank := -1
 	var previous_id := -1
-	for key in keys:
+	var sorted_count := keys.size() - (1 if bool(stage.get("self_layout_has_detached_draw")) else 0)
+	for index in range(sorted_count):
+		var key := keys[index]
 		var tile := (stage.get("tile_nodes") as Dictionary).get(key) as SichuanTile3D
 		if tile == null:
 			continue

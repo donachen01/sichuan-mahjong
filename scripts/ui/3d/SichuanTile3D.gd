@@ -2,10 +2,9 @@ class_name SichuanTile3D
 extends Node3D
 
 const TILE_BODY_SCENE := preload("res://res/art/3d/mahjong_tile_body.glb")
-const DRAW_MARKER_STYLE_NAMES := ["小号蓝色立体菱形"]
+const DRAW_MARKER_STYLE_NAMES: Array[String] = []
 const SELECTED_MARKER_STYLE_NAMES := ["无选中图案"]
 
-@export_enum("小号蓝色立体菱形")
 var draw_marker_style_variant := 0
 
 @export_enum("无选中图案")
@@ -26,8 +25,6 @@ const FACE_Y := TILE_SIZE.y + 0.001
 const MARKER_Y := FACE_Y + 0.013
 # 蓝色摸牌提示保留短促、可关闭的世界竖轴旋转；最新弃牌已改为静态铜色折角，
 # 两种状态不再共享持续运动语言。
-const NEW_DRAW_MARKER_SPEED_DEGREES := 126.0
-const SELF_HAND_MARKER_COUNTER_TILT_DEGREES := -48.0
 const SELF_HAND_FACE_WHITE := Color("E7E2D9")
 # 上、下家实体背层继续使用翡翠树脂基色与材质参数；它同时保留在平扣牌的
 # 侧边厚度中，不能因为正面显示色校准而变成白边或二维贴片。
@@ -46,7 +43,6 @@ const SOURCE_ARROW_COLOR := Color("48C8FF")
 # GLB 牌体的圆角外缘高于面图层。0.122 让扁平箭头刚好压在外缘之上，避免被遮挡，
 # 同时不再呈现悬浮高度。
 const MELD_SOURCE_ARROW_FACE_OFFSET := 0.122
-const NEW_DRAW_MARKER_POSITION := Vector3(0.0, TILE_SIZE.y + 0.102, -TILE_SIZE.z * 0.22)
 
 static var material_cache: Dictionary = {}
 
@@ -83,16 +79,6 @@ var beveled_back_surface_mesh: ArrayMesh
 func _ready() -> void:
 	_build_visuals()
 	set_process(false)
-
-
-func _process(delta: float) -> void:
-	if reduced_motion:
-		return
-	if new_draw_marker != null and new_draw_marker.visible:
-		# The counter-tilt belongs to the parent pivot. Rotating this child only
-		# therefore stays on the table's world-Y axis instead of precessing with
-		# the 48-degree self-hand rack.
-		new_draw_marker.rotation.y += deg_to_rad(NEW_DRAW_MARKER_SPEED_DEGREES) * delta
 
 
 func configure(
@@ -176,13 +162,13 @@ func configure(
 	if show_face:
 		symbol_mesh.set_surface_override_material(0, _symbol_material())
 	_apply_state_marker(selected, new_draw, recommended, danger)
-	new_draw_marker.visible = new_draw
+	if new_draw_marker != null:
+		new_draw_marker.visible = false
 	# 选中牌只保留 Stage 的实体抬升，不再叠加勾号、光环或任何平面图案。
 	# 即便摸牌与选中同一张，蓝色小菱形仍保持正中，避免制造第二个选择符号。
 	selected_marker.visible = false
-	_update_status_marker_positions(new_draw)
 	latest_marker.visible = latest
-	set_process(new_draw and not reduced_motion)
+	set_process(false)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
@@ -217,16 +203,11 @@ func configure(
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	var has_rotating_marker := new_draw_marker != null and new_draw_marker.visible
-	set_process(has_rotating_marker and not reduced_motion)
+	set_process(false)
 
 
 func set_draw_marker_style_variant(_value: int) -> void:
 	draw_marker_style_variant = 0
-	if new_draw_marker == null:
-		return
-	new_draw_marker.mesh = _build_new_draw_marker_mesh()
-	new_draw_marker.set_surface_override_material(0, _blue_new_draw_marker_material())
 
 
 func set_selected_marker_style_variant(_value: int) -> void:
@@ -251,8 +232,7 @@ func set_latest_marker_visible(enabled: bool) -> void:
 	if latest_marker == null:
 		return
 	latest_marker.visible = enabled
-	var has_animated_marker := new_draw_marker != null and new_draw_marker.visible
-	set_process(has_animated_marker and not reduced_motion)
+	set_process(false)
 
 
 func get_screen_rect(camera: Camera3D) -> Rect2:
@@ -322,25 +302,6 @@ func _build_visuals() -> void:
 	state_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(state_marker)
 
-	# 摸牌反馈复用最后弃牌的实体菱锥语言，但缩小为蓝色版本。
-	# 用独立父节点抵消本家站立牌的倾角，再让子菱锥绕自身 Y 轴旋转：
-	# tile * counter_tilt * local_yaw = world_yaw。这样蓝菱形与黄色弃牌
-	# 采用完全一致的桌面竖直轴旋转，而不是随手牌斜轴翻转。
-	new_draw_rotation_pivot = Node3D.new()
-	new_draw_rotation_pivot.name = "NewDrawWorldYawPivot"
-	new_draw_rotation_pivot.rotation_degrees = Vector3(SELF_HAND_MARKER_COUNTER_TILT_DEGREES, 0.0, 0.0)
-	add_child(new_draw_rotation_pivot)
-
-	new_draw_marker = MeshInstance3D.new()
-	new_draw_marker.name = "NewDrawRotatingBlueDiamond"
-	new_draw_marker.mesh = _build_new_draw_marker_mesh()
-	# 摸入牌的蓝菱形紧贴该牌的上缘：世界 Y 轴旋转仍由父节点负责，位置则不再
-	# 向桌心推出一整张牌的距离，避免读起来像桌面上的独立物件。
-	new_draw_marker.position = NEW_DRAW_MARKER_POSITION
-	new_draw_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	new_draw_marker.set_surface_override_material(0, _blue_new_draw_marker_material())
-	new_draw_marker.visible = false
-	new_draw_rotation_pivot.add_child(new_draw_marker)
 
 	# 保留节点仅为旧场景/测试调用兼容；选中视觉完全由桌面 Stage 的实体抬升负责。
 	# 它没有 mesh 和材质，因而绝不会再画出勾号或其他图案。
@@ -662,46 +623,11 @@ func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, dang
 	elif recommended:
 		marker_color = Color(0.28, 0.68, 0.43, 0.62)
 		marker_key = "recommended"
-	# new_draw 刻意不进入整牌底色分支；由蓝色小菱锥独立表达。
+	# New draws use physical right-edge separation in the table stage and do
+	# not add another color plane or icon to the tile itself.
 	state_marker.visible = marker_color.a > 0.0
 	if state_marker.visible:
 		state_marker.set_surface_override_material(0, _flat_material(marker_key, marker_color))
-
-
-func _blue_new_draw_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:new_draw_small_blue_diamond_flat_v2"
-	if material_cache.has(CACHE_KEY):
-		return material_cache[CACHE_KEY]
-	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("42A5FF")
-	# 新摸提示必须是单一纯蓝，不让灯光、金属度、发光或清漆把四个菱面染成
-	# 深浅不同的渐变色。
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material_cache[CACHE_KEY] = result
-	return result
-
-
-func _build_new_draw_marker_mesh() -> ImmediateMesh:
-	# 和最新弃牌同为实心菱锥：四面小菱形顶冠收束到一个下尖点。
-	# 本地宽度仅 0.16；即使本家手牌自身按 1.94 倍放大，屏幕尺寸仍小于
-	# 桌面弃牌的 0.34 菱锥，且保留实体光影而非图标贴片。
-	var mesh := ImmediateMesh.new()
-	var pointer := Vector3(0.0, -0.095, 0.0)
-	var crown := [
-		Vector3(0.0, 0.072, -0.082), Vector3(0.080, 0.072, 0.0),
-		Vector3(0.0, 0.072, 0.082), Vector3(-0.080, 0.072, 0.0),
-	]
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in range(4):
-		var next_index := (index + 1) % 4
-		for vertex in [
-			Vector3(0.0, 0.072, 0.0), crown[index], crown[next_index],
-			pointer, crown[next_index], crown[index],
-		]:
-			mesh.surface_add_vertex(vertex)
-	mesh.surface_end()
-	return mesh
 
 
 func _build_latest_discard_marker_mesh() -> ImmediateMesh:
@@ -738,11 +664,6 @@ func _latest_discard_marker_material() -> StandardMaterial3D:
 	result.clearcoat_enabled = false
 	material_cache[CACHE_KEY] = result
 	return result
-
-
-func _update_status_marker_positions(new_draw: bool) -> void:
-	if new_draw:
-		new_draw_marker.position = NEW_DRAW_MARKER_POSITION
 
 
 func _flat_material(key: String, color: Color) -> StandardMaterial3D:

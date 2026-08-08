@@ -43,6 +43,7 @@ const SELF_MELD_TILE_PITCH_FACTOR := 0.82
 const SELF_MELD_TILE_PITCH_PER_SCALE := 0.45 * SELF_MELD_TILE_PITCH_FACTOR
 const SELF_MELD_GROUP_GAP_PER_SCALE := 0.12
 const SELF_MELD_HAND_GAP_PER_SCALE := 0.12
+const SELF_NEW_DRAW_GAP_PER_SCALE := 0.10
 # 本家副露与本家手牌共用同一实体 GLB，但副露在更靠近镜头的底部轨道上，
 # 直接使用 1.94 会显得压过手牌；保持三轴统一并按整体视觉比例收至 84%。
 const SELF_MELD_VISUAL_SCALE_FACTOR := 0.84
@@ -85,10 +86,9 @@ const CENTER_PANEL_DIRECTIONS := ["东", "南", "西", "北"]
 # Segment order is top, right, bottom, left. Seats are self, left, opposite,
 # right, so this map highlights the physical side whose turn is active.
 const CENTER_PANEL_SEGMENT_FOR_SEAT := [2, 3, 0, 1]
-const DRAW_MARKER_STYLE_NAMES := ["小号蓝色立体菱形"]
+const DRAW_MARKER_STYLE_NAMES: Array[String] = []
 const SELECTED_MARKER_STYLE_NAMES := ["无选中图案"]
 
-@export_enum("小号蓝色立体菱形")
 var draw_marker_style_variant := 0
 
 @export_enum("无选中图案")
@@ -128,6 +128,7 @@ var self_layout_pitch := HAND_STEP_SELF
 var self_layout_start_x := 0.0
 var self_layout_span := 0.0
 var self_layout_is_flat := false
+var self_layout_has_detached_draw := false
 var meld_tile_counts_by_seat: Array[int] = [0, 0, 0, 0]
 var discard_slots_by_seat: Array[Dictionary] = [{}, {}, {}, {}]
 var active_motion_tweens: Array[Tween] = []
@@ -167,9 +168,13 @@ func render_snapshot(
 	var danger_ids: Array = markers.get("danger_tile_ids", [])
 	var self_player := _player_by_seat(players, 0)
 	self_meld_tile_count = _meld_tile_count(self_player.get("melds", []))
+	var has_detached_draw := _has_detached_human_draw(
+		all_hands[0] if not all_hands.is_empty() else [], self_player, new_draw_id
+	)
 	_configure_self_row_layout(
 		all_hands[0].size() if not all_hands.is_empty() else 0,
-		self_player
+		self_player,
+		has_detached_draw
 	)
 	for seat in range(4):
 		meld_tile_counts_by_seat[seat] = _meld_tile_count(_player_by_seat(players, seat).get("melds", []))
@@ -508,6 +513,12 @@ func _append_hand_entries(
 	var display_hand: Array = hand.duplicate(true)
 	if seat == 0:
 		display_hand = _sort_human_hand_for_display(display_hand, str(player.get("ding_que", "")))
+		if self_layout_has_detached_draw:
+			for draw_index in range(display_hand.size()):
+				if int((display_hand[draw_index] as Dictionary).get("id", -1)) == new_draw_id:
+					var drawn_tile: Dictionary = display_hand.pop_at(draw_index)
+					display_hand.append(drawn_tile)
+					break
 	if discard_win and winning_tile_id >= 0:
 		var winning_index := -1
 		for index in range(display_hand.size()):
@@ -747,6 +758,22 @@ func _apply_entries(desired: Dictionary) -> void:
 		if bool(desired_data.get("latest", false)) and not tile_nodes.has(desired_key):
 			discard_landing_delay_by_seat[int(desired_data.get("winner_seat", -1))] = \
 				DISCARD_TRAVEL_SECONDS + DISCARD_SETTLE_SECONDS + DISCARD_REFLOW_BEAT_SECONDS
+	# Preserve the exact physical node when a human hand tile becomes a river
+	# tile. The stable tile id lets a detached draw travel directly from the
+	# right edge instead of disappearing and respawning at the discard cell.
+	for desired_key in desired.keys():
+		if tile_nodes.has(desired_key) or not str(desired_key).begins_with("discard_0_"):
+			continue
+		var desired_id := int(((desired[desired_key] as Dictionary).get("tile", {}) as Dictionary).get("id", -1))
+		for existing_key in tile_nodes.keys():
+			if not str(existing_key).begins_with("hand_0_"):
+				continue
+			var candidate := tile_nodes[existing_key] as SichuanTile3D
+			if candidate != null and candidate.tile_id == desired_id:
+				tile_nodes.erase(existing_key)
+				tile_nodes[desired_key] = candidate
+				candidate.name = _safe_node_name(str(desired_key))
+				break
 	for existing_key in tile_nodes.keys():
 		if desired.has(existing_key):
 			continue
@@ -764,7 +791,7 @@ func _apply_entries(desired: Dictionary) -> void:
 			tile.name = _safe_node_name(str(key))
 			tile_root.add_child(tile)
 			tile_nodes[key] = tile
-		tile.draw_marker_style_variant = clampi(draw_marker_style_variant, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+		tile.draw_marker_style_variant = 0
 		tile.selected_marker_style_variant = clampi(selected_marker_style_variant, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
 		tile.set_reduced_motion(reduced_motion)
 		# Snapshot state is dynamic even when the tile id is stable. Reconfigure
@@ -835,8 +862,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			var reflow_delay := float(discard_landing_delay_by_seat.get(hand_seat, 0.0))
 			if reflow_delay > 0.0:
 				move_tween.tween_interval(reflow_delay)
-			move_tween.tween_property(tile, "transform", target_transform, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			move_tween.parallel().tween_property(tile, "scale", target_scale, 0.14)
+			move_tween.tween_property(tile, "transform", target_transform, TWEEN_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			move_tween.parallel().tween_property(tile, "scale", target_scale, TWEEN_SECONDS)
 		else:
 			tile.transform = target_transform
 			tile.scale = target_scale
@@ -1017,8 +1044,9 @@ func _self_hand_center_x() -> float:
 	return (_self_hand_tile_x(0) + _self_hand_tile_x(self_layout_hand_count - 1)) * 0.5
 
 
-func _configure_self_row_layout(hand_count: int, player: Dictionary) -> void:
+func _configure_self_row_layout(hand_count: int, player: Dictionary, has_detached_draw: bool = false) -> void:
 	self_layout_hand_count = maxi(0, hand_count)
+	self_layout_has_detached_draw = has_detached_draw and self_layout_hand_count > 0
 	var melds: Array = player.get("melds", [])
 	self_meld_group_count = melds.size()
 	self_layout_is_flat = bool(player.get("has_won", false))
@@ -1034,7 +1062,8 @@ func _configure_self_row_layout(hand_count: int, player: Dictionary) -> void:
 			+ float(meld_pitch_count) * SELF_MELD_TILE_PITCH_PER_SCALE \
 			+ float(hand_pitch_count) * SELF_TILE_PITCH_PER_SCALE \
 			+ float(group_gap_count) * SELF_MELD_GROUP_GAP_PER_SCALE \
-			+ (SELF_MELD_HAND_GAP_PER_SCALE if has_meld_hand_gap else 0.0)
+			+ (SELF_MELD_HAND_GAP_PER_SCALE if has_meld_hand_gap else 0.0) \
+			+ (SELF_NEW_DRAW_GAP_PER_SCALE if self_layout_has_detached_draw else 0.0)
 	var available_width := SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X
 	self_layout_scale = base_scale
 	if span_per_scale > 0.0:
@@ -1062,7 +1091,19 @@ func _self_hand_tile_x(index: int) -> float:
 		x += float(maxi(0, self_meld_group_count - 1)) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
 		if self_layout_hand_count > 0:
 			x += SELF_MELD_HAND_GAP_PER_SCALE * self_layout_scale
-	return x + float(index) * self_layout_pitch
+	x += float(index) * self_layout_pitch
+	if self_layout_has_detached_draw and index == self_layout_hand_count - 1:
+		x += SELF_NEW_DRAW_GAP_PER_SCALE * self_layout_scale
+	return x
+
+
+func _has_detached_human_draw(hand: Array, player: Dictionary, draw_tile_id: int) -> bool:
+	if not interaction_enabled or draw_tile_id < 0 or bool(player.get("has_won", false)):
+		return false
+	for tile_value in hand:
+		if int((tile_value as Dictionary).get("id", -1)) == draw_tile_id:
+			return true
+	return false
 
 
 func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int, concealed_gang: bool = false) -> Vector3:
@@ -1301,11 +1342,12 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"self_meld_tile_count": self_meld_tile_count,
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",
-		"new_draw_feedback": "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile",
-		"new_draw_rotation": "world_vertical_axis_126_degrees_per_second",
+		"new_draw_feedback": "detached_rightmost_physical_tile_without_marker",
+		"new_draw_rotation": "none",
+		"self_new_draw_gap_per_scale": SELF_NEW_DRAW_GAP_PER_SCALE,
 		"new_draw_travel_seconds": DRAW_TRAVEL_SECONDS,
 		"new_draw_settle_seconds": DRAW_SETTLE_SECONDS,
-		"new_draw_marker_variants": DRAW_MARKER_STYLE_NAMES,
+		"new_draw_marker_variants": [],
 		"selected_new_draw_marker_variant": draw_marker_style_variant,
 		"selected_tile_feedback": "physical_lift_without_overlay_graphic",
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
