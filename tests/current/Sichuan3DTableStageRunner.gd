@@ -254,8 +254,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("AI owner-facing surfaces must preserve side ivory and the figure-2 far white cap")
 	if str(contract.get("side_concealed_top_tilt", "")) != "perpendicular_to_table":
 		failures.append("AI concealed hands must remain perpendicular to the table")
-	if str(contract.get("self_hand_lighting", "")) != "unshaded_discard_white_face":
-		failures.append("human hand lost its discard-white brightness contract")
+	if str(contract.get("self_hand_lighting", "")) != "shared_warm_ivory_pbr_without_emission":
+		failures.append("human hand must share the table's warm-ivory physical exposure without emission")
 	if str(contract.get("self_meld_zone", "")) != "continuous_left_segment_of_shared_18_tile_row":
 		failures.append("human melds must occupy the continuous left segment of the shared 18-tile row")
 	if int(contract.get("self_meld_tile_count", -1)) != 3:
@@ -266,8 +266,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("3D human hand lost the rightmost ding-que sort contract")
 	if str(contract.get("new_draw_feedback", "")) != "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile":
 		failures.append("new draw must use the flat pure-blue diamond tight to the drawn tile with latest-discard world yaw")
-	if str(contract.get("new_draw_rotation", "")) != "world_vertical_axis_and_rate_match_latest_discard":
-		failures.append("new draw must match the latest discard's world-vertical axis and rotation rate")
+	if str(contract.get("new_draw_rotation", "")) != "world_vertical_axis_126_degrees_per_second":
+		failures.append("new draw must retain its accessible world-vertical 126-degree rotation contract")
 	if (contract.get("new_draw_marker_variants", []) as Array).size() != 1:
 		failures.append("draw-marker contract must expose one fixed blue-diamond presentation")
 	if absf(float(contract.get("new_draw_travel_seconds", 0.0)) - 0.20) > 0.001 \
@@ -277,8 +277,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("selected tile must keep only its physical lift without a checkmark graphic")
 	if (contract.get("selected_marker_variants", []) as Array).size() != 1:
 		failures.append("selection-marker contract must expose only the no-icon presentation")
-	if str(contract.get("latest_discard_feedback", "")) != "rotating_solid_golden_3d_diamond_directly_above_tile":
-		failures.append("latest discard does not expose the solid-golden-diamond contract")
+	if str(contract.get("latest_discard_feedback", "")) != "static_low_profile_antique_bronze_chevron_close_to_tile":
+		failures.append("latest discard does not expose the integrated low-profile bronze-chevron contract")
 	if absf(float(contract.get("discard_travel_seconds", 0.0)) - 0.20) > 0.001 \
 			or absf(float(contract.get("discard_settle_seconds", 0.0)) - 0.04) > 0.001 \
 			or float(contract.get("discard_reflow_beat_seconds", 0.0)) < 0.05 \
@@ -323,7 +323,7 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 			or int(contract.get("center_display_object_count", -1)) != 9 \
 			or bool(contract.get("center_display_runtime_mesh_generation", true)):
 		failures.append("center display Blender provenance or mobile geometry budget contract mismatch")
-	if str(contract.get("center_glass_finish", "")) != "gloss_clearcoat_alpha_blend_with_light_transmission" \
+	if str(contract.get("center_glass_finish", "")) != "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission" \
 			or str(contract.get("center_outer_keyline", "")) != "removed_clean_glass_and_recess_silhouette" \
 			or float(contract.get("center_inlay_max_rise_world", INF)) > 0.0061 \
 			or str(contract.get("wall_count_surface_plane", "")) != "flush_coplanar_glass_inlay_without_visible_sidewalls_at_felt_y_0_155":
@@ -345,12 +345,12 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 	var self_hand_gap := float(contract.get("self_hand_world_gap", INF))
 	if self_hand_gap < 0.010 or self_hand_gap > 0.022:
 		failures.append("human hand compact pitch must retain a restrained positive physical gap")
-	if str(contract.get("table_divider_finish", "")) != "subsurface_low_contrast_felt_dark_weave":
-		failures.append("table playfield dividers must read as low-contrast felt dark weave")
+	if str(contract.get("table_divider_finish", "")) != "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners":
+		failures.append("table dividers must use a quiet outer boundary and fragmented center corners")
 	if str(contract.get("opponent_hand_contact_policy", "")) != "shared_glb_half_height_plus_12mm_felt_clearance" \
 			or absf(float(contract.get("opponent_hand_contact_clearance", 0.0)) - 0.012) > 0.001 \
-			or str(contract.get("opponent_hand_shadow", "")) != "physical_body_casts_single_key_contact_shadow":
-		failures.append("opponent racks must sit above the felt with a physical contact-shadow contract")
+			or str(contract.get("opponent_hand_shadow", "")) != "physical_body_casts_short_soft_single_key_contact_shadow":
+		failures.append("opponent racks must sit above the felt with a short soft contact-shadow contract")
 	if str(contract.get("concealed_gang_presentation", "")) != "outer_faces_middle_jade_backs":
 		failures.append("concealed kong contract must expose the two outer faces and conceal the two middle tiles")
 	if str(contract.get("camera_profile", "")) != "commercial_reference_perspective_v2":
@@ -440,18 +440,20 @@ func _verify_hand_surface_and_upright_pose(stage: SichuanTableStage3D, failures:
 		if str(key_value).begins_with("hand_0_"):
 			var human_tile := nodes[key_value] as SichuanTile3D
 			if not human_tile.front_brightness_boost:
-				failures.append("human hand tile does not request the local brightness floor")
+				failures.append("human hand tile does not request the shared warm-ivory face layer")
 				return
 			var human_body := human_tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
 			var human_material := human_body.material_override as StandardMaterial3D if human_body != null else null
-			if human_material == null or not human_material.emission_enabled or human_material.emission_energy_multiplier < 0.15:
-				failures.append("human hand ivory material is still allowed to fall into a dark face")
+			if human_material == null or human_material.emission_enabled \
+					or human_material.roughness < 0.36 or human_material.clearcoat > 0.22:
+				failures.append("human hand ivory material does not share the broad-highlight physical exposure")
 				return
 			var human_face_material := human_tile.face_mesh.get_active_material(0) as StandardMaterial3D
 			if not human_tile.face_mesh.visible or human_face_material == null \
-					or human_face_material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED \
+					or human_face_material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED \
+					or human_face_material.emission_enabled \
 					or not human_face_material.albedo_color.is_equal_approx(SichuanTile3D.SELF_HAND_FACE_WHITE):
-				failures.append("human hand face is not locked to the discard-white brightness target")
+				failures.append("human hand face does not use the shared non-emissive warm-ivory target")
 				return
 			break
 	var shared_opponent_back_material: StandardMaterial3D
@@ -806,8 +808,10 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 	if imported_meshes.size() != 9:
 		failures.append("Blender center instrument must retain its simplified 9-object mobile render budget")
 	var highest_surface_y := -INF
-	var found_glossy_transparent_glass := false
+	var restrained_smoked_glass_count := 0
 	var found_flat_recess_bed := false
+	var found_integrated_recess_material := false
+	var found_restrained_bronze_material := false
 	var flat_active_sector_count := 0
 	var exact_active_red_sector_count := 0
 	var counter_clear_active_sector_count := 0
@@ -829,10 +833,21 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 		var material := mesh_instance.mesh.surface_get_material(0) as BaseMaterial3D
 		if mesh_instance.name in [&"CenterGlassInlay", &"CounterGlassLens"] \
 				and material.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED \
-				and material.albedo_color.a < 0.98 \
-				and material.roughness <= 0.12 \
-				and material.metallic < 0.10:
-			found_glossy_transparent_glass = true
+				and Color(material.albedo_color, 1.0).is_equal_approx(Color("123E35")) \
+				and absf(material.albedo_color.a - 0.92) <= 0.01 \
+				and absf(material.roughness - 0.18) <= 0.01 \
+				and absf(material.metallic - 0.02) <= 0.01:
+			restrained_smoked_glass_count += 1
+		if mesh_instance.name == &"CenterRecessBed" \
+				and material.albedo_color.is_equal_approx(Color("0B2C26")) \
+				and absf(material.roughness - 0.58) <= 0.01 \
+				and absf(material.metallic - 0.06) <= 0.01:
+			found_integrated_recess_material = true
+		if mesh_instance.name == &"CounterBronzeBezel" \
+				and material.albedo_color.is_equal_approx(Color("8F744B")) \
+				and absf(material.roughness - 0.58) <= 0.01 \
+				and absf(material.metallic - 0.42) <= 0.01:
+			found_restrained_bronze_material = true
 		var world_bounds: AABB = mesh_instance.global_transform * mesh_instance.mesh.get_aabb()
 		if mesh_instance.name == &"CenterRecessBed" and world_bounds.size.y <= 0.0005:
 			found_flat_recess_bed = true
@@ -876,8 +891,12 @@ func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[St
 					and not material.clearcoat_enabled:
 				exact_active_red_sector_count += 1
 		highest_surface_y = maxf(highest_surface_y, world_bounds.end.y)
-	if not found_glossy_transparent_glass:
-		failures.append("center inlay must retain imported transparent low-roughness clearcoat glass")
+	if restrained_smoked_glass_count != 2:
+		failures.append("both center glass surfaces must retain the exact restrained smoked-jade imported PBR values")
+	if not found_integrated_recess_material:
+		failures.append("center recess must retain the lighter high-roughness graphite-jade material")
+	if not found_restrained_bronze_material:
+		failures.append("center counter bezel must retain restrained high-roughness antique bronze")
 	if not found_flat_recess_bed:
 		failures.append("center recess bed must be a coplanar face without an outer dark side wall")
 	if flat_active_sector_count != 4:
@@ -1472,19 +1491,19 @@ func _verify_ai_self_draw_full_hand(
 func _is_far_rack_ivory_material(material: StandardMaterial3D) -> bool:
 	return material != null \
 		and material.albedo_color.is_equal_approx(SichuanTile3D.FAR_RACK_IVORY_COLOR) \
-		and material.emission_enabled \
-		and material.emission_energy_multiplier >= 0.20
+		and not material.emission_enabled \
+		and material.roughness >= 0.36
 
 
 func _is_reference_normal_tile_back_material(material: StandardMaterial3D) -> bool:
 	return material != null \
 		and material.albedo_color.is_equal_approx(SichuanTile3D.NORMAL_TILE_BACK_COLOR) \
 		and material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED \
-		and absf(material.roughness - 0.27) <= 0.01 \
+		and absf(material.roughness - 0.43) <= 0.01 \
 		and material.metallic <= 0.03 \
 		and material.clearcoat_enabled \
-		and absf(material.clearcoat - 0.34) <= 0.01 \
-		and absf(material.clearcoat_roughness - 0.20) <= 0.01 \
+		and absf(material.clearcoat - 0.18) <= 0.01 \
+		and absf(material.clearcoat_roughness - 0.34) <= 0.01 \
 		and not material.emission_enabled
 
 
@@ -1492,11 +1511,11 @@ func _is_reference_flat_tile_back_material(material: StandardMaterial3D) -> bool
 	return material != null \
 		and material.albedo_color.is_equal_approx(SichuanTile3D.FLAT_RESULT_JADE_BACK) \
 		and material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED \
-		and absf(material.roughness - 0.27) <= 0.01 \
+		and absf(material.roughness - 0.43) <= 0.01 \
 		and material.metallic <= 0.03 \
 		and material.clearcoat_enabled \
-		and absf(material.clearcoat - 0.34) <= 0.01 \
-		and absf(material.clearcoat_roughness - 0.20) <= 0.01 \
+		and absf(material.clearcoat - 0.18) <= 0.01 \
+		and absf(material.clearcoat_roughness - 0.34) <= 0.01 \
 		and not material.emission_enabled
 
 

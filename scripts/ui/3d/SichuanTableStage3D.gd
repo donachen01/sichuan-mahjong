@@ -275,15 +275,15 @@ func _setup_world() -> void:
 	# Metal's filmic tonemapper. Mahjong tiles receive their own layer-2 fill
 	# below, so this table calibration does not cost glyph readability.
 	environment.ambient_light_color = Color("A9B79C")
-	environment.ambient_light_energy = 0.16
+	environment.ambient_light_energy = 0.22
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	# Small-radius SSAO grounds adjacent tiles without turning the ivory faces
 	# grey. This effect is available in the project's iOS Compatibility renderer;
 	# SSIL/GI remain off to preserve the mobile budget.
 	environment.ssao_enabled = true
-	environment.ssao_radius = 0.72
-	environment.ssao_intensity = 1.15
+	environment.ssao_radius = 0.58
+	environment.ssao_intensity = 0.84
 	environment.ssao_power = 1.35
 	environment.ssao_detail = 0.45
 	environment.ssao_horizon = 0.06
@@ -314,19 +314,18 @@ func _setup_world() -> void:
 	# the dedicated layer-2 fill light, so this table calibration does not cost
 	# glyph readability.
 	key_light.light_color = Color("FFF1E1")
-	key_light.light_energy = 0.88
-	# DirectionalLight3D shines along local -Z. The -146-degree yaw points the
+	key_light.light_energy = 0.79
+	# DirectionalLight3D shines along local -Z. The -170-degree yaw points the
 	# ground component toward the player's right/down screen quadrant, matching
 	# the supplied commercial reference instead of the former right/up shadow.
-	key_light.rotation_degrees = Vector3(-60.0, -165.0, -8.0)
+	key_light.rotation_degrees = Vector3(-70.0, -170.0, -6.0)
 	key_light.shadow_enabled = true
 	# The table occupies a compact plane. Restricting the orthogonal shadow map to
-	# the visible play area gives every tile edge more texels, while the mobile
-	# project override enables medium soft filtering instead of the jagged hard
-	# filter used by Compatibility by default.
+	# the visible play area gives every tile edge more texels; explicit opacity and
+	# blur keep the single contact shadow short and soft across render profiles.
 	key_light.directional_shadow_max_distance = 22.0
-	key_light.shadow_opacity = 0.94
-	key_light.shadow_blur = 1.55
+	key_light.shadow_opacity = 0.64
+	key_light.shadow_blur = 1.90
 	key_light.shadow_bias = 0.035
 	key_light.shadow_normal_bias = 0.82
 	add_child(key_light)
@@ -334,8 +333,8 @@ func _setup_world() -> void:
 	var fill_light := OmniLight3D.new()
 	fill_light.name = "CenterSoftFill"
 	fill_light.position = Vector3(-2.6, 7.8, 8.0)
-	fill_light.light_color = Color("9CBAE7")
-	fill_light.light_energy = 1.60
+	fill_light.light_color = Color("DED8CC")
+	fill_light.light_energy = 1.30
 	fill_light.omni_range = 18.0
 	# Layer 2 is reserved for Mahjong tiles. A camera-side fill preserves glyph
 	# readability on upright faces without washing out the green table or filling
@@ -1223,7 +1222,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"center_display_material_count": 4,
 		"center_display_object_count": 9,
 		"center_display_runtime_mesh_generation": false,
-		"center_glass_finish": "gloss_clearcoat_alpha_blend_with_light_transmission",
+		"center_glass_finish": "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission",
 		"center_outer_keyline": "removed_clean_glass_and_recess_silhouette",
 		"center_inlay_max_rise_world": CENTER_PANEL_TOP_Y,
 		"center_inlay_flush_tolerance_world": 0.010,
@@ -1284,11 +1283,11 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"far_rack_tilt_degrees": absf(FAR_RACK_TILT_DEGREES),
 		"opponent_hand_contact_policy": "shared_glb_half_height_plus_12mm_felt_clearance",
 		"opponent_hand_contact_clearance": UPRIGHT_HAND_CLEARANCE_Y,
-		"opponent_hand_shadow": "physical_body_casts_single_key_contact_shadow",
+		"opponent_hand_shadow": "physical_body_casts_short_soft_single_key_contact_shadow",
 		"opponent_concealed_surface": "jade_back_with_ivory_rim",
 		"opponent_concealed_owner_surface": "warm_ivory_sides_target_white_far",
 		"side_concealed_top_tilt": "perpendicular_to_table",
-		"self_hand_lighting": "unshaded_discard_white_face",
+		"self_hand_lighting": "shared_warm_ivory_pbr_without_emission",
 		"won_hand_pose": "human_self_draw_revealed_ai_self_draw_concealed",
 		"self_draw_hand_pose": "human_face_up_with_draw_marker_ai_flat_concealed_back",
 		"opponent_reveal_pose": "three_flat_face_up_hands",
@@ -1302,7 +1301,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",
 		"new_draw_feedback": "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile",
-		"new_draw_rotation": "world_vertical_axis_and_rate_match_latest_discard",
+		"new_draw_rotation": "world_vertical_axis_126_degrees_per_second",
 		"new_draw_travel_seconds": DRAW_TRAVEL_SECONDS,
 		"new_draw_settle_seconds": DRAW_SETTLE_SECONDS,
 		"new_draw_marker_variants": DRAW_MARKER_STYLE_NAMES,
@@ -1311,7 +1310,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
 		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
-		"latest_discard_feedback": "rotating_solid_golden_3d_diamond_directly_above_tile",
+		"latest_discard_feedback": "static_low_profile_antique_bronze_chevron_close_to_tile",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,
@@ -1338,7 +1337,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"table_asset": "sichuan_table_v2_pbr",
 		"table_material_pipeline": "blender_pbr_preserved_without_flat_overrides",
 		"table_surface_finish": "splash_matched_natural_warm_green_balanced_short_nap_felt",
-		"table_divider_finish": "subsurface_low_contrast_felt_dark_weave",
+		"table_divider_finish": "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners",
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,

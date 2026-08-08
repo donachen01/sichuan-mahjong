@@ -20,7 +20,7 @@ func _run() -> void:
 
 	await _verify_ding_que_modal(scene, failures)
 	_verify_opening_roll_phase_contract(scene, failures)
-	_verify_hud_and_center(scene, failures)
+	await _verify_hud_and_center(scene, failures)
 	await _verify_hu_and_cancel(scene, failures)
 	await _verify_utility_reliability(scene, failures)
 	await _verify_ai_drawer_after_drag(scene, failures)
@@ -175,6 +175,13 @@ func _verify_hud_and_center(scene: Node, failures: Array[String]) -> void:
 			failures.append("SeatHUD%d 没有消费 score" % seat)
 		if ding_badge == null or not ding_badge.visible:
 			failures.append("SeatHUD%d 没有显示定缺状态" % seat)
+		if seat != 1 and hud.is_processing():
+			failures.append("SeatHUD%d 非活动状态仍在执行逐帧动画" % seat)
+	await create_timer(0.22).timeout
+	for seat in range(4):
+		var hud: Control = seat_huds.get(seat)
+		if hud != null and hud.is_processing():
+			failures.append("SeatHUD%d 的 180ms 活动边缘入场结束后仍在逐帧处理" % seat)
 	var self_won := (seat_huds.get(0) as Control).get_node_or_null("%WonBadge") as Label
 	var dealer := (seat_huds.get(2) as Control).get_node_or_null("%DealerBadge") as Label
 	var turn := (seat_huds.get(1) as Control).get_node_or_null("%TurnBadge") as Label

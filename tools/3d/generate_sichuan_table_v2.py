@@ -26,12 +26,12 @@ TEXTURE_DIR = ART_ROOT / "materials" / "table_v2"
 TABLE_CENTER = np.array([0x32, 0x78, 0x43], dtype=np.float32) / 255.0
 TABLE_BASE = np.array([0x29, 0x69, 0x39], dtype=np.float32) / 255.0
 TABLE_EDGE = np.array([0x20, 0x55, 0x31], dtype=np.float32) / 255.0
-LEATHER_RAIL = np.array([0x12, 0x31, 0x25], dtype=np.float32) / 255.0
-WALNUT_WARM = np.array([0x58, 0x2C, 0x1A], dtype=np.float32) / 255.0
+LEATHER_RAIL = np.array([0x1A, 0x3A, 0x2E], dtype=np.float32) / 255.0
+WALNUT_WARM = np.array([0x5E, 0x38, 0x28], dtype=np.float32) / 255.0
 # A near-neighbour of the felt, not a black painted outline.  Together with the
 # sub-surface geometry below this reads as a woven recess only when light catches
 # it, which keeps the table calm behind the tiles.
-PLAYFIELD_GROOVE = np.array([0x14, 0x57, 0x3F], dtype=np.float32) / 255.0
+PLAYFIELD_GROOVE = np.array([0x24, 0x61, 0x36], dtype=np.float32) / 255.0
 
 
 def srgb_to_linear(value: np.ndarray) -> np.ndarray:
@@ -366,7 +366,7 @@ def rounded_rectangle_ring(
 def build_table() -> list[bpy.types.Object]:
     felt_maps = generate_felt_maps()
     leather_maps = generate_surface_maps("leather", LEATHER_RAIL, 1024, 6101, 0.72, 0.0)
-    walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.54, 0.0)
+    walnut_maps = generate_surface_maps("walnut", WALNUT_WARM, 1024, 6201, 0.58, 0.0)
     felt = pbr_material("DeepEmeraldShortNapFelt", *felt_maps, normal_strength=0.34)
     leather = pbr_material("InkGreenLeather", *leather_maps)
     walnut = pbr_material("WarmWalnutFrame", *walnut_maps, normal_strength=0.38)
@@ -394,8 +394,8 @@ def build_table() -> list[bpy.types.Object]:
         # a stack of bright metal trims and decorative stitches.
         rounded_rectangle_ring(
             "LeatherGasketRing",
-            (13.82, 8.62),
-            (13.34, 8.14),
+            (13.76, 8.56),
+            (13.42, 8.22),
             0.22,
             (0.0, 0.0, 0.10),
             0.26,
@@ -405,18 +405,23 @@ def build_table() -> list[bpy.types.Object]:
             leather,
         ),
     ]
-    # Hairline recesses sit almost entirely inside the felt top (Y=0.155 after
-    # import).  Only their upper millimetre can catch light, so they read as a
-    # quiet woven boundary rather than the raised black bars seen in 2.6.26.
+    # Hairline recesses sit below the felt top (Y=0.155 after import). The outer
+    # boundary remains continuous, while the former full centre rectangle is
+    # reduced to eight short corner impressions so it no longer reads as a CAD
+    # guide or an empty panel painted over the cloth.
     objects.extend([
-        rounded_box("PlayfieldGrooveTop", (11.72, 0.018, 0.004), (0.0, -3.02, 0.154), 0.003, 2, groove),
-        rounded_box("PlayfieldGrooveBottom", (11.72, 0.018, 0.004), (0.0, 3.02, 0.154), 0.003, 2, groove),
-        rounded_box("PlayfieldGrooveLeft", (0.018, 5.90, 0.004), (-5.84, 0.0, 0.154), 0.003, 2, groove),
-        rounded_box("PlayfieldGrooveRight", (0.018, 5.90, 0.004), (5.84, 0.0, 0.154), 0.003, 2, groove),
-        rounded_box("CenterGrooveTop", (7.40, 0.016, 0.004), (0.0, -1.72, 0.154), 0.003, 2, groove),
-        rounded_box("CenterGrooveBottom", (7.40, 0.016, 0.004), (0.0, 1.72, 0.154), 0.003, 2, groove),
-        rounded_box("CenterGrooveLeft", (0.016, 3.42, 0.004), (-3.70, 0.0, 0.154), 0.003, 2, groove),
-        rounded_box("CenterGrooveRight", (0.016, 3.42, 0.004), (3.70, 0.0, 0.154), 0.003, 2, groove),
+        rounded_box("PlayfieldGrooveTop", (11.72, 0.012, 0.003), (0.0, -3.02, 0.1525), 0.002, 2, groove),
+        rounded_box("PlayfieldGrooveBottom", (11.72, 0.012, 0.003), (0.0, 3.02, 0.1525), 0.002, 2, groove),
+        rounded_box("PlayfieldGrooveLeft", (0.012, 5.90, 0.003), (-5.84, 0.0, 0.1525), 0.002, 2, groove),
+        rounded_box("PlayfieldGrooveRight", (0.012, 5.90, 0.003), (5.84, 0.0, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerNWTop", (0.80, 0.012, 0.003), (-3.30, -1.72, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerNWLeft", (0.012, 0.55, 0.003), (-3.70, -1.445, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerNETop", (0.80, 0.012, 0.003), (3.30, -1.72, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerNERight", (0.012, 0.55, 0.003), (3.70, -1.445, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerSWBottom", (0.80, 0.012, 0.003), (-3.30, 1.72, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerSWLeft", (0.012, 0.55, 0.003), (-3.70, 1.445, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerSEBottom", (0.80, 0.012, 0.003), (3.30, 1.72, 0.1525), 0.002, 2, groove),
+        rounded_box("CenterCornerSERight", (0.012, 0.55, 0.003), (3.70, 1.445, 0.1525), 0.002, 2, groove),
     ])
     return objects
 

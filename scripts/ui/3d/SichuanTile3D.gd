@@ -24,14 +24,14 @@ const CONCEALED_BACK_SIZE := Vector2(0.42 - 0.006, 0.58 - 0.006)
 const CONCEALED_BACK_CORNER_RADIUS := 0.022
 const FACE_Y := TILE_SIZE.y + 0.001
 const MARKER_Y := FACE_Y + 0.013
-const LATEST_DISCARD_MARKER_SPEED_DEGREES := 126.0
-# 摸牌菱形刻意与黄色最新弃牌共用相同的旋转速率；两者只区分尺寸与颜色。
-const NEW_DRAW_MARKER_SPEED_DEGREES := LATEST_DISCARD_MARKER_SPEED_DEGREES
+# 蓝色摸牌提示保留短促、可关闭的世界竖轴旋转；最新弃牌已改为静态铜色折角，
+# 两种状态不再共享持续运动语言。
+const NEW_DRAW_MARKER_SPEED_DEGREES := 126.0
 const SELF_HAND_MARKER_COUNTER_TILT_DEGREES := -48.0
-const SELF_HAND_FACE_WHITE := Color("FAF8F3")
+const SELF_HAND_FACE_WHITE := Color("E7E2D9")
 # 上、下家实体背层继续使用翡翠树脂基色与材质参数；它同时保留在平扣牌的
 # 侧边厚度中，不能因为正面显示色校准而变成白边或二维贴片。
-const NORMAL_TILE_BACK_COLOR := Color("178B32")
+const NORMAL_TILE_BACK_COLOR := Color("218A3D")
 # 平扣牌与立牌/暗杠共用同一套 PBR 参数，但平扣朝上会直接吃到顶灯，必须做
 # 一次受光补偿才能在最终 Metal 画面中回到下家立牌的深翡翠目标色。它不是
 # 无光照平面，也不是另一套模型；只校准相同树脂材质的源色。
@@ -39,7 +39,7 @@ const FLAT_RESULT_JADE_BACK := Color("0C5729")
 # 对家仍可按其朝向局部抬高白色牌身，但普通行牌中的三家暗手必须复用同一套
 # PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
 # 直接读成两副不同颜色的牌。
-const FAR_RACK_IVORY_COLOR := Color("FCFDFF")
+const FAR_RACK_IVORY_COLOR := Color("EBE7DF")
 # 碰、杠和胡牌来源统一使用小号、平贴、无渐变的天蓝色箭头。箭头只表达方向，
 # 不再用黄色强调，也不再配座位文字。
 const SOURCE_ARROW_COLOR := Color("48C8FF")
@@ -90,11 +90,9 @@ func _process(delta: float) -> void:
 		return
 	if new_draw_marker != null and new_draw_marker.visible:
 		# The counter-tilt belongs to the parent pivot. Rotating this child only
-		# therefore stays on the table's world-Y axis, exactly like a flat latest
-		# discard at the same rate, instead of precessing with the 48-degree self-hand rack.
+		# therefore stays on the table's world-Y axis instead of precessing with
+		# the 48-degree self-hand rack.
 		new_draw_marker.rotation.y += deg_to_rad(NEW_DRAW_MARKER_SPEED_DEGREES) * delta
-	if latest_marker != null and latest_marker.visible:
-		latest_marker.rotation.y += deg_to_rad(LATEST_DISCARD_MARKER_SPEED_DEGREES) * delta
 
 
 func configure(
@@ -184,7 +182,7 @@ func configure(
 	selected_marker.visible = false
 	_update_status_marker_positions(new_draw)
 	latest_marker.visible = latest
-	set_process((new_draw or latest) and not reduced_motion)
+	set_process(new_draw and not reduced_motion)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
@@ -219,8 +217,7 @@ func configure(
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	var has_rotating_marker := (new_draw_marker != null and new_draw_marker.visible) \
-		or (latest_marker != null and latest_marker.visible)
+	var has_rotating_marker := new_draw_marker != null and new_draw_marker.visible
 	set_process(has_rotating_marker and not reduced_motion)
 
 
@@ -254,8 +251,7 @@ func set_latest_marker_visible(enabled: bool) -> void:
 	if latest_marker == null:
 		return
 	latest_marker.visible = enabled
-	var has_animated_marker := (new_draw_marker != null and new_draw_marker.visible) \
-		or latest_marker.visible
+	var has_animated_marker := new_draw_marker != null and new_draw_marker.visible
 	set_process(has_animated_marker and not reduced_motion)
 
 
@@ -356,13 +352,12 @@ func _build_visuals() -> void:
 	add_child(selected_marker)
 
 	latest_marker = MeshInstance3D.new()
-	# 最新弃牌只保留一枚实心的鎏金立体菱锥。它是落在牌面正上方的
-	# 真实 3D 几何，而不是平面的翡翠描边环；金色与桌面的深翡翠形成清楚
-	# 的即时对比，并通过慢速自转表达“刚刚打出”。
-	latest_marker.name = "LatestDiscardRotatingGoldenDiamond"
+	# 最新弃牌使用低矮的古铜折角，靠形状与颜色双重编码。标记贴近牌面、
+	# 不旋转也不投影，避免在桌面中央制造第二个悬浮视觉中心。
+	latest_marker.name = "LatestDiscardLowProfileBronzeChevron"
 	latest_marker.mesh = _build_latest_discard_marker_mesh()
-	latest_marker.position = Vector3(0.0, MARKER_Y + 0.36, 0.0)
-	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	latest_marker.position = Vector3(0.0, MARKER_Y + 0.12, 0.0)
+	latest_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	latest_marker.set_surface_override_material(0, _latest_discard_marker_material())
 	latest_marker.visible = false
 	add_child(latest_marker)
@@ -405,16 +400,16 @@ func _face_material(show_face: bool) -> StandardMaterial3D:
 	var result := StandardMaterial3D.new()
 	if show_face:
 		# 亮牌时该平面被隐藏，只保留材质作为状态切换的明确合同。
-		result.albedo_color = Color("ECE9E3")
-		result.roughness = 0.26
+		result.albedo_color = Color("E7E2D9")
+		result.roughness = 0.40
 	else:
 		# 隐藏手牌的 +Y 面朝各自玩家，必须仍是暖象牙白正面；真正朝桌心的
 		# 翡翠牌背在 -Y 的 ConcealedTableJadeBack 上，不能再把两面都染绿。
-		result.albedo_color = Color("ECE9E3")
-		result.roughness = 0.25
+		result.albedo_color = Color("E7E2D9")
+		result.roughness = 0.40
 		result.clearcoat_enabled = true
-		result.clearcoat = 0.30
-		result.clearcoat_roughness = 0.22
+		result.clearcoat = 0.16
+		result.clearcoat_roughness = 0.34
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[cache_key] = result
 	return result
@@ -425,10 +420,13 @@ func _bright_front_face_material() -> StandardMaterial3D:
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	# 桌面弃牌正面在当前电影色调映射下接近这一暖白。使用不受局部入射角影响的
-	# 牌面层，只校正本家正面白度，不抬高全桌曝光，也不漂白牌面字色。
+	# 本家正面继续使用独立承托层修正立牌入射角，但材质仍接受桌面光照，
+	# 不再用无光照白片制造与其他麻将牌割裂的曝光区间。
 	result.albedo_color = SELF_HAND_FACE_WHITE
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	result.roughness = 0.40
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.14
+	result.clearcoat_roughness = 0.34
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
 	return result
@@ -493,16 +491,16 @@ func _jade_back_material() -> StandardMaterial3D:
 	# 完整恢复图2的翡翠树脂层：基础漫反射负责绿色体积，低金属度与柔和清漆
 	# 共同形成受控高光。所有暗手、暗杠和自摸/胡牌扣牌复用该材质，让朝向变化
 	# 产生真实受光差异，同时保留独立绿色背层、象牙牌身和端面层次。
-	const CACHE_KEY := "body:reference_emerald_resin_back_v8"
+	const CACHE_KEY := "body:integrated_emerald_resin_back_v9"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
 	result.albedo_color = NORMAL_TILE_BACK_COLOR
-	result.roughness = 0.27
+	result.roughness = 0.43
 	result.metallic = 0.02
 	result.clearcoat_enabled = true
-	result.clearcoat = 0.34
-	result.clearcoat_roughness = 0.20
+	result.clearcoat = 0.18
+	result.clearcoat_roughness = 0.34
 	material_cache[CACHE_KEY] = result
 	return result
 
@@ -520,44 +518,37 @@ func _flat_concealed_jade_back_material() -> StandardMaterial3D:
 
 
 func _far_rack_ivory_material() -> StandardMaterial3D:
-	# 对家立牌顶部必须读成图 2 的白色牌身。局部冷白亮度补偿只作用于该朝向，
-	# 不改变灯光、相机或其他座位的象牙材质。
-	const CACHE_KEY := "body:far_rack_ivory_v4"
+	# 对家立牌顶部使用同一组暖象牙 PBR 参数，靠牌面朝向与全局补光获得可读性，
+	# 不再用自发光制造独立于现场光照的白边。
+	const CACHE_KEY := "body:far_rack_ivory_v5"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := _ivory_body_material(false).duplicate() as StandardMaterial3D
 	result.albedo_color = FAR_RACK_IVORY_COLOR
-	result.emission_enabled = true
-	result.emission = Color("BFC9E8")
-	result.emission_energy_multiplier = 0.80
+	result.emission_enabled = false
 	material_cache[CACHE_KEY] = result
 	return result
 
 
 func _ivory_body_material(bright_front: bool = false) -> StandardMaterial3D:
-	var cache_key := "body:jade_ivory_shell_v5:%s" % ("bright" if bright_front else "standard")
+	var cache_key := "body:integrated_ivory_shell_v6:%s" % ("bright" if bright_front else "standard")
 	if material_cache.has(cache_key):
 		return material_cache[cache_key]
 	var result := StandardMaterial3D.new()
 	# 主牌身必须是有厚度的暖象牙壳；绿色只属于独立的 MahjongTileBack 层。
 	# 过去把整个主体覆盖成深绿，亮牌只剩一张白色平面，是“扁贴图感”的根因。
-	result.albedo_color = Color("F1EEE8") if bright_front else Color("ECE9E3")
-	result.roughness = 0.25
+	result.albedo_color = Color("EBE6DD") if bright_front else Color("E7E2D9")
+	result.roughness = 0.40
 	result.metallic = 0.01
 	result.clearcoat_enabled = true
-	result.clearcoat = 0.40
-	result.clearcoat_roughness = 0.18
+	result.clearcoat = 0.16
+	result.clearcoat_roughness = 0.34
 	result.rim_enabled = true
 	result.rim = 0.035
 	result.rim_tint = 0.10
 	result.subsurf_scatter_enabled = true
 	result.subsurf_scatter_strength = 0.06
-	if bright_front:
-		# 只给本家手牌抬高材质亮度下限，不碰全局曝光、桌布或其他牌区。
-		# 保留真实受光与接触阴影，避免退化成无阴影的纯白平面。
-		result.emission_enabled = true
-		result.emission = Color("34312C")
-		result.emission_energy_multiplier = 0.18
+	result.emission_enabled = false
 	material_cache[cache_key] = result
 	return result
 
@@ -714,43 +705,37 @@ func _build_new_draw_marker_mesh() -> ImmediateMesh:
 
 
 func _build_latest_discard_marker_mesh() -> ImmediateMesh:
-	# A compact solid pointer: a diamond-shaped golden crown funnels to one lower
-	# point. The crown reads as a bright rhombus from the camera while the four
-	# sloped facets make the depth explicit, matching the reference's 3D marker
-	# rather than reverting to a flat outline ring.
+	# A shallow folded chevron keeps the state semantic close to the discarded
+	# tile. Its small physical thickness is enough to read as an in-world marker
+	# without becoming a floating faceted object or adding another cast shadow.
 	var mesh := ImmediateMesh.new()
-	var pointer := Vector3(0.0, -0.205, 0.0)
-	var crown := [
-		Vector3(0.0, 0.155, -0.180), Vector3(0.170, 0.155, 0.0),
-		Vector3(0.0, 0.155, 0.180), Vector3(-0.170, 0.155, 0.0),
+	var outline := [
+		Vector2(-0.110, -0.070), Vector2(0.0, -0.015), Vector2(0.110, -0.070),
+		Vector2(0.055, 0.080), Vector2(0.0, 0.045), Vector2(-0.055, 0.080),
 	]
 	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in range(4):
-		var next_index := (index + 1) % 4
-		for vertex in [
-			Vector3(0.0, 0.155, 0.0), crown[index], crown[next_index],
-			pointer, crown[next_index], crown[index],
-		]:
+	for index in range(outline.size()):
+		var next_index := (index + 1) % outline.size()
+		for vertex in [Vector3(0.0, 0.022, 0.010), Vector3(outline[index].x, 0.022, outline[index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y)]:
+			mesh.surface_add_vertex(vertex)
+		for vertex in [Vector3(outline[index].x, -0.022, outline[index].y), Vector3(outline[next_index].x, -0.022, outline[next_index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y), Vector3(outline[index].x, -0.022, outline[index].y), Vector3(outline[next_index].x, 0.022, outline[next_index].y), Vector3(outline[index].x, 0.022, outline[index].y)]:
 			mesh.surface_add_vertex(vertex)
 	mesh.surface_end()
 	return mesh
 
 
 func _latest_discard_marker_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:latest_solid_golden_diamond_v3"
+	const CACHE_KEY := "marker:latest_low_profile_antique_bronze_chevron_v1"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := StandardMaterial3D.new()
-	result.albedo_color = Color("FFD45A")
-	result.metallic = 0.34
-	result.roughness = 0.26
+	result.albedo_color = Color("C49A55")
+	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	result.metallic = 0.0
+	result.roughness = 0.58
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	result.emission_enabled = true
-	result.emission = Color("E79512")
-	result.emission_energy_multiplier = 0.52
-	result.clearcoat_enabled = true
-	result.clearcoat = 0.36
-	result.clearcoat_roughness = 0.18
+	result.emission_enabled = false
+	result.clearcoat_enabled = false
 	material_cache[CACHE_KEY] = result
 	return result
 

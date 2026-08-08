@@ -4,10 +4,10 @@ extends Control
 const METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
-const NAMEPLATE_STYLE_NAMES := ["深翡翠玉印", "鎏金铜脊", "青黛绶带", "琥珀云窗", "夜玉切角"]
+const NAMEPLATE_STYLE_NAMES := ["统一墨玉座位牌"]
 const SEAT_AVATAR_GLYPHS := ["旭", "燕", "东", "玲"]
 
-@export_enum("深翡翠玉印", "鎏金铜脊", "青黛绶带", "琥珀云窗", "夜玉切角")
+@export_enum("统一墨玉座位牌")
 var nameplate_style_variant := 0
 
 @onready var background_panel: Panel = %BackgroundPanel
@@ -55,27 +55,29 @@ func _ready() -> void:
 	craft_panel.visible = false
 	# The old shell texture contained two hard horizontal bars. The new plate is
 	# a single layered Control style so the silhouette stays clean at every
-	# resolution and can be switched among the five theme variants below.
+	# resolution while every seat shares one physical material language.
 	material_shell.visible = false
 	_apply_layout(false)
-	set_process(true)
+	set_process(false)
 
 
 func _process(_delta: float) -> void:
 	if inner_frame == null:
+		set_process(false)
 		return
 	if not previous_active or reduced_motion:
 		inner_frame.modulate = Color.WHITE
+		set_process(false)
 		return
 	var elapsed := maxi(0, Time.get_ticks_msec() - active_transition_started_msec)
 	if elapsed < 180:
 		var t := float(elapsed) / 180.0
 		inner_frame.modulate = Color(1.18, 1.10, 0.88, lerpf(0.82, 1.0, t))
 		return
-	# A restrained edge-only breath follows the 180 ms arrival. The panel never
-	# moves or scales, so hand/river geometry remains immutable.
-	var pulse := 0.78 + sin(float(elapsed - 180) / 1000.0 * TAU / 1.2) * 0.22
-	inner_frame.modulate = Color(1.26, 1.08, 0.78, pulse)
+	# The arrival resolves into a stable edge. Continuous blinking made the four
+	# seat cards feel like a separate neon HUD layer over the physical table.
+	inner_frame.modulate = Color.WHITE
+	set_process(false)
 
 
 func configure_seat(seat_value: int) -> void:
@@ -90,8 +92,8 @@ func configure_seat(seat_value: int) -> void:
 		_apply_layout(false)
 
 
-func set_nameplate_style_variant(value: int) -> void:
-	nameplate_style_variant = clampi(value, 0, NAMEPLATE_STYLE_NAMES.size() - 1)
+func set_nameplate_style_variant(_value: int) -> void:
+	nameplate_style_variant = 0
 	if background_panel != null:
 		_apply_layout(previous_active)
 
@@ -106,8 +108,8 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	dealer_badge.visible = bool(player.get("_is_dealer", false))
 	won_badge.visible = has_won
 	won_badge.text = _won_badge_text(player) if has_won else ""
-	# Turn ownership is communicated by the continuously breathing nameplate ring,
-	# never by a "出牌" word sitting on top of the player's name.
+	# Turn ownership is communicated by a 180 ms edge arrival followed by a stable
+	# antique-gold frame, never by text over the player's name or continuous pulse.
 	turn_badge.visible = false
 	_apply_layout(active)
 	if craft_panel != null and craft_panel.has_method("set_active"):
@@ -138,7 +140,10 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
+	set_process(false)
 	_stop_score_tweens()
+	if inner_frame != null:
+		inner_frame.modulate = Color.WHITE
 	if score_delta_label != null:
 		score_delta_label.visible = false
 		score_delta_label.modulate = Color.WHITE
@@ -160,21 +165,22 @@ func get_ding_que_badge() -> Control:
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"material_family": "five_variant_emerald_nameplate",
+		"material_family": "unified_smoked_jade_nameplate",
 		"identity_surface": "original_jade_seal_medallion",
-		"identity_encoding": ["seat_glyph", "material_palette", "shape_motif"],
+		"identity_encoding": ["seat_glyph", "name", "shape_motif"],
 		"seat_avatar_glyphs": SEAT_AVATAR_GLYPHS,
 		"shape_motif": "shu_courtyard_cut_corner",
 		"nameplate_variants": NAMEPLATE_STYLE_NAMES,
 		"selected_nameplate_variant": nameplate_style_variant,
 		"removed_elements": ["upper_lower_horizontal_bars", "出牌_text_badge"],
-		"active_treatment": "pulsing_emerald_copper_nameplate_ring",
+		"default_treatment": "single_low_contrast_bronze_edge_without_glow",
+		"active_treatment": "single_thin_antique_gold_edge",
 		"dealer_badge": "gold_corner_seal",
 		"won_treatment": "identity_preserved_with_cinnabar_stamp",
 		"won_badge_texts": ["点炮", "自摸"],
 		"active_text_badge": "none",
 		"active_arrival_seconds": 0.18,
-		"active_followup": "continuous_edge_blink_without_move_or_scale",
+		"active_followup": "stable_edge_without_continuous_blink_or_layout_change",
 		"score_feedback": "signed_delta_near_panel_then_total_score_highlight",
 		"score_float_seconds": 0.42,
 		"reduced_motion_active": "stable_edge_highlight",
@@ -275,53 +281,24 @@ func _apply_layout(active: bool) -> void:
 func _inner_frame_style(active: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-	style.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.96 if active else 0.22)
-	style.set_border_width_all(3 if active else 1)
-	style.set_corner_radius_all(12)
-	style.shadow_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.52 if active else 0.0)
-	style.shadow_size = 8 if active else 0
+	style.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT if active else TABLE_THEME.AGED_COPPER, 0.88 if active else 0.18)
+	style.set_border_width_all(2 if active else 1)
+	style.set_corner_radius_all(8)
+	style.shadow_color = Color.TRANSPARENT
+	style.shadow_size = 0
 	style.shadow_offset = Vector2.ZERO
 	return style
 
 
 func _nameplate_shell_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	var variant := clampi(int(nameplate_style_variant), 0, NAMEPLATE_STYLE_NAMES.size() - 1)
-	match variant:
-		0:
-			style.bg_color = Color("0B332B")
-			style.border_color = Color("5BB58D")
-			style.set_border_width_all(2)
-			style.set_corner_radius_all(16)
-		1:
-			style.bg_color = Color("102D2B")
-			style.border_color = Color("C59A58")
-			style.set_border_width_all(3)
-			style.set_corner_radius_all(10)
-		2:
-			style.bg_color = Color("162D3B")
-			style.border_color = Color("6BA9A6")
-			style.set_border_width_all(2)
-			style.corner_radius_top_left = 20
-			style.corner_radius_top_right = 6
-			style.corner_radius_bottom_left = 6
-			style.corner_radius_bottom_right = 20
-		3:
-			style.bg_color = Color("3A2B22")
-			style.border_color = Color("D7B56D")
-			style.set_border_width_all(2)
-			style.set_corner_radius_all(18)
-		_:
-			style.bg_color = Color("111C29")
-			style.border_color = Color("8FB9A4")
-			style.set_border_width_all(2)
-			style.corner_radius_top_left = 8
-			style.corner_radius_top_right = 18
-			style.corner_radius_bottom_left = 18
-			style.corner_radius_bottom_right = 8
-	style.shadow_color = Color(0.0, 0.02, 0.01, 0.48)
-	style.shadow_size = 9
-	style.shadow_offset = Vector2(3, 5)
+	style.bg_color = Color("0D3029")
+	style.border_color = Color(TABLE_THEME.AGED_COPPER, 0.46)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.shadow_color = Color(0.0, 0.02, 0.01, 0.22)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(2, 3)
 	style.content_margin_left = 6
 	style.content_margin_right = 6
 	style.content_margin_top = 6
@@ -367,12 +344,17 @@ func _score_delta_style() -> StyleBoxFlat:
 
 func _animate_state_change(active: bool, has_won: bool) -> void:
 	if reduced_motion:
+		set_process(false)
 		background_panel.modulate = Color.WHITE
 		inner_frame.modulate = Color.WHITE
 		won_badge.modulate = Color.WHITE
 		return
 	if active and not previous_active:
 		active_transition_started_msec = Time.get_ticks_msec()
+		set_process(true)
+	elif not active:
+		inner_frame.modulate = Color.WHITE
+		set_process(false)
 	if has_won and not previous_won:
 		won_badge.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		var won_tween := won_badge.create_tween()

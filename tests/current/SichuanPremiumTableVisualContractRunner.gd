@@ -244,10 +244,12 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("SeatHUD must expose premium nameplate visual contract")
 	else:
 		var hud_contract: Dictionary = hud.call("get_visual_contract")
-		if str(hud_contract.get("material_family", "")) != "five_variant_emerald_nameplate":
-			failures.append("SeatHUD must use the five-variant emerald nameplate material")
-		if str(hud_contract.get("active_treatment", "")) != "pulsing_emerald_copper_nameplate_ring":
-			failures.append("SeatHUD current-turn state must use a pulsing emerald/copper nameplate ring")
+		if str(hud_contract.get("material_family", "")) != "unified_smoked_jade_nameplate":
+			failures.append("all SeatHUD cards must share one smoked-jade material family")
+		if str(hud_contract.get("active_treatment", "")) != "single_thin_antique_gold_edge":
+			failures.append("SeatHUD current-turn state must use one restrained antique-gold edge")
+		if str(hud_contract.get("default_treatment", "")) != "single_low_contrast_bronze_edge_without_glow":
+			failures.append("inactive SeatHUD cards must avoid seat-coloured borders and stacked glows")
 		if hud_contract.get("seat_avatar_glyphs", []) != ["旭", "燕", "东", "玲"]:
 			failures.append("SeatHUD avatar glyph order must remain self 旭, upper 燕, opposite 东, lower 玲")
 	hud.free()
