@@ -70,8 +70,8 @@ func _run() -> void:
 	_check(str(contract.get("table_asset", "")) == "sichuan_table_v2_pbr", "stage exposes the V2 PBR asset")
 	_check(str(contract.get("table_material_pipeline", "")) == "blender_pbr_preserved_without_flat_overrides", "stage exposes preserved Blender PBR pipeline")
 	_check(
-		str(contract.get("table_surface_finish", "")) == "splash_matched_natural_warm_green_balanced_short_nap_felt",
-		"stage exposes the splash-matched balanced short-nap felt contract"
+		str(contract.get("table_surface_finish", "")) == "splash_matched_natural_warm_green_dual_scale_short_nap_felt",
+		"stage exposes the tactile dual-scale short-nap felt contract"
 	)
 	_check(
 		str(contract.get("table_divider_finish", "")) == "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners",
@@ -159,6 +159,13 @@ func _verify_surface_material(mesh: MeshInstance3D, expected_family: String) -> 
 	_check(material != null, "%s has an imported surface material" % mesh.name)
 	if material != null:
 		_check(expected_family.to_lower() in material.resource_name.to_lower(), "%s material family is %s" % [mesh.name, expected_family])
+		if expected_family == "DeepEmeraldShortNapFelt":
+			_check(material is StandardMaterial3D, "%s keeps an imported StandardMaterial3D" % mesh.name)
+			if material is StandardMaterial3D:
+				var pbr := material as StandardMaterial3D
+				_check(pbr.normal_enabled and pbr.normal_texture != null, "%s keeps its imported Normal map" % mesh.name)
+				_check(pbr.roughness_texture != null, "%s keeps its imported ORM roughness channel" % mesh.name)
+				_check(pbr.metallic <= 0.001, "%s remains non-metallic" % mesh.name)
 
 
 func _verify_no_flat_overrides(root: Node) -> void:

@@ -17,9 +17,10 @@ BASE_LUMINANCE_CV_MAX = 0.004
 BASE_LOWPASS_STD_FRACTION_MAX = 0.20
 BASE_LOWFREQ_P99_P1_MAX = 1.5 / 255.0
 NORMAL_LOWPASS_STD_FRACTION_MAX = 0.05
-ROUGHNESS_MEDIAN_RANGE = (0.86, 0.90)
+NORMAL_MID_FREQUENCY_RATIO_MIN = 0.10
+ROUGHNESS_MEDIAN_RANGE = (0.83, 0.87)
 ROUGHNESS_SPAN_MAX = 0.06
-ROUGHNESS_P99_P1_MAX = 0.02
+ROUGHNESS_P99_P1_MAX = 0.025
 TOP_FACE_UV_BOUNDS = (0.6556, 0.9423, 0.5037, 0.9799)
 LOWPASS_GRID_SIZE = (28, 28)
 RENDER_RED_GREEN_RANGE = (0.35, 0.50)
@@ -64,6 +65,48 @@ def _lowpass_std_fraction(field: np.ndarray) -> float:
     return float(np.std(_lowpass(field)) / total_std)
 
 
+def _resampled_lowpass(field: np.ndarray, grid_size: tuple[int, int]) -> np.ndarray:
+    source = Image.fromarray(field.astype(np.float32))
+    return np.asarray(
+        source.resize(grid_size, Image.Resampling.BOX).resize(
+            source.size, Image.Resampling.BILINEAR
+        ),
+        dtype=np.float64,
+    )
+
+
+def analyze_normal_frequency_bands(normal_rgb: np.ndarray) -> dict[str, float]:
+    """Measure normal energy on the actual felt top-face UV footprint."""
+    tangent_x = _top_face_crop(normal_rgb[:, :, 0] * 2.0 - 1.0)
+    tangent_y = _top_face_crop(normal_rgb[:, :, 1] * 2.0 - 1.0)
+    total_energy = float(np.mean(tangent_x * tangent_x + tangent_y * tangent_y))
+    if total_energy <= 1e-12:
+        return {
+            "normal_direction_energy_ratio": 1.0,
+            "normal_low_frequency_ratio": 0.0,
+            "normal_mid_frequency_ratio": 0.0,
+        }
+
+    energy_x = float(np.mean(tangent_x * tangent_x))
+    energy_y = float(np.mean(tangent_y * tangent_y))
+    low_x = _resampled_lowpass(tangent_x, LOWPASS_GRID_SIZE)
+    low_y = _resampled_lowpass(tangent_y, LOWPASS_GRID_SIZE)
+    # 160x160 retains the intended 180-320-cycle nap over this UV crop while
+    # rejecting the existing 520-830-cycle micro fibres.
+    mid_x = _resampled_lowpass(tangent_x, (160, 160))
+    mid_y = _resampled_lowpass(tangent_y, (160, 160))
+    low_energy = float(np.mean(low_x * low_x + low_y * low_y))
+    mid_energy = float(
+        np.mean((mid_x - low_x) ** 2 + (mid_y - low_y) ** 2)
+    )
+    return {
+        "normal_direction_energy_ratio": max(energy_x, energy_y)
+        / max(min(energy_x, energy_y), 1e-12),
+        "normal_low_frequency_ratio": low_energy / total_energy,
+        "normal_mid_frequency_ratio": mid_energy / total_energy,
+    }
+
+
 def analyze_maps(root: Path) -> dict[str, object]:
     base = _load_rgb(root / "felt_basecolor.png")
     normal = _load_rgb(root / "felt_normal.png")
@@ -74,7 +117,7 @@ def analyze_maps(root: Path) -> dict[str, object]:
     tangent_y = normal[:, :, 1] * 2.0 - 1.0
     energy_x = float(np.mean(tangent_x * tangent_x))
     energy_y = float(np.mean(tangent_y * tangent_y))
-    energy_ratio = max(energy_x, energy_y) / max(min(energy_x, energy_y), 1e-12)
+    normal_bands = analyze_normal_frequency_bands(normal)
     roughness = orm[:, :, 1]
     top_luminance = _top_face_crop(luminance)
     top_lowpass = _lowpass(top_luminance)
@@ -95,7 +138,8 @@ def analyze_maps(root: Path) -> dict[str, object]:
     metrics = {
         "normal_energy_x": energy_x,
         "normal_energy_y": energy_y,
-        "normal_energy_ratio": energy_ratio,
+        "normal_energy_ratio": normal_bands["normal_direction_energy_ratio"],
+        **normal_bands,
         "base_luminance_cv": base_luminance_cv,
         "base_lowpass_std_fraction": base_lowpass_std_fraction,
         "base_lowfreq_p99_p1": base_lowfreq_p99_p1,
@@ -117,7 +161,10 @@ def analyze_maps(root: Path) -> dict[str, object]:
         "clean_normal_low_frequency": (
             metrics["normal_lowpass_std_fraction"] <= NORMAL_LOWPASS_STD_FRACTION_MAX
         ),
-        "high_roughness": _in_range(
+        "visible_mid_scale_nap": (
+            metrics["normal_mid_frequency_ratio"] >= NORMAL_MID_FREQUENCY_RATIO_MIN
+        ),
+        "tactile_roughness": _in_range(
             metrics["roughness_median"], ROUGHNESS_MEDIAN_RANGE
         ),
         "restrained_roughness_span": metrics["roughness_span"] <= ROUGHNESS_SPAN_MAX,
@@ -178,12 +225,19 @@ def analyze_render(path: Path) -> dict[str, object]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--maps-root", required=True, type=Path)
+    parser.add_argument("--maps-root", type=Path)
+    parser.add_argument("--project-root", type=Path)
     parser.add_argument("--render", action="append", default=[], type=Path)
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--output", "--output-json", dest="output", type=Path)
     arguments = parser.parse_args()
 
-    maps = analyze_maps(arguments.maps_root)
+    maps_root = arguments.maps_root
+    if maps_root is None and arguments.project_root is not None:
+        maps_root = arguments.project_root / "res/art/materials/table_v2"
+    if maps_root is None:
+        parser.error("one of --maps-root or --project-root is required")
+
+    maps = analyze_maps(maps_root)
     renders = [analyze_render(path) for path in arguments.render]
     payload = {
         "maps": maps,
