@@ -39,9 +39,10 @@
 ## 真机状态
 
 - 目标设备：`dona‘s iPhone`，iPhone 15，CoreDevice ID `516E99D2-18B6-5DD8-94E1-6993510A036D`。
-- 设备已配对并开启开发者模式，但本轮最后一次 CoreDevice 探测仍为 `State=unavailable`，此前详情为 `tunnelState=unavailable`、`ddiServicesAvailable=false`。
-- 两次安装调用均未进入设备服务；最终错误为 CoreDevice 1011，无法定位当前可用设备。
-- 因此本轮最强证据到“iOS arm64 签名 App 构建成功并验证产物”层，尚未达到“真机安装、启动、关键牌局”层，不能把安装写成已完成。
-- 设备解锁并恢复 CoreDevice 通道（同一局域网或 USB 连接并信任）后，可直接覆盖安装本报告中的 2.6.34 App，无需重新修改代码。
+- 2026-08-09 19:28，设备经局域网恢复为 `available (paired)`，CoreDevice 成功建立无线隧道并启用 developer disk image services。
+- 2.6.34 已覆盖安装成功；新应用容器为 `2B39E046-DD75-4BE7-AF1F-A7AAAE6C373B/SichuanMahjongIOS.app`。
+- 设备应用数据库确认 Bundle ID `com.chendong.sichuanmahjong.iosdev`，版本/构建号 `2.6.34 / 2.6.34`。
+- `devicectl device process launch --terminate-existing` 返回启动成功；后续进程复核确认 PID `9951` 正在运行，执行路径位于上述新应用容器。
+- 当前最强证据达到“签名构建、真机覆盖安装、真机启动、进程存活和设备版本核对”层。手机上的完整实战牌局和触控体验仍需用户实际打一局确认。
 
 本报告记录的是本次聚焦验证和设备状态，不建立新的固定回归清单。
