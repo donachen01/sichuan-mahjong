@@ -139,6 +139,27 @@ public sealed class SichuanReactionDecisionEngine
             best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
         }
 
+        // Apply the same meld counterfactual before the reaction gates and search
+        // choose a winner. Previously this adjustment was calculated after the
+        // winner had already been selected, so it could not change the action.
+        var unifiedMelds = _unified.RankMeldActions(state, reactionTileType, canPeng, canGang);
+        foreach (var unifiedCandidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
+        {
+            var key = unifiedCandidate.Action.ActionType.ToString().ToLowerInvariant();
+            if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
+            var adjustment = (int)Math.Round(Math.Clamp(unifiedCandidate.ExpectedNetScore, -6, 6) * 18.0);
+            scores[key] += adjustment;
+            for (var index = 0; index < candidates.Count; index++)
+            {
+                if (candidates[index].action != key) continue;
+                var item = candidates[index];
+                item.result.Action = item.result.Action with { Score = item.result.Action.Score + adjustment };
+                candidates[index] = item;
+                break;
+            }
+        }
+        best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
+
         if (!forceLightweight && ShouldSearchReaction(candidates))
         {
             var simulations = 0;
@@ -221,17 +242,7 @@ public sealed class SichuanReactionDecisionEngine
 
         if (!scores.ContainsKey("peng")) scores["peng"] = int.MinValue / 4;
         if (!scores.ContainsKey("gang")) scores["gang"] = int.MinValue / 4;
-		var unifiedMelds = _unified.RankMeldActions(state, reactionTileType, canPeng, canGang);
-		foreach (var candidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
-		{
-			var key = candidate.Action.ActionType.ToString().ToLowerInvariant();
-			if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
-			scores[key] += (int)Math.Round(Math.Clamp(candidate.ExpectedNetScore, -6, 6) * 18.0);
-		}
-		var selectedKey = best.Action.ActionType.ToString().ToLowerInvariant();
-		if (scores.TryGetValue(selectedKey, out var unifiedScore))
-			best.Action = best.Action with { Score = unifiedScore };
-		best.Reasons = best.Reasons.Concat(new[] { $"统一反事实层已复核（{unifiedMelds.Summary}），最终动作仍服从规则和连续大脑闸门" }).ToArray();
+		best.Reasons = best.Reasons.Concat(new[] { $"统一反事实层已参与选动作（{unifiedMelds.Summary}），最终动作仍服从规则和连续大脑闸门" }).ToArray();
         best.ActionScores = new Dictionary<string, int>(scores);
         return best;
     }

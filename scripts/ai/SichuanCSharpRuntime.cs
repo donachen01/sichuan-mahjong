@@ -623,7 +623,7 @@ public partial class SichuanCSharpRuntime : Node
                 unknown_summary = new { top_tiles = Array.Empty<object>() }
             },
             elapsedMs = 0,
-            mobileSpeedMode = true,
+            mobileSpeedMode = false,
             compactResult = true,
             backendMode = "hell_challenge_direct",
             category = result.Category,
@@ -782,7 +782,7 @@ public partial class SichuanCSharpRuntime : Node
             searchUsed = result.SearchUsed,
             actionScores = result.ActionScores,
             elapsedMs = stopwatch.ElapsedMilliseconds,
-            mobileSpeedMode = true,
+            mobileSpeedMode = false,
             teamPlanPressure = result.ActionScores.GetValueOrDefault("team_plan_pressure", 0),
             backendMode = "hell_challenge_reaction_direct"
         };

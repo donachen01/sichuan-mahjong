@@ -4,20 +4,20 @@
 
 ## 决策边界
 
-- 默认对局使用 `hell` 骨灰透视预设，AI 可读取四家手牌与牌墙，并执行透视决策。
+- 默认对局使用 `bone_ash` 公平老手预设，只使用公开信息；`hell` 仅在用户显式选择挑战模式时读取四家手牌与牌墙并执行透视决策。
 - 缺门未清时，C# 候选集只允许当前玩家的缺门牌。
 - 四川三门牌统一编码为条 `0..8`、筒 `9..17`、万 `18..26`。
-- 四川番数按当前规则 3 番封顶估值。
+- 四川番数统一按当前规则 4 番封顶估值；主决策与结算投影共享 `1/2/4/8/16`（`2^番`）分档，3 番与 4 番不再压平。
 - 出牌、响应和自摸/杠决策以 C# 为唯一线上来源；Godot 不再用本地首张牌逻辑替代失败决策。
 
 ## 主要模块
 
 - `Codec/`：27 类牌和桌面状态契约。
 - `Engines/SichuanDecisionEngine.cs`：公平信息出牌候选与综合决策。
-- `Engines/SichuanHellChallengeEngine.cs`：骨灰透视出牌决策。
+- `Engines/SichuanHellChallengeEngine.cs`：显式“透视围剿挑战”出牌决策，不作为老手基线。
 - `Engines/SichuanReactionDecisionEngine.cs`：碰、杠、胡、过响应。
 - `Engines/SichuanRoutePlanEngine.cs`：平胡、对子胡、清一色、七对等四川路线规划。
-- `Engines/SichuanExpectedScoreEngine.cs`：3 番封顶的净分期望。
+- `Engines/SichuanExpectedScoreEngine.cs`：4 番封顶的净分期望，与结算投影共用 `SichuanRuleSnapshot.Frozen`。
 - `Models/SichuanStateView.cs`：手牌、定缺、分数、公开信息和透视输入。
 
 ## 评估原则

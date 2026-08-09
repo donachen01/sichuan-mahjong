@@ -9,8 +9,9 @@ public sealed class SichuanSelfActionDecisionEngine
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanBeliefEngine _belief = new();
     private readonly SichuanDangerEngine _danger = new();
-    private readonly SichuanRoutePlanEngine _routePlan = new();
+	private readonly SichuanRoutePlanEngine _routePlan = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
+	private readonly SichuanMeldCounterfactualEvaluator _meldCounterfactual = new();
 
     public SichuanSelfActionDecisionResult DecideSelfAction(
         SichuanStateView state,
@@ -148,14 +149,32 @@ public sealed class SichuanSelfActionDecisionEngine
         if (followUp.Shanten <= 0 && discardRisk < 70)
             score += 112;
         if (followUp.Shanten > current.Shanten) score -= 180;
-        if (subtype == "add_gang" && qiangGangCandidateCount > 0) score -= 220 * qiangGangCandidateCount;
         if (roundStage <= 1 && maxReadyPosterior < 0.58 && followUp.Shanten <= current.Shanten) score += 68;
         if (roundStage >= 2 && followUp.Shanten > 0) score -= 74;
         if (subtype == "add_gang" && followUp.Shanten > 0) score -= 190;
         if (subtype == "add_gang" && roundStage >= 2 && followUp.Shanten > 0) score -= 160;
         if (subtype == "add_gang" && maxReadyPosterior >= 0.56 && followUp.Shanten > 0) score -= 120;
-        if (subtype == "add_gang" && qiangGangCandidateCount > 0) score -= 260 * qiangGangCandidateCount;
         if (currentPlan.ForbidsGangs) score -= 6000;
+
+        var counterfactual = _meldCounterfactual.Evaluate(
+            state,
+            "gang",
+            tileType,
+            removeCount,
+            meldCount + 1,
+            routeLoss: currentPlan.ForbidsGangs ? 6.0 : 0,
+            risk: discardRisk / 100.0,
+            gangGain: subtype == "an_gang" ? 2.0 : 1.0);
+        score += (int)Math.Round(counterfactual.Value * 18.0);
+
+        var robGangLoss = 0;
+        if (subtype == "add_gang" && qiangGangCandidateCount > 0)
+        {
+            var perOpponentRobProbability = Math.Clamp(0.16 + maxReadyPosterior * 0.18 + roundStage * 0.04, 0.12, 0.42);
+            var robGangProbability = 1.0 - Math.Pow(1.0 - perOpponentRobProbability, qiangGangCandidateCount);
+            robGangLoss = (int)Math.Round(robGangProbability * (8.0 + counterfactual.ExpectedFan * 6.0));
+            score -= robGangLoss;
+        }
 
         var label = subtype == "an_gang" ? "暗杠" : "补杠";
         var reasons = new List<string>
@@ -163,7 +182,8 @@ public sealed class SichuanSelfActionDecisionEngine
             $"{label}后最快向听 {followUp.Shanten}",
             $"{label}后活张 {followUp.LiveUkeire}",
             $"{label}后首打危险 {discardRisk}",
-            $"{label}税收益纳入 C# 决策"
+            $"{label}税收益纳入 C# 决策",
+            $"统一副露反事实 {counterfactual.Value:F2}（向听 {counterfactual.Shanten}，活张 {counterfactual.LiveUkeire}）"
         };
         if (currentPlan.ForbidsGangs)
             reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止{label}，杠牌会破坏七对");
@@ -173,7 +193,7 @@ public sealed class SichuanSelfActionDecisionEngine
             reasons.Add("老手进攻：杠税收益明确且速度不亏");
         if (followUp.Shanten > current.Shanten) reasons.Add("杠后向听变差，降权");
         if (subtype == "add_gang" && qiangGangCandidateCount > 0)
-            reasons.Add($"存在 {qiangGangCandidateCount} 家可抢杠胡，C# 强烈降权");
+            reasons.Add($"存在 {qiangGangCandidateCount} 家可抢杠胡，概率化损失 {robGangLoss}");
         if (subtype == "add_gang" && followUp.Shanten > 0)
             reasons.Add("补杠后仍未成叫，先保留手牌效率");
         if (subtype == "add_gang" && roundStage >= 2 && followUp.Shanten > 0)

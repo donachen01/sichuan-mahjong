@@ -161,10 +161,10 @@ func _ready() -> void:
 	reaction_advisor = ReactionAdvisorScript.new()
 	gang_advisor = GangAdvisorScript.new()
 	ai_tuning_config = AITuningConfigScript.new()
-	ai_tuning_config.apply_preset(AITuningConfigScript.PRESET_HELL)
+	ai_tuning_config.apply_preset(AITuningConfigScript.PRESET_BONE_ASH)
 	ai_tuning_config.auto_learning_enabled = AI_LEARNING_RECORDING_ENABLED
 	ai_tuning_config.set_diagnostics_recording_enabled(_is_ai_analysis_recording_enabled())
-	ai_level = AILevel.CHEATING
+	ai_level = AILevel.ADVANCED
 	ai_learning_engine = AILearningEngineScript.new()
 	ai_learning_engine.set_persistence_enabled(AI_LEARNING_RECORDING_ENABLED)
 	ai_learning_engine.load_profile()

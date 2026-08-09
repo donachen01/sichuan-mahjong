@@ -791,6 +791,7 @@ public sealed class SichuanDecisionEngine
         return candidates
             .OrderBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
             .ThenByDescending(item => item.Score)
+            .ThenByDescending(item => item.ExpectedNetScore)
             .ThenBy(item => StrategicShantenRank(item, roundStage))
             .ThenBy(item => item.FastTingDiscardRank)
             .ThenByDescending(item => item.WaitCount)
@@ -863,6 +864,12 @@ public sealed class SichuanDecisionEngine
         }
 
         if (candidate.Shanten <= 0 && candidate.WaitCount > 0)
+            return 0;
+        if (roundStage <= 1
+            && BigRouteCount(candidate) > 0
+            && candidate.Shanten <= 1
+            && candidate.ExpectedNetScore >= 6.0
+            && candidate.Danger < 70)
             return 0;
         if (candidate.Shanten <= 1 && candidate.LiveUkeire >= 4)
             return 10;

@@ -299,7 +299,10 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"lockTurns": lock_turns,
 		"unlockOnOwnDraw": unlock_on_own_draw,
 		"activeSeats": active_seats,
-		"mobileSpeedMode": OS.has_feature("android") or OS.has_feature("ios"),
+		# bone_ash is the public-information veteran baseline on every device.
+		# Lightweight mode remains opt-in through an explicit forceLightweight payload
+		# flag; the platform itself must not change the AI's action selection.
+		"mobileSpeedMode": false,
 		"compactResult": OS.has_feature("android") or OS.has_feature("ios"),
 		"hand18": hand18,
 		"visible18": visible18,

@@ -160,6 +160,7 @@ public sealed class SichuanBeliefEngine
             }
             snapshot.SeatAbandonedSuits[seat] = abandonedSuits;
             snapshot.SeatSuitDemand[seat] = suitDemand;
+            BuildPublicReadFeatures(snapshot, state, seat, discards, meldTiles, abandonedSuits);
 
             var perTile = new Dictionary<int, double>();
             var holdWeights = new Dictionary<int, double>();
@@ -235,6 +236,42 @@ public sealed class SichuanBeliefEngine
 
         BuildPosteriorMatrix(state, snapshot, activeSeats, seatWeightsByTile, particlePosterior, _normalizer);
         return snapshot;
+    }
+
+    private static void BuildPublicReadFeatures(
+        SichuanBeliefSnapshot snapshot,
+        SichuanStateView state,
+        int seat,
+        IReadOnlyList<int> discards,
+        IReadOnlyList<int> meldTiles,
+        IReadOnlySet<int> abandonedSuits)
+    {
+        var discardCount = Math.Max(1, discards.Count);
+        var handCut = state.PublicEvents.Count(item =>
+            item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Hand);
+        var drawCut = state.PublicEvents.Count(item =>
+            item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Draw);
+        var rootCount = meldTiles.Count(tile => tile is >= 0 and < 27) / 3
+            + (seat == state.SeatIndex ? state.Hand18.Count(tile => tile >= 3) : 0);
+        var brokenLines = 0;
+        var liveLines = 0;
+        foreach (var tile in discards.Where(tile => tile is >= 0 and < 27).Distinct())
+        {
+            var rank = tile % 9;
+            var hasLeft = rank > 0 && discards.Contains(tile - 1);
+            var hasRight = rank < 8 && discards.Contains(tile + 1);
+            if (hasLeft || hasRight) brokenLines++;
+            if (!hasLeft && !hasRight) liveLines++;
+        }
+        snapshot.PublicReadFeatures[$"seat:{seat}:hand_cut_ratio"] = handCut / (double)discardCount;
+        snapshot.PublicReadFeatures[$"seat:{seat}:draw_cut_ratio"] = drawCut / (double)discardCount;
+        snapshot.PublicReadFeatures[$"seat:{seat}:筋线断张"] = Math.Clamp(brokenLines / 9.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:孤张活性"] = Math.Clamp(liveLines / 9.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:根潜力"] = Math.Clamp(rootCount / 6.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:定缺竞争"] = Math.Clamp(
+            abandonedSuits.Count == 0 ? 0 : abandonedSuits.Count / 3.0,
+            0,
+            1);
     }
 
     private static double BlendPosterior(double matureEstimate, double combinatoricEstimate)

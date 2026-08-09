@@ -14,4 +14,5 @@ public sealed class SichuanBeliefSnapshot
     public Dictionary<int, HashSet<int>> SeatAbandonedSuits { get; } = new();
     public Dictionary<int, double> SeatThreatScore { get; } = new();
     public Dictionary<int, double> TileWallPosterior { get; } = new();
+    public Dictionary<string, double> PublicReadFeatures { get; } = new();
 }

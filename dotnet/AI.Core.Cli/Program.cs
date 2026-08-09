@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using SichuanMahjong.AI.Core.Codec;
 using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Entry;
+using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
 
@@ -25,6 +26,7 @@ if (args.Length < 1)
 return args[0] switch
 {
     "discard-json" => await RunDiscardJsonAsync(args.Skip(1).ToArray(), options),
+    "hell-discard-json" => await RunHellDiscardJsonAsync(args.Skip(1).ToArray(), options),
     "reaction-json" => await RunReactionJsonAsync(args.Skip(1).ToArray(), options),
     "self-action-json" => await RunSelfActionJsonAsync(args.Skip(1).ToArray(), options),
     "ding-que-json" => await RunDingQueJsonAsync(args.Skip(1).ToArray(), options),
@@ -58,6 +60,71 @@ static async Task<int> RunDiscardJsonAsync(string[] args, JsonSerializerOptions 
     var facade = new SichuanAiFacade();
     var output = BuildDiscardOutput(facade, payload, options);
     Console.WriteLine(output);
+    return 0;
+}
+
+static async Task<int> RunHellDiscardJsonAsync(string[] args, JsonSerializerOptions options)
+{
+    if (args.Length < 1)
+    {
+        Console.Error.WriteLine("Usage: AI.Core.Cli hell-discard-json <payload.json>");
+        return 2;
+    }
+
+    var payloadPath = args[0];
+    if (!File.Exists(payloadPath))
+    {
+        Console.Error.WriteLine($"Payload file not found: {payloadPath}");
+        return 3;
+    }
+
+    var payload = JsonSerializer.Deserialize<HellDiscardPayload>(await File.ReadAllTextAsync(payloadPath), options);
+    if (payload is null)
+    {
+        Console.Error.WriteLine("Invalid hell discard payload");
+        return 4;
+    }
+
+    var facade = new SichuanAiFacade();
+    var state = BuildState(payload);
+    state.InformationMode = "oracle";
+    var result = new SichuanHellChallengeEngine(facade).DecideDiscard(
+        state,
+        payload.AllHands18.Select(hand => (IReadOnlyList<int>)hand).ToArray(),
+        payload.ExactWall18,
+        payload.CurrentScores);
+    Console.WriteLine(JsonSerializer.Serialize(new
+    {
+        action = result.Action.ActionType.ToString().ToLowerInvariant(),
+        tileType = result.Action.TileType,
+        score = result.Action.Score,
+        preset = "hell",
+        informationMode = "oracle",
+        mobileSpeedMode = false,
+        compactResult = payload.CompactResult,
+        result.HumanPressureLevel,
+        result.SelectedShanten,
+        result.SelectedLiveUkeire,
+        result.SelectedWaitCount,
+        result.SelectedTier,
+        result.ExactWallRemaining,
+        candidates = result.Candidates.Select(item => new
+        {
+            item.TileType,
+            item.Score,
+            item.Shanten,
+            item.LiveUkeire,
+            item.WaitCount,
+            item.ExactDealIn,
+            item.FeedsHumanHu,
+            item.FeedsHumanPeng,
+            item.FeedsHumanGang,
+            item.ExactWallRemaining,
+            item.Tier,
+            item.OldHandRoute,
+            item.OldHandExpectedNetScore
+        })
+    }, options));
     return 0;
 }
 
@@ -445,7 +512,9 @@ static string BuildDingQueOutput(SichuanAiFacade facade, DingQuePayload payload,
 static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
 {
     var state = BuildState(payload);
-    var result = facade.DecideDiscardCached(state);
+    var result = facade.DecideDiscardCached(
+        state,
+        forceLightweight: payload.MobileSpeedMode || payload.ForceLightweight);
     var cacheSnapshot = facade.GetTurnCacheSnapshot();
     var strategyProfile = BuildStrategyProfile(state, result);
     var currentRoutes = EstimateRoutesForCli(state);
@@ -462,6 +531,9 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
         dealInProbability = result.DealInProbability,
         searchUsed = result.SearchUsed,
         searchSimulations = result.SearchSimulations,
+        mobileSpeedMode = payload.MobileSpeedMode,
+        forceLightweight = payload.ForceLightweight,
+        compactResult = payload.CompactResult,
         currentRoutes = currentRoutes,
         routePlan = new
         {
@@ -1035,6 +1107,7 @@ internal class DiscardPayload
 	public int LastGangTileType { get; init; } = -1;
 	public string LastGangType { get; init; } = string.Empty;
     public bool MobileSpeedMode { get; init; }
+    public bool ForceLightweight { get; init; }
     public bool CompactResult { get; init; }
 }
 
@@ -1047,6 +1120,13 @@ internal sealed class ReactionPayload : DiscardPayload
     public bool CanPeng { get; init; }
     public bool CanGang { get; init; }
     public bool MandatoryGang { get; init; }
+}
+
+internal sealed class HellDiscardPayload : DiscardPayload
+{
+    public int[][] AllHands18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    public int[] ExactWall18 { get; init; } = new int[27];
+    public int[] CurrentScores { get; init; } = new int[4];
 }
 
 internal sealed class SelfActionPayload : DiscardPayload
