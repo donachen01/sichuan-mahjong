@@ -23,9 +23,10 @@ public sealed record SichuanEvaluationMetrics(
     double RouteConsistencyRate,
     double RuleErrorRate,
     double PassHuErrorRate,
-    double MeldErrorRate,
-    double CalibrationBrierScore,
-    int CalibrationSamples,
+	double MeldErrorRate,
+	double CalibrationBrierScore,
+	double CalibrationEce,
+	int CalibrationSamples,
     IReadOnlyDictionary<int, SichuanPdfEvaluationMetrics> ByPdf);
 
 public sealed record SichuanPdfEvaluationMetrics(

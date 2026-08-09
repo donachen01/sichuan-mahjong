@@ -7,6 +7,7 @@ using SichuanMahjong.AI.Core.Codec;
 using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Engines;
+using SichuanMahjong.AI.Core.Evaluation;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
 
@@ -19,7 +20,7 @@ var options = new JsonSerializerOptions
 
 if (args.Length < 1)
 {
-    Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|host-tcp> [args]");
+	Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|policy-league|host-tcp> [args]");
     return 2;
 }
 
@@ -30,10 +31,20 @@ return args[0] switch
     "reaction-json" => await RunReactionJsonAsync(args.Skip(1).ToArray(), options),
     "self-action-json" => await RunSelfActionJsonAsync(args.Skip(1).ToArray(), options),
     "ding-que-json" => await RunDingQueJsonAsync(args.Skip(1).ToArray(), options),
-    "learning-record" => await RunLearningRecordAsync(args.Skip(1).ToArray(), options),
+	"learning-record" => await RunLearningRecordAsync(args.Skip(1).ToArray(), options),
+	"policy-league" => RunPolicyLeague(args.Skip(1).ToArray(), options),
     "host-tcp" => await RunHostTcpAsync(args.Skip(1).ToArray(), options),
     _ => 2
 };
+
+static int RunPolicyLeague(string[] args, JsonSerializerOptions options)
+{
+	var samples = args.Length > 0 && int.TryParse(args[0], out var parsedSamples) ? parsedSamples : 1000;
+	var seed = args.Length > 1 && int.TryParse(args[1], out var parsedSeed) ? parsedSeed : 20260809;
+	var result = new SichuanPairedPolicyLeague().Run(samples, seed);
+	Console.WriteLine(JsonSerializer.Serialize(result, options));
+	return result.PromotionGatePassed ? 0 : 5;
+}
 
 static async Task<int> RunDiscardJsonAsync(string[] args, JsonSerializerOptions options)
 {

@@ -24,17 +24,23 @@ public sealed class SichuanActionTransitionEngine
     public SichuanSimulatedHandState ApplyDiscard(SichuanSimulatedHandState source, int tileType)
         => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 1), LastAction = $"discard:{tileType}" };
 
+    public SichuanSimulatedHandState ApplyPass(SichuanSimulatedHandState source)
+        => source with { LastAction = "pass" };
+
     public SichuanSimulatedHandState ApplyPeng(SichuanSimulatedHandState source, int tileType)
         => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 2), MeldCount = source.MeldCount + 1, LastAction = $"peng:{tileType}" };
 
     public SichuanSimulatedHandState ApplyMeldedGang(SichuanSimulatedHandState source, int tileType)
-        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 3), MeldCount = source.MeldCount + 1, WallCount = Math.Max(0, source.WallCount - 1), LastAction = $"melded_gang:{tileType}" };
+        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 3), MeldCount = source.MeldCount + 1, LastAction = $"melded_gang:{tileType}" };
 
     public SichuanSimulatedHandState ApplyConcealedGang(SichuanSimulatedHandState source, int tileType)
-        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 4), MeldCount = source.MeldCount + 1, WallCount = Math.Max(0, source.WallCount - 1), LastAction = $"concealed_gang:{tileType}" };
+        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 4), MeldCount = source.MeldCount + 1, LastAction = $"concealed_gang:{tileType}" };
 
     public SichuanSimulatedHandState ApplyAddedGang(SichuanSimulatedHandState source, int tileType)
-        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 1), WallCount = Math.Max(0, source.WallCount - 1), LastAction = $"added_gang:{tileType}" };
+        => source with { Hand27 = CloneAndRemove(source.Hand27, tileType, 1), LastAction = $"added_gang:{tileType}" };
+
+    public SichuanSimulatedHandState ApplyReplacementDraw(SichuanSimulatedHandState source, int tileType)
+        => ApplyOwnDraw(source, tileType) with { LastAction = $"replacement_draw:{tileType}" };
 
     public SichuanSimulatedHandState ApplyPassedHu(SichuanSimulatedHandState source, int currentFan)
         => source with { LockedFan = Math.Max(source.LockedFan, currentFan), OwnDrawUnlockPending = true, LastAction = "pass_hu" };

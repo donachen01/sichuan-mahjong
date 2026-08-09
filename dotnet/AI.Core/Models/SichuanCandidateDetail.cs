@@ -26,6 +26,8 @@ public sealed class SichuanCandidateDetail
     public double ExpectedFan { get; init; }
     public double DealInProbability { get; init; }
     public double ExpectedValue { get; init; }
+    public double UnifiedActionValue { get; init; }
+    public double StrategicResidual { get; init; }
     public double ExpectedNetScore { get; init; }
     public double ExpectedWinGain { get; init; }
     public double ExpectedDealInLoss { get; init; }

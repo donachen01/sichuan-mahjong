@@ -295,7 +295,10 @@ public sealed class SichuanRoutePlanEngine
             var count = hand18[tileType];
             if (count <= 0) continue;
             suitCounts[tileType / 9] += count;
-            if (count >= 2) pairLike++;
+			// A concealed quad contributes two pair units to seven-pairs routes.
+			// Treating 2+2 as one pair made five-pair hands look ordinary and
+			// encouraged both self-gangs and pair breaking.
+			pairLike += count / 2;
             if (count >= 3) triplets++;
             if (count >= 4) quads++;
         }

@@ -47,17 +47,20 @@ public sealed class SichuanSelfActionDecisionEngine
         var roundStage = ResolveRoundStage(state);
         var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
-        var threatLevel = ResolveThreatLevel(state, belief);
-        var passScore = 20 - current.Shanten * 82 + current.LiveUkeire * 5 - roundStage * 8 + Math.Min(12, state.WallCount);
-        scores["pass"] = passScore;
+		var threatLevel = ResolveThreatLevel(state, belief);
+		var currentValue = _meldCounterfactual.Evaluate(state, "continue", -1, 0, meldCount, 0, 0, 0);
+		var passScore = (int)Math.Round(Math.Clamp(currentValue.Value, -20, 20) * 100.0);
+		var preservesSevenPairs = meldCount == 0 && state.Hand18.Sum(count => count / 2) >= 5;
+		scores["pass"] = passScore;
 
         var best = new SichuanSelfActionDecisionResult
         {
             Action = new SichuanAction(SichuanActionType.Pass, -1, passScore, "保留当前最快成叫路径"),
             ShantenAfter = current.Shanten,
             LiveUkeireAfter = current.LiveUkeire,
-            Reasons = new[] { $"当前最快向听 {current.Shanten}", $"当前活张 {current.LiveUkeire}", "杠牌需由 C# 判断是否不拖慢成叫" }
-                .Concat(BuildRouteProtectionPassReasons(state, currentPlan))
+			Reasons = new[] { $"当前最快向听 {current.Shanten}", $"当前活张 {current.LiveUkeire}", $"继续出牌统一净值 {currentValue.Value:F2}" }
+				.Concat(preservesSevenPairs ? new[] { "七对路线：五对以上保留门清与四张牌的 2+2 结构" } : Array.Empty<string>())
+				.Concat(BuildRouteProtectionPassReasons(state, currentPlan))
                 .Concat(currentPlan.Reasons)
                 .ToArray(),
             ActionScores = scores
@@ -68,7 +71,7 @@ public sealed class SichuanSelfActionDecisionEngine
         foreach (var tileType in anGangTileTypes.Where(tile => tile is >= 0 and < 27).Distinct())
         {
             if (state.Hand18[tileType] < 4) continue;
-            var candidate = EvaluateSelfGang(state, belief, tileType, "an_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior);
+			var candidate = EvaluateSelfGang(state, belief, tileType, "an_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, preservesSevenPairs: preservesSevenPairs);
             scores[$"an_gang:{tileType}"] = candidate.Action.Score;
             if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
                 mandatoryGang = candidate;
@@ -80,7 +83,7 @@ public sealed class SichuanSelfActionDecisionEngine
         {
             if (state.Hand18[tileType] < 1) continue;
             var qiangGangCount = Math.Max(0, addGangQiangGangCounts?.GetValueOrDefault(tileType, 0) ?? 0);
-            var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, qiangGangCount);
+			var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, qiangGangCount, preservesSevenPairs);
             scores[$"add_gang:{tileType}"] = candidate.Action.Score;
             if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
                 mandatoryGang = candidate;
@@ -123,11 +126,26 @@ public sealed class SichuanSelfActionDecisionEngine
         int roundStage,
         int threatLevel,
         double maxReadyPosterior,
-        int qiangGangCandidateCount = 0)
+		int qiangGangCandidateCount = 0,
+		bool preservesSevenPairs = false)
     {
         var removeCount = subtype == "an_gang" ? 4 : 1;
-        var handAfter = RemoveCopies(state.Hand18, tileType, removeCount);
-        var followUp = EvaluateBestFollowUp(handAfter, state.Remaining18, meldCount + 1);
+        var meldCountAfter = subtype == "an_gang" ? meldCount + 1 : meldCount;
+        var counterfactual = _meldCounterfactual.Evaluate(
+            state,
+            subtype,
+            tileType,
+            removeCount,
+            meldCountAfter,
+			routeLoss: currentPlan.ForbidsGangs || preservesSevenPairs ? 12.0 : 0,
+            risk: 0,
+            gangGain: subtype == "an_gang" ? 2.0 : 1.0);
+        var followUp = new FollowUpSummary(
+            counterfactual.Shanten,
+            counterfactual.LiveUkeire,
+            counterfactual.LiveUkeire,
+            counterfactual.BestDiscardTile,
+            Array.Empty<int>());
         var discardRisk = followUp.BestDiscardTile >= 0
             ? _danger.EvaluateDetail(followUp.BestDiscardTile, state, belief).Risk
             : 0;
@@ -154,18 +172,12 @@ public sealed class SichuanSelfActionDecisionEngine
         if (subtype == "add_gang" && followUp.Shanten > 0) score -= 190;
         if (subtype == "add_gang" && roundStage >= 2 && followUp.Shanten > 0) score -= 160;
         if (subtype == "add_gang" && maxReadyPosterior >= 0.56 && followUp.Shanten > 0) score -= 120;
-        if (currentPlan.ForbidsGangs) score -= 6000;
+		if (currentPlan.ForbidsGangs || preservesSevenPairs) score -= 6000;
 
-        var counterfactual = _meldCounterfactual.Evaluate(
-            state,
-            "gang",
-            tileType,
-            removeCount,
-            meldCount + 1,
-            routeLoss: currentPlan.ForbidsGangs ? 6.0 : 0,
-            risk: discardRisk / 100.0,
-            gangGain: subtype == "an_gang" ? 2.0 : 1.0);
-        score += (int)Math.Round(counterfactual.Value * 18.0);
+		var legacyTieBreak = Math.Clamp(score, -40, 40);
+		score = (int)Math.Round(Math.Clamp(counterfactual.Value - discardRisk / 100.0, -20, 20) * 100.0)
+			+ legacyTieBreak
+			- (currentPlan.ForbidsGangs || preservesSevenPairs ? 1200 : 0);
 
         var robGangLoss = 0;
         if (subtype == "add_gang" && qiangGangCandidateCount > 0)
@@ -185,8 +197,8 @@ public sealed class SichuanSelfActionDecisionEngine
             $"{label}税收益纳入 C# 决策",
             $"统一副露反事实 {counterfactual.Value:F2}（向听 {counterfactual.Shanten}，活张 {counterfactual.LiveUkeire}）"
         };
-        if (currentPlan.ForbidsGangs)
-            reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止{label}，杠牌会破坏七对");
+		if (currentPlan.ForbidsGangs || preservesSevenPairs)
+			reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止{label}，杠牌会破坏七对");
         if (followUp.Shanten <= current.Shanten) reasons.Add("杠后不拖慢成叫");
         if (followUp.Shanten == 0) reasons.Add("杠后仍可下叫，优先收杠分");
         if (followUp.Shanten <= current.Shanten && followUp.LiveUkeire + 3 >= current.LiveUkeire && discardRisk < 64)

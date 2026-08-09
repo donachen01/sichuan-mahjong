@@ -24,10 +24,11 @@ public sealed class SichuanUnifiedDecisionEngine
 		foreach (var analysis in analyses)
 		{
 			var activePlayers = Math.Max(2, state.ActiveSeats.Count(value => value));
+			var liveWaits = state.WallCount <= 0 ? 0 : analysis.Waits.Sum(wait => wait.LiveCount);
 			var winScore = analysis.Shanten == 0 ? 4.0 * (activePlayers - 1) : 2.0;
 			var opponentLoss = 2.5;
 			var chance = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
-				analysis.Waits.Sum(wait => wait.LiveCount),
+				liveWaits,
 				Math.Max(1, state.WallCount),
 				activePlayers,
 				0,
@@ -36,8 +37,10 @@ public sealed class SichuanUnifiedDecisionEngine
 				opponentLoss,
 				ChaJiaoValue: analysis.Shanten == 0 ? 1.2 : 0,
 				Simulations: 512,
-				Seed: 20260713 ^ state.RoundIndex ^ analysis.DiscardTileType));
-			var structuralLoss = analysis.StructuralLoss * 0.035;
+					Seed: 20260713 ^ state.RoundIndex ^ (state.SeatIndex << 8)));
+			var structuralLoss = state.WallCount <= 0
+				? Math.Max(0, analysis.Shanten - analyses.Min(item => item.Shanten)) * 3.5
+				: analysis.StructuralLoss * 0.035;
 			var dealInRisk = Math.Max(0, 4 - state.Visible18[analysis.DiscardTileType]) * (state.WallCount <= 10 ? 0.08 : 0.025);
 			var winGain = chance.OwnWinProbability * winScore;
 			var expectedGangGain = chance.ExpectedGangGain;

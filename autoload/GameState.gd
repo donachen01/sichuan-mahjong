@@ -53,6 +53,9 @@ const HELL_REPLAY_DIR := "res://测试数据统计/hell_replay"
 const AI_ANALYSIS_RECORDING_ENABLED := false
 const DEBUG_TRAINING_RECORDING_ENABLED := false
 const AI_LEARNING_RECORDING_ENABLED := false
+const AI_SHADOW_RECORDING_ENABLED := true
+const AI_SHADOW_MAX_EVENTS := 1600
+const AI_SHADOW_MAX_SESSIONS := 4
 const AI_CHAIN_DEBUG_ENABLED := false
 const DIAGNOSTIC_EXPORT_ENABLED := false
 const AI_ANALYSIS_DIR := "user://ai_analysis"
@@ -5240,6 +5243,7 @@ func _is_runtime_recording_enabled() -> bool:
 	return AI_ANALYSIS_RECORDING_ENABLED \
 		or _is_debug_training_recording_enabled() \
 		or AI_LEARNING_RECORDING_ENABLED \
+		or AI_SHADOW_RECORDING_ENABLED \
 		or DIAGNOSTIC_EXPORT_ENABLED \
 		or AI_CHAIN_DEBUG_ENABLED
 
@@ -5415,7 +5419,7 @@ func _write_ai_analysis_summary() -> void:
 
 
 func _is_debug_decision_trace_enabled() -> bool:
-	return _is_ai_analysis_recording_enabled()
+	return AI_SHADOW_RECORDING_ENABLED or _is_ai_analysis_recording_enabled()
 
 
 func _ensure_debug_decision_trace_session() -> void:
@@ -5428,8 +5432,9 @@ func _ensure_debug_decision_trace_session() -> void:
 	debug_decision_trace_event_count = 0
 	latest_debug_decision_trace_event.clear()
 	_ensure_debug_decision_trace_output_dirs()
+	_prune_debug_decision_trace_sessions()
 	_write_json_file(_debug_decision_trace_session_path(), {
-		"schema_version": 1,
+		"schema_version": 2,
 		"session_id": debug_decision_trace_session_id,
 		"created_at": Time.get_datetime_string_from_system(),
 		"app_version": str(ProjectSettings.get_setting("application/config/version", "")),
@@ -5438,12 +5443,30 @@ func _ensure_debug_decision_trace_session() -> void:
 		"events_path": _debug_decision_trace_events_path(),
 		"events_path_absolute": ProjectSettings.globalize_path(_debug_decision_trace_events_path()),
 		"package_name": str(ProjectSettings.get_setting("application/config/name", "")),
-		"note": "实战 AI 决策追踪：逐条 JSONL 追加，不覆盖。用于复盘后台真实输入、分值、原因和实际执行结果。",
+		"privacy": "public_information_and_deciding_seat_hand_only",
+		"max_events": AI_SHADOW_MAX_EVENTS,
+		"note": "实战 AI 影子日志：只记录当时可见信息、决策座位自己的手牌、候选净值和执行结果；不记录公平模式下的隐藏手牌或精确牌墙。",
 	})
 
 
 func _ensure_debug_decision_trace_output_dirs() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_debug_decision_trace_session_dir()))
+
+
+func _prune_debug_decision_trace_sessions() -> void:
+	var root := ProjectSettings.globalize_path(DEBUG_DECISION_TRACE_DIR)
+	DirAccess.make_dir_recursive_absolute(root)
+	var sessions := DirAccess.get_directories_at(root)
+	sessions.sort()
+	while sessions.size() >= AI_SHADOW_MAX_SESSIONS:
+		var oldest := str(sessions[0])
+		sessions.remove_at(0)
+		if oldest == debug_decision_trace_session_id:
+			continue
+		var old_dir := root.path_join(oldest)
+		for filename in DirAccess.get_files_at(old_dir):
+			DirAccess.remove_absolute(old_dir.path_join(str(filename)))
+		DirAccess.remove_absolute(old_dir)
 
 
 func _debug_decision_trace_session_dir() -> String:
@@ -5475,9 +5498,11 @@ func _record_ai_decision_trace_event(event_type: String, payload: Dictionary) ->
 	if not _is_debug_decision_trace_enabled():
 		return
 	_ensure_debug_decision_trace_session()
+	if debug_decision_trace_event_count >= AI_SHADOW_MAX_EVENTS:
+		return
 	debug_decision_trace_event_count += 1
 	var event := {
-		"schema_version": 1,
+		"schema_version": 2,
 		"session_id": debug_decision_trace_session_id,
 		"event_index": debug_decision_trace_event_count,
 		"event_type": event_type,
@@ -5491,11 +5516,12 @@ func _record_ai_decision_trace_event(event_type: String, payload: Dictionary) ->
 		"wall_count": wall_count,
 		"discard_count": discard_pile.size(),
 		"scores": _hell_score_snapshot(),
+		"own_hand18": _build_shadow_hand18(int(payload.get("seat", -1))),
 		"ai_metrics": ai_decision_metrics.duplicate(true),
-		"backend": _build_full_ai_core_debug_snapshot(),
+		"backend": _build_shadow_backend_snapshot(),
 		"visible_state": _build_hell_visible_state_snapshot(),
-		"hidden_state": _build_hell_hidden_state_snapshot(),
-		"payload": payload.duplicate(true),
+		"hidden_state": _build_hell_hidden_state_snapshot() if _is_debug_training_recording_enabled() else {},
+		"payload": _compact_shadow_trace_payload(payload),
 	}
 	latest_debug_decision_trace_event = {
 		"event_index": debug_decision_trace_event_count,
@@ -5506,15 +5532,133 @@ func _record_ai_decision_trace_event(event_type: String, payload: Dictionary) ->
 		"seat": int(payload.get("seat", -1)),
 	}
 	_append_jsonl_file(_debug_decision_trace_events_path(), event)
-	if debug_decision_trace_event_count % 20 == 0:
+	if debug_decision_trace_event_count % 20 == 0 or debug_decision_trace_event_count == AI_SHADOW_MAX_EVENTS:
 		_write_debug_decision_trace_summary()
+
+
+func _build_shadow_backend_snapshot() -> Dictionary:
+	if ai_manager == null:
+		return {}
+	var status: Dictionary = ai_manager.get_backend_status()
+	return {
+		"native_runtime_available": bool(status.get("native_runtime_available", false)),
+		"native_runtime_healthy": bool(status.get("native_runtime_healthy", false)),
+		"backend_mode": str(status.get("backend_mode", "")),
+		"last_native_turn_error": str(status.get("last_native_turn_error", "")),
+		"last_native_reaction_error": str(status.get("last_native_reaction_error", "")),
+	}
+
+
+func _compact_shadow_trace_payload(payload: Dictionary) -> Dictionary:
+	var compact: Dictionary = {}
+	for key in [
+		"request_id", "seat", "action", "executed", "requested_action", "resolved_action",
+		"decision_path", "tile_id", "tile_type", "debug_last_message"
+	]:
+		if payload.has(key):
+			compact[key] = payload.get(key)
+	if payload.has("selected_tile"):
+		compact["selected_tile"] = _compact_shadow_tile(payload.get("selected_tile", {}))
+	if payload.has("candidate"):
+		compact["candidate"] = _compact_shadow_candidate(payload.get("candidate", {}))
+	for diagnostic_key in ["turn_diagnostic", "reaction_diagnostic", "self_action_diagnostic"]:
+		if payload.has(diagnostic_key):
+			compact[diagnostic_key] = _compact_shadow_diagnostic(payload.get(diagnostic_key, {}))
+	if payload.has("decision"):
+		var decision: Dictionary = payload.get("decision", {})
+		compact["decision"] = {
+			"seat": int(decision.get("seat", payload.get("seat", -1))),
+			"action": str(decision.get("action", decision.get("resolved_action", ""))),
+			"tile_id": int(decision.get("tile_id", -1)),
+			"tile_type": int(decision.get("tile_type", -1)),
+			"gang_subtype": str(decision.get("gang_subtype", "")),
+			"state_signature": str(decision.get("state_signature", "")),
+		}
+	return compact
+
+
+func _build_shadow_hand18(seat: int) -> Array:
+	var counts: Array = []
+	counts.resize(27)
+	counts.fill(0)
+	if seat < 0 or seat >= players.size():
+		return counts
+	for tile in Array(players[seat].get("hand_tiles", [])):
+		var tile_type := _sichuan_tile_type(tile)
+		if tile_type >= 0:
+			counts[tile_type] = int(counts[tile_type]) + 1
+	return counts
+
+
+func _compact_shadow_tile(tile_value: Variant) -> Dictionary:
+	if not tile_value is Dictionary:
+		return {}
+	var tile: Dictionary = tile_value
+	return {
+		"id": int(tile.get("id", -1)),
+		"tile_type": _sichuan_tile_type(tile),
+		"name": str(tile.get("display_name", tile.get("tile_name", ""))),
+	}
+
+
+func _compact_shadow_candidate(candidate_value: Variant) -> Dictionary:
+	if not candidate_value is Dictionary:
+		return {}
+	var candidate: Dictionary = candidate_value
+	var result: Dictionary = {}
+	for key in [
+		"tile_type", "csharp_tile_type", "score", "shanten", "ukeire", "live_ukeire",
+		"wait_count", "risk", "danger", "risk_label", "strategy_tag", "strategy_mode",
+		"expected_net_score", "expected_win_gain", "expected_deal_in_loss", "expected_ready_value",
+		"unified_action_value", "strategic_residual", "breaks_pair", "breaks_triplet",
+		"set_preservation_score", "route_plan_primary", "search_bonus"
+	]:
+		if candidate.has(key):
+			result[key] = candidate.get(key)
+	return result
+
+
+func _compact_shadow_diagnostic(diagnostic_value: Variant) -> Dictionary:
+	if not diagnostic_value is Dictionary:
+		return {}
+	var diagnostic: Dictionary = diagnostic_value
+	var result: Dictionary = {}
+	for key in [
+		"schema_version", "seat", "selected_rank_by_score", "candidate_count", "score_gap_to_best",
+		"requested_action", "resolved_action", "best_action_by_score", "current_shanten",
+		"current_live_ukeire", "shanten_after", "live_ukeire_after", "round_stage",
+		"round_stage_label", "threat_level", "max_ready_posterior", "action", "tile_type", "gang_subtype"
+	]:
+		if diagnostic.has(key):
+			result[key] = diagnostic.get(key)
+	if diagnostic.has("selected"):
+		result["selected"] = _compact_shadow_candidate(diagnostic.get("selected", {}))
+	if diagnostic.has("top_score_candidates"):
+		var candidates: Array = []
+		for candidate in Array(diagnostic.get("top_score_candidates", [])).slice(0, 5):
+			candidates.append(_compact_shadow_candidate(candidate))
+		result["top_score_candidates"] = candidates
+	if diagnostic.has("action_score_table"):
+		result["action_score_table"] = Array(diagnostic.get("action_score_table", [])).slice(0, 8)
+	if diagnostic.has("diagnostic_flags"):
+		result["diagnostic_flags"] = Array(diagnostic.get("diagnostic_flags", [])).slice(0, 8)
+	if diagnostic.has("reasons"):
+		result["reasons"] = Array(diagnostic.get("reasons", [])).slice(0, 8)
+	if diagnostic.has("backend"):
+		var backend: Dictionary = diagnostic.get("backend", {})
+		result["backend"] = {
+			"mode": str(backend.get("mode", "")),
+			"elapsed_ms": int(backend.get("elapsed_ms", -1)),
+			"mobile_speed_mode": bool(backend.get("mobile_speed_mode", false)),
+		}
+	return result
 
 
 func _write_debug_decision_trace_summary() -> void:
 	if debug_decision_trace_session_id.is_empty():
 		return
 	_write_json_file("%s/summary.json" % _debug_decision_trace_session_dir(), {
-		"schema_version": 1,
+		"schema_version": 2,
 		"session_id": debug_decision_trace_session_id,
 		"updated_at": Time.get_datetime_string_from_system(),
 		"event_count": debug_decision_trace_event_count,
@@ -5524,6 +5668,8 @@ func _write_debug_decision_trace_summary() -> void:
 		"latest_event": latest_debug_decision_trace_event.duplicate(true),
 		"events_path": _debug_decision_trace_events_path(),
 		"events_path_absolute": ProjectSettings.globalize_path(_debug_decision_trace_events_path()),
+		"max_events": AI_SHADOW_MAX_EVENTS,
+		"truncated": debug_decision_trace_event_count >= AI_SHADOW_MAX_EVENTS,
 	})
 
 
@@ -5623,6 +5769,14 @@ func _hell_flags_snapshot() -> Dictionary:
 func _build_hell_visible_state_snapshot() -> Dictionary:
 	var player_summaries: Array = []
 	for player in players:
+		var meld_summaries: Array = []
+		for meld_value in Array(player.get("melds", [])):
+			if meld_value is Dictionary:
+				var meld: Dictionary = meld_value
+				var meld_tiles: Array = []
+				for tile in Array(meld.get("tiles", [])):
+					meld_tiles.append(_sichuan_tile_type(tile))
+				meld_summaries.append({"type": str(meld.get("type", "")), "tiles": meld_tiles})
 		var summary := {
 			"seat": int(player.get("seat", -1)),
 			"nickname": str(player.get("nickname", "")),
@@ -5630,17 +5784,21 @@ func _build_hell_visible_state_snapshot() -> Dictionary:
 			"is_ai": bool(player.get("is_ai", false)),
 			"hand_count": int(player.get("hand_count", 0)),
 			"has_won": bool(player.get("has_won", false)),
-			"melds": Array(player.get("melds", [])).duplicate(true),
-			"discards": Array(player.get("discards", [])).duplicate(true),
+			"melds": meld_summaries,
+			"discards": Array(player.get("discards", [])).map(func(tile): return _sichuan_tile_type(tile)),
 		}
 		player_summaries.append(summary)
 	return {
 		"current_turn_seat": current_turn_seat,
 		"current_dealer_seat": current_dealer_seat,
 		"wall_count": wall_count,
-		"discard_pile": discard_pile.duplicate(true),
-		"current_discard_context": current_discard_context.duplicate(true),
-		"last_draw_tile": last_draw_tile.duplicate(true),
+		"discard_pile": discard_pile.map(func(tile): return _sichuan_tile_type(tile)),
+		"current_discard_context": {
+			"source_seat": int(current_discard_context.get("source_seat", -1)),
+			"reaction_type": str(current_discard_context.get("reaction_type", "")),
+			"tile_type": _sichuan_tile_type(current_discard_context.get("tile", {})),
+		},
+		"last_draw_tile": _compact_shadow_tile(last_draw_tile),
 		"players": player_summaries,
 	}
 

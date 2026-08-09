@@ -10,7 +10,7 @@ public sealed class SichuanIndependentDecisionJudge
 {
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanLegalActionEngine _legal = new();
-    private readonly SichuanMeldCounterfactualEvaluator _melds = new();
+	private readonly SichuanOfflineCounterfactualEvaluator _offline = new();
     private readonly SichuanFanProjectionEngine _fans = new();
     private readonly SichuanActionTreeEvaluator _tree = new();
 
@@ -94,8 +94,9 @@ public sealed class SichuanIndependentDecisionJudge
             Rate(items, item => item.Category == SichuanDecisionErrorCategory.Rule),
             Rate(items, item => item.Category == SichuanDecisionErrorCategory.PassHu),
             Rate(items, item => item.Category == SichuanDecisionErrorCategory.Meld),
-            calibration.Length == 0 ? 0 : calibration.Average(item => Math.Pow(item.PredictedSuccessProbability - (item.ActualSuccess!.Value ? 1 : 0), 2)),
-            calibration.Length,
+			calibration.Length == 0 ? 0 : calibration.Average(item => Math.Pow(item.PredictedSuccessProbability - (item.ActualSuccess!.Value ? 1 : 0), 2)),
+			ExpectedCalibrationError(calibration),
+			calibration.Length,
             byPdf);
     }
 
@@ -104,7 +105,7 @@ public sealed class SichuanIndependentDecisionJudge
         var safety = Enumerable.Range(0, 4)
             .Where(seat => seat != state.SeatIndex)
             .Count(seat => state.Discards18[seat].Contains(item.DiscardTileType));
-        var waitWidth = item.Waits.Sum(wait => wait.LiveCount);
+        var waitWidth = state.WallCount <= 0 ? item.Waits.Count : item.Waits.Sum(wait => wait.LiveCount);
         var terminalPenalty = item.DiscardTileType % 9 is 0 or 8 ? 0.12 : 0;
         var search = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
             LiveTiles: Math.Max(item.LiveUkeire, waitWidth),
@@ -115,13 +116,13 @@ public sealed class SichuanIndependentDecisionJudge
             OpponentWinProbabilityPerDraw: state.WallCount <= 12 ? 0.045 : 0.022,
             OpponentWinLoss: state.WallCount <= 12 ? 4 : 3,
             Simulations: 4096,
-            Seed: unchecked(20260713 + state.RoundIndex * 131 + item.DiscardTileType * 17)));
+            Seed: unchecked(20260713 + state.RoundIndex * 131 + state.SeatIndex * 17)));
         return -item.Shanten * 4.0
-            + item.LiveUkeire * 0.16
+            + (state.WallCount <= 0 ? 0 : item.LiveUkeire * 0.16)
             + waitWidth * 0.12
             + safety * 0.32
             + terminalPenalty
-            - item.StructuralLoss * 0.7
+            - (state.WallCount <= 0 ? Math.Max(0, item.Shanten) * 3.5 : item.StructuralLoss * 0.035)
             + search.ExpectedNetScore * 0.16;
     }
 
@@ -130,10 +131,10 @@ public sealed class SichuanIndependentDecisionJudge
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
         return action.ActionType switch
         {
-            SichuanActionType.Pass => BestDiscardObjectiveValue(state),
-            SichuanActionType.Hu => ProjectHuValue(state, action.TileType, SichuanWinType.Discard),
-            SichuanActionType.Peng => _melds.Evaluate(state, "peng", action.TileType, 2, meldCount + 1, 0.25, 0.15, 0).Value,
-            SichuanActionType.Gang => _melds.Evaluate(state, "melded_gang", action.TileType, 3, meldCount + 1, 0.35, 0.25, 1.0).Value,
+			SichuanActionType.Pass => _offline.EvaluateReactionPass(state).Value,
+			SichuanActionType.Hu => ProjectHuValue(state, action.TileType, SichuanWinType.Discard),
+			SichuanActionType.Peng => _offline.EvaluatePeng(state, action.TileType).Value,
+			SichuanActionType.Gang => _offline.EvaluateMeldedGang(state, action.TileType).Value,
             _ => -100
         };
     }
@@ -143,17 +144,11 @@ public sealed class SichuanIndependentDecisionJudge
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
         return action.ActionType switch
         {
-            SichuanActionType.Pass => BestDiscardObjectiveValue(state),
-            SichuanActionType.Hu => ProjectHuValue(state, -1, SichuanWinType.SelfDraw),
-            SichuanActionType.Gang => _melds.Evaluate(
-                state,
-                concealedGang ? "concealed_gang" : "added_gang",
-                action.TileType,
-                concealedGang ? 4 : 1,
-                meldCount + 1,
-                0.25,
-                concealedGang ? 0.10 : 0.55,
-                concealedGang ? 1.5 : 0.8).Value,
+			SichuanActionType.Pass => _offline.EvaluateSelfContinue(state).Value,
+			SichuanActionType.Hu => ProjectHuValue(state, -1, SichuanWinType.SelfDraw),
+			SichuanActionType.Gang => concealedGang
+				? _offline.EvaluateConcealedGang(state, action.TileType).Value
+				: _offline.EvaluateAddedGang(state, action.TileType).Value,
             _ => -100
         };
     }
@@ -205,8 +200,26 @@ public sealed class SichuanIndependentDecisionJudge
         return SichuanDecisionErrorCategory.Weight;
     }
 
-    private static double Rate(IReadOnlyList<SichuanDecisionJudgement> items, Func<SichuanDecisionJudgement, bool> predicate)
-        => items.Count == 0 ? 0 : items.Count(predicate) / (double)items.Count;
+	private static double Rate(IReadOnlyList<SichuanDecisionJudgement> items, Func<SichuanDecisionJudgement, bool> predicate)
+		=> items.Count == 0 ? 0 : items.Count(predicate) / (double)items.Count;
+
+	private static double ExpectedCalibrationError(IReadOnlyList<SichuanDecisionJudgement> items)
+	{
+		if (items.Count == 0) return 0;
+		var error = 0.0;
+		for (var bin = 0; bin < 10; bin++)
+		{
+			var lower = bin / 10.0;
+			var upper = (bin + 1) / 10.0;
+			var bucket = items.Where(item => item.PredictedSuccessProbability >= lower
+				&& (bin == 9 ? item.PredictedSuccessProbability <= upper : item.PredictedSuccessProbability < upper)).ToArray();
+			if (bucket.Length == 0) continue;
+			var confidence = bucket.Average(item => item.PredictedSuccessProbability);
+			var accuracy = bucket.Average(item => item.ActualSuccess!.Value ? 1.0 : 0.0);
+			error += bucket.Length / (double)items.Count * Math.Abs(confidence - accuracy);
+		}
+		return error;
+	}
 
     private static SichuanPdfEvaluationMetrics BuildPdfMetrics(IReadOnlyList<SichuanDecisionJudgement> items)
         => new(

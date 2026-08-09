@@ -76,7 +76,6 @@ public sealed class SichuanDecisionEngine
 		var unifiedDiscardValues = forceLightweight
 			? new Dictionary<int, double>()
 			: _unified.RankDiscards(state).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
-		var unifiedMean = unifiedDiscardValues.Values.DefaultIfEmpty(0).Average();
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -191,10 +190,37 @@ public sealed class SichuanDecisionEngine
                 + roundBrainAdjustment.Score
                 + dealInPolicy.AdjustmentScore / 100.0;
             var defenseAdjustment = posteriorAdjustment * ResolveDefenseAdjustmentWeight(effectiveShanten, waitCount, roundStage, maxReadyPosterior);
-            var unifiedAdjustment = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue)
-				? Math.Clamp((unifiedValue - unifiedMean) * 0.12, -0.65, 0.65)
-				: 0;
-			var expectedValue = expectedScore.Net + shapeValue - defenseAdjustment + unifiedAdjustment;
+            var hasUnifiedValue = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue);
+            var unifiedActionValue = hasUnifiedValue
+                ? unifiedValue
+                : -effectiveShanten * 4.0 + effectiveLiveUkeire * 0.16 + waitCount * 0.12;
+            // The common action value owns the ordering scale. Shape, route and danger
+            // engines remain useful evidence, but are bounded so a legacy heuristic
+            // cannot silently replace the full counterfactual comparison.
+            var criticalStructureEvidence = setPreservation.Score
+                + connectedRun.Score
+                + readyCentralPreservation.Score
+                + endgamePairWait.Score
+                + orphanTerminal.Score;
+            var routeContinuityEvidence = routePlanAdjustment.Score
+                + qingPlanAdjustment.Score
+                + bigHandRoute.Score
+                + roundBrainAdjustment.Score;
+            var generalShapeEvidence = shapeValue - criticalStructureEvidence - routeContinuityEvidence;
+            var orphanResidualCap = roundStage <= 0 ? 0.15 : 2.00;
+            var strategicResidual = Math.Clamp(generalShapeEvidence, -0.75, 0.75)
+                + Math.Clamp(setPreservation.Score, -2.50, 2.50)
+                + Math.Clamp(connectedRun.Score, -1.25, 1.25)
+                + Math.Clamp(readyCentralPreservation.Score, -1.25, 1.25)
+                + Math.Clamp(endgamePairWait.Score, -1.50, 1.50)
+                + Math.Clamp(orphanTerminal.Score, -orphanResidualCap, orphanResidualCap)
+                + Math.Clamp(routeContinuityEvidence, -2.00, 2.00);
+            var modelResidual = Math.Clamp(expectedScore.Net - unifiedActionValue, -2.0, 2.0);
+            var boundedDefenseCost = Math.Clamp(defenseAdjustment, 0.0, 2.0);
+				var expectedValue = unifiedActionValue
+                + strategicResidual * 0.05
+                + modelResidual * 0.20
+                - boundedDefenseCost * 0.35;
             var score = (int)Math.Round(expectedValue * 100.0);
             var fastTingDiscardRank = ResolveFastRank(effectiveShanten, waitCount, effectiveLiveUkeire);
             var riskLabel = dangerEval.RiskLabel;
@@ -219,7 +245,7 @@ public sealed class SichuanDecisionEngine
                 .Concat(setPreservation.Reasons)
                 .Concat(strategicAdjustment.Reasons)
                 .Concat(roundBrainAdjustment.Reasons)
-				.Concat(unifiedDiscardValues.ContainsKey(tileType) ? new[] { $"统一净分层修正 {unifiedAdjustment:F2}" } : Array.Empty<string>())
+				.Concat(hasUnifiedValue ? new[] { $"统一动作净值 {unifiedActionValue:F2}", $"有限策略残差 {strategicResidual:F2}" } : Array.Empty<string>())
                 .Concat(new[] { dealInPolicy.ReasonCode })
                 .ToArray();
             candidateScores[tileType] = score;
@@ -249,6 +275,8 @@ public sealed class SichuanDecisionEngine
                 ExpectedFan = expectedFan,
                 DealInProbability = dealInProbability,
                 ExpectedValue = expectedValue,
+                UnifiedActionValue = unifiedActionValue,
+                StrategicResidual = strategicResidual,
                 ExpectedNetScore = expectedScore.Net,
                 ExpectedWinGain = expectedScore.WinGain,
                 ExpectedDealInLoss = expectedScore.DealInLoss,
@@ -712,7 +740,6 @@ public sealed class SichuanDecisionEngine
             return true;
         var mode = context?.StrategyMode.Mode ?? "balanced";
         var roundGoal = context?.RoundGoal.Goal ?? "";
-        var chase = mode == "chase" || roundGoal == "chase_score";
         var defensive = mode is "defense" or "fold" || roundGoal == "protect_lead";
         var scoreGap = challenger.Score - incumbent.Score;
         var dangerGap = challenger.Danger - incumbent.Danger;
@@ -722,19 +749,13 @@ public sealed class SichuanDecisionEngine
         if (defensive && dangerGap >= 24 && scoreGap < 900)
             return false;
 
-        var challengerRank = StrategicShantenRank(challenger, roundStage);
-        var incumbentRank = StrategicShantenRank(incumbent, roundStage);
-        if (challengerRank != incumbentRank)
-        {
-            if (chase && challengerRank > incumbentRank && scoreGap >= 520 && challenger.Danger <= 82)
-                return true;
-            if (chase && challengerRank < incumbentRank && scoreGap <= -780 && incumbent.Danger <= 82)
-                return false;
-            return challengerRank < incumbentRank;
-        }
-        if (challenger.Shanten != incumbent.Shanten && Math.Abs(challenger.Score - incumbent.Score) < 900)
+        if (challenger.Score != incumbent.Score)
+            return challenger.Score > incumbent.Score;
+        if (challenger.Danger != incumbent.Danger)
+            return challenger.Danger < incumbent.Danger;
+        if (challenger.Shanten != incumbent.Shanten)
             return challenger.Shanten < incumbent.Shanten;
-        return challenger.Score > incumbent.Score;
+        return challenger.LiveUkeire > incumbent.LiveUkeire;
     }
 
     private static List<SichuanCandidateDetail> SortDiscardCandidates(
@@ -762,22 +783,20 @@ public sealed class SichuanDecisionEngine
         if (mode == "defense" || protectiveLeadActive)
         {
             return candidates
-                .OrderBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
-                .ThenBy(item => item.Danger >= 72 ? 1 : 0)
+                .OrderBy(item => item.Danger >= 78 ? 1 : 0)
                 .ThenByDescending(item => item.Score)
                 .ThenBy(item => item.Danger)
-                .ThenBy(item => StrategicShantenRank(item, roundStage))
                 .ThenByDescending(item => item.LiveUkeire)
                 .ThenByDescending(item => item.WaitQualityScore)
+                .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
                 .ToList();
         }
 
         if (mode == "chase" || roundGoal == "chase_score")
         {
             return candidates
-                .OrderBy(item => item.Danger >= 86 ? 1 : 0)
-                .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
-                .ThenByDescending(item => item.Score)
+                .OrderByDescending(item => item.Score)
+                .ThenBy(item => item.Danger >= 86 ? 1 : 0)
                 .ThenByDescending(item => item.ExpectedNetScore)
                 .ThenByDescending(item => BigRouteCount(item))
                 .ThenBy(item => StrategicShantenRank(item, roundStage))
@@ -789,15 +808,15 @@ public sealed class SichuanDecisionEngine
         }
 
         return candidates
-            .OrderBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
-            .ThenByDescending(item => item.Score)
+            .OrderByDescending(item => item.Score)
+            .ThenBy(item => item.Danger >= 86 ? 1 : 0)
             .ThenByDescending(item => item.ExpectedNetScore)
-            .ThenBy(item => StrategicShantenRank(item, roundStage))
             .ThenBy(item => item.FastTingDiscardRank)
             .ThenByDescending(item => item.WaitCount)
             .ThenByDescending(item => item.LiveUkeire)
             .ThenBy(item => item.Danger)
             .ThenByDescending(item => item.WaitQualityScore)
+            .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
             .ToList();
     }
 
@@ -1698,10 +1717,11 @@ public sealed class SichuanDecisionEngine
         var updated = new List<SichuanCandidateDetail>(candidates.Count);
         foreach (var candidate in candidates)
         {
-            var bonus = searchResult.CandidateBonuses.GetValueOrDefault(candidate.TileType, 0.0);
+            var rawBonus = searchResult.CandidateBonuses.GetValueOrDefault(candidate.TileType, 0.0);
+            var bonus = Math.Clamp(rawBonus, -0.75, 0.75);
             var mergedReasons = candidate.Reasons.ToList();
             if (Math.Abs(bonus) > 0.001)
-                mergedReasons.Add($"前瞻修正 {bonus:F2}");
+                mergedReasons.Add($"有界前瞻修正 {bonus:F2}（原始 {rawBonus:F2}）");
 
             updated.Add(new SichuanCandidateDetail
             {
@@ -1729,6 +1749,8 @@ public sealed class SichuanDecisionEngine
                 ExpectedFan = candidate.ExpectedFan,
                 DealInProbability = candidate.DealInProbability,
                 ExpectedValue = candidate.ExpectedValue + bonus,
+                UnifiedActionValue = candidate.UnifiedActionValue,
+                StrategicResidual = candidate.StrategicResidual,
                 ExpectedNetScore = candidate.ExpectedNetScore,
                 ExpectedWinGain = candidate.ExpectedWinGain,
                 ExpectedDealInLoss = candidate.ExpectedDealInLoss,
