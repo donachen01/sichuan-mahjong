@@ -17,6 +17,7 @@ public sealed class SichuanHandShapeEngine
         var goodShapeCount = best.Ryanmen;
         var badShapeCount = best.Kanchan + best.Penchan;
         var pairCount = best.Pairs;
+		var rawPairCount = hand18.Count(count => count >= 2);
         var taatsuCount = best.Ryanmen + best.Kanchan + best.Penchan + Math.Max(0, pairCount - 1);
         var neededTaatsu = Math.Max(0, 4 - meldCount - best.Melds);
         // Multiple pairs are strategic assets in Sichuan Mahjong. Only the sixth
@@ -29,6 +30,8 @@ public sealed class SichuanHandShapeEngine
         var shapeScore = best.Score
             + sameShantenImprovementCount * 0.08
             + middleTileFlexibility * 0.025
+			+ Math.Min(0.24, Math.Max(0, profiles.Count - 1) * 0.04)
+			+ (meldCount == 0 && rawPairCount >= 4 ? Math.Min(0.30, (rawPairCount - 3) * 0.10) : 0.0)
             - pairPressure * 0.25
             - taatsuOverflow * 0.06;
 
@@ -45,6 +48,8 @@ public sealed class SichuanHandShapeEngine
             reasons.Add($"互斥分解搭子溢出 {taatsuOverflow}");
         if (profiles.Count > 1)
             reasons.Add($"近优互斥分解 {profiles.Count}");
+		if (meldCount == 0 && rawPairCount >= 4)
+			reasons.Add($"{rawPairCount} 对保留七对/对对路线弹性");
         if (reasons.Count == 0)
             reasons.Add("手形结构平稳");
 

@@ -7,6 +7,8 @@ public sealed class SichuanMctsEngine
 {
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
+	private readonly SichuanBeliefEngine _belief = new();
+	private readonly SichuanWallAvailabilityEngine _wall = new();
 
     public SichuanSearchResult EvaluateTopCandidates(
         SichuanStateView state,
@@ -32,18 +34,27 @@ public sealed class SichuanMctsEngine
         var counts = narrowed.ToDictionary(item => item.TileType, _ => 0);
         var bestTile = narrowed[0].TileType;
         var bestAvg = double.NegativeInfinity;
+		var belief = _belief.Build(state);
+		var rollout = 0;
 
         while (sw.ElapsedMilliseconds < timeoutMs)
         {
+			var seed = unchecked(20260810
+				^ state.RoundIndex * 397
+				^ state.TurnIndex * 67
+				^ (int)(state.EventVersion % int.MaxValue)
+				^ rollout * 7919);
+			var wallOrder = _wall.SampleWallOrder(state, belief, seed);
             foreach (var candidate in narrowed)
             {
                 if (sw.ElapsedMilliseconds >= timeoutMs)
                     break;
 
-                var score = SimulateCandidate(state, candidate.TileType, rolloutDepth);
+				var score = SimulateCandidate(state, candidate.TileType, rolloutDepth, wallOrder);
                 bonuses[candidate.TileType] += score;
                 counts[candidate.TileType]++;
             }
+			rollout++;
         }
 
         foreach (var candidate in narrowed)
@@ -75,28 +86,40 @@ public sealed class SichuanMctsEngine
         if (candidates.Count < 2) return false;
         var first = candidates[0];
         var second = candidates[1];
-        if (first.Shanten != second.Shanten) return false;
+		if (Math.Abs(first.ExpectedValue - second.ExpectedValue) <= 1.4) return true;
+		if (first.Shanten != second.Shanten && Math.Abs(first.ExpectedValue - second.ExpectedValue) > 2.2) return false;
         if (Math.Abs(first.LiveUkeire - second.LiveUkeire) <= 3) return true;
         if (Math.Abs(first.ExpectedValue - second.ExpectedValue) <= 0.8) return true;
         if (Math.Abs(first.DealInProbability - second.DealInProbability) <= 0.08) return true;
         return false;
     }
 
-    private double SimulateCandidate(SichuanStateView state, int discardTileType, int rolloutDepth)
+	private double SimulateCandidate(
+		SichuanStateView state,
+		int discardTileType,
+		int rolloutDepth,
+		IReadOnlyList<int> wallOrder)
     {
         var hand = RemoveOne(state.Hand18, discardTileType);
-        var remaining = (int[])state.Remaining18.Clone();
+		var remaining = new int[27];
+		foreach (var tile in wallOrder.Where(tile => tile is >= 0 and < 27))
+			remaining[tile]++;
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
         var totalScore = 0.0;
+		var activePlayers = Math.Max(2, state.ActiveSeats.Count(active => active));
+		var ownDrawOffset = Math.Max(0, activePlayers - 1);
+		var ownDraws = 0;
 
-        for (var depth = 0; depth < rolloutDepth; depth++)
+		for (var drawIndex = 0; drawIndex < wallOrder.Count && ownDraws < rolloutDepth; drawIndex++)
         {
-            var draw = SampleRemainingTile(remaining);
-            if (draw < 0)
-                break;
+			var draw = wallOrder[drawIndex];
+			if (draw is < 0 or >= 27) continue;
+			remaining[draw] = Math.Max(0, remaining[draw] - 1);
+			var isOwnDraw = drawIndex >= ownDrawOffset
+				&& (drawIndex - ownDrawOffset) % activePlayers == 0;
+			if (!isOwnDraw) continue;
 
             hand[draw]++;
-            remaining[draw] = Math.Max(0, remaining[draw] - 1);
 
             var bestDiscard = FindBestDiscard(hand, remaining, meldCount);
             var shanten = bestDiscard.shanten;
@@ -111,9 +134,10 @@ public sealed class SichuanMctsEngine
 
             if (bestDiscard.tileType >= 0)
                 hand[bestDiscard.tileType]--;
+			ownDraws++;
         }
 
-        return totalScore / Math.Max(1, rolloutDepth);
+		return totalScore / Math.Max(1, ownDraws);
     }
 
     private (int tileType, int shanten, int ukeire, int liveUkeire, int waitCount) FindBestDiscard(int[] hand, int[] remaining, int meldCount)
@@ -235,23 +259,6 @@ public sealed class SichuanMctsEngine
         }
 
         return false;
-    }
-
-    private static int SampleRemainingTile(int[] remaining)
-    {
-        var total = 0;
-        for (var index = 0; index < remaining.Length; index++)
-            total += Math.Max(0, remaining[index]);
-        if (total <= 0) return -1;
-
-        var roll = Random.Shared.Next(total);
-        for (var index = 0; index < remaining.Length; index++)
-        {
-            var count = Math.Max(0, remaining[index]);
-            if (roll < count) return index;
-            roll -= count;
-        }
-        return -1;
     }
 
     private static int[] RemoveOne(int[] hand18, int tileType)

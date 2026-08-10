@@ -663,6 +663,8 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
             expectedFan = item.ExpectedFan,
             dealInProbability = item.DealInProbability,
             expectedValue = item.ExpectedValue,
+			unifiedActionValue = item.UnifiedActionValue,
+			strategicResidual = item.StrategicResidual,
             expectedNetScore = item.ExpectedNetScore,
             expectedWinGain = item.ExpectedWinGain,
             expectedDealInLoss = item.ExpectedDealInLoss,

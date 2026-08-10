@@ -42,13 +42,18 @@ public sealed class SichuanSelfActionDecisionEngine
         }
 
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        var current = EvaluateBestFollowUp(state.Hand18, state.Remaining18, meldCount);
         var belief = _belief.Build(state);
         var roundStage = ResolveRoundStage(state);
         var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
 		var threatLevel = ResolveThreatLevel(state, belief);
-		var currentValue = _meldCounterfactual.Evaluate(state, "continue", -1, 0, meldCount, 0, 0, 0);
+		var currentValue = _meldCounterfactual.Evaluate(state, "continue", -1, 0, meldCount, 0, 0, 0, belief);
+		var current = new FollowUpSummary(
+			currentValue.Shanten,
+			currentValue.LiveUkeire,
+			currentValue.LiveUkeire,
+			currentValue.BestDiscardTile,
+			Array.Empty<int>());
 		var passScore = (int)Math.Round(Math.Clamp(currentValue.Value, -20, 20) * 100.0);
 		var preservesSevenPairs = meldCount == 0 && state.Hand18.Sum(count => count / 2) >= 5;
 		scores["pass"] = passScore;
@@ -139,7 +144,8 @@ public sealed class SichuanSelfActionDecisionEngine
             meldCountAfter,
 			routeLoss: currentPlan.ForbidsGangs || preservesSevenPairs ? 12.0 : 0,
             risk: 0,
-            gangGain: subtype == "an_gang" ? 2.0 : 1.0);
+			gangGain: subtype == "an_gang" ? 2.0 : 1.0,
+			belief: belief);
         var followUp = new FollowUpSummary(
             counterfactual.Shanten,
             counterfactual.LiveUkeire,

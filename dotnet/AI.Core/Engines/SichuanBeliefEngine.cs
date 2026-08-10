@@ -361,6 +361,11 @@ public sealed class SichuanBeliefEngine
         var normalized = normalizer.Normalize(state, activeSeats, seatWeightsByTile);
         for (var tileType = 0; tileType < 27; tileType++)
         {
+            if (state.WallCount <= 0)
+            {
+                snapshot.TileWallPosterior[tileType] = 0.0;
+                continue;
+            }
             var particleWallShare = state.Remaining18[tileType] <= 0
                 ? 0.0
                 : Math.Clamp(particlePosterior.WallProbabilities[tileType] / state.Remaining18[tileType], 0.0, 1.0);

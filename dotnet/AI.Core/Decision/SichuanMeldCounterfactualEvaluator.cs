@@ -24,12 +24,24 @@ public sealed class SichuanMeldCounterfactualEvaluator
 {
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
+	private readonly SichuanBeliefEngine _belief = new();
+	private readonly SichuanWallAvailabilityEngine _wall = new();
     private readonly SichuanActionTreeEvaluator _tree = new();
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanFanProjectionEngine _fans = new();
 
-    public SichuanMeldCounterfactual Evaluate(SichuanStateView state, string action, int tileType, int removeCount, int meldCountAfter, double routeLoss, double risk, double gangGain)
+	public SichuanMeldCounterfactual Evaluate(
+		SichuanStateView state,
+		string action,
+		int tileType,
+		int removeCount,
+		int meldCountAfter,
+		double routeLoss,
+		double risk,
+		double gangGain,
+		SichuanBeliefSnapshot? belief = null)
     {
+		var wallAvailability = _wall.Build(state, belief ?? _belief.Build(state));
         var hand = (int[])state.Hand18.Clone();
         if (tileType is >= 0 and < 27) hand[tileType] = Math.Max(0, hand[tileType] - removeCount);
         var melds = state.MeldViews[state.SeatIndex].Count > 0
@@ -50,19 +62,22 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		var isContinue = action == "continue";
 		var isGang = action.Contains("gang", StringComparison.OrdinalIgnoreCase);
         var followUp = isPass
-            ? EvaluateWaitingHand(hand, state, meldCountAfter, projectedMelds, activeSeatList, settlement)
+			? EvaluateWaitingHand(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement)
             : isGang
-                ? EvaluateGangReplacement(hand, state, meldCountAfter, projectedMelds, activeSeatList, settlement)
-                : EvaluatePostClaimDiscards(hand, state, meldCountAfter, projectedMelds, activeSeatList, settlement);
+				? EvaluateGangReplacement(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement)
+				: EvaluatePostClaimDiscards(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement);
 
         var activePlayers = Math.Clamp(state.ActiveSeats.Count(value => value), 2, 4);
         var winScore = followUp.Shanten == 0 ? Math.Max(3.5, followUp.ExpectedSelfDrawGain) : 1.5;
-        var opponentLoss = followUp.Shanten == 0 ? 2.4 : 1.2;
+		var opponentLoss = followUp.Shanten == 0 ? 2.4 : 1.2;
+		var ownTurnOffset = isPass
+			? SichuanTurnOrder.DrawsBeforeSeatAfterDiscard(state, state.CurrentSeat, state.SeatIndex)
+			: isGang ? 0 : SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state);
         var chance = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
             followUp.LiveUkeire,
-            Math.Max(1, state.WallCount),
+			Math.Max(0, state.WallCount),
             activePlayers,
-            isPass ? activePlayers - 1 : 0,
+			ownTurnOffset,
             winScore,
             state.IsReady.Count(value => value) * 0.006,
             opponentLoss,
@@ -70,8 +85,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
             GangGain: gangGain,
 			ChaJiaoValue: followUp.Shanten == 0 ? 0.35 : 0,
             MaxDraws: Math.Min(12, Math.Max(4, state.WallCount)),
-            Simulations: 128,
-            Seed: 20260809 ^ state.RoundIndex ^ tileType ^ (isGang ? 17 : action == "peng" ? 11 : 3)));
+			Simulations: 256,
+			Seed: 20260809 ^ state.RoundIndex ^ tileType ^ (int)(state.EventVersion % int.MaxValue)));
 		var value = followUp.BaseValue
 			+ gangGain
 			+ chance.ExpectedNetScore * 0.32
@@ -103,6 +118,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
     private FollowUpEvaluation EvaluateWaitingHand(
         int[] hand,
         SichuanStateView state,
+		SichuanWallAvailability wallAvailability,
         int meldCount,
         IReadOnlyList<SichuanMeldView> melds,
         IReadOnlyList<int> activeSeats,
@@ -110,21 +126,23 @@ public sealed class SichuanMeldCounterfactualEvaluator
     {
         var shanten = _shanten.CalcBestShanten(hand, meldCount, meldCount == 0);
         var improving = new List<int>();
-        var live = 0;
+		var liveTiles = new List<int>();
         for (var draw = 0; draw < 27; draw++)
         {
-            if (state.Remaining18[draw] <= 0 || hand[draw] >= 4) continue;
+			if (wallAvailability.ExpectedCounts18[draw] <= 0 || hand[draw] >= 4) continue;
             hand[draw]++;
             var after = _shanten.CalcBestShanten(hand, meldCount, meldCount == 0);
             hand[draw]--;
-            if (after >= shanten) continue;
+			if (after >= shanten) continue;
             improving.Add(draw);
-            live += state.Remaining18[draw];
+			liveTiles.Add(draw);
         }
+		var expectedLive = wallAvailability.SumExpected(liveTiles);
+		var live = expectedLive <= 0.000001 ? 0 : (int)Math.Ceiling(expectedLive);
         var waits = shanten == 0
-            ? _hands.EnumerateWaits(hand, state.Remaining18, meldCount, meldCount == 0)
+			? _hands.EnumerateWaits(hand, state.Remaining18, meldCount, meldCount == 0)
             : Array.Empty<SichuanWaitAnalysis>();
-        var priced = PriceWaits(hand, waits, melds, state, activeSeats, settlement, false);
+		var priced = PriceWaits(hand, waits, wallAvailability, melds, state, activeSeats, settlement, false);
         return new FollowUpEvaluation(
             shanten,
             live,
@@ -139,26 +157,34 @@ public sealed class SichuanMeldCounterfactualEvaluator
     private FollowUpEvaluation EvaluatePostClaimDiscards(
         int[] hand,
         SichuanStateView state,
+		SichuanWallAvailability wallAvailability,
         int meldCount,
         IReadOnlyList<SichuanMeldView> melds,
         IReadOnlyList<int> activeSeats,
         SichuanSettlementProjectionEngine settlement)
     {
-        var analyses = _hands.AnalyzeDiscards(hand, state.Remaining18, meldCount, meldCount == 0);
+		var analyses = _hands.AnalyzeDiscards(hand, state.Remaining18, meldCount, meldCount == 0);
         FollowUpEvaluation? best = null;
         foreach (var analysis in analyses)
         {
-            var afterDiscard = (int[])hand.Clone();
+			var afterDiscard = (int[])hand.Clone();
             afterDiscard[analysis.DiscardTileType]--;
-            var priced = PriceWaits(afterDiscard, analysis.Waits, melds, state, activeSeats, settlement, false);
+			var priced = PriceWaits(afterDiscard, analysis.Waits, wallAvailability, melds, state, activeSeats, settlement, false);
+			var expectedLive = wallAvailability.SumExpected(
+				analysis.Shanten == 0 ? analysis.Waits.Select(wait => wait.TileType) : analysis.ImprovingTiles);
+			var live = expectedLive <= 0.000001 ? 0 : (int)Math.Ceiling(expectedLive);
+			var deadReadyPenalty = analysis.Shanten == 0 && expectedLive <= 0.000001 && state.WallCount > 0
+				? 3.2
+				: 0.0;
             var baseValue = -analysis.Shanten * 2.4
-                + analysis.LiveUkeire * 0.12
-                + priced.ExpectedFan * 0.20
-                + priced.ExpectedSelfDrawGain * 0.025
-                - analysis.StructuralLoss * 0.025;
+				+ expectedLive * 0.12
+				+ priced.ExpectedFan * 0.20
+				+ priced.ExpectedSelfDrawGain * 0.025
+				- analysis.StructuralLoss * 0.025
+				- deadReadyPenalty;
             var candidate = new FollowUpEvaluation(
-                analysis.Shanten,
-                analysis.LiveUkeire,
+				analysis.Shanten,
+				live,
                 analysis.DiscardTileType,
                 priced.ExpectedFan,
                 priced.ExpectedSelfDrawGain,
@@ -174,14 +200,15 @@ public sealed class SichuanMeldCounterfactualEvaluator
     private FollowUpEvaluation EvaluateGangReplacement(
         int[] handAfterGang,
         SichuanStateView state,
+		SichuanWallAvailability wallAvailability,
         int meldCount,
         IReadOnlyList<SichuanMeldView> melds,
         IReadOnlyList<int> activeSeats,
         SichuanSettlementProjectionEngine settlement)
     {
-        var totalRemaining = state.Remaining18.Sum(value => Math.Max(0, value));
+		var totalRemaining = wallAvailability.ExpectedCounts18.Sum(value => Math.Max(0, value));
         if (totalRemaining <= 0)
-            return EvaluateWaitingHand(handAfterGang, state, meldCount, melds, activeSeats, settlement);
+			return EvaluateWaitingHand(handAfterGang, state, wallAvailability, meldCount, melds, activeSeats, settlement);
 
         var shanten = 0.0;
         var live = 0.0;
@@ -193,7 +220,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
         var discardWeights = new Dictionary<int, double>();
         for (var draw = 0; draw < 27; draw++)
         {
-            var copies = Math.Max(0, state.Remaining18[draw]);
+			var copies = Math.Max(0.0, wallAvailability.ExpectedCounts18[draw]);
             if (copies <= 0 || handAfterGang[draw] >= 4) continue;
             var weight = copies / (double)totalRemaining;
             var drawn = (int[])handAfterGang.Clone();
@@ -211,7 +238,14 @@ public sealed class SichuanMeldCounterfactualEvaluator
                 continue;
             }
 
-            var branch = EvaluatePostClaimDiscards(drawn, state, meldCount, melds, activeSeats, settlement);
+			var branch = EvaluatePostClaimDiscards(
+				drawn,
+				state,
+				RemoveWallTile(wallAvailability, draw),
+				meldCount,
+				melds,
+				activeSeats,
+				settlement);
             shanten += branch.Shanten * weight;
             live += branch.LiveUkeire * weight;
             expectedFan += branch.ExpectedFan * weight;
@@ -232,16 +266,40 @@ public sealed class SichuanMeldCounterfactualEvaluator
             baseValue);
     }
 
+	private static SichuanWallAvailability RemoveWallTile(SichuanWallAvailability source, int tileType)
+	{
+		var representative = (int[])source.RepresentativeCounts18.Clone();
+		var expected = (double[])source.ExpectedCounts18.Clone();
+		if (tileType is >= 0 and < 27)
+		{
+			representative[tileType] = Math.Max(0, representative[tileType] - 1);
+			expected[tileType] = Math.Max(0.0, expected[tileType] - 1.0);
+		}
+		var target = Math.Max(0, source.WallCount - 1);
+		var total = expected.Sum();
+		if (total > 0.000001 && Math.Abs(total - target) > 0.000001)
+		{
+			var scale = target / total;
+			for (var tile = 0; tile < expected.Length; tile++)
+				expected[tile] *= scale;
+		}
+		return new SichuanWallAvailability(
+			expected,
+			representative,
+			Math.Max(0, source.WallCount - 1));
+	}
+
     private WaitPricing PriceWaits(
         int[] hand,
         IReadOnlyList<SichuanWaitAnalysis> waits,
+		SichuanWallAvailability wallAvailability,
         IReadOnlyList<SichuanMeldView> melds,
         SichuanStateView state,
         IReadOnlyList<int> activeSeats,
         SichuanSettlementProjectionEngine settlement,
         bool gangSelfDraw)
     {
-        var total = waits.Sum(wait => Math.Max(0, wait.LiveCount));
+		var total = waits.Sum(wait => wallAvailability.ExpectedCounts18[wait.TileType]);
         if (total <= 0) return new WaitPricing(0, 0);
         var expectedFan = 0.0;
         var expectedGain = 0.0;
@@ -251,7 +309,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
             completed[wait.TileType]++;
             var winType = gangSelfDraw ? SichuanWinType.GangSelfDraw : SichuanWinType.SelfDraw;
             var fan = _fans.Project(completed, melds, winType);
-            var weight = Math.Max(0, wait.LiveCount) / (double)total;
+			var weight = wallAvailability.ExpectedCounts18[wait.TileType] / total;
             expectedFan += fan.CappedFan * weight;
             expectedGain += settlement.ProjectWin(state.SeatIndex, -1, activeSeats, fan, winType).WinnerGain * weight;
         }

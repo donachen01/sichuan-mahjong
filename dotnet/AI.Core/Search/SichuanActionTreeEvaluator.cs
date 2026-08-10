@@ -17,7 +17,7 @@ public sealed record SichuanExpectedValueBreakdown(
 public sealed class SichuanActionTreeEvaluator
 {
 	public sealed record ChanceSearchRequest(
-		int LiveTiles,
+		double LiveTiles,
 		int WallTiles,
 		int ActivePlayers,
 		int OwnTurnOffset,
@@ -65,6 +65,18 @@ public sealed class SichuanActionTreeEvaluator
 	{
 		var watch = Stopwatch.StartNew();
 		var simulations = Math.Clamp(request.Simulations, 64, 8192);
+		if (request.WallTiles <= 0)
+		{
+			watch.Stop();
+			return new ChanceSearchResult(
+				request.ChaJiaoValue,
+				0,
+				0,
+				1,
+				0,
+				simulations,
+				watch.Elapsed.TotalMilliseconds);
+		}
 		var activePlayers = Math.Clamp(request.ActivePlayers, 2, 4);
 		var random = new Random(request.Seed);
 		var totalNet = 0.0;
@@ -75,7 +87,7 @@ public sealed class SichuanActionTreeEvaluator
 		for (var sample = 0; sample < simulations; sample++)
 		{
 			var wall = Math.Max(1, request.WallTiles);
-			var live = Math.Clamp(request.LiveTiles, 0, wall);
+			var live = Math.Clamp(request.LiveTiles, 0.0, wall);
 			var net = 0.0;
 			var resolved = false;
 			var extraOwnDraws = 0;

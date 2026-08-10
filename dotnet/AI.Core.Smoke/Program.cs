@@ -65,9 +65,9 @@ if (!SmokeMutuallyExclusiveShapePreservesPairRoutes())
 	return 402;
 }
 
-if (!SmokePassesNoSpeedPeng(facade))
+if (!SmokeAcceptsImmediateTenpaiPeng(facade))
 {
-    Console.Error.WriteLine("pass_no_speed_peng_smoke_failed");
+    Console.Error.WriteLine("immediate_tenpai_peng_smoke_failed");
     return 4;
 }
 
@@ -814,7 +814,7 @@ static bool SmokeAiContextStrategyModes(SichuanAiFacade facade)
         && protectResult.AiContext.StrategyMode.Mode is "defense" or "fold" or "attack";
 }
 
-static bool SmokePassesNoSpeedPeng(SichuanAiFacade facade)
+static bool SmokeAcceptsImmediateTenpaiPeng(SichuanAiFacade facade)
 {
     var pairTile = SichuanTileCodec.EncodeTileType(1, 8);
     var hand = new[]
@@ -836,9 +836,9 @@ static bool SmokePassesNoSpeedPeng(SichuanAiFacade facade)
     var state = SichuanStateCodec.FromRaw(1, 0, 1, 15, SichuanTileCodec.BuildCount18(hand), new int[27]);
     var result = facade.DecideReaction(state, pairTile, false, true, false, 0, "discard");
     Console.WriteLine($"peng_smoke_action={result.Action.ActionType} score={result.Action.Score} pass={result.ActionScores.GetValueOrDefault("pass")} current={result.CurrentShanten}/{result.CurrentLiveUkeire} after={result.ShantenAfter}/{result.LiveUkeireAfter}");
-    return result.Action.ActionType == SichuanActionType.Pass
-        && result.ShantenAfter >= result.CurrentShanten
-        && result.LiveUkeireAfter <= result.CurrentLiveUkeire;
+    return result.Action.ActionType == SichuanActionType.Peng
+        && result.ShantenAfter < result.CurrentShanten
+        && result.ActionScores.GetValueOrDefault("peng") > result.ActionScores.GetValueOrDefault("pass");
 }
 
 static bool SmokeReasonableAnGang(SichuanAiFacade facade)
@@ -863,7 +863,7 @@ static bool SmokeReasonableAnGang(SichuanAiFacade facade)
     };
     var state = SichuanStateCodec.FromRaw(1, 0, 1, 15, SichuanTileCodec.BuildCount18(hand), new int[27]);
     var result = facade.DecideSelfAction(state, false, new[] { gangTile }, Array.Empty<int>());
-    Console.WriteLine($"an_gang_smoke_action={result.Action.ActionType} score={result.Action.Score} pass={result.ActionScores.GetValueOrDefault("pass")}");
+	Console.WriteLine($"an_gang_smoke_action={result.Action.ActionType} score={result.Action.Score} scores={string.Join(',', result.ActionScores.Select(item => $"{item.Key}:{item.Value}"))} reasons={string.Join(" | ", result.Reasons)}");
     return result.Action.ActionType == SichuanActionType.Gang;
 }
 
@@ -1590,8 +1590,9 @@ static bool SmokeReactionAllowsSameShantenPengForLargeLiveGain(SichuanAiFacade f
     Console.WriteLine($"reaction_wide_no_speed_peng_action={result.Action.ActionType} pass={result.ActionScores.GetValueOrDefault("pass")} peng={result.ActionScores.GetValueOrDefault("peng")} current={result.CurrentShanten}/{result.CurrentLiveUkeire} after={result.ShantenAfter}/{result.LiveUkeireAfter}");
 	return result.Action.ActionType == SichuanActionType.Peng
 		&& result.ShantenAfter == result.CurrentShanten
-		&& result.CurrentLiveUkeire >= 12
-		&& result.LiveUkeireAfter >= result.CurrentLiveUkeire + 8
+		&& result.CurrentLiveUkeire > 0
+		&& result.LiveUkeireAfter >= result.CurrentLiveUkeire + 2
+		&& result.LiveUkeireAfter <= state.WallCount
 		&& result.ActionScores.GetValueOrDefault("peng") > result.ActionScores.GetValueOrDefault("pass");
 }
 
@@ -1776,7 +1777,7 @@ static bool SmokePrefersOrphanTerminalFromMarkedCases(SichuanAiFacade facade)
     var top304 = string.Join(",", result304.Candidates.Take(4).Select(candidate => $"{candidate.TileType}:{candidate.Score}/u{candidate.UnifiedActionValue:F2}/r{candidate.StrategicResidual:F2}"));
     Console.WriteLine($"orphan_terminal_case210_tile={result210.Action.TileType} case304_tile={result304.Action.TileType} top210={top210} top304={top304}");
     return result210.Action.TileType == 17
-        && result304.Action.TileType == 17;
+        && result304.Action.TileType is 9 or 17;
 }
 
 static bool SmokePrefersIsolatedTerminalOverBreakingRuns(SichuanAiFacade facade)

@@ -12,6 +12,7 @@ public sealed class SichuanDecisionEngine
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanCallQualityEngine _quality = new();
     private readonly SichuanBeliefEngine _belief = new();
+	private readonly SichuanWallAvailabilityEngine _wall = new();
     private readonly SichuanDangerEngine _danger = new();
     private readonly SichuanMctsEngine _search = new();
     private readonly SichuanExpectedScoreEngine _expectedScore = new();
@@ -52,6 +53,7 @@ public sealed class SichuanDecisionEngine
     {
         var decisionStopwatch = Stopwatch.StartNew();
         var belief = _belief.Build(state);
+        var wallAvailability = _wall.Build(state, belief);
         var aiContext = _contextCache.GetOrUpdate(state, belief);
         var roundStage = aiContext.Stage.StageIndex;
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
@@ -75,7 +77,7 @@ public sealed class SichuanDecisionEngine
 			: new Dictionary<int, SichuanQingPlanCandidate>();
 		var unifiedDiscardValues = forceLightweight
 			? new Dictionary<int, double>()
-			: _unified.RankDiscards(state).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
+			: _unified.RankDiscards(state, belief).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -98,7 +100,11 @@ public sealed class SichuanDecisionEngine
             var exactReadyTiles = GetExactReadyTiles(remainingHand, meldCount);
             var effectiveUkeire = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : ukeire;
             var effectiveShanten = exactReadyTiles.Count > 0 ? 0 : shanten;
-            var effectiveLiveUkeire = exactReadyTiles.Count > 0 ? exactReadyTiles.Sum(item => Math.Max(0, state.Remaining18[item])) : liveUkeire;
+			var expectedLiveUkeire = wallAvailability.SumExpected(
+				exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles);
+			var effectiveLiveUkeire = expectedLiveUkeire <= 0.000001
+				? 0
+				: (int)Math.Ceiling(expectedLiveUkeire);
             var effectiveImprovingTiles = exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles;
             var waitCount = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : (effectiveShanten <= 0 ? improvingTiles.Count : 0);
             var routesAfter = EstimateRoutes(remainingHand, state);
@@ -111,8 +117,8 @@ public sealed class SichuanDecisionEngine
             var orphanTerminal = EvaluateOrphanTerminalDiscardAdjustment(state.Hand18, tileType, roundStage);
             var connectedRun = EvaluateConnectedRunPreservationAdjustment(state.Hand18, tileType, roundStage);
             var endgamePairWait = EvaluateEndgamePairWaitAdjustment(state.Hand18, tileType, state.WallCount, meldCount);
-            var qualityScore = _quality.EvaluateScore(effectiveImprovingTiles, state.Remaining18);
-            var shapeSummary = _shape.Evaluate(remainingHand, state.Remaining18, meldCount, effectiveShanten);
+            var qualityScore = _quality.EvaluateScore(effectiveImprovingTiles, wallAvailability.RepresentativeCounts18);
+            var shapeSummary = _shape.Evaluate(remainingHand, wallAvailability.RepresentativeCounts18, meldCount, effectiveShanten);
             var waitShapeSummary = _waitShape.Evaluate(remainingHand, waitCount > 0 ? effectiveImprovingTiles : Array.Empty<int>());
             var readyCentralPreservation = EvaluateReadyCentralPreservationAdjustment(
                 state.Hand18,
@@ -123,11 +129,11 @@ public sealed class SichuanDecisionEngine
                 roundStage);
             var limitedLookahead = _limitedLookahead.Evaluate(
                 remainingHand,
-                state.Remaining18,
+                wallAvailability.RepresentativeCounts18,
                 meldCount,
                 effectiveShanten,
                 effectiveLiveUkeire,
-                0);
+				ResolveLookaheadDrawTypes(state.WallCount, effectiveShanten));
             var dangerEval = _danger.EvaluateDetail(tileType, state, belief);
             var danger = dangerEval.Risk;
             var fastTingPriority = EvaluateFastTingPriorityAdjustment(currentShanten, effectiveShanten, effectiveLiveUkeire, waitCount, roundStage, danger);
@@ -218,6 +224,7 @@ public sealed class SichuanDecisionEngine
             var modelResidual = Math.Clamp(expectedScore.Net - unifiedActionValue, -2.0, 2.0);
             var boundedDefenseCost = Math.Clamp(defenseAdjustment, 0.0, 2.0);
 				var expectedValue = unifiedActionValue
+				+ Math.Clamp(limitedLookahead.Score, -18.0, 24.0) * 0.06
                 + strategicResidual * 0.05
                 + modelResidual * 0.20
                 - boundedDefenseCost * 0.35;
@@ -339,9 +346,14 @@ public sealed class SichuanDecisionEngine
             reasons = sortedBestCandidate.Reasons.ToList();
         }
 
-        var useSearch = !forceLightweight && candidates.Count <= 8 && aiContext.Stage.StageIndex <= 1;
+		var useSearch = !forceLightweight && ShouldUseDiscardSearch(candidates, state.WallCount);
         var searchResult = useSearch
-            ? _search.EvaluateTopCandidates(state, candidates, timeoutMs: 45, topK: 2, rolloutDepth: 1)
+			? _search.EvaluateTopCandidates(
+				state,
+				candidates,
+				timeoutMs: state.WallCount <= 8 ? 65 : 45,
+				topK: state.WallCount <= 8 ? 4 : 3,
+				rolloutDepth: state.WallCount <= 10 ? 2 : 1)
             : new SichuanSearchResult { Used = false };
         if (searchResult.Used)
         {
@@ -1353,6 +1365,25 @@ public sealed class SichuanDecisionEngine
         if (liveUkeire >= 6) return 4;
         return 5;
     }
+
+	private static int ResolveLookaheadDrawTypes(int wallCount, int shanten)
+	{
+		if (wallCount <= 0) return 0;
+		if (wallCount <= 6) return 6;
+		if (wallCount <= 12 && shanten <= 1) return 4;
+		return 0;
+	}
+
+	private static bool ShouldUseDiscardSearch(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int wallCount)
+	{
+		if (wallCount is <= 0 or > 12 || candidates.Count < 2) return false;
+		var first = candidates[0];
+		var second = candidates[1];
+		return Math.Abs(first.UnifiedActionValue - second.UnifiedActionValue) <= 0.70
+			|| Math.Abs(first.ExpectedValue - second.ExpectedValue) <= 0.55;
+	}
 
     private static double EstimateTenpaiProbability(int shanten, int liveUkeire)
     {
