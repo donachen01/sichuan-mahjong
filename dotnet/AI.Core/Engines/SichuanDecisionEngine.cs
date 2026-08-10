@@ -3,12 +3,14 @@ using SichuanMahjong.AI.Core.Cache;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Strategy;
 using SichuanMahjong.AI.Core.Decision;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
 public sealed class SichuanDecisionEngine
 {
     private readonly SichuanShantenEngine _shanten = new();
+    private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanCallQualityEngine _quality = new();
     private readonly SichuanBeliefEngine _belief = new();
@@ -90,6 +92,13 @@ public sealed class SichuanDecisionEngine
         var forcedDingQueSuit = state.OwnDingQueSuit;
         var mustClearDingQue = forcedDingQueSuit is >= 0 and < 3
             && Enumerable.Range(forcedDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0);
+        var exactDiscardAnalyses = _hands.AnalyzeDiscards(
+            state.Hand18,
+            state.Remaining18,
+            meldCount,
+            meldCount == 0,
+            mustClearDingQue ? forcedDingQueSuit : -1)
+            .ToDictionary(item => item.DiscardTileType);
         for (var tileType = 0; tileType < 27; tileType++)
         {
             if (state.Hand18[tileType] <= 0) continue;
@@ -264,6 +273,7 @@ public sealed class SichuanDecisionEngine
                 Shanten = effectiveShanten,
                 Ukeire = effectiveUkeire,
                 LiveUkeire = effectiveLiveUkeire,
+                StructuralLoss = exactDiscardAnalyses.GetValueOrDefault(tileType)?.StructuralLoss ?? 0,
                 Danger = danger,
                 WaitCount = waitCount,
                 WaitQualityScore = qualityScore,
@@ -355,7 +365,7 @@ public sealed class SichuanDecisionEngine
 				topK: state.WallCount <= 8 ? 4 : 3,
 				rolloutDepth: state.WallCount <= 10 ? 2 : 1)
             : new SichuanSearchResult { Used = false };
-        if (searchResult.Used)
+		if (searchResult.Used)
         {
             candidates = ApplySearchBonuses(candidates, searchResult, roundStage, aiContext);
             candidateScores = candidates.ToDictionary(item => item.TileType, item => item.Score);
@@ -396,6 +406,48 @@ public sealed class SichuanDecisionEngine
             bestSearchBonus = lateWallDefense.SearchBonus;
             reasons = lateWallDefense.Reasons
                 .Concat(new[] { "尾盘硬防守：牌墙极少时优先避开证据不牢的抢听风险" })
+                .ToList();
+        }
+
+		var lateWallTempo = SelectLateWallSafeTempoOverride(candidates, bestTile, state);
+		if (lateWallTempo is not null)
+		{
+			bestTile = lateWallTempo.TileType;
+			bestScore = lateWallTempo.Score;
+			bestShanten = lateWallTempo.Shanten;
+			bestUkeire = lateWallTempo.Ukeire;
+			bestLive = lateWallTempo.LiveUkeire;
+			bestSearchBonus = lateWallTempo.SearchBonus;
+			reasons = lateWallTempo.Reasons
+				.Concat(new[] { "尾盘安全降向听：不点炮的更快成叫路线优先" })
+				.ToList();
+		}
+
+		var unifiedNearTie = SelectUnifiedActionValueOverride(candidates, bestTile);
+		if (unifiedNearTie is not null)
+		{
+			bestTile = unifiedNearTie.TileType;
+			bestScore = unifiedNearTie.Score;
+			bestShanten = unifiedNearTie.Shanten;
+			bestUkeire = unifiedNearTie.Ukeire;
+			bestLive = unifiedNearTie.LiveUkeire;
+			bestSearchBonus = unifiedNearTie.SearchBonus;
+			reasons = unifiedNearTie.Reasons
+				.Concat(new[] { "统一净值校正：近分候选不让策略残差压过真实活张与净收益" })
+				.ToList();
+		}
+
+        var exactStructureNearTie = SelectExactStructureNearTieOverride(candidates, bestTile);
+        if (exactStructureNearTie is not null)
+        {
+            bestTile = exactStructureNearTie.TileType;
+            bestScore = exactStructureNearTie.Score;
+            bestShanten = exactStructureNearTie.Shanten;
+            bestUkeire = exactStructureNearTie.Ukeire;
+            bestLive = exactStructureNearTie.LiveUkeire;
+            bestSearchBonus = exactStructureNearTie.SearchBonus;
+            reasons = exactStructureNearTie.Reasons
+                .Concat(new[] { "精确牌形近分裁决：同速候选优先互斥分解的最低结构损失" })
                 .ToList();
         }
 
@@ -1606,7 +1658,7 @@ public sealed class SichuanDecisionEngine
         _ => "后期"
     };
 
-    private static SichuanCandidateDetail? SelectExtremeDangerSameSpeedOverride(
+	private static SichuanCandidateDetail? SelectExtremeDangerSameSpeedOverride(
         IReadOnlyList<SichuanCandidateDetail> candidates,
         int currentTile,
         SichuanStateView state)
@@ -1739,6 +1791,104 @@ public sealed class SichuanDecisionEngine
             .FirstOrDefault();
     }
 
+	private static SichuanCandidateDetail? SelectLateWallSafeTempoOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		SichuanStateView state)
+	{
+		if (state.WallCount is < 1 or > 8 || candidates.Count < 2)
+			return null;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null || current.Shanten <= 0)
+			return null;
+		var bestShanten = candidates.Min(item => item.Shanten);
+		if (bestShanten >= current.Shanten)
+			return null;
+
+		var faster = candidates
+			.Where(item => item.Shanten == bestShanten
+				&& item.Danger < 70
+				&& item.DealInProbability <= Math.Max(0.04, current.DealInProbability + 0.015))
+			.OrderByDescending(item => item.Shanten <= 0 && item.WaitCount > 0)
+			.ThenBy(item => item.Danger)
+			.ThenByDescending(item => item.LiveUkeire)
+			.ThenByDescending(item => item.WaitQualityScore)
+			.ThenByDescending(item => item.Score)
+			.FirstOrDefault();
+		if (faster is null)
+			return null;
+		return faster;
+	}
+
+	private static SichuanCandidateDetail? SelectUnifiedActionValueOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile)
+	{
+		if (candidates.Count < 2)
+			return null;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null)
+			return null;
+
+		var higherUnified = candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten <= current.Shanten
+				&& item.UnifiedActionValue >= current.UnifiedActionValue + 0.025
+				&& item.Score >= current.Score - 12
+				&& item.Danger <= current.Danger + 8
+				&& item.DealInProbability <= current.DealInProbability + 0.02)
+			.OrderByDescending(item => item.UnifiedActionValue)
+			.ThenByDescending(item => item.LiveUkeire)
+			.ThenBy(item => item.Danger)
+			.FirstOrDefault();
+		if (higherUnified is not null)
+			return higherUnified;
+
+		return candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten == current.Shanten
+				&& Math.Abs(item.UnifiedActionValue - current.UnifiedActionValue) <= 0.01
+				&& Math.Abs(item.Score - current.Score) <= 2
+				&& item.LiveUkeire + 1 >= current.LiveUkeire
+				&& item.Danger + 2 <= current.Danger)
+			.OrderBy(item => item.Danger)
+			.ThenByDescending(item => item.LiveUkeire)
+			.FirstOrDefault();
+	}
+
+    private static SichuanCandidateDetail? SelectExactStructureNearTieOverride(
+        IReadOnlyList<SichuanCandidateDetail> candidates,
+        int currentTile)
+    {
+        if (candidates.Count < 2)
+            return null;
+        var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+        if (current is null)
+            return null;
+
+        var exactBest = candidates
+            .OrderBy(item => item.Shanten)
+            .ThenByDescending(item => item.LiveUkeire)
+            .ThenByDescending(item => item.WaitQualityScore)
+            .ThenBy(item => item.StructuralLoss)
+            .ThenBy(item => item.TileType)
+            .First();
+        if (exactBest.TileType == current.TileType)
+            return null;
+        if (exactBest.Shanten > current.Shanten
+            || exactBest.LiveUkeire < current.LiveUkeire
+            || exactBest.Score < current.Score - 15
+            || exactBest.UnifiedActionValue < current.UnifiedActionValue - 0.04
+            || exactBest.Danger > current.Danger + 12
+            || exactBest.DealInProbability > current.DealInProbability + 0.025)
+            return null;
+        if (exactBest.BreaksPair && !current.BreaksPair
+            && exactBest.Shanten == current.Shanten
+            && exactBest.LiveUkeire <= current.LiveUkeire)
+            return null;
+        return exactBest;
+    }
+
     private static List<SichuanCandidateDetail> ApplySearchBonuses(
         IReadOnlyList<SichuanCandidateDetail> candidates,
         SichuanSearchResult searchResult,
@@ -1762,6 +1912,7 @@ public sealed class SichuanDecisionEngine
                 Shanten = candidate.Shanten,
                 Ukeire = candidate.Ukeire,
                 LiveUkeire = candidate.LiveUkeire,
+                StructuralLoss = candidate.StructuralLoss,
                 Danger = candidate.Danger,
                 WaitCount = candidate.WaitCount,
                 WaitQualityScore = candidate.WaitQualityScore,

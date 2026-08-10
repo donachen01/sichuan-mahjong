@@ -279,6 +279,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		lock_turns.append(int(lock_info.get("lock_turn", -1)))
 		unlock_on_own_draw.append(bool(lock_info.get("unlock_on_own_draw", true)))
 	var last_gang: Dictionary = table_state.get("last_gang_context", {})
+	var test_policy_variants: Dictionary = table_state.get("test_ai_policy_variants_by_seat", {})
+	var policy_variant := str(test_policy_variants.get(self_seat, test_policy_variants.get(str(self_seat), "current")))
 	return {
 		"seatIndex": self_seat,
 		"dealerSeat": _resolve_dealer_seat(players, table_state, self_seat),
@@ -292,6 +294,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"strategyContextVersion": visible_version + hand_version,
 		"eventVersion": event_version,
 		"informationMode": "public",
+		"policyVariant": policy_variant,
 		"scores": scores,
 		"dingQueSuits": ding_que_suits,
 		"handCounts": hand_counts,

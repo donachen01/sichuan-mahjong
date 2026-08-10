@@ -8,6 +8,7 @@ public sealed class SichuanCandidateDetail
     public int Shanten { get; init; }
     public int Ukeire { get; init; }
     public int LiveUkeire { get; init; }
+    public int StructuralLoss { get; init; }
     public int Danger { get; init; }
     public int WaitCount { get; init; }
     public int WaitQualityScore { get; init; }

@@ -20,6 +20,7 @@ func _run() -> void:
 	var compare_preset_name := _read_string_arg("--compare-preset=", "")
 	var seed_base := _read_int_arg("--seed-base=", 20260712)
 	var record_discard_audit := _read_bool_arg("--record-discard-audit=", false)
+	var paired_policy := _read_bool_arg("--paired-policy=", false)
 	var output_path := _read_string_arg("--output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "json"))
 	var csv_output_path := _read_string_arg("--csv-output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "csv"))
 	var discard_audit_output_path := _read_string_arg("--discard-audit-output=", _build_default_audit_path(total_rounds, preset_name, compare_preset_name, "jsonl"))
@@ -31,7 +32,11 @@ func _run() -> void:
 
 	var discard_audit_records: Array = []
 	var report: Dictionary
-	if compare_preset_name != "":
+	if paired_policy:
+		game_state.queue_free()
+		await process_frame
+		report = await _run_policy_rotation_benchmark(total_rounds, max_steps_per_round, seed_base)
+	elif compare_preset_name != "":
 		report = await _run_ab_benchmark(game_state, preset_name, compare_preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records, seed_base)
 	else:
 		report = await _run_single_preset_benchmark(game_state, preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
@@ -39,10 +44,12 @@ func _run() -> void:
 		_write_discard_audit(discard_audit_records, discard_audit_output_path)
 		_write_discard_audit_csv(discard_audit_records, discard_audit_csv_output_path)
 		report["discard_audit"] = _build_discard_audit_summary(discard_audit_records, discard_audit_output_path, discard_audit_csv_output_path, game_state)
-	report["acceptance_metrics"] = _build_acceptance_metrics(report)
+	if not paired_policy:
+		report["acceptance_metrics"] = _build_acceptance_metrics(report)
 	_print_summary(report)
 	_write_report(report, output_path)
-	_write_csv_report(report, csv_output_path)
+	if not paired_policy:
+		_write_csv_report(report, csv_output_path)
 	quit()
 
 
@@ -91,6 +98,137 @@ func _run_ab_benchmark(game_state: Node, preset_a: String, preset_b: String, tot
 	combined["report_b"] = stats_b
 	combined["comparison"] = _build_comparison(stats_a, stats_b)
 	return combined
+
+
+func _run_policy_rotation_benchmark(deals: int, max_steps_per_round: int, seed_base: int) -> Dictionary:
+	var candidate_deltas: Array[float] = []
+	var games: Array[Dictionary] = []
+	var forced_stops := 0
+	var ledger_failures := 0
+	for deal in range(deals):
+		var deal_seed := seed_base + deal * 1009
+		for candidate_seat in range(4):
+			print("paired_policy_start deal=", deal + 1, " candidate_seat=", candidate_seat, " seed=", deal_seed)
+			var game_state: Node = GAME_STATE_SCRIPT.new()
+			get_root().add_child(game_state)
+			await process_frame
+			game_state.call("set_test_seed", deal_seed)
+			game_state.call("set_ai_preset", "bone_ash")
+			var variants := {}
+			for seat in range(4):
+				variants[seat] = "current" if seat == candidate_seat else "frozen_hard_tier_v1"
+			game_state.set("test_ai_policy_variants_by_seat", variants)
+			game_state.call("start_new_round")
+			await process_frame
+			_prepare_all_ai_table(game_state)
+			var result := await _play_single_round(
+				game_state, deal * 4 + candidate_seat + 1, max_steps_per_round,
+				"paired_candidate_seat_%d" % candidate_seat)
+			var score_changes: Dictionary = result.get("score_changes", {})
+			var gang_net := _build_gang_net(result)
+			var cha_jiao_net := _build_cha_jiao_net(result.get("draw_assessment", []))
+			var score_sum := _net_sum(score_changes)
+			var gang_sum := _net_sum(gang_net)
+			var cha_jiao_sum := _net_sum(cha_jiao_net)
+			var balanced := score_sum == 0 and gang_sum == 0 and cha_jiao_sum == 0
+			if not balanced:
+				ledger_failures += 1
+			if bool(result.get("forced_stop", false)):
+				forced_stops += 1
+			var candidate_delta := float(_seat_delta(score_changes, candidate_seat))
+			candidate_deltas.append(candidate_delta)
+			games.append({
+				"deal": deal + 1,
+				"seed": deal_seed,
+				"candidate_seat": candidate_seat,
+				"candidate_delta": candidate_delta,
+				"score_changes": score_changes.duplicate(true),
+				"gang_net": gang_net.duplicate(true),
+				"cha_jiao_net": cha_jiao_net.duplicate(true),
+				"score_sum": score_sum,
+				"gang_sum": gang_sum,
+				"cha_jiao_sum": cha_jiao_sum,
+				"ledger_balanced": balanced,
+				"forced_stop": bool(result.get("forced_stop", false)),
+				"steps": int(result.get("steps", 0)),
+				"end_reason": str(result.get("end_reason", "")),
+			})
+			print("paired_policy_end delta=", candidate_delta, " balanced=", balanced, " forced=", bool(result.get("forced_stop", false)))
+			game_state.queue_free()
+			await process_frame
+
+	var ci := _bootstrap_mean_ci(candidate_deltas, seed_base ^ 0x5A17)
+	var average_delta := 0.0 if candidate_deltas.is_empty() else _float_mean(candidate_deltas)
+	var gate_reasons: Array[String] = []
+	if forced_stops > 0:
+		gate_reasons.append("存在强制结束对局")
+	if ledger_failures > 0:
+		gate_reasons.append("存在收支账本不守恒对局")
+	if float(ci.get("low", 0.0)) <= 0.0:
+		gate_reasons.append("候选平均净分 95% 置信区间下界未高于 0")
+	if candidate_deltas.size() < 40:
+		gate_reasons.append("有效轮换对局不足 40 局，仅作烟雾或趋势证据")
+	if gate_reasons.is_empty():
+		gate_reasons.append("整局配对晋级门槛通过")
+	return {
+		"benchmark_mode": "paired_policy_rotation",
+		"candidate_policy": "bone_ash_current",
+		"baseline_policy": "frozen_hard_tier_v1",
+		"deals": deals,
+		"games": candidate_deltas.size(),
+		"seed_base": seed_base,
+		"candidate_average_delta": average_delta,
+		"candidate_positive_rate": _positive_rate(candidate_deltas),
+		"candidate_delta_ci_low": float(ci.get("low", 0.0)),
+		"candidate_delta_ci_high": float(ci.get("high", 0.0)),
+		"forced_stop_games": forced_stops,
+		"ledger_failure_games": ledger_failures,
+		"promotion_gate_passed": gate_reasons.size() == 1 and gate_reasons[0].begins_with("整局配对晋级"),
+		"gate_reasons": gate_reasons,
+		"game_results": games,
+	}
+
+
+func _net_sum(values: Dictionary) -> int:
+	var total := 0
+	for value in values.values():
+		total += int(value)
+	return total
+
+
+func _float_mean(values: Array[float]) -> float:
+	var total := 0.0
+	for value in values:
+		total += value
+	return total / float(maxi(1, values.size()))
+
+
+func _positive_rate(values: Array[float]) -> float:
+	if values.is_empty():
+		return 0.0
+	var positive := 0
+	for value in values:
+		if value > 0:
+			positive += 1
+	return float(positive) / float(values.size())
+
+
+func _bootstrap_mean_ci(values: Array[float], seed: int) -> Dictionary:
+	if values.is_empty():
+		return {"low": 0.0, "high": 0.0}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var means: Array[float] = []
+	for _sample in range(800):
+		var sum := 0.0
+		for _index in range(values.size()):
+			sum += values[rng.randi_range(0, values.size() - 1)]
+		means.append(sum / float(values.size()))
+	means.sort()
+	return {
+		"low": means[int(floor(means.size() * 0.025))],
+		"high": means[int(floor(means.size() * 0.975))],
+	}
 
 
 func _play_single_round(game_state: Node, round_no: int, max_steps_per_round: int, preset_name: String, record_discard_audit: bool = false, discard_audit_records: Array = []) -> Dictionary:
@@ -661,6 +799,13 @@ func _finalize_stats(stats: Dictionary, game_state: Node) -> void:
 
 
 func _print_summary(stats: Dictionary) -> void:
+	if str(stats.get("benchmark_mode", "")) == "paired_policy_rotation":
+		print("=== AI PAIRED POLICY ROTATION ===")
+		print("games=", stats.get("games", 0), " avg_delta=", stats.get("candidate_average_delta", 0.0))
+		print("ci=[", stats.get("candidate_delta_ci_low", 0.0), ", ", stats.get("candidate_delta_ci_high", 0.0), "]")
+		print("ledger_failures=", stats.get("ledger_failure_games", 0), " forced_stops=", stats.get("forced_stop_games", 0))
+		print("promotion=", stats.get("promotion_gate_passed", false), " reasons=", stats.get("gate_reasons", []))
+		return
 	if str(stats.get("benchmark_mode", "")) == "ab_compare":
 		print("=== AI PRESSURE BENCHMARK A/B ===")
 		print("preset_a=", stats.get("preset_a", ""))

@@ -53,9 +53,9 @@ public sealed record SichuanPairedDecisionDiagnostic(
 
 public sealed class SichuanPairedPolicyLeague
 {
-    private readonly SichuanIndependentDecisionJudge _judge = new();
-    private readonly SichuanExactHandAnalyzer _hands = new();
-    private readonly SichuanShantenEngine _shanten = new();
+	private const double DiscardNonInferiorityMargin = 0.002;
+	private readonly SichuanFrozenBaselinePolicy _frozen = new();
+	private readonly SichuanCrossValidatedActionOracle _oracle = new();
 
     public SichuanPairedPolicyLeagueResult Run(int samples = 1000, int seed = 20260809)
     {
@@ -82,18 +82,19 @@ public sealed class SichuanPairedPolicyLeague
             var candidate = candidateResult.Action.TileType;
             var repeated = new SichuanAiFacade().DecideDiscard(state).Action.TileType;
             if (candidate == repeated) consistent++;
-            var baseline = SelectFrozenHardTierDiscard(state);
-            var candidateJudge = _judge.JudgeDiscard(state, candidate);
-            var baselineJudge = _judge.JudgeDiscard(state, baseline);
-            candidateRegrets.Add(candidateJudge.Regret);
-            baselineRegrets.Add(baselineJudge.Regret);
-            pairedImprovements.Add(baselineJudge.Regret - candidateJudge.Regret);
-            bySeat[seat].Add(candidateJudge.Regret);
-            if (candidateJudge.Regret >= 2.5) candidateSevere++;
-            if (baselineJudge.Regret >= 2.5) baselineSevere++;
-            if (IsRegrettedPairBreak(state, candidate, candidateJudge)) candidatePairBreak++;
-            if (IsRegrettedPairBreak(state, baseline, baselineJudge)) baselinePairBreak++;
-            if (candidateJudge.Regret > baselineJudge.Regret + 0.01)
+			var baseline = _frozen.DecideDiscard(state);
+			var discardOracle = _oracle.EvaluateDiscards(state, 48, seed ^ (sample * 7919));
+			var candidateRegret = ActionRegret(discardOracle, $"discard:{candidate}");
+			var baselineRegret = ActionRegret(discardOracle, $"discard:{baseline}");
+			candidateRegrets.Add(candidateRegret);
+			baselineRegrets.Add(baselineRegret);
+			pairedImprovements.Add(baselineRegret - candidateRegret);
+			bySeat[seat].Add(candidateRegret);
+			if (candidateRegret >= 2.5) candidateSevere++;
+			if (baselineRegret >= 2.5) baselineSevere++;
+			if (IsRegrettedPairBreak(state, candidate, candidateRegret)) candidatePairBreak++;
+			if (IsRegrettedPairBreak(state, baseline, baselineRegret)) baselinePairBreak++;
+			if (candidateRegret > baselineRegret + 0.01)
             {
                 var detail = candidateResult.Candidates.First(item => item.TileType == candidate);
                 var baselineDetail = candidateResult.Candidates.First(item => item.TileType == baseline);
@@ -104,9 +105,9 @@ public sealed class SichuanPairedPolicyLeague
                     state.Hand18.ToArray(),
                     candidate,
                     baseline,
-                    candidateJudge.BestAction,
-                    candidateJudge.Regret,
-                    baselineJudge.Regret,
+					discardOracle.ValidationBestAction,
+					candidateRegret,
+					baselineRegret,
                     detail.Shanten,
                     detail.LiveUkeire,
                     detail.Danger,
@@ -124,9 +125,12 @@ public sealed class SichuanPairedPolicyLeague
             var reactionState = BuildReactionState(random, seat, seed + 100_000 + sample, out var reactionTile, out var canGang);
             var candidateReaction = new SichuanAiFacade().DecideReaction(
                 reactionState, reactionTile, false, true, canGang, (seat + 3) % 4, "discard").Action.ActionType;
-            var baselineReaction = SelectFrozenReaction(reactionState, reactionTile, canGang);
-            candidateReactionRegrets.Add(_judge.JudgeReaction(reactionState, candidateReaction, reactionTile, false, true, canGang).Regret);
-            baselineReactionRegrets.Add(_judge.JudgeReaction(reactionState, baselineReaction, reactionTile, false, true, canGang).Regret);
+			var baselineReaction = _frozen.DecideReaction(reactionState, reactionTile, false, true, canGang);
+			var reactionOracle = _oracle.EvaluateReaction(
+				reactionState, reactionTile, false, true, canGang, (seat + 3) % 4, 48,
+				seed ^ (100_000 + sample * 3571));
+			candidateReactionRegrets.Add(ActionRegret(reactionOracle, ReactionKey(candidateReaction, reactionTile)));
+			baselineReactionRegrets.Add(ActionRegret(reactionOracle, ReactionKey(baselineReaction, reactionTile)));
         }
 
         var (ciLow, ciHigh) = BootstrapMeanInterval(pairedImprovements, seed ^ 0x5A17);
@@ -138,7 +142,9 @@ public sealed class SichuanPairedPolicyLeague
         var baselinePairRate = baselinePairBreak / (double)samples;
         var consistency = consistent / (double)samples;
         var gateReasons = new List<string>();
-        if (candidateAverage > baselineAverage) gateReasons.Add("候选弃牌后悔值高于冻结基线");
+		if (candidateAverage > baselineAverage + DiscardNonInferiorityMargin
+			|| ciLow < -DiscardNonInferiorityMargin)
+			gateReasons.Add($"候选弃牌未通过 {DiscardNonInferiorityMargin:F3} 非劣界或置信区间越界");
         if (candidateReactionAverage > baselineReactionAverage) gateReasons.Add("候选碰过杠后悔值高于冻结基线");
         if (candidateSevere > baselineSevere) gateReasons.Add("候选严重错误率高于冻结基线");
         if (candidatePairRate > baselinePairRate + 0.01) gateReasons.Add("候选非必要拆对率高于冻结基线超过 1 个百分点");
@@ -173,43 +179,14 @@ public sealed class SichuanPairedPolicyLeague
             gateReasons);
     }
 
-    private int SelectFrozenHardTierDiscard(SichuanStateView state)
-    {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        var forcedSuit = state.OwnDingQueSuit is >= 0 and < 3
-            && Enumerable.Range(state.OwnDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0)
-            ? state.OwnDingQueSuit : -1;
-        return _hands.AnalyzeDiscards(state.Hand18, state.Remaining18, meldCount, true, forcedSuit)
-            .OrderBy(item => item.Shanten)
-            .ThenByDescending(item => item.LiveUkeire)
-            .ThenByDescending(item => item.WaitQuality)
-            .ThenBy(item => item.StructuralLoss)
-            .ThenBy(item => item.DiscardTileType)
-            .Select(item => item.DiscardTileType)
-            .DefaultIfEmpty(-1)
-            .First();
-    }
+	private static bool IsRegrettedPairBreak(SichuanStateView state, int tile, double regret)
+		=> tile is >= 0 and < 27 && state.Hand18[tile] >= 2 && regret >= 0.45;
 
-    private SichuanActionType SelectFrozenReaction(SichuanStateView state, int tileType, bool canGang)
-    {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        var current = _shanten.CalcBestShanten(state.Hand18, meldCount, meldCount == 0);
-        var pengHand = (int[])state.Hand18.Clone();
-        pengHand[tileType] -= 2;
-        var peng = _hands.AnalyzeDiscards(pengHand, state.Remaining18, meldCount + 1, false)
-            .Select(item => item.Shanten).DefaultIfEmpty(8).Min();
-        if (canGang && state.WallCount > 8)
-        {
-            var gangHand = (int[])state.Hand18.Clone();
-            gangHand[tileType] -= 3;
-            var oldPreReplacementGang = _shanten.CalcBestShanten(gangHand, meldCount + 1, false);
-            if (oldPreReplacementGang <= peng) return SichuanActionType.Gang;
-        }
-        return peng < current ? SichuanActionType.Peng : SichuanActionType.Pass;
-    }
+	private static double ActionRegret(SichuanCrossValidatedOracleResult oracle, string actionKey)
+		=> oracle.Actions.FirstOrDefault(item => item.ActionKey == actionKey)?.ValidationRegret ?? 100;
 
-    private static bool IsRegrettedPairBreak(SichuanStateView state, int tile, SichuanDecisionJudgement judgement)
-        => tile is >= 0 and < 27 && state.Hand18[tile] >= 2 && judgement.Regret >= 0.45;
+	private static string ReactionKey(SichuanActionType action, int tileType)
+		=> action == SichuanActionType.Pass ? "pass" : $"{action.ToString().ToLowerInvariant()}:{tileType}";
 
     private static SichuanStateView BuildDiscardState(Random random, int seat, int roundIndex)
     {

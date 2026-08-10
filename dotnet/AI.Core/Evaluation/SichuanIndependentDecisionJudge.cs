@@ -11,33 +11,37 @@ public sealed class SichuanIndependentDecisionJudge
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanLegalActionEngine _legal = new();
 	private readonly SichuanOfflineCounterfactualEvaluator _offline = new();
+	private readonly SichuanCrossValidatedActionOracle _crossValidatedOracle = new();
     private readonly SichuanFanProjectionEngine _fans = new();
     private readonly SichuanActionTreeEvaluator _tree = new();
 
     public SichuanDecisionJudgement JudgeDiscard(SichuanStateView state, int actualTileType)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        var forcedSuit = state.OwnDingQueSuit is >= 0 and < 3
-            && Enumerable.Range(state.OwnDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0)
-            ? state.OwnDingQueSuit : -1;
-        var analyses = _hands.AnalyzeDiscards(state.Hand18, state.Remaining18, meldCount, true, forcedSuit);
-        var candidates = analyses
-            .Select(item => (item.DiscardTileType, value: ObjectiveValue(state, item)))
-            .OrderByDescending(item => item.value)
-            .ToArray();
-        if (candidates.Length == 0)
+		var oracle = _crossValidatedOracle.EvaluateDiscards(state, 48, OracleSeed(state, 17));
+		var candidates = oracle.Actions;
+		if (candidates.Count == 0)
             return new SichuanDecisionJudgement(actualTileType.ToString(), "none", -100, -100, 0, SichuanDecisionErrorCategory.Rule, new[] { "没有合法弃牌候选" });
-        var best = candidates[0];
-        var actual = candidates.FirstOrDefault(item => item.DiscardTileType == actualTileType);
-        var actualValue = actual == default && best.DiscardTileType != actualTileType ? -100 : actual.value;
-        var regret = Math.Max(0, best.value - actualValue);
-        var category = ResolveCategory(state, actualTileType, candidates, regret);
-        var bestAnalysis = analyses.First(item => item.DiscardTileType == best.DiscardTileType);
-        var actualAnalysis = analyses.FirstOrDefault(item => item.DiscardTileType == actualTileType);
-        var routeConsistent = actualAnalysis is not null
-            && actualAnalysis.StructuralLoss <= bestAnalysis.StructuralLoss + 0.35;
-        return new SichuanDecisionJudgement($"discard:{actualTileType}", $"discard:{best.DiscardTileType}", actualValue, best.value, regret, category,
-            new[] { $"独立牌形值 {actualValue:F2}", $"最佳牌形值 {best.value:F2}", $"后悔值 {regret:F2}" }, routeConsistent);
+		var actualKey = $"discard:{actualTileType}";
+		var best = candidates[0];
+		var actual = candidates.FirstOrDefault(item => item.ActionKey == actualKey);
+		var legal = actual is not null;
+		var actualValue = legal ? actual!.ValidationMean : -100;
+		var regret = legal ? actual!.ValidationRegret : Math.Max(0, best.ValidationMean + 100);
+		var category = !legal ? SichuanDecisionErrorCategory.Rule
+			: regret < 0.45 ? SichuanDecisionErrorCategory.None
+			: state.Hand18[actualTileType] >= 2 ? SichuanDecisionErrorCategory.Route
+			: state.WallCount <= 8 ? SichuanDecisionErrorCategory.AttackDefense
+			: SichuanDecisionErrorCategory.Weight;
+		var breakdown = actual?.Breakdown ?? new SichuanOracleValueBreakdown(0, 0, 0, 0, 0, 0, 0);
+		return new SichuanDecisionJudgement(actualKey, best.ActionKey, actualValue, best.ValidationMean, regret, category,
+			new[]
+			{
+				$"交叉验证净值 {actualValue:F2}，95%CI [{actual?.ConfidenceLow ?? -100:F2}, {actual?.ConfidenceHigh ?? -100:F2}]",
+				$"牌形 {breakdown.ShapeProgress:F2} / 胡益 {breakdown.WinGain:F2} / 查叫 {breakdown.ChaJiaoValue:F2}",
+				$"点炮损失 {breakdown.DealInLoss:F2} / 路线 {breakdown.RouteValue:F2}",
+				$"独立盲测后悔值 {regret:F2}"
+			},
+			actual?.ActionKey == oracle.ValidationBestAction);
     }
 
     public SichuanDecisionJudgement JudgeReaction(
@@ -48,15 +52,24 @@ public sealed class SichuanIndependentDecisionJudge
         bool canPeng,
         bool canGang)
     {
-        var actions = _legal.BuildReactionActions(tileType, canHu, canGang, canPeng);
-        var values = actions
-            .Select(action => (key: ActionKey(action), value: ReactionObjectiveValue(state, action)))
-            .OrderByDescending(item => item.value)
-            .ToArray();
+		var oracle = _crossValidatedOracle.EvaluateReaction(
+			state, tileType, canHu, canPeng, canGang, state.CurrentSeat, 48, OracleSeed(state, tileType + 101));
+		var values = oracle.Actions.Select(item => (key: item.ActionKey, value: item.ValidationMean)).ToArray();
         var category = actualAction == SichuanActionType.Pass && canHu
             ? SichuanDecisionErrorCategory.PassHu
             : SichuanDecisionErrorCategory.Meld;
-        return BuildActionJudgement(ActionKey(new SichuanAction(actualAction, tileType)), values, category);
+		var actionKey = actualAction == SichuanActionType.Pass ? "pass" : ActionKey(new SichuanAction(actualAction, tileType));
+		var result = BuildActionJudgement(actionKey, values, category);
+		var actual = oracle.Actions.FirstOrDefault(item => item.ActionKey == actionKey);
+		return result with
+		{
+			Reasons = actual is null ? result.Reasons : new[]
+			{
+				$"交叉验证动作净值 {actual.ValidationMean:F2}，95%CI [{actual.ConfidenceLow:F2}, {actual.ConfidenceHigh:F2}]",
+				$"牌形 {actual.Breakdown.ShapeProgress:F2} / 胡益 {actual.Breakdown.WinGain:F2} / 杠益 {actual.Breakdown.GangGain:F2}",
+				$"点炮损失 {actual.Breakdown.DealInLoss:F2} / 后悔值 {actual.ValidationRegret:F2}"
+			}
+		};
     }
 
     public SichuanDecisionJudgement JudgeSelfAction(
@@ -188,8 +201,11 @@ public sealed class SichuanIndependentDecisionJudge
             new[] { $"独立动作值 {actualValue:F2}", $"最佳动作值 {best.value:F2}", $"后悔值 {regret:F2}" });
     }
 
-    private static string ActionKey(SichuanAction action)
-        => action.TileType >= 0 ? $"{action.ActionType.ToString().ToLowerInvariant()}:{action.TileType}" : action.ActionType.ToString().ToLowerInvariant();
+	private static string ActionKey(SichuanAction action)
+		=> action.TileType >= 0 ? $"{action.ActionType.ToString().ToLowerInvariant()}:{action.TileType}" : action.ActionType.ToString().ToLowerInvariant();
+
+	private static int OracleSeed(SichuanStateView state, int salt)
+		=> unchecked(20260810 ^ state.RoundIndex * 1009 ^ state.SeatIndex * 131 ^ state.WallCount * 17 ^ salt);
 
     private static SichuanDecisionErrorCategory ResolveCategory(SichuanStateView state, int actual, IReadOnlyList<(int DiscardTileType, double value)> candidates, double regret)
     {

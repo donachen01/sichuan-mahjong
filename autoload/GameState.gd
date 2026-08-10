@@ -147,6 +147,7 @@ var latest_debug_decision_trace_event: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 var deterministic_seed_enabled: bool = false
 var deterministic_seed: int = 0
+var test_ai_policy_variants_by_seat: Dictionary = {}
 
 
 func _ready() -> void:
@@ -752,6 +753,7 @@ func _build_table_state() -> Dictionary:
 	table_state["current_dealer_seat"] = current_dealer_seat
 	table_state["total_rounds"] = 0
 	table_state["remaining_rounds"] = 0
+	table_state["test_ai_policy_variants_by_seat"] = test_ai_policy_variants_by_seat.duplicate(true)
 	return table_state
 
 

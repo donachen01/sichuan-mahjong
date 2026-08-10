@@ -21,6 +21,15 @@ public sealed class SichuanHiddenHandInferenceEngine
         if (mode == SichuanInformationMode.Oracle && oracleHands is not null)
             return BuildOracle(state, oracleHands, oracleWall);
 
+        return Aggregate(state, SampleParticles(state, particleCount, seed));
+    }
+
+    public IReadOnlyList<SichuanHiddenHandParticle> SampleParticles(
+        SichuanStateView state,
+        int particleCount = 256,
+        int seed = 20260713)
+    {
+
         particleCount = Math.Clamp(particleCount, 32, 4096);
         var random = new Random(seed ^ state.VisibleVersion ^ (state.SeatIndex << 16));
         var pool = Enumerable.Range(0, 27).Select(tile => Math.Max(0, state.Remaining18[tile])).ToArray();
@@ -47,7 +56,19 @@ public sealed class SichuanHiddenHandInferenceEngine
             if (!valid) continue;
             particles.Add(new SichuanHiddenHandParticle(hands, remaining, Math.Exp(Math.Clamp(logWeight, -30, 20))));
         }
-        return Aggregate(state, particles);
+        if (particles.Count == 0)
+        {
+            var emptyHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+            particles.Add(new SichuanHiddenHandParticle(emptyHands, pool, 1.0));
+        }
+        return NormalizeWeights(particles);
+    }
+
+    private static IReadOnlyList<SichuanHiddenHandParticle> NormalizeWeights(IReadOnlyList<SichuanHiddenHandParticle> particles)
+    {
+        var total = particles.Sum(item => item.Weight);
+        if (total <= 0) total = particles.Count;
+        return particles.Select(item => item with { Weight = Math.Max(0, item.Weight) / total }).ToArray();
     }
 
     private SichuanHiddenHandPosterior Aggregate(SichuanStateView state, IReadOnlyList<SichuanHiddenHandParticle> particles)

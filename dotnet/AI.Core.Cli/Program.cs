@@ -20,7 +20,7 @@ var options = new JsonSerializerOptions
 
 if (args.Length < 1)
 {
-	Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|policy-league|host-tcp> [args]");
+	Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|policy-league|train-action-value|host-tcp> [args]");
     return 2;
 }
 
@@ -33,16 +33,40 @@ return args[0] switch
     "ding-que-json" => await RunDingQueJsonAsync(args.Skip(1).ToArray(), options),
 	"learning-record" => await RunLearningRecordAsync(args.Skip(1).ToArray(), options),
 	"policy-league" => RunPolicyLeague(args.Skip(1).ToArray(), options),
+	"train-action-value" => await RunActionValueTrainingAsync(args.Skip(1).ToArray(), options),
     "host-tcp" => await RunHostTcpAsync(args.Skip(1).ToArray(), options),
     _ => 2
 };
+
+static async Task<int> RunActionValueTrainingAsync(string[] args, JsonSerializerOptions options)
+{
+	var states = args.Length > 0 && int.TryParse(args[0], out var parsedStates) ? parsedStates : 640;
+	var seed = args.Length > 1 && int.TryParse(args[1], out var parsedSeed) ? parsedSeed : 20260810;
+	var result = new SichuanActionValueTrainingEngine().Train(states, seed);
+	var json = JsonSerializer.Serialize(result, options);
+	if (args.Length > 2)
+	{
+		var outputPath = Path.GetFullPath(args[2]);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		await File.WriteAllTextAsync(outputPath, json + Environment.NewLine);
+	}
+	Console.WriteLine(json);
+	return result.ShadowPromotionPassed ? 0 : 6;
+}
 
 static int RunPolicyLeague(string[] args, JsonSerializerOptions options)
 {
 	var samples = args.Length > 0 && int.TryParse(args[0], out var parsedSamples) ? parsedSamples : 1000;
 	var seed = args.Length > 1 && int.TryParse(args[1], out var parsedSeed) ? parsedSeed : 20260809;
 	var result = new SichuanPairedPolicyLeague().Run(samples, seed);
-	Console.WriteLine(JsonSerializer.Serialize(result, options));
+	var json = JsonSerializer.Serialize(result, options);
+	if (args.Length > 2)
+	{
+		var outputPath = Path.GetFullPath(args[2]);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		File.WriteAllText(outputPath, json + Environment.NewLine);
+	}
+	Console.WriteLine(json);
 	return result.PromotionGatePassed ? 0 : 5;
 }
 
@@ -523,21 +547,47 @@ static string BuildDingQueOutput(SichuanAiFacade facade, DingQuePayload payload,
 static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
 {
     var state = BuildState(payload);
+	if (IsFrozenPolicy(payload))
+	{
+		var frozenTile = new SichuanFrozenBaselinePolicy().DecideDiscard(state);
+		return new
+		{
+			action = "discard",
+			tileType = frozenTile,
+			gangSubtype = string.Empty,
+			score = 0.0,
+			shanten = 0,
+			ukeire = 0,
+			liveUkeire = 0,
+			winProbability = 0.0,
+			dealInProbability = 0.0,
+			searchUsed = false,
+			searchSimulations = 0,
+			mobileSpeedMode = payload.MobileSpeedMode,
+			forceLightweight = payload.ForceLightweight,
+			compactResult = payload.CompactResult,
+			reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+			candidateScores = new Dictionary<string, double>(),
+			candidates = Array.Empty<object>()
+		};
+	}
     var result = facade.DecideDiscardCached(
         state,
         forceLightweight: payload.MobileSpeedMode || payload.ForceLightweight);
+	var selectedTile = result.Action.TileType;
+	var selectedDetail = result.Candidates.FirstOrDefault(item => item.TileType == selectedTile);
     var cacheSnapshot = facade.GetTurnCacheSnapshot();
     var strategyProfile = BuildStrategyProfile(state, result);
     var currentRoutes = EstimateRoutesForCli(state);
     return new
     {
-        action = result.Action.ActionType.ToString().ToLowerInvariant(),
-        tileType = result.Action.TileType,
+		action = "discard",
+		tileType = selectedTile,
         gangSubtype = result.GangSubtype,
-        score = result.Action.Score,
-        shanten = result.Shanten,
-        ukeire = result.Ukeire,
-        liveUkeire = result.LiveUkeire,
+		score = selectedDetail?.Score ?? result.Action.Score,
+		shanten = selectedDetail?.Shanten ?? result.Shanten,
+		ukeire = selectedDetail?.Ukeire ?? result.Ukeire,
+		liveUkeire = selectedDetail?.LiveUkeire ?? result.LiveUkeire,
         winProbability = result.WinProbability,
         dealInProbability = result.DealInProbability,
         searchUsed = result.SearchUsed,
@@ -635,7 +685,7 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
         explain = result.Explain,
         performance = result.Performance,
         aiContext = BuildAiContextObject(result.AiContext),
-        reasons = result.Reasons,
+		reasons = result.Reasons,
         candidateScores = result.CandidateScores,
         candidates = result.Candidates.Select(item => new
         {
@@ -706,6 +756,30 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
 static object BuildReactionObject(SichuanAiFacade facade, ReactionPayload payload)
 {
     var state = BuildState(payload);
+	if (IsFrozenPolicy(payload))
+	{
+		var action = new SichuanFrozenBaselinePolicy().DecideReaction(
+			state, payload.ReactionTileType, payload.CanHu, payload.CanPeng, payload.CanGang, payload.MandatoryGang);
+		return new
+		{
+			action = action.ToString().ToLowerInvariant(),
+			tileType = payload.ReactionTileType,
+			score = 0,
+			reason = "测试冻结基线",
+			shantenAfter = 0,
+			ukeireAfter = 0,
+			liveUkeireAfter = 0,
+			currentShanten = 0,
+			currentLiveUkeire = 0,
+			threatLevel = 0,
+			roundStage = 0,
+			roundStageLabel = "冻结",
+			maxReadyPosterior = 0.0,
+			reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+			actionScores = new Dictionary<string, double> { [action.ToString().ToLowerInvariant()] = 0 },
+			backendMode = "frozen_hard_tier_v1"
+		};
+	}
     var result = facade.DecideReaction(
         state,
         payload.ReactionTileType,
@@ -1080,6 +1154,9 @@ static IReadOnlyList<string> EstimateRoutesForCli(SichuanStateView state)
     return routes;
 }
 
+static bool IsFrozenPolicy(DiscardPayload payload)
+	=> string.Equals(payload.PolicyVariant, "frozen_hard_tier_v1", StringComparison.OrdinalIgnoreCase);
+
 internal class DiscardPayload
 {
     public int SeatIndex { get; init; }
@@ -1101,6 +1178,7 @@ internal class DiscardPayload
 	public bool[] ActiveSeats { get; init; } = Array.Empty<bool>();
 	public long EventVersion { get; init; }
 	public string InformationMode { get; init; } = "public";
+	public string PolicyVariant { get; init; } = "current";
     public int[] Hand18 { get; init; } = Array.Empty<int>();
     public int[] Visible18 { get; init; } = Array.Empty<int>();
     public int[] Remaining18 { get; init; } = Array.Empty<int>();

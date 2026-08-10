@@ -9,13 +9,15 @@ using SichuanMahjong.AI.Core.Codec;
 using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Entry;
+using SichuanMahjong.AI.Core.Evaluation;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
 
 public partial class SichuanCSharpRuntime : Node
 {
     private readonly SichuanAiFacade _facade = new();
-    private readonly SichuanLearningEngine _learningEngine = new();
+	private readonly SichuanLearningEngine _learningEngine = new();
+	private readonly SichuanFrozenBaselinePolicy _frozenPolicy = new();
     private readonly SichuanHellOracleEngine _hellOracle = new();
     private readonly SichuanHellChallengeEngine _hellChallenge;
     private readonly SichuanHellChallengeReactionEngine _hellChallengeReaction;
@@ -264,8 +266,13 @@ public partial class SichuanCSharpRuntime : Node
             var discardPayload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.DiscardPayload);
             if (discardPayload is null)
                 return "error|invalid_discard_payload";
-            var discardState = BuildState(discardPayload);
-            var discardResult = _facade.DecideDiscardCached(
+			var discardState = BuildState(discardPayload);
+			if (IsFrozenPolicy(discardPayload))
+			{
+				var tile = _frozenPolicy.DecideDiscard(discardState);
+				return PackCompact("ok", "discard", tile, 0, 0, 0, 0, "", 0, "frozen_hard_tier_aot_compact");
+			}
+			var discardResult = _facade.DecideDiscardCached(
                 discardState,
                 forceLightweight: discardPayload.MobileSpeedMode || discardPayload.ForceLightweight);
             var selectedDiscard = discardResult.Candidates.FirstOrDefault(item => item.TileType == discardResult.Action.TileType);
@@ -331,8 +338,16 @@ public partial class SichuanCSharpRuntime : Node
             var reactionPayload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.ReactionPayload);
             if (reactionPayload is null)
                 return "error|invalid_reaction_payload";
-            var reactionState = BuildState(reactionPayload);
-            var reactionResult = _facade.DecideReaction(
+			var reactionState = BuildState(reactionPayload);
+			if (IsFrozenPolicy(reactionPayload))
+			{
+				var action = _frozenPolicy.DecideReaction(
+					reactionState, reactionPayload.ReactionTileType, reactionPayload.CanHu,
+					reactionPayload.CanPeng, reactionPayload.CanGang, reactionPayload.MandatoryGang);
+				return PackCompact("ok", action.ToString().ToLowerInvariant(), reactionPayload.ReactionTileType,
+					0, 0, 0, 0, 0, 0, 0, "frozen_hard_tier_reaction_aot_compact");
+			}
+			var reactionResult = _facade.DecideReaction(
                 reactionState,
                 reactionPayload.ReactionTileType,
                 reactionPayload.CanHu,
@@ -505,9 +520,39 @@ public partial class SichuanCSharpRuntime : Node
     {
         var stopwatch = Stopwatch.StartNew();
         var beforeBelief = SichuanBeliefEngine.GetDiagnostics();
-        var state = BuildState(payload);
-        SichuanDecisionResult result;
-        result = _facade.DecideDiscardCached(state, forceLightweight: payload.MobileSpeedMode || payload.ForceLightweight);
+		var state = BuildState(payload);
+		if (IsFrozenPolicy(payload))
+		{
+			var frozenTile = _frozenPolicy.DecideDiscard(state);
+			stopwatch.Stop();
+			return new
+			{
+				ok = true,
+				action = "discard",
+				tileType = frozenTile,
+				gangSubtype = string.Empty,
+				score = 0.0,
+				shanten = 0,
+				ukeire = 0,
+				liveUkeire = 0,
+				winProbability = 0.0,
+				dealInProbability = 0.0,
+				searchUsed = false,
+				searchSimulations = 0,
+				currentRoutes = Array.Empty<string>(),
+				mobileSpeedMode = payload.MobileSpeedMode || payload.ForceLightweight,
+				forceLightweight = payload.ForceLightweight,
+				compactResult = payload.CompactResult,
+				elapsedMs = stopwatch.ElapsedMilliseconds,
+				reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+				candidateScores = new Dictionary<string, double>(),
+				candidates = Array.Empty<object>()
+			};
+		}
+		SichuanDecisionResult result;
+		result = _facade.DecideDiscardCached(state, forceLightweight: payload.MobileSpeedMode || payload.ForceLightweight);
+		var selectedTileType = result.Action.TileType;
+		var selectedDetail = result.Candidates.FirstOrDefault(item => item.TileType == selectedTileType);
         stopwatch.Stop();
         var beliefMetrics = BuildBeliefMetrics(beforeBelief, SichuanBeliefEngine.GetDiagnostics());
         var cacheSnapshot = _facade.GetTurnCacheSnapshot();
@@ -520,13 +565,13 @@ public partial class SichuanCSharpRuntime : Node
         return new
         {
             ok = true,
-            action = result.Action.ActionType.ToString().ToLowerInvariant(),
-            tileType = result.Action.TileType,
+			action = "discard",
+			tileType = selectedTileType,
             gangSubtype = result.GangSubtype,
-            score = result.Action.Score,
-            shanten = result.Shanten,
-            ukeire = result.Ukeire,
-            liveUkeire = result.LiveUkeire,
+			score = selectedDetail?.Score ?? result.Action.Score,
+			shanten = selectedDetail?.Shanten ?? result.Shanten,
+			ukeire = selectedDetail?.Ukeire ?? result.Ukeire,
+			liveUkeire = selectedDetail?.LiveUkeire ?? result.LiveUkeire,
             winProbability = result.WinProbability,
             dealInProbability = result.DealInProbability,
             searchUsed = result.SearchUsed,
@@ -573,7 +618,7 @@ public partial class SichuanCSharpRuntime : Node
             mobileSpeedMode = payload.MobileSpeedMode || payload.ForceLightweight,
             forceLightweight = payload.ForceLightweight,
             compactResult = payload.CompactResult,
-            reasons = result.Reasons,
+			reasons = result.Reasons,
             candidateScores = result.CandidateScores,
             candidates = candidateSource
         };
@@ -691,12 +736,40 @@ public partial class SichuanCSharpRuntime : Node
             reasons = item.Reasons
         };
 
-    private object BuildReactionObject(ReactionPayload payload)
-    {
+	private object BuildReactionObject(ReactionPayload payload)
+	{
         var stopwatch = Stopwatch.StartNew();
         var beforeBelief = SichuanBeliefEngine.GetDiagnostics();
-        var state = BuildState(payload);
-        SichuanReactionDecisionResult result;
+		var state = BuildState(payload);
+		if (IsFrozenPolicy(payload))
+		{
+			var action = _frozenPolicy.DecideReaction(
+				state, payload.ReactionTileType, payload.CanHu, payload.CanPeng, payload.CanGang, payload.MandatoryGang);
+			stopwatch.Stop();
+			return new
+			{
+				ok = true,
+				action = action.ToString().ToLowerInvariant(),
+				tileType = payload.ReactionTileType,
+				score = 0,
+				reason = "测试冻结基线",
+				shantenAfter = 0,
+				ukeireAfter = 0,
+				liveUkeireAfter = 0,
+				currentShanten = 0,
+				currentLiveUkeire = 0,
+				threatLevel = 0,
+				roundStage = 0,
+				roundStageLabel = "冻结",
+				maxReadyPosterior = 0.0,
+				reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+				actionScores = new Dictionary<string, double> { [action.ToString().ToLowerInvariant()] = 0 },
+				elapsedMs = stopwatch.ElapsedMilliseconds,
+				mobileSpeedMode = false,
+				backendMode = "frozen_hard_tier_v1"
+			};
+		}
+		SichuanReactionDecisionResult result;
         result = _facade.DecideReaction(
             state,
             payload.ReactionTileType,
@@ -1375,7 +1448,7 @@ public partial class SichuanCSharpRuntime : Node
         return $"T{tileType}";
     }
 
-    private class DiscardPayload
+	private class DiscardPayload
     {
         public int SeatIndex { get; set; }
         public int DealerSeat { get; set; }
@@ -1396,6 +1469,7 @@ public partial class SichuanCSharpRuntime : Node
 		public List<bool> ActiveSeats { get; set; } = new();
 		public long EventVersion { get; set; }
 		public string InformationMode { get; set; } = "public";
+		public string PolicyVariant { get; set; } = "current";
         public int[] Hand18 { get; set; } = Array.Empty<int>();
         public int[] Visible18 { get; set; } = Array.Empty<int>();
         public int[] Remaining18 { get; set; } = Array.Empty<int>();
@@ -1417,7 +1491,10 @@ public partial class SichuanCSharpRuntime : Node
         public bool ForceLightweight { get; set; }
         public bool MobileSpeedMode { get; set; }
         public bool CompactResult { get; set; }
-    }
+	}
+
+	private static bool IsFrozenPolicy(DiscardPayload payload)
+		=> string.Equals(payload.PolicyVariant, "frozen_hard_tier_v1", StringComparison.OrdinalIgnoreCase);
 
     private sealed class ReactionPayload : DiscardPayload
     {

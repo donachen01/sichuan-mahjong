@@ -1,0 +1,4980 @@
+{
+	"benchmark_mode": "paired_policy_rotation",
+	"candidate_policy": "bone_ash_current",
+	"baseline_policy": "frozen_hard_tier_v1",
+	"deals": 40,
+	"games": 160,
+	"seed_base": 20260712,
+	"candidate_average_delta": 0.14375,
+	"candidate_positive_rate": 0.4625,
+	"candidate_delta_ci_low": -0.39375,
+	"candidate_delta_ci_high": 0.68125,
+	"forced_stop_games": 0,
+	"ledger_failure_games": 0,
+	"promotion_gate_passed": false,
+	"gate_reasons": [
+		"候选平均净分 95% 置信区间下界未高于 0"
+	],
+	"game_results": [
+		{
+			"deal": 1,
+			"seed": 20260712,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 1,
+			"seed": 20260712,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 4,
+				"1": -1,
+				"2": -5,
+				"3": 2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 1,
+			"seed": 20260712,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": -1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 1,
+			"seed": 20260712,
+			"candidate_seat": 3,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": 4,
+				"1": -2,
+				"2": -4,
+				"3": 2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 2,
+			"seed": 20261721,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": 0,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 1,
+				"3": -1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 76,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 2,
+			"seed": 20261721,
+			"candidate_seat": 1,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -4,
+				"1": 3,
+				"2": 4,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -1,
+				"2": 2,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 2,
+			"seed": 20261721,
+			"candidate_seat": 2,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 7,
+				"1": -5,
+				"2": 0,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 3,
+				"1": -1,
+				"2": -1,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 2,
+			"seed": 20261721,
+			"candidate_seat": 3,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 7,
+				"1": -5,
+				"2": 0,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 3,
+				"1": -1,
+				"2": -1,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 3,
+			"seed": 20262730,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -6,
+				"2": 7,
+				"3": -2
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": 6,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 3,
+			"seed": 20262730,
+			"candidate_seat": 1,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 1,
+				"1": 0,
+				"2": -3,
+				"3": 2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 3,
+			"seed": 20262730,
+			"candidate_seat": 2,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": 2,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 4,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 64,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 3,
+			"seed": 20262730,
+			"candidate_seat": 3,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 2,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 4,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 4,
+			"seed": 20263739,
+			"candidate_seat": 0,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -1,
+				"1": 0,
+				"2": 0,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 4,
+			"seed": 20263739,
+			"candidate_seat": 1,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": 0,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 4,
+			"seed": 20263739,
+			"candidate_seat": 2,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -3,
+				"1": -1,
+				"2": 3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 54,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 4,
+			"seed": 20263739,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -1,
+				"1": 0,
+				"2": 0,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 5,
+			"seed": 20264748,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 15,
+				"2": -6,
+				"3": -5
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 52,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 5,
+			"seed": 20264748,
+			"candidate_seat": 1,
+			"candidate_delta": 15.0,
+			"score_changes": {
+				"0": -4,
+				"1": 15,
+				"2": -6,
+				"3": -5
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 52,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 5,
+			"seed": 20264748,
+			"candidate_seat": 2,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": -4,
+				"1": 15,
+				"2": -6,
+				"3": -5
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 53,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 5,
+			"seed": 20264748,
+			"candidate_seat": 3,
+			"candidate_delta": -5.0,
+			"score_changes": {
+				"0": -4,
+				"1": 15,
+				"2": -6,
+				"3": -5
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 52,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 6,
+			"seed": 20265757,
+			"candidate_seat": 0,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": -6,
+				"1": 3,
+				"2": 1,
+				"3": 2
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": -4,
+				"1": 4,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 6,
+			"seed": 20265757,
+			"candidate_seat": 1,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": -1,
+				"1": 2,
+				"2": 2,
+				"3": -3
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 3,
+				"2": 1,
+				"3": -3
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 6,
+			"seed": 20265757,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -2,
+				"1": -3,
+				"2": 1,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": -2,
+				"1": -2,
+				"2": 0,
+				"3": 4
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 6,
+			"seed": 20265757,
+			"candidate_seat": 3,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": -1,
+				"1": 0,
+				"2": 1,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 7,
+			"seed": 20266766,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": -3,
+				"2": 12,
+				"3": -5
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 6,
+				"3": -4
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 7,
+			"seed": 20266766,
+			"candidate_seat": 1,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": -5,
+				"1": 2,
+				"2": -2,
+				"3": 5
+			},
+			"gang_net": {
+				"0": -4,
+				"1": 1,
+				"2": -2,
+				"3": 5
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 7,
+			"seed": 20266766,
+			"candidate_seat": 2,
+			"candidate_delta": -5.0,
+			"score_changes": {
+				"0": -1,
+				"1": 2,
+				"2": -5,
+				"3": 4
+			},
+			"gang_net": {
+				"0": -4,
+				"1": 1,
+				"2": 0,
+				"3": 3
+			},
+			"cha_jiao_net": {
+				"0": 4,
+				"1": 0,
+				"2": -5,
+				"3": 1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 7,
+			"seed": 20266766,
+			"candidate_seat": 3,
+			"candidate_delta": 6.0,
+			"score_changes": {
+				"0": 2,
+				"1": -8,
+				"2": 0,
+				"3": 6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 8,
+			"seed": 20267775,
+			"candidate_seat": 0,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -1,
+				"1": -3,
+				"2": 3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 8,
+			"seed": 20267775,
+			"candidate_seat": 1,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -1,
+				"1": -3,
+				"2": 3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 8,
+			"seed": 20267775,
+			"candidate_seat": 2,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -3,
+				"1": -2,
+				"2": 4,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 8,
+			"seed": 20267775,
+			"candidate_seat": 3,
+			"candidate_delta": 6.0,
+			"score_changes": {
+				"0": -2,
+				"1": -4,
+				"2": 0,
+				"3": 6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 63,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 9,
+			"seed": 20268784,
+			"candidate_seat": 0,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": 4,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 76,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 9,
+			"seed": 20268784,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": 6,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 9,
+			"seed": 20268784,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 0,
+				"1": -1,
+				"2": 1,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 2,
+				"1": -2,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 9,
+			"seed": 20268784,
+			"candidate_seat": 3,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": -1,
+				"1": -1,
+				"2": 4,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 10,
+			"seed": 20269793,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 4,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 10,
+			"seed": 20269793,
+			"candidate_seat": 1,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": -3,
+				"1": -2,
+				"2": 4,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 10,
+			"seed": 20269793,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -4,
+				"1": 4,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 10,
+			"seed": 20269793,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -4,
+				"1": 4,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 11,
+			"seed": 20270802,
+			"candidate_seat": 0,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 3,
+				"2": 1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 36,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 11,
+			"seed": 20270802,
+			"candidate_seat": 1,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 3,
+				"2": 1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 36,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 11,
+			"seed": 20270802,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -5,
+				"1": 6,
+				"2": 1,
+				"3": -2
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 0,
+				"2": 2,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 11,
+			"seed": 20270802,
+			"candidate_seat": 3,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": -3,
+				"1": 6,
+				"2": 3,
+				"3": -6
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 0,
+				"2": 4,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": 0,
+				"2": 0,
+				"3": -1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 69,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 12,
+			"seed": 20271811,
+			"candidate_seat": 0,
+			"candidate_delta": -7.0,
+			"score_changes": {
+				"0": -7,
+				"1": -5,
+				"2": 8,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 12,
+			"seed": 20271811,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 2,
+				"1": 1,
+				"2": -4,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 12,
+			"seed": 20271811,
+			"candidate_seat": 2,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": 2,
+				"1": -8,
+				"2": 2,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 4,
+				"1": -8,
+				"2": 4,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 12,
+			"seed": 20271811,
+			"candidate_seat": 3,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -6,
+				"1": 0,
+				"2": 2,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 13,
+			"seed": 20272820,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": 5,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 5,
+				"1": -1,
+				"2": -1,
+				"3": -3
+			},
+			"cha_jiao_net": {
+				"0": -2,
+				"1": 1,
+				"2": 0,
+				"3": 1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 13,
+			"seed": 20272820,
+			"candidate_seat": 1,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 1,
+				"1": 0,
+				"2": 2,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": -1,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 13,
+			"seed": 20272820,
+			"candidate_seat": 2,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 0,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 13,
+			"seed": 20272820,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -3,
+				"1": -2,
+				"2": 6,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": -1,
+				"1": 1,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 14,
+			"seed": 20273829,
+			"candidate_seat": 0,
+			"candidate_delta": -7.0,
+			"score_changes": {
+				"0": -7,
+				"1": 1,
+				"2": -1,
+				"3": 7
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 14,
+			"seed": 20273829,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -7,
+				"1": 1,
+				"2": -1,
+				"3": 7
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 14,
+			"seed": 20273829,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -7,
+				"1": 1,
+				"2": -1,
+				"3": 7
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 14,
+			"seed": 20273829,
+			"candidate_seat": 3,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -1,
+				"1": -4,
+				"2": 1,
+				"3": 4
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": -1,
+				"3": 3
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 15,
+			"seed": 20274838,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": -2,
+				"2": -2,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 15,
+			"seed": 20274838,
+			"candidate_seat": 1,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -3,
+				"1": 4,
+				"2": -5,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 4,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 15,
+			"seed": 20274838,
+			"candidate_seat": 2,
+			"candidate_delta": -5.0,
+			"score_changes": {
+				"0": -3,
+				"1": 4,
+				"2": -5,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 4,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 53,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 15,
+			"seed": 20274838,
+			"candidate_seat": 3,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -2,
+				"1": 6,
+				"2": -1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 4,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 74,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 16,
+			"seed": 20275847,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 2,
+				"2": -7,
+				"3": 4
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 4,
+				"2": -1,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 16,
+			"seed": 20275847,
+			"candidate_seat": 1,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": -2,
+				"1": 0,
+				"2": -4,
+				"3": 6
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 2,
+				"2": -1,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 16,
+			"seed": 20275847,
+			"candidate_seat": 2,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -2,
+				"1": 0,
+				"2": -4,
+				"3": 6
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 2,
+				"2": -1,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 16,
+			"seed": 20275847,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -2,
+				"1": 4,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": -3,
+				"1": 4,
+				"2": -1,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 17,
+			"seed": 20276856,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": -3,
+				"2": 0,
+				"3": 3
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": -1,
+				"3": 3
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 51,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 17,
+			"seed": 20276856,
+			"candidate_seat": 1,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": -2,
+				"3": 3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 17,
+			"seed": 20276856,
+			"candidate_seat": 2,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": -2,
+				"3": 3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 17,
+			"seed": 20276856,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 3,
+				"1": -4,
+				"2": 0,
+				"3": 1
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": -1,
+				"3": 3
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 50,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 18,
+			"seed": 20277865,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 6,
+				"2": -1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 55,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 18,
+			"seed": 20277865,
+			"candidate_seat": 1,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": -1,
+				"3": 2
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 18,
+			"seed": 20277865,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -3,
+				"2": -1,
+				"3": 3
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 18,
+			"seed": 20277865,
+			"candidate_seat": 3,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -1,
+				"1": -1,
+				"2": -1,
+				"3": 3
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 19,
+			"seed": 20278874,
+			"candidate_seat": 0,
+			"candidate_delta": -5.0,
+			"score_changes": {
+				"0": -5,
+				"1": -2,
+				"2": 1,
+				"3": 6
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 19,
+			"seed": 20278874,
+			"candidate_seat": 1,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": 7,
+				"1": -6,
+				"2": -7,
+				"3": 6
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 52,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 19,
+			"seed": 20278874,
+			"candidate_seat": 2,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": 7,
+				"1": -7,
+				"2": -6,
+				"3": 6
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 52,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 19,
+			"seed": 20278874,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 2,
+				"1": 0,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 49,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 20,
+			"seed": 20279883,
+			"candidate_seat": 0,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -1,
+				"1": 4,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 38,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 20,
+			"seed": 20279883,
+			"candidate_seat": 1,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -1,
+				"1": 4,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 39,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 20,
+			"seed": 20279883,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -1,
+				"1": 4,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 38,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 20,
+			"seed": 20279883,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -1,
+				"1": -4,
+				"2": 6,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 21,
+			"seed": 20280892,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -2,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 21,
+			"seed": 20280892,
+			"candidate_seat": 1,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 6,
+				"1": 0,
+				"2": -2,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 21,
+			"seed": 20280892,
+			"candidate_seat": 2,
+			"candidate_delta": -6.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": -6,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 1,
+				"2": -1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 69,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 21,
+			"seed": 20280892,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -2,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 22,
+			"seed": 20281901,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": 2,
+				"2": -1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 6,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 2,
+				"1": -3,
+				"2": 1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 72,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 22,
+			"seed": 20281901,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 3,
+				"1": 1,
+				"2": 0,
+				"3": -4
+			},
+			"gang_net": {
+				"0": -3,
+				"1": 5,
+				"2": 1,
+				"3": -3
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": -1,
+				"2": 1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 69,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 22,
+			"seed": 20281901,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -6,
+				"1": 4,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 2,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 22,
+			"seed": 20281901,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -1,
+				"2": 1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -1,
+				"2": 2,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 76,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 23,
+			"seed": 20282910,
+			"candidate_seat": 0,
+			"candidate_delta": 6.0,
+			"score_changes": {
+				"0": 6,
+				"1": -4,
+				"2": -4,
+				"3": 2
+			},
+			"gang_net": {
+				"0": 4,
+				"1": -2,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 23,
+			"seed": 20282910,
+			"candidate_seat": 1,
+			"candidate_delta": 5.0,
+			"score_changes": {
+				"0": 5,
+				"1": 5,
+				"2": -7,
+				"3": -3
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 3,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 23,
+			"seed": 20282910,
+			"candidate_seat": 2,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": -2,
+				"3": 3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -1,
+				"2": -1,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 63,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 23,
+			"seed": 20282910,
+			"candidate_seat": 3,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": 5,
+				"1": 5,
+				"2": -7,
+				"3": -3
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 3,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 24,
+			"seed": 20283919,
+			"candidate_seat": 0,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -3,
+				"1": -1,
+				"2": 0,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 48,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 24,
+			"seed": 20283919,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -1,
+				"2": -3,
+				"3": 3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": -2,
+				"3": 4
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 48,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 24,
+			"seed": 20283919,
+			"candidate_seat": 2,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": -3,
+				"1": -1,
+				"2": 0,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 48,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 24,
+			"seed": 20283919,
+			"candidate_seat": 3,
+			"candidate_delta": 8.0,
+			"score_changes": {
+				"0": 0,
+				"1": -1,
+				"2": -7,
+				"3": 8
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 25,
+			"seed": 20284928,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 57,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 25,
+			"seed": 20284928,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -4,
+				"1": -1,
+				"2": -1,
+				"3": 6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 25,
+			"seed": 20284928,
+			"candidate_seat": 2,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": -2,
+				"3": 5
+			},
+			"gang_net": {
+				"0": -1,
+				"1": -1,
+				"2": 3,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 25,
+			"seed": 20284928,
+			"candidate_seat": 3,
+			"candidate_delta": 6.0,
+			"score_changes": {
+				"0": -4,
+				"1": -1,
+				"2": -1,
+				"3": 6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 60,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 26,
+			"seed": 20285937,
+			"candidate_seat": 0,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": 3,
+				"1": 0,
+				"2": -4,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 26,
+			"seed": 20285937,
+			"candidate_seat": 1,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": 1,
+				"1": 3,
+				"2": -4,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 2,
+				"2": -1,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 26,
+			"seed": 20285937,
+			"candidate_seat": 2,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -2,
+				"1": -3,
+				"2": 4,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 26,
+			"seed": 20285937,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -1,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 27,
+			"seed": 20286946,
+			"candidate_seat": 0,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 4,
+				"2": 1,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 72,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 27,
+			"seed": 20286946,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -1,
+				"1": 1,
+				"2": 1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 71,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 27,
+			"seed": 20286946,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 4,
+				"1": -3,
+				"2": -1,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 3,
+				"1": -1,
+				"2": -1,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 27,
+			"seed": 20286946,
+			"candidate_seat": 3,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -6,
+				"1": 4,
+				"2": -1,
+				"3": 3
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 0,
+				"2": -2,
+				"3": 4
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 28,
+			"seed": 20287955,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 1,
+				"2": -1,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 64,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 28,
+			"seed": 20287955,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -4,
+				"1": 1,
+				"2": -3,
+				"3": 6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 28,
+			"seed": 20287955,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 6,
+				"1": -6,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": -2,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 28,
+			"seed": 20287955,
+			"candidate_seat": 3,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -5,
+				"3": 4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": -2,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 29,
+			"seed": 20288964,
+			"candidate_seat": 0,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -1,
+				"1": -5,
+				"2": 6,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 34,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 29,
+			"seed": 20288964,
+			"candidate_seat": 1,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 3,
+				"2": -3,
+				"3": 3
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 2,
+				"2": -2,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": 0,
+				"2": -1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 29,
+			"seed": 20288964,
+			"candidate_seat": 2,
+			"candidate_delta": 6.0,
+			"score_changes": {
+				"0": -1,
+				"1": -5,
+				"2": 6,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 34,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 29,
+			"seed": 20288964,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 0,
+				"2": -2,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 45,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 30,
+			"seed": 20289973,
+			"candidate_seat": 0,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": -4,
+				"3": 7
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 30,
+			"seed": 20289973,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": -4,
+				"3": 7
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 64,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 30,
+			"seed": 20289973,
+			"candidate_seat": 2,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": -4,
+				"3": 7
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 64,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 30,
+			"seed": 20289973,
+			"candidate_seat": 3,
+			"candidate_delta": 7.0,
+			"score_changes": {
+				"0": -2,
+				"1": -1,
+				"2": -4,
+				"3": 7
+			},
+			"gang_net": {
+				"0": -2,
+				"1": -2,
+				"2": -2,
+				"3": 6
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 64,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 31,
+			"seed": 20290982,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 0,
+				"2": 1,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 70,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 31,
+			"seed": 20290982,
+			"candidate_seat": 1,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": 1,
+				"1": 4,
+				"2": 1,
+				"3": -6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 31,
+			"seed": 20290982,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 2,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 54,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 31,
+			"seed": 20290982,
+			"candidate_seat": 3,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": 1,
+				"1": 2,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 54,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 32,
+			"seed": 20291991,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -2,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": 0,
+				"2": -2,
+				"3": 1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 32,
+			"seed": 20291991,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -1,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": -1,
+				"3": 1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 32,
+			"seed": 20291991,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": -1,
+				"3": 0
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": -1,
+				"3": 1
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 32,
+			"seed": 20291991,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": -1,
+				"2": -1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 65,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 33,
+			"seed": 20293000,
+			"candidate_seat": 0,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": 3,
+				"1": -1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 2,
+				"1": 0,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": -1,
+				"2": -1,
+				"3": 2
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 33,
+			"seed": 20293000,
+			"candidate_seat": 1,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 3,
+				"1": -1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 2,
+				"1": 0,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": -1,
+				"2": -1,
+				"3": 2
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 33,
+			"seed": 20293000,
+			"candidate_seat": 2,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": 3,
+				"1": -1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 2,
+				"1": 0,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": -1,
+				"2": -1,
+				"3": 2
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 33,
+			"seed": 20293000,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 3,
+				"1": -1,
+				"2": -3,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 2,
+				"1": 0,
+				"2": -2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": -1,
+				"2": 1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 63,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 34,
+			"seed": 20294009,
+			"candidate_seat": 0,
+			"candidate_delta": 15.0,
+			"score_changes": {
+				"0": 15,
+				"1": -8,
+				"2": -1,
+				"3": -6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 1,
+				"2": 0,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 34,
+			"seed": 20294009,
+			"candidate_seat": 1,
+			"candidate_delta": -7.0,
+			"score_changes": {
+				"0": 4,
+				"1": -7,
+				"2": 4,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 1,
+				"2": 0,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 34,
+			"seed": 20294009,
+			"candidate_seat": 2,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 15,
+				"1": -8,
+				"2": -1,
+				"3": -6
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 1,
+				"2": 0,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 56,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 34,
+			"seed": 20294009,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": 4,
+				"1": -7,
+				"2": 4,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 1,
+				"2": 0,
+				"3": -1
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 35,
+			"seed": 20295018,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": 1,
+				"2": 1,
+				"3": -2
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 50,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 35,
+			"seed": 20295018,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 35,
+			"seed": 20295018,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 61,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 35,
+			"seed": 20295018,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 0,
+				"1": -2,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": -2,
+				"2": 1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 63,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 36,
+			"seed": 20296027,
+			"candidate_seat": 0,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 0,
+				"2": 0,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 43,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 36,
+			"seed": 20296027,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 2,
+				"1": 0,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 36,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 36,
+			"seed": 20296027,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 1,
+				"1": 1,
+				"2": 1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 38,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 36,
+			"seed": 20296027,
+			"candidate_seat": 3,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -2,
+				"1": 6,
+				"2": -1,
+				"3": -3
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 0,
+				"2": 0,
+				"3": 2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 33,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 37,
+			"seed": 20297036,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 7,
+				"2": -2,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 6,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 50,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 37,
+			"seed": 20297036,
+			"candidate_seat": 1,
+			"candidate_delta": 7.0,
+			"score_changes": {
+				"0": -4,
+				"1": 7,
+				"2": -2,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 6,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 51,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 37,
+			"seed": 20297036,
+			"candidate_seat": 2,
+			"candidate_delta": -2.0,
+			"score_changes": {
+				"0": 0,
+				"1": 7,
+				"2": -2,
+				"3": -5
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 6,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 55,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 37,
+			"seed": 20297036,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -4,
+				"1": 7,
+				"2": -2,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 6,
+				"2": -2,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 51,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 38,
+			"seed": 20298045,
+			"candidate_seat": 0,
+			"candidate_delta": 0.0,
+			"score_changes": {
+				"0": 0,
+				"1": -2,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 2,
+				"1": -2,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 38,
+			"seed": 20298045,
+			"candidate_seat": 1,
+			"candidate_delta": 16.0,
+			"score_changes": {
+				"0": -18,
+				"1": 16,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 62,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 38,
+			"seed": 20298045,
+			"candidate_seat": 2,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -1,
+				"1": -1,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 38,
+			"seed": 20298045,
+			"candidate_seat": 3,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": -1,
+				"1": -1,
+				"2": 1,
+				"3": 1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 58,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 39,
+			"seed": 20299054,
+			"candidate_seat": 0,
+			"candidate_delta": -4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 8,
+				"2": -3,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 4,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": 0,
+				"2": -1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 39,
+			"seed": 20299054,
+			"candidate_seat": 1,
+			"candidate_delta": 4.0,
+			"score_changes": {
+				"0": -4,
+				"1": 4,
+				"2": 1,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 0,
+				"2": 3,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 66,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 39,
+			"seed": 20299054,
+			"candidate_seat": 2,
+			"candidate_delta": 3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 1,
+				"2": 3,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -1,
+				"1": 0,
+				"2": 3,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 68,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 39,
+			"seed": 20299054,
+			"candidate_seat": 3,
+			"candidate_delta": -1.0,
+			"score_changes": {
+				"0": -4,
+				"1": 8,
+				"2": -3,
+				"3": -1
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 4,
+				"2": 0,
+				"3": -2
+			},
+			"cha_jiao_net": {
+				"0": 1,
+				"1": 0,
+				"2": -1,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 67,
+			"end_reason": "draw_wall_empty"
+		},
+		{
+			"deal": 40,
+			"seed": 20300063,
+			"candidate_seat": 0,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": -3,
+				"1": 6,
+				"2": -2,
+				"3": -1
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 59,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 40,
+			"seed": 20300063,
+			"candidate_seat": 1,
+			"candidate_delta": 1.0,
+			"score_changes": {
+				"0": 2,
+				"1": 1,
+				"2": 1,
+				"3": -4
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 0,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 53,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 40,
+			"seed": 20300063,
+			"candidate_seat": 2,
+			"candidate_delta": 2.0,
+			"score_changes": {
+				"0": 2,
+				"1": 1,
+				"2": 2,
+				"3": -5
+			},
+			"gang_net": {
+				"0": -2,
+				"1": 0,
+				"2": 2,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 55,
+			"end_reason": "battle_end"
+		},
+		{
+			"deal": 40,
+			"seed": 20300063,
+			"candidate_seat": 3,
+			"candidate_delta": -3.0,
+			"score_changes": {
+				"0": 1,
+				"1": -2,
+				"2": 4,
+				"3": -3
+			},
+			"gang_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"cha_jiao_net": {
+				"0": 0,
+				"1": 0,
+				"2": 0,
+				"3": 0
+			},
+			"score_sum": 0,
+			"gang_sum": 0,
+			"cha_jiao_sum": 0,
+			"ledger_balanced": true,
+			"forced_stop": false,
+			"steps": 39,
+			"end_reason": "battle_end"
+		}
+	]
+}
