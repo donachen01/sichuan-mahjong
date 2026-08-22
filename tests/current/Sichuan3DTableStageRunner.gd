@@ -53,7 +53,7 @@ func _run() -> void:
 	})
 	await process_frame
 	_verify_contract(stage, hand_counts, discard_counts, failures)
-	await _verify_center_wall_count_3d(stage, failures)
+	await _verify_center_wall_count_3d_neijiang(stage, failures)
 	_verify_hidden_hands(stage, failures)
 	_verify_hand_surface_and_upright_pose(stage, failures)
 	_verify_no_physical_wall(stage, failures)
@@ -187,7 +187,7 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 	if int(contract.get("self_pickable_count", -1)) != hand_counts[0]:
 		failures.append("every self-hand tile must remain pickable")
 	if int(contract.get("light_count", -1)) != 2 or int(contract.get("shadow_casting_light_count", -1)) != 1:
-		failures.append("mobile lighting budget must be two lights with one shadow caster")
+		failures.append("mobile lighting budget must keep the original two lights and one shadow caster")
 	if int(contract.get("mobile_directional_shadow_size", 0)) != 2048 \
 			or int(contract.get("mobile_soft_shadow_filter_quality", -1)) != 0 \
 			or float(contract.get("directional_shadow_max_distance", 0.0)) < 20.0 \
@@ -294,11 +294,11 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("right-player meld direction contract is missing")
 	if str(contract.get("far_meld_zone", "")) != "below_far_hand_not_right_player_band":
 		failures.append("far-player meld ownership zone contract is missing")
-	if str(contract.get("meld_source_feedback", "")) != "compact_sky_blue_flat_face_arrow_on_second_tile_without_seat_label":
-		failures.append("peng/gang source feedback must use the compact sky-blue face arrow without a seat label")
-	if str(contract.get("winning_source_feedback", "")) != "compact_sky_blue_flat_face_arrow_without_seat_label" \
+	if str(contract.get("meld_source_feedback", "")) != "centered_extruded_golden_direction_arrow_on_second_tile_without_seat_label":
+		failures.append("peng/gang source feedback must use a centered extruded golden direction arrow without a seat label")
+	if str(contract.get("winning_source_feedback", "")) != "centered_extruded_golden_direction_arrow_without_seat_label" \
 			or bool(contract.get("winning_source_text", true)):
-		failures.append("winning-source feedback must be a compact sky-blue arrow with no discarder text")
+		failures.append("winning-source feedback must be a centered extruded golden direction arrow with no discarder text")
 	if str(contract.get("tile_back_color", "")).to_upper() != SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false).to_upper():
 		failures.append("result and concealed-kong backs must use the normal dark-emerald tile-back color")
 	if str(contract.get("season_theme", "")) != "deep_emerald_refined_table":
@@ -309,37 +309,20 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("3D stage must preserve Blender PBR materials without runtime flat overrides")
 	if str(contract.get("discard_origin_policy", "")) != "upper_left_from_each_player_perspective":
 		failures.append("discard rivers must start from the upper-left in each player's perspective")
-	if str(contract.get("center_display_asset", "")) != "blender_authored_flush_glass_four_way_inlay":
-		failures.append("center graphic must expose the Blender-authored flush glass four-way inlay contract")
-	if str(contract.get("center_display_shape", "")) != "flush_chamfered_glass_inlay_with_circular_counter" \
-			or str(contract.get("center_display_material", "")) != "imported_blender_pbr_glass_matte_counter_graphite_bronze_and_vivid_red_lacquer":
-		failures.append("center display must use the flush imported Blender PBR glass inlay")
-	if str(contract.get("center_display_detail", "")) != "continuous_smoked_glass_with_matte_counter_graphite_hairlines_bronze_and_arc_cutout_vivid_red_active_sector" \
-			or str(contract.get("center_display_mobile_cost", "")) != "static_shadowless_imported_glb_no_process_animation_under_3000_triangles":
-		failures.append("center display must retain glossy glass detail within its static mobile budget")
-	if str(contract.get("center_display_source", "")) != "res://tools/3d/generate_sichuan_center_compass_v2.py" \
-			or int(contract.get("center_display_triangle_budget", -1)) != 1044 \
-			or int(contract.get("center_display_material_count", -1)) != 5 \
-			or int(contract.get("center_display_object_count", -1)) != 9 \
+	if str(contract.get("center_display_shape", "")) != "single_extruded_deep_jade_body_with_four_flush_colour_fields_and_single_gold_ring" \
+			or str(contract.get("center_display_material", "")) != "imported_blender_pbr_deep_jade_signal_yellow_gold_ring_and_matte_counter":
+		failures.append("center display must use the Neijiang single-ring deep-jade instrument")
+	if contract.get("center_direction_labels", ["unexpected"]) != [] \
+			or str(contract.get("center_component_boundaries", "")).find("without_internal_physical_bevel_seams") < 0 \
+			or str(contract.get("center_active_color_hex", "")) != "F4C430" \
+			or str(contract.get("center_inactive_color_hex", "")) != "3A644D":
+		failures.append("center display must remain numeric-only with seam-free signal-yellow/deep-jade fields")
+	if str(contract.get("center_display_source", "")) != "res://tools/3d/generate_neijiang_center_compass_v2.py" \
+			or int(contract.get("center_display_triangle_budget", -1)) != 5440 \
+			or int(contract.get("center_display_material_count", -1)) != 7 \
+			or int(contract.get("center_display_object_count", -1)) != 13 \
 			or bool(contract.get("center_display_runtime_mesh_generation", true)):
-		failures.append("center display Blender provenance or mobile geometry budget contract mismatch")
-	if str(contract.get("center_glass_finish", "")) != "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission" \
-			or str(contract.get("center_counter_finish", "")) != "opaque_matte_smoked_jade_without_emission_or_transmission" \
-			or str(contract.get("center_outer_keyline", "")) != "removed_clean_glass_and_recess_silhouette" \
-			or float(contract.get("center_inlay_max_rise_world", INF)) > 0.0061 \
-			or str(contract.get("wall_count_surface_plane", "")) != "flush_coplanar_glass_inlay_without_visible_sidewalls_at_felt_y_0_155":
-		failures.append("center display must remain a glossy glass inlay flush with the felt")
-	if contract.get("center_direction_labels", []) != ["东", "南", "西", "北"] \
-			or str(contract.get("center_component_boundaries", "")) != "continuous_glass_plane_separated_by_coplanar_graphite_hairlines_without_colour_overlap" \
-			or contract.get("center_active_encoding", []) != ["opaque_vivid_red_main_field_and_both_chamfer_fills", "warm_ivory_direction_glyph_with_dark_outline"] \
-			or str(contract.get("center_active_color_hex", "")) != "A13D2D" \
-			or str(contract.get("center_active_geometry", "")) != "segmented_coplanar_top_faces_with_circular_counter_cutout_without_extrusion_or_dark_sidewalls" \
-			or absf(float(contract.get("center_counter_bezel_radius", 0.0)) - 0.455) > 0.0001 \
-			or absf(float(contract.get("center_active_counter_cutout_radius", 0.0)) - 0.460) > 0.0001 \
-			or absf(float(contract.get("center_separator_corner_angle_degrees", 0.0)) - 27.75854) > 0.0001 \
-			or contract.get("center_active_sector_spans_degrees", []) != [124.48292, 55.51708, 124.48292, 55.51708] \
-			or str(contract.get("center_counter_highlight", "")) != "restrained_antique_bronze_high_roughness_low_clearcoat":
-		failures.append("center turn panel lost its four directions, separator-aligned coverage, or redundant active-turn encoding")
+		failures.append("center display Neijiang asset provenance or mobile geometry contract mismatch")
 	if str(contract.get("self_hand_pitch_policy", "")) != "compact_visible_seam_0_83" \
 			or absf(float(contract.get("self_hand_world_pitch", 0.0)) - 0.83) > 0.001:
 		failures.append("human hand must use the compact 0.83 centre pitch with a visible seam")
@@ -784,7 +767,41 @@ func _verify_latest_marker(stage: SichuanTableStage3D, failures: Array[String]) 
 		failures.append("exactly one latest-discard marker must remain visible")
 
 
-func _verify_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[String]) -> void:
+func _verify_center_wall_count_3d_neijiang(stage: SichuanTableStage3D, failures: Array[String]) -> void:
+	var anchor := stage.get_node_or_null("CenterWallCount3DAnchor") as Node3D
+	var label := stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DText") as Label3D
+	var model := stage.get_node_or_null("CenterWallCount3DAnchor/PremiumBlenderCenterPanel") as Node3D
+	if anchor == null or label == null or model == null:
+		failures.append("Neijiang-style center must mount a physical instrument and 3D wall count")
+		return
+	if label.text != "40" or not label.modulate.is_equal_approx(Color("FFF7DE")) \
+			or label.outline_size < 4 or label.outline_size > 6:
+		failures.append("Neijiang-style center wall count text contract mismatch")
+	if not stage.get("center_direction_labels").is_empty():
+		failures.append("Neijiang-style center must not add direction glyph labels")
+	for mesh_name in ["CenterRecessBed", "DirectionBase0", "CounterSingleGoldRing", "CounterNumberPlate"]:
+		if model.find_child(mesh_name, true, false) as MeshInstance3D == null:
+			failures.append("Neijiang center instrument is missing authored mesh %s" % mesh_name)
+	for extra_base_index in range(1, 4):
+		if model.find_child("DirectionBase%d" % extra_base_index, true, false) != null:
+			failures.append("Neijiang center reintroduced a separate physical base at DirectionBase%d" % extra_base_index)
+	var segments: Array[MeshInstance3D] = stage.get("center_direction_active_overlays")
+	if segments.size() != 4:
+		failures.append("Neijiang center must expose four flush active overlays")
+	else:
+		var expected_segments := [2, 3, 0, 1]
+		for seat in range(4):
+			stage.call("_set_center_panel_state", 40, seat)
+			for index in range(4):
+				if segments[index].visible != (index == expected_segments[seat]):
+					failures.append("center seat %d must activate only segment %d" % [seat, expected_segments[seat]])
+		stage.call("_set_center_panel_state", 40, -1)
+	if absf(anchor.position.y - SichuanTableStage3D.TABLETOP_CONTACT_Y) > 0.001 \
+			or not anchor.rotation_degrees.is_zero_approx():
+		failures.append("Neijiang-style center must remain fitted to the tabletop without animation")
+
+
+func _verify_legacy_center_wall_count_3d(stage: SichuanTableStage3D, failures: Array[String]) -> void:
 	var anchor := stage.get_node_or_null("CenterWallCount3DAnchor") as Node3D
 	var label := stage.get_node_or_null("CenterWallCount3DAnchor/CenterWallCount3DText") as Label3D
 	if anchor == null or label == null:
@@ -1090,18 +1107,18 @@ func _verify_meld_source_arrows(stage: SichuanTableStage3D, failures: Array[Stri
 			failures.append("meld source marker must not show a seat label beside the peng/gang tiles")
 		var material := tile.winning_source_marker.get_surface_override_material(0) as StandardMaterial3D
 		if material == null or not material.albedo_color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR):
-			failures.append("meld source marker is not the requested sky-blue direction arrow")
-		elif material.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED or material.emission_enabled:
-			failures.append("meld source arrow must stay a flat sky-blue face marker without a lighting gradient")
+			failures.append("meld source marker is not the requested bright golden direction arrow")
+		elif not material.emission_enabled or material.metallic < 0.30 or not material.clearcoat_enabled:
+			failures.append("meld source arrow must reuse the same lit golden material as the center discard diamond")
 		if not tile.winning_source_marker.scale.is_equal_approx(Vector3.ONE):
 			failures.append("meld source arrow must retain its compact reference proportions")
 		var arrow_mesh := tile.winning_source_marker.mesh
-		if arrow_mesh == null or arrow_mesh.get_aabb().size.x > 0.10 or arrow_mesh.get_aabb().size.z > 0.13:
-			failures.append("meld source arrow must use the compact flat short-stem reference silhouette")
-		if tile.winning_source_marker.position.y < 0.375 or tile.winning_source_marker.position.y > 0.380:
+		if arrow_mesh == null or arrow_mesh.get_aabb().size.x < 0.12 or arrow_mesh.get_aabb().size.z < 0.19:
+			failures.append("meld source arrow must use the enlarged bright golden directional silhouette")
+		if tile.winning_source_marker.position.y < 0.250 or tile.winning_source_marker.position.y > 0.270:
 			failures.append("meld source arrow is not seated immediately above the marked tile face")
-		if absf(tile.winning_source_marker.position.z) > 0.08:
-			failures.append("meld source arrow is not centred above the marked tile")
+		if absf(tile.winning_source_marker.position.x) > 0.001 or absf(tile.winning_source_marker.position.z) > 0.001:
+			failures.append("meld source arrow is not centred on the marked tile")
 		var expected_tile_id := 30000 + owner_seat * 100 + 1
 		if tile.tile_id != expected_tile_id:
 			failures.append("seat %d meld arrow must be attached to the second/centre tile" % owner_seat)
@@ -1373,10 +1390,15 @@ func _verify_won_hand_and_source_arrow(stage: SichuanTableStage3D, original_coun
 					failures.append("winning-source arrow must not include discarder seat text")
 				var arrow_material := tile.winning_source_marker.get_surface_override_material(0) as StandardMaterial3D
 				if arrow_material == null or not arrow_material.albedo_color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR):
-					failures.append("winning-source arrow must use the same sky-blue color as meld arrows")
+					failures.append("winning-source arrow must use the same bright golden color as meld arrows")
+				elif not arrow_material.emission_enabled or arrow_material.metallic < 0.30 or not arrow_material.clearcoat_enabled:
+					failures.append("winning-source arrow must reuse the same lit golden material as the center discard diamond")
 				var arrow_mesh := tile.winning_source_marker.mesh
-				if arrow_mesh == null or arrow_mesh.get_aabb().size.x > 0.12 or arrow_mesh.get_aabb().size.z > 0.18:
-					failures.append("winning-source arrow is not the compact simplified silhouette")
+				if arrow_mesh == null or arrow_mesh.get_aabb().size.x < 0.14 or arrow_mesh.get_aabb().size.z < 0.22:
+					failures.append("winning-source arrow is not the enlarged bright golden directional silhouette")
+				if tile.winning_source_marker.position.y < 0.250 or tile.winning_source_marker.position.y > 0.270 \
+						or absf(tile.winning_source_marker.position.x) > 0.001 or absf(tile.winning_source_marker.position.z) > 0.001:
+					failures.append("winning-source arrow is not centered on the winning tile face")
 	if flat_revealed_count != original_count:
 		failures.append("won human hand must lay down all %d tiles, got %d" % [original_count, flat_revealed_count])
 	if arrow_count != 1:

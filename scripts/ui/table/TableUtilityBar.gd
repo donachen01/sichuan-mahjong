@@ -4,6 +4,7 @@ extends Control
 signal ai_pressed
 signal settings_pressed
 signal opponent_hands_pressed
+signal skin_pressed
 signal settlement_pressed
 signal next_round_pressed
 signal exit_pressed
@@ -15,7 +16,7 @@ const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
 const BUTTON_HEIGHT := 76.0
 const BUTTON_GAP := 12.0
 const EDGE_GAP := Vector2(24.0, 18.0)
-const COLLAPSED_WIDTH := 76.0
+const COLLAPSED_WIDTH := 96.0
 const EXPANDED_WIDTH := 184.0
 const EXIT_WIDTH := 156.0
 
@@ -23,6 +24,7 @@ const EXIT_WIDTH := 156.0
 @onready var toggle_button: Button = %ToggleButton
 @onready var settings_button: Button = %SettingsButton
 @onready var opponent_hands_button: Button = %OpponentHandsButton
+@onready var skin_button: Button = %SkinButton
 @onready var settlement_button: Button = %SettlementButton
 @onready var next_round_button: Button = %NextRoundButton
 @onready var exit_button: Button = %ExitButton
@@ -42,6 +44,7 @@ func _ready() -> void:
 	ai_button.pressed.connect(func() -> void: ai_pressed.emit())
 	settings_button.pressed.connect(func() -> void: settings_pressed.emit())
 	opponent_hands_button.pressed.connect(func() -> void: opponent_hands_pressed.emit())
+	skin_button.pressed.connect(func() -> void: skin_pressed.emit())
 	settlement_button.pressed.connect(func() -> void: settlement_pressed.emit())
 	next_round_button.pressed.connect(func() -> void: next_round_pressed.emit())
 	exit_button.pressed.connect(func() -> void: exit_pressed.emit())
@@ -55,7 +58,7 @@ func _ready() -> void:
 		button.add_theme_font_size_override("font_size", TABLE_THEME.font_size("utility", false))
 	# The compact entry is an icon, not body copy. Give its three strokes enough
 	# visual weight to remain immediately recognisable on a phone.
-	toggle_button.add_theme_font_size_override("font_size", 40)
+	toggle_button.add_theme_font_size_override("font_size", 46)
 	_apply_button_styles()
 	_apply_focus_navigation()
 	if not resized.is_connected(_layout_buttons):
@@ -93,6 +96,8 @@ func render(
 	settings_button.tooltip_text = "切换 AI 难度（当前：%s）" % preset_label
 	opponent_hands_button.text = "明牌 · %s" % ("开" if opponent_hands_are_visible else "关")
 	opponent_hands_button.tooltip_text = "是否显示三家 AI 手牌"
+	skin_button.text = "桌布皮肤"
+	skin_button.tooltip_text = "切换六套桌布皮肤"
 	exit_button.text = "退出游戏"
 	exit_button.tooltip_text = "确认后退出四川麻将"
 	_apply_collapsed_visibility()
@@ -133,6 +138,7 @@ func _apply_collapsed_visibility() -> void:
 	ai_button.visible = not collapsed
 	settings_button.visible = not collapsed
 	opponent_hands_button.visible = not collapsed
+	skin_button.visible = not collapsed
 	exit_button.visible = not collapsed
 	settlement_button.visible = not collapsed and round_is_complete and settlement_is_dismissed
 	next_round_button.visible = not collapsed and round_is_complete
@@ -155,6 +161,8 @@ func get_button(action: String) -> Button:
 			return settings_button
 		"opponent_hands":
 			return opponent_hands_button
+		"skin":
+			return skin_button
 		"settlement":
 			return settlement_button
 		"next_round":
@@ -188,6 +196,16 @@ func _layout_buttons() -> void:
 		# 退出是完整文字按钮并留在同一工具行，避免孤立的“×”被误认为缩进
 		# 图标；1365 宽基准下仍位于对家 HUD 左侧，不遮挡任何牌区。
 		_place_button(exit_button, Vector2(row_x, start.y), Vector2(EXIT_WIDTH, BUTTON_HEIGHT))
+	if skin_button.visible:
+		# Keep the established first-row tools clear of the opposite SeatHUD at the
+		# 1365x768 phone baseline. The skin chooser gets a dedicated second-row
+		# target, shifted right of the left SeatHUD's reserved lane.
+		var skin_x := maxf(start.x + COLLAPSED_WIDTH + BUTTON_GAP, size.x * 0.155 + 18.0)
+		_place_button(
+			skin_button,
+			Vector2(skin_x, start.y + BUTTON_HEIGHT + BUTTON_GAP),
+			Vector2(EXPANDED_WIDTH, BUTTON_HEIGHT)
+		)
 	var right_edge := size.x - safe_margins.z - EDGE_GAP.x
 	var round_action_x := right_edge
 	for button in [next_round_button, settlement_button]:
@@ -217,7 +235,7 @@ func _button_width(button: Button) -> float:
 		return 124.0
 	if button == settlement_button:
 		return 108.0
-	if button in [ai_button, settings_button, opponent_hands_button]:
+	if button in [ai_button, settings_button, opponent_hands_button, skin_button]:
 		return EXPANDED_WIDTH
 	return 100.0
 
@@ -250,11 +268,11 @@ func _apply_button_styles() -> void:
 
 
 func _all_buttons() -> Array[Button]:
-	return [toggle_button, ai_button, settings_button, opponent_hands_button, settlement_button, next_round_button, exit_button]
+	return [toggle_button, ai_button, settings_button, opponent_hands_button, skin_button, settlement_button, next_round_button, exit_button]
 
 
 func _apply_focus_navigation() -> void:
-	var drawer_order: Array[Button] = [toggle_button, ai_button, settings_button, opponent_hands_button, exit_button]
+	var drawer_order: Array[Button] = [toggle_button, ai_button, settings_button, opponent_hands_button, exit_button, skin_button]
 	for index in range(drawer_order.size()):
 		var button := drawer_order[index]
 		var previous := drawer_order[maxi(0, index - 1)]

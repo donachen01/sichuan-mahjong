@@ -423,7 +423,7 @@ func _verify_reveal_and_won_states(scene: Node, failures: Array[String]) -> void
 	else:
 		var arrow := compact_badge.get_child(0) as Polygon2D
 		if arrow == null or not arrow.color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR) or arrow.polygon.size() != 7:
-			failures.append("2D 胡牌来源箭头不是统一的天蓝色简化轮廓")
+			failures.append("2D 胡牌来源箭头不是统一的金黄色简化轮廓")
 	compact_badge.free()
 	if not (stage.get("self_hand_keys") as Array).is_empty():
 		failures.append("已胡手牌仍暴露出牌点击目标")

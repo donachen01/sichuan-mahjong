@@ -6,7 +6,9 @@ signal tile_pressed(tile_id: int)
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
 const TABLE_SCENE := preload("res://res/art/3d/sichuan_table_v2.glb")
 const CENTER_COMPASS_SCENE := preload("res://res/art/3d/sichuan_center_compass_v2.glb")
+const CENTER_NUMBER_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 const FALLBACK_TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
+const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 
 # Keep the original compact self-hand rhythm while preserving a real physical
 # seam. At the normal 1.94 scale each tile is 0.8148 world units wide, so 0.80
@@ -77,10 +79,10 @@ const DISCARD_GLOBAL_Z_SHIFT := -1.60
 # Authored TableFelt AABB top in the manufactured table asset. The turn panel's
 # low shell starts here so it reads as a fitted table component, not a HUD card.
 const TABLETOP_CONTACT_Y := 0.155
-const CENTER_PANEL_TOP_Y := 0.006
-const CENTER_COUNTER_BEZEL_RADIUS := 0.455
-const CENTER_ACTIVE_CUTOUT_RADIUS := 0.460
-const CENTER_SEPARATOR_CORNER_ANGLE_DEGREES := 27.75854
+const CENTER_PANEL_TOP_Y := 0.0635
+const CENTER_COUNTER_BEZEL_RADIUS := 0.505
+const CENTER_ACTIVE_CUTOUT_RADIUS := 0.510
+const CENTER_SEPARATOR_CORNER_ANGLE_DEGREES := 30.02940
 const UPRIGHT_HAND_CLEARANCE_Y := 0.012
 const CENTER_PANEL_DIRECTIONS := ["东", "南", "西", "北"]
 # Segment order is top, right, bottom, left. Seats are self, left, opposite,
@@ -133,6 +135,9 @@ var meld_tile_counts_by_seat: Array[int] = [0, 0, 0, 0]
 var discard_slots_by_seat: Array[Dictionary] = [{}, {}, {}, {}]
 var active_motion_tweens: Array[Tween] = []
 var last_desired_entries: Dictionary = {}
+var active_table_skin_id := SichuanTableSkinCatalog.DEFAULT_SKIN_ID
+var table_felt_materials: Array[StandardMaterial3D] = []
+var table_skin_texture_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -269,6 +274,68 @@ func get_camera() -> Camera3D:
 	return camera
 
 
+func apply_table_skin(skin_id: String) -> bool:
+	if not TABLE_SKIN_CATALOG.has_skin(skin_id):
+		return false
+	var skin: Dictionary = TABLE_SKIN_CATALOG.get_skin(skin_id)
+	var albedo := _load_table_skin_texture(skin_id, "albedo_2k.jpg")
+	var normal := _load_table_skin_texture(skin_id, "normal_2k.png")
+	var roughness_map := _load_table_skin_texture(skin_id, "roughness_2k.png")
+	if albedo == null or normal == null or roughness_map == null:
+		push_error("Table skin texture set is incomplete: %s" % skin_id)
+		return false
+	for felt_material in table_felt_materials:
+		if felt_material == null:
+			continue
+		felt_material.albedo_color = skin.get("albedo_tint", Color.WHITE)
+		felt_material.albedo_texture = albedo
+		felt_material.normal_enabled = true
+		felt_material.normal_texture = normal
+		felt_material.normal_scale = float(skin.get("normal_scale", 0.30))
+		felt_material.roughness = float(skin.get("roughness", 0.92))
+		felt_material.roughness_texture = roughness_map
+		felt_material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+		felt_material.metallic = 0.0
+		felt_material.uv1_scale = skin.get("uv_scale", Vector3(2.8, 2.8, 1.0))
+		felt_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		felt_material.anisotropy_enabled = true
+		felt_material.anisotropy = float(skin.get("anisotropy", 0.12))
+		felt_material.rim_enabled = false
+	active_table_skin_id = skin_id
+	return true
+
+
+func get_table_skin_id() -> String:
+	return active_table_skin_id
+
+
+func get_table_skin_contract() -> Dictionary:
+	var ids: Array[String] = []
+	for skin in TABLE_SKIN_CATALOG.all_skins():
+		ids.append(str(skin.get("id", "")))
+	return {
+		"active_skin_id": active_table_skin_id,
+		"skin_ids": ids,
+		"skin_count": ids.size(),
+		"felt_material_count": table_felt_materials.size(),
+		"material_target": "TableFelt",
+		"uses_displacement": false,
+		"gameplay_geometry_unchanged": true,
+		"table_transform_unchanged": true,
+		"tile_materials_unchanged": true,
+	}
+
+
+func _load_table_skin_texture(skin_id: String, filename: String) -> Texture2D:
+	var cache_key := "%s/%s" % [skin_id, filename]
+	if table_skin_texture_cache.has(cache_key):
+		return table_skin_texture_cache[cache_key] as Texture2D
+	var texture := ResourceLoader.load(TABLE_SKIN_CATALOG.texture_path(skin_id, filename)) as Texture2D
+	if texture != null:
+		table_skin_texture_cache[cache_key] = texture
+	return texture
+
+
 func _setup_world() -> void:
 	var world_environment := WorldEnvironment.new()
 	world_environment.name = "ClubWorldEnvironment"
@@ -348,7 +415,6 @@ func _setup_world() -> void:
 	fill_light.shadow_enabled = false
 	add_child(fill_light)
 
-
 func _setup_table() -> void:
 	var table := TABLE_SCENE.instantiate() as Node3D
 	if table == null:
@@ -366,6 +432,26 @@ func _setup_table() -> void:
 	# PBR materials.  Runtime flat-colour overrides are intentionally forbidden:
 	# they erase roughness/normal detail and caused the previous plastic table.
 	_preserve_imported_pbr_materials(table)
+	_configure_imported_table_meshes(table)
+	apply_table_skin(active_table_skin_id)
+
+
+func _configure_imported_table_meshes(node: Node) -> void:
+	if node is MeshInstance3D:
+		var table_mesh := node as MeshInstance3D
+		if table_mesh.name == "TableFelt":
+			for surface_index in range(table_mesh.get_surface_override_material_count()):
+				var imported_material := table_mesh.get_active_material(surface_index)
+				if imported_material is StandardMaterial3D:
+					var felt_material := imported_material.duplicate() as StandardMaterial3D
+					felt_material.resource_local_to_scene = true
+					felt_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+					felt_material.anisotropy_enabled = true
+					felt_material.rim_enabled = false
+					table_mesh.set_surface_override_material(surface_index, felt_material)
+					table_felt_materials.append(felt_material)
+	for child in node.get_children():
+		_configure_imported_table_meshes(child)
 
 
 func _setup_center_compass() -> void:
@@ -393,9 +479,33 @@ func _setup_center_wall_count() -> void:
 		center_wall_count_anchor.add_child(center_compass_model)
 		_preserve_imported_pbr_materials(center_compass_model)
 		_configure_imported_center_meshes(center_compass_model)
-		center_wall_count_surface = center_compass_model.find_child("CenterGlassInlay", true, false) as MeshInstance3D
-		center_wall_count_inset = center_compass_model.find_child("CounterGlassLens", true, false) as MeshInstance3D
-		center_glass_diamond = center_compass_model.find_child("CounterGlassLens", true, false) as MeshInstance3D
+		center_wall_count_surface = center_compass_model.find_child("DirectionBase0", true, false) as MeshInstance3D
+		center_wall_count_inset = center_compass_model.find_child("CounterNumberPlate", true, false) as MeshInstance3D
+		center_glass_diamond = center_compass_model.find_child("CounterNumberPlate", true, false) as MeshInstance3D
+		for mesh_value in center_compass_model.find_children("*", "MeshInstance3D", true, false):
+			var center_mesh := mesh_value as MeshInstance3D
+			if center_mesh != null:
+				center_mesh.layers |= 1 << 2
+		var center_glint := OmniLight3D.new()
+		center_glint.name = "CenterInstrumentGlint"
+		center_glint.position = Vector3(-0.72, 1.10, 0.58)
+		center_glint.light_color = Color("FFF0C8")
+		center_glint.light_energy = 0.26
+		center_glint.omni_range = 2.6
+		center_glint.light_cull_mask = 1 << 2
+		center_glint.shadow_enabled = false
+		center_wall_count_anchor.add_child(center_glint)
+		var center_key := SpotLight3D.new()
+		center_key.name = "CenterInstrumentOverallKey"
+		center_key.position = Vector3(-0.42, 2.75, 0.62)
+		center_key.light_color = Color("FFE2A6")
+		center_key.light_energy = 0.86
+		center_key.spot_range = 4.4
+		center_key.spot_angle = 54.0
+		center_key.spot_attenuation = 1.55
+		center_key.shadow_enabled = false
+		center_wall_count_anchor.add_child(center_key)
+		center_key.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
 		for index in range(4):
 			var overlay := center_compass_model.find_child("DirectionActive%d" % index, true, false) as MeshInstance3D
 			if overlay == null:
@@ -407,39 +517,28 @@ func _setup_center_wall_count() -> void:
 	center_wall_count_label = Label3D.new()
 	center_wall_count_label.name = "CenterWallCount3DText"
 	center_wall_count_label.text = "55"
+	center_wall_count_label.font = CENTER_NUMBER_FONT
 	center_wall_count_label.font_size = 90
 	center_wall_count_label.pixel_size = 0.0058
-	center_wall_count_label.modulate = Color("E8DFC8")
+	center_wall_count_label.modulate = Color("FFF7DE")
 	center_wall_count_label.outline_modulate = Color("071713")
 	center_wall_count_label.outline_size = 5
 	center_wall_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_wall_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	center_wall_count_label.no_depth_test = false
 	center_wall_count_label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
-	center_wall_count_label.position = Vector3(0.0, 0.010, 0.0)
+	center_wall_count_label.position = Vector3(-0.024, 0.142, 0.0)
 	center_wall_count_anchor.add_child(center_wall_count_label)
-
-	var label_positions := [
-		Vector3(0.0, 0.012, -0.59),
-		Vector3(0.78, 0.012, -0.01),
-		Vector3(0.0, 0.012, 0.57),
-		Vector3(-0.78, 0.012, -0.01),
-	]
-	for index in range(CENTER_PANEL_DIRECTIONS.size()):
-		var direction_label := _make_center_direction_label(
-			"CenterDirectionLabel%d" % index,
-			CENTER_PANEL_DIRECTIONS[index],
-			label_positions[index]
-		)
-		center_direction_labels.append(direction_label)
-		center_wall_count_anchor.add_child(direction_label)
 	_set_center_panel_state(55, -1)
 
 
 func _configure_imported_center_meshes(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mesh_instance := node as MeshInstance3D
-		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON \
+			if mesh_instance.name.begins_with("Counter") \
+				or mesh_instance.name.begins_with("DirectionBase") \
+			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	for child in node.get_children():
 		_configure_imported_center_meshes(child)
@@ -472,9 +571,6 @@ func _set_center_panel_state(wall_count: int, turn_seat: int) -> void:
 		active_segment = int(CENTER_PANEL_SEGMENT_FOR_SEAT[center_active_turn_seat])
 	for index in range(center_direction_active_overlays.size()):
 		center_direction_active_overlays[index].visible = index == active_segment
-		if index < center_direction_labels.size():
-			center_direction_labels[index].modulate = Color("FFF4E0") if index == active_segment else Color.WHITE
-			center_direction_labels[index].outline_modulate = Color("2A090B") if index == active_segment else Color("071713")
 
 
 func _preserve_imported_pbr_materials(node: Node) -> void:
@@ -1252,27 +1348,29 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"rendered_wall_tile_count": 0,
 		"wall_representation": "static_numeric_count_on_blender_four_way_instrument",
 		"wall_count_surface": "central_opaque_matte_smoked_jade_counter_flush_with_felt",
-		"center_display_asset": "blender_authored_flush_glass_four_way_inlay",
-		"center_display_shape": "flush_chamfered_glass_inlay_with_circular_counter",
-		"center_display_material": "imported_blender_pbr_glass_matte_counter_graphite_bronze_and_vivid_red_lacquer",
-		"center_display_nodes": ["CenterRecessBed", "CenterGlassInlay", "DirectionSeparatorHairlines", "CounterBronzeBezel", "CounterGlassLens", "CenterWallCount3DText"],
-		"center_display_detail": "continuous_smoked_glass_with_matte_counter_graphite_hairlines_bronze_and_arc_cutout_vivid_red_active_sector",
-		"center_display_mobile_cost": "static_shadowless_imported_glb_no_process_animation_under_3000_triangles",
-		"center_display_source": "res://tools/3d/generate_sichuan_center_compass_v2.py",
-		"center_display_triangle_budget": 1044,
-		"center_display_material_count": 5,
-		"center_display_object_count": 9,
+		"center_display_asset": "blender_authored_single_ring_four_way_turn_instrument",
+		"center_display_shape": "single_extruded_deep_jade_body_with_four_flush_colour_fields_and_single_gold_ring",
+		"center_display_material": "imported_blender_pbr_deep_jade_signal_yellow_gold_ring_and_matte_counter",
+		"center_display_nodes": ["CenterRecessBed", "DirectionBase0", "DirectionSeparator0", "CounterSingleGoldRing", "CounterNumberPlate", "CenterWallCount3DText"],
+		"center_display_detail": "one_continuous_extruded_dark_jade_body_four_boundary_matched_flush_colour_inlays_four_pearl_lines_one_hollow_gold_ring_and_one_number_plate",
+		"center_display_mobile_cost": "static_imported_glb_no_process_animation_under_10000_triangles",
+		"center_display_source": "res://tools/3d/generate_neijiang_center_compass_v2.py",
+		"center_display_triangle_budget": 5440,
+		"center_display_material_count": 7,
+		"center_display_object_count": 13,
 		"center_display_runtime_mesh_generation": false,
+		"center_light_rig": "isolated_ring_glint_plus_whole_instrument_warm_spot_plus_global_soft_shadow_key",
 		"center_glass_finish": "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission",
 		"center_counter_finish": "opaque_matte_smoked_jade_without_emission_or_transmission",
 		"center_outer_keyline": "removed_clean_glass_and_recess_silhouette",
 		"center_inlay_max_rise_world": CENTER_PANEL_TOP_Y,
 		"center_inlay_flush_tolerance_world": 0.010,
-		"center_direction_labels": CENTER_PANEL_DIRECTIONS,
-		"center_component_boundaries": "continuous_glass_plane_separated_by_coplanar_graphite_hairlines_without_colour_overlap",
-		"center_active_encoding": ["opaque_vivid_red_main_field_and_both_chamfer_fills", "warm_ivory_direction_glyph_with_dark_outline"],
-		"center_active_color_hex": "A13D2D",
-		"center_active_geometry": "segmented_coplanar_top_faces_with_circular_counter_cutout_without_extrusion_or_dark_sidewalls",
+		"center_direction_labels": [],
+		"center_component_boundaries": "colour_inlay_boundaries_and_pearl_separators_share_one_coordinate_system_without_internal_physical_bevel_seams",
+		"center_active_encoding": ["non_metallic_signal_yellow_lacquer_field", "shape_only_without_direction_glyphs"],
+		"center_active_color_hex": "F4C430",
+		"center_inactive_color_hex": "3A644D",
+		"center_active_geometry": "flush_signal_yellow_inlay_with_circular_counter_cutout_and_no_internal_bevel_shadow",
 		"center_counter_bezel_radius": CENTER_COUNTER_BEZEL_RADIUS,
 		"center_active_counter_cutout_radius": CENTER_ACTIVE_CUTOUT_RADIUS,
 		"center_separator_corner_angle_degrees": CENTER_SEPARATOR_CORNER_ANGLE_DEGREES,
@@ -1283,7 +1381,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"wall_count_format": "%d",
 		"wall_count_motion": "none_static_on_table_surface",
 		"wall_count_surface_height": TABLETOP_CONTACT_Y + CENTER_PANEL_TOP_Y,
-		"wall_count_surface_plane": "flush_coplanar_glass_inlay_without_visible_sidewalls_at_felt_y_0_155",
+		"wall_count_surface_plane": "raised_manufactured_plate_with_visible_bevels_above_felt_y_0_155",
 		"wall_count_surface_rotation_degrees": 0.0,
 		"wall_count_3d_node": center_wall_count_label != null,
 		"hand_counts": hand_counts,
@@ -1372,8 +1470,8 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"right_meld_axis": "same_yaw_and_z_flow_as_right_hand",
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
-		"meld_source_feedback": "compact_sky_blue_flat_face_arrow_on_second_tile_without_seat_label",
-		"winning_source_feedback": "compact_sky_blue_flat_face_arrow_without_seat_label",
+		"meld_source_feedback": "centered_extruded_golden_direction_arrow_on_second_tile_without_seat_label",
+		"winning_source_feedback": "centered_extruded_golden_direction_arrow_without_seat_label",
 		"winning_source_text": false,
 		"tile_back_color": SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false),
 		"season_theme": "deep_emerald_refined_table",
@@ -1384,6 +1482,10 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
+		"table_skin_count": SichuanTableSkinCatalog.all_skins().size(),
+		"table_skin_id": active_table_skin_id,
+		"table_skin_material_target": "TableFelt",
+		"table_skin_geometry_policy": "felt_material_only_no_extra_lights_geometry_or_gameplay_changes",
 		"directional_shadow_max_distance": 22.0,
 		"mobile_directional_shadow_size": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/size.mobile", 0)),
 		"mobile_soft_shadow_filter_quality": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile", 0)),

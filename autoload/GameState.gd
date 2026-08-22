@@ -3219,9 +3219,6 @@ func _apply_shun_he_lock_filter() -> void:
 func _find_add_gang_option(seat: int) -> Dictionary:
 	if seat < 0 or seat >= players.size():
 		return {}
-	var last_draw_tile_id := _get_last_draw_tile_id_for_seat(seat)
-	if last_draw_tile_id == -1:
-		return {}
 	var hand_tiles: Array = players[seat]["hand_tiles"]
 	var melds: Array = players[seat]["melds"]
 	for meld_index in range(melds.size()):
@@ -3236,8 +3233,6 @@ func _find_add_gang_option(seat: int) -> Dictionary:
 		if _is_ding_que_tile_for_seat(seat, target_tile):
 			continue
 		for hand_tile in hand_tiles:
-			if int(hand_tile.get("id", -1)) != last_draw_tile_id:
-				continue
 			if hand_tile["suit"] == target_tile["suit"] and hand_tile["rank"] == target_tile["rank"]:
 				if _is_ding_que_tile_for_seat(seat, hand_tile):
 					continue
@@ -3980,9 +3975,6 @@ func _find_all_add_gang_options(seat: int) -> Array:
 	var results: Array = []
 	if seat < 0 or seat >= players.size():
 		return results
-	var last_draw_tile_id := _get_last_draw_tile_id_for_seat(seat)
-	if last_draw_tile_id == -1:
-		return results
 	var hand_tiles: Array = players[seat]["hand_tiles"]
 	var melds: Array = players[seat]["melds"]
 	for meld_index in range(melds.size()):
@@ -3996,8 +3988,6 @@ func _find_all_add_gang_options(seat: int) -> Array:
 		if _is_ding_que_tile_for_seat(seat, target_tile):
 			continue
 		for hand_tile in hand_tiles:
-			if int(hand_tile.get("id", -1)) != last_draw_tile_id:
-				continue
 			if hand_tile["suit"] == target_tile["suit"] and hand_tile["rank"] == target_tile["rank"]:
 				if _is_ding_que_tile_for_seat(seat, hand_tile):
 					continue

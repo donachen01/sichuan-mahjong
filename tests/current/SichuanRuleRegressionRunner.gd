@@ -26,6 +26,7 @@ func _init() -> void:
 	_run_test("draw_assessment_builds_cha_jiao_max_score", _test_draw_assessment_builds_cha_jiao_max_score, failures)
 	_run_test("display_hand_sorts_missing_suit_to_right", _test_display_hand_sorts_missing_suit_to_right, failures)
 	_run_test("qiang_gang_hu_executes_without_finalizing_add_gang", _test_qiang_gang_hu_executes_without_finalizing_add_gang, failures)
+	_run_test("added_gang_remains_available_after_draw_tile_is_kept_in_hand", _test_added_gang_remains_available_after_draw_tile_is_kept_in_hand, failures)
 	_run_test("competitive_score_table_applies_basic_score_and_self_draw_bottom", _test_competitive_score_table_applies_basic_score_and_self_draw_bottom, failures)
 	_run_test("gang_score_table_applies_sichuan_units", _test_gang_score_table_applies_sichuan_units, failures)
 	_run_test("round_scores_apply_to_player_totals_and_persist", _test_round_scores_apply_to_player_totals_and_persist, failures)
@@ -43,7 +44,7 @@ func _init() -> void:
 	_run_test("multi_payer_gang_is_never_refunded", _test_multi_payer_gang_is_never_refunded, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 34/34")
+		print("RULE REGRESSION OK: 35/35")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -800,6 +801,45 @@ func _test_qiang_gang_hu_executes_without_finalizing_add_gang():
 		return "expected hu player to record robbed tile as winning tile"
 	if not game_state.settlement_data.get("gang_events", []).is_empty():
 		return "expected no gang event to be recorded for robbed add gang"
+	return true
+
+
+func _test_added_gang_remains_available_after_draw_tile_is_kept_in_hand():
+	var game_state = _build_test_game_state()
+	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
+	game_state.current_turn_seat = 0
+	var players: Array[Dictionary] = [
+		_make_player(
+			0,
+			"tiao",
+			[_make_tile(120, "wan", 5), _make_tile(121, "wan", 1)],
+			[{
+				"type": "peng",
+				"from_seat": 1,
+				"tiles": [_make_tile(122, "wan", 5), _make_tile(123, "wan", 5), _make_tile(124, "wan", 5)],
+			}]
+		),
+		_make_player(1, "tiao", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	# The fourth tile was drawn earlier and kept in the hand; it is no longer
+	# required to be the current last_draw_tile for a legal later-turn add gang.
+	game_state.last_draw_tile = {}
+	if not bool(game_state.can_human_add_gang(0)):
+		return "expected a kept fourth tile to expose the add-gang action"
+	if not bool(game_state.execute_human_add_gang(0)):
+		return "expected kept fourth tile add-gang execution to succeed"
+	var melds: Array = game_state.players[0].get("melds", [])
+	if melds.is_empty() or str(melds[0].get("type", "")) != "gang" or not bool(melds[0].get("gang_upgrade", false)) or Array(melds[0].get("tiles", [])).size() != 4:
+		return "expected peng to upgrade to a four-tile add-gang meld"
+	var gang_events: Array = game_state.settlement_data.get("gang_events", [])
+	if gang_events.size() != 1 or str(gang_events[0].get("gang_type", "")) != "add_gang":
+		return "expected add-gang settlement event to be recorded"
+	var changes: Dictionary = game_state.settlement_data.get("preapplied_score_changes", {})
+	if int(changes.get(0, 0)) != 3 or int(changes.get(1, 0)) != -1 or int(changes.get(2, 0)) != -1 or int(changes.get(3, 0)) != -1:
+		return "expected add-gang to pay one point from each active payer, got %s" % [changes]
 	return true
 
 

@@ -36,12 +36,13 @@ const FLAT_RESULT_JADE_BACK := Color("0C5729")
 # PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
 # 直接读成两副不同颜色的牌。
 const FAR_RACK_IVORY_COLOR := Color("EBE7DF")
-# 碰、杠和胡牌来源统一使用小号、平贴、无渐变的天蓝色箭头。箭头只表达方向，
-# 不再用黄色强调，也不再配座位文字。
-const SOURCE_ARROW_COLOR := Color("48C8FF")
-# GLB 牌体的圆角外缘高于面图层。0.122 让扁平箭头刚好压在外缘之上，避免被遮挡，
-# 同时不再呈现悬浮高度。
-const MELD_SOURCE_ARROW_FACE_OFFSET := 0.122
+# 碰、杠和胡牌来源复用中心弃牌黄色菱形的金色高光材质；几何仍是带尖端和杆的
+# 箭头，因此醒目但不会丢失“来源方向”信息，也不增加任何座位文字。
+const SOURCE_ARROW_COLOR := Color("FFD45A")
+# 来源箭头必须落在牌面中心，而不是悬在牌外。箭头自身有实体厚度，底面略高于
+# 玉白牌面，顶部由灯光和金色清漆高光读出立体感。
+const SOURCE_ARROW_FACE_OFFSET := 0.018
+const SOURCE_ARROW_THICKNESS := 0.026
 
 static var material_cache: Dictionary = {}
 
@@ -182,8 +183,8 @@ func configure(
 	)
 	var is_meld_source := source_marker_kind in ["peng", "gang"]
 	if winning_source_marker.visible:
-		# 副露和胡牌共用同一套天蓝色平面方向语言；胡牌箭头仅略大，仍压在牌面，
-		# 不再使用上一版悬在牌外的大箭头。
+		# 副露和胡牌共用同一套金色实体方向语言；方向 yaw 继承来源座位，箭头
+		# 本身压在牌面中心，不再使用悬在牌外的平面标记。
 		if is_meld_source != using_meld_source_arrow_mesh:
 			winning_source_marker.mesh = (
 				_build_meld_source_arrow_mesh()
@@ -193,11 +194,7 @@ func configure(
 			using_meld_source_arrow_mesh = is_meld_source
 		winning_source_marker.rotation.y = _winning_source_local_yaw(winner_seat, winning_source_seat)
 		winning_source_marker.scale = Vector3.ONE
-		winning_source_marker.position = (
-			Vector3(0.0, MARKER_Y + MELD_SOURCE_ARROW_FACE_OFFSET, -TILE_SIZE.z * 0.10)
-			if is_meld_source
-			else Vector3(0.0, MARKER_Y + MELD_SOURCE_ARROW_FACE_OFFSET, -TILE_SIZE.z * 0.18)
-		)
+		winning_source_marker.position = Vector3(0.0, FACE_Y + SOURCE_ARROW_FACE_OFFSET, 0.0)
 		winning_source_marker.set_surface_override_material(
 			0,
 			_source_arrow_material()
@@ -330,10 +327,10 @@ func _build_visuals() -> void:
 	winning_source_marker = MeshInstance3D.new()
 	winning_source_marker.name = "WinningSourceArrow"
 	winning_source_marker.mesh = _build_winning_arrow_mesh()
-	# Keep the source arrow clear of the tile glyphs. On a laid-flat winning
-	# tile it sits just beyond the table-side edge, like the mature reference's
-	# yellow directional marker, so its direction remains legible on a phone.
-	winning_source_marker.position = Vector3(0.0, MARKER_Y + 0.055, -TILE_SIZE.z * 0.66)
+	# The arrow is a diegetic marker: centered on the physical tile face. Its yaw
+	# is set from the winner/source seats in configure(), so the 3D arrow points
+	# toward the discarder while the beveled side walls catch the table lights.
+	winning_source_marker.position = Vector3(0.0, FACE_Y + SOURCE_ARROW_FACE_OFFSET, 0.0)
 	winning_source_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	winning_source_marker.set_surface_override_material(0, _source_arrow_material())
 	winning_source_marker.visible = false
@@ -688,45 +685,51 @@ func _flat_material(key: String, color: Color) -> StandardMaterial3D:
 
 
 func _source_arrow_material() -> StandardMaterial3D:
-	const CACHE_KEY := "marker:compact_sky_blue_source_flat_v5"
-	if material_cache.has(CACHE_KEY):
-		return material_cache[CACHE_KEY]
-	var result := StandardMaterial3D.new()
-	result.albedo_color = SOURCE_ARROW_COLOR
-	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	result.cull_mode = BaseMaterial3D.CULL_DISABLED
-	material_cache[CACHE_KEY] = result
-	return result
+	# Keep one exact material contract with the centre latest-discard diamond:
+	# warm yellow albedo, restrained metallic/clearcoat and a small emission lift.
+	return _latest_discard_marker_material()
 
 
-func _build_winning_arrow_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	# 胡牌来源使用简化的短杆箭头，体积仅比碰/杠箭头略大；尖端沿本地 -Z。
-	for vertex in [
-		Vector3(0.0, 0.0, -0.082), Vector3(0.056, 0.0, -0.002), Vector3(-0.056, 0.0, -0.002),
-		Vector3(0.019, 0.0, -0.002), Vector3(0.019, 0.0, 0.082), Vector3(-0.019, 0.0, 0.082),
-		Vector3(0.019, 0.0, -0.002), Vector3(-0.019, 0.0, 0.082), Vector3(-0.019, 0.0, -0.002),
-	]:
-		mesh.surface_add_vertex(vertex)
-	mesh.surface_end()
-	return mesh
+func _build_winning_arrow_mesh() -> ArrayMesh:
+	return _build_extruded_arrow_mesh(0.120, 0.078, 0.026, SOURCE_ARROW_THICKNESS)
 
 
-func _build_meld_source_arrow_mesh() -> ImmediateMesh:
-	var mesh := ImmediateMesh.new()
-	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
-	# 参考图的来源标记是压在牌面上的“细杆 + 小三角”扁平箭头；不要做成上一版
-	# 那种大三角或悬浮的 3D 指示牌。箭头尖端沿本地 -Z 指向来源玩家。
-	for vertex in [
-		# 小号实心箭头头部（宽度约为牌面四分之一）。
-		Vector3(0.0, 0.0, -0.060), Vector3(0.047, 0.0, 0.008), Vector3(-0.047, 0.0, 0.008),
-		# 窄短杆，让轮廓与参考图的“牌面来源箭头”一致，而非单独的三角块。
-		Vector3(0.017, 0.0, 0.008), Vector3(0.017, 0.0, 0.068), Vector3(-0.017, 0.0, 0.068),
-		Vector3(0.017, 0.0, 0.008), Vector3(-0.017, 0.0, 0.068), Vector3(-0.017, 0.0, 0.008),
-	]:
-		mesh.surface_add_vertex(vertex)
-	mesh.surface_end()
+func _build_meld_source_arrow_mesh() -> ArrayMesh:
+	return _build_extruded_arrow_mesh(0.100, 0.066, 0.024, SOURCE_ARROW_THICKNESS)
+
+
+func _build_extruded_arrow_mesh(length: float, head_width: float, stem_half_width: float, thickness: float) -> ArrayMesh:
+	# Local -Z is the arrow tip. Extruding the same silhouette above/below the
+	# tile face gives the marker real side walls instead of a yellow polygon.
+	var outline := PackedVector2Array([
+		Vector2(0.0, -length),
+		Vector2(head_width, -0.010),
+		Vector2(stem_half_width, -0.010),
+		Vector2(stem_half_width, length * 0.96),
+		Vector2(-stem_half_width, length * 0.96),
+		Vector2(-stem_half_width, -0.010),
+		Vector2(-head_width, -0.010),
+	])
+	var vertices := PackedVector3Array()
+	for point in outline:
+		vertices.append(Vector3(point.x, thickness * 0.5, point.y))
+	for point in outline:
+		vertices.append(Vector3(point.x, -thickness * 0.5, point.y))
+	var indices := PackedInt32Array()
+	# Top and bottom caps (winding is opposite).
+	for index in range(1, outline.size() - 1):
+		indices.append(0); indices.append(index); indices.append(index + 1)
+		indices.append(outline.size()); indices.append(outline.size() + index + 1); indices.append(outline.size() + index)
+	for index in range(outline.size()):
+		var next := (index + 1) % outline.size()
+		indices.append(index); indices.append(outline.size() + index); indices.append(outline.size() + next)
+		indices.append(index); indices.append(outline.size() + next); indices.append(next)
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	return mesh
 
 

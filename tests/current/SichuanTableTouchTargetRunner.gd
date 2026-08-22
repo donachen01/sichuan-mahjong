@@ -71,7 +71,7 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		if legacy_button != null and legacy_button.visible:
 			failures.append("legacy control must stay hidden: %s" % legacy_name)
 
-	var visible_actions := ["ai", "settings", "opponent_hands", "exit"]
+	var visible_actions := ["ai", "settings", "opponent_hands", "skin", "exit"]
 	var visible_rects: Array[Rect2] = []
 	for action in visible_actions:
 		var button: Button = utility_bar.call("get_button", action)
@@ -190,7 +190,7 @@ func _verify_action_bar(root_node: Node, failures: Array[String]) -> void:
 	var action_rects: Array[Rect2] = []
 	for action in actions:
 		var rect: Rect2 = action_bar.call("get_touch_rect", action)
-		var minimum := Vector2(132.0, 132.0) if action == "hu" else Vector2(108.0, 108.0)
+		var minimum := Vector2(264.0, 264.0) if action == "hu" else Vector2(216.0, 216.0)
 		if rect.size.x < minimum.x or rect.size.y < minimum.y:
 			failures.append("%s action target is below its visual/touch contract" % action)
 		action_rects.append(rect)

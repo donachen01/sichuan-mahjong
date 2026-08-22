@@ -15,6 +15,8 @@ const TABLE_ACTION_BAR_SCENE := preload("res://scenes/ui/table/TableActionBar.ts
 const TABLE_PRESENTATION_DIRECTOR_SCRIPT := preload("res://scripts/ui/presentation/TablePresentationDirector.gd")
 const AI_ASSISTANT_SCENE := preload("res://scenes/ui/AIAssistant.tscn")
 const TABLE_STAGE_3D_SCRIPT := preload("res://scripts/ui/3d/SichuanTableStage3D.gd")
+const TABLE_SKIN_PANEL_SCRIPT := preload("res://scripts/ui/table/SichuanTableSkinPanel.gd")
+const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 const SICHUAN_TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const SICHUAN_TABLE_METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const SETTLEMENT_OVERLAY_SCENE := preload("res://scenes/ui/table/SettlementOverlay.tscn")
@@ -83,6 +85,7 @@ const UI_PREFS_PATH := "user://ui_prefs.cfg"
 const UI_PREFS_SECTION := "main_scene_v2"
 const UI_PREFS_KEY_AI_HELPER := "ai_helper_enabled"
 const UI_PREFS_KEY_OPPONENT_HANDS := "opponent_hands_enabled"
+const UI_PREFS_KEY_TABLE_SKIN := "sichuan_table_skin_id"
 const UI_PREFS_KEY_AI_GLASS_OPACITY := "ai_glass_opacity"
 const UI_PREFS_KEY_AI_GLASS_OPACITY_LEGACY := "ai_glass_opacity_index"
 const UI_PREFS_KEY_AI_DRAWER_POSITION := "ai_drawer_position_normalized"
@@ -365,6 +368,8 @@ var floating_right_buttons_collapsed: bool = false
 var floating_left_buttons_collapsed: bool = false
 var seat_huds: Dictionary = {}
 var table_utility_bar: Control
+var table_skin_panel: SichuanTableSkinPanel
+var table_skin_id := SichuanTableSkinCatalog.DEFAULT_SKIN_ID
 var table_discard_layer: Control
 var center_turn_indicator: Control
 var table_action_bar: Control
@@ -456,6 +461,25 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	# The chooser is a true modal layer. Let its Control tree receive native GUI
+	# input while bypassing this scene's explicit touch routing, otherwise a tap
+	# on a preview card could also dispatch to a Mahjong tile or action beneath it.
+	if table_skin_panel != null and is_instance_valid(table_skin_panel) and table_skin_panel.visible:
+		if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+			var modal_touch := event as InputEventScreenTouch
+			if bool(table_skin_panel.call("handle_pointer_press", modal_touch.position)):
+				get_viewport().set_input_as_handled()
+			_arm_emulated_mouse_suppression(modal_touch.position)
+		elif event is InputEventMouseButton:
+			var modal_mouse := event as InputEventMouseButton
+			if modal_mouse.button_index == MOUSE_BUTTON_LEFT and modal_mouse.pressed:
+				if _consume_emulated_mouse_press(modal_mouse.position):
+					# The native touch already dispatched the card; consume only the
+					# matching emulated mouse half of that same physical tap.
+					get_viewport().set_input_as_handled()
+				elif bool(table_skin_panel.call("handle_pointer_press", modal_mouse.position)):
+					get_viewport().set_input_as_handled()
+		return
 	if event is InputEventScreenTouch:
 		var touch_event := event as InputEventScreenTouch
 		if touch_event.pressed:
@@ -593,7 +617,7 @@ func _handle_table_utility_click(global_pos: Vector2, input_source: String = "di
 	var matched_action := ""
 	var matched_button: Button
 	var matched_distance := INF
-	for action in ["toggle", "ai", "settings", "opponent_hands", "settlement", "next_round", "exit"]:
+	for action in ["toggle", "ai", "settings", "opponent_hands", "skin", "settlement", "next_round", "exit"]:
 		var button: Button = table_utility_bar.call("get_button", action)
 		if button == null or not is_instance_valid(button):
 			continue
@@ -1268,6 +1292,7 @@ func _setup_3d_table_stage() -> void:
 	table_stage_3d.name = "SichuanTableStage3D"
 	game_scene.add_child(table_stage_3d)
 	table_stage_3d.set_reduced_motion(bool(ProjectSettings.get_setting("accessibility/reduced_motion", false)))
+	table_stage_3d.apply_table_skin(table_skin_id)
 	if center_turn_indicator != null and root_ui != null and center_turn_indicator.get_parent() != root_ui:
 		center_turn_indicator.reparent(root_ui)
 		center_turn_indicator.top_level = true
@@ -2281,9 +2306,17 @@ func _setup_table_utility_bar() -> void:
 	table_utility_bar.connect("ai_pressed", _on_top_ai_helper_button_pressed)
 	table_utility_bar.connect("settings_pressed", _on_top_bar_button_pressed)
 	table_utility_bar.connect("opponent_hands_pressed", _on_top_opponent_hand_button_pressed)
+	table_utility_bar.connect("skin_pressed", _open_table_skin_panel)
 	table_utility_bar.connect("settlement_pressed", _on_top_settlement_info_pressed)
 	table_utility_bar.connect("next_round_pressed", _on_top_next_round_pressed)
 	table_utility_bar.connect("exit_pressed", _on_top_exit_pressed)
+	table_skin_panel = TABLE_SKIN_PANEL_SCRIPT.new() as SichuanTableSkinPanel
+	table_skin_panel.name = "SichuanTableSkinPanel"
+	table_skin_panel.top_level = true
+	table_skin_panel.z_index = 320
+	table_skin_panel.skin_selected.connect(_on_table_skin_selected)
+	table_skin_panel.closed.connect(_on_table_skin_panel_closed)
+	root_ui.add_child(table_skin_panel)
 	if not root_ui.resized.is_connected(_layout_table_utility_bar):
 		root_ui.resized.connect(_layout_table_utility_bar)
 	if safe_area != null and not safe_area.resized.is_connected(_layout_table_utility_bar):
@@ -2299,6 +2332,8 @@ func _setup_table_action_bar() -> void:
 	table_action_bar.top_level = true
 	table_action_bar.z_index = 225
 	root_ui.add_child(table_action_bar)
+	if table_action_bar.has_method("set_table_skin"):
+		table_action_bar.call("set_table_skin", table_skin_id)
 	table_action_bar.connect("action_selected", _on_table_action_selected)
 	if not root_ui.resized.is_connected(_queue_table_action_bar_layout):
 		root_ui.resized.connect(_queue_table_action_bar_layout)
@@ -2357,6 +2392,40 @@ func _layout_table_utility_bar() -> void:
 	if safe_area != null and safe_area.has_method("get_safe_margins"):
 		margins = safe_area.call("get_safe_margins")
 	table_utility_bar.call("set_safe_margins", margins)
+	if table_skin_panel != null:
+		table_skin_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		table_skin_panel.set_safe_margins(margins)
+
+
+func _open_table_skin_panel() -> void:
+	if table_skin_panel == null:
+		return
+	# Keep the expanded utility tray visible while the modal chooser opens. The
+	# chooser is above the tray (z=320 vs z=230), so collapsing here only makes
+	# the entry appear to have swallowed the tap on phones without adding any
+	# input protection.
+	table_skin_panel.open(table_skin_id)
+
+
+func _on_table_skin_selected(skin_id: String) -> void:
+	if not TABLE_SKIN_CATALOG.has_skin(skin_id):
+		return
+	if table_stage_3d == null or not table_stage_3d.apply_table_skin(skin_id):
+		return
+	table_skin_id = skin_id
+	if table_action_bar != null and table_action_bar.has_method("set_table_skin"):
+		table_action_bar.call("set_table_skin", table_skin_id)
+	_save_ui_preferences()
+
+
+func _on_table_skin_panel_closed() -> void:
+	if table_utility_bar == null:
+		return
+	var toggle := table_utility_bar.call("get_button", "toggle") as Button
+	if toggle != null and toggle.visible:
+		toggle.grab_focus()
+
+
 func _setup_self_hu_tile_host() -> void:
 	if root_ui == null or self_hu_tile_host != null:
 		return
@@ -7601,6 +7670,12 @@ func _load_ui_preferences() -> void:
 		return
 	ai_helper_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_HELPER, false))
 	opponent_hands_enabled = bool(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_OPPONENT_HANDS, false))
+	var saved_skin_id := str(config.get_value(
+		UI_PREFS_SECTION,
+		UI_PREFS_KEY_TABLE_SKIN,
+		SichuanTableSkinCatalog.DEFAULT_SKIN_ID
+	))
+	table_skin_id = saved_skin_id if TABLE_SKIN_CATALOG.has_skin(saved_skin_id) else SichuanTableSkinCatalog.DEFAULT_SKIN_ID
 	if config.has_section_key(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY):
 		ai_glass_opacity = clampf(float(config.get_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, 0.70)), 0.0, 1.0)
 	else:
@@ -7621,6 +7696,7 @@ func _save_ui_preferences() -> void:
 	var config := ConfigFile.new()
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_HELPER, ai_helper_enabled)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_OPPONENT_HANDS, opponent_hands_enabled)
+	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_TABLE_SKIN, table_skin_id)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_GLASS_OPACITY, ai_glass_opacity)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITION, ai_drawer_position_normalized)
 	config.set_value(UI_PREFS_SECTION, UI_PREFS_KEY_AI_DRAWER_POSITIONED, ai_drawer_positioned)

@@ -141,6 +141,13 @@ func _capture() -> void:
 			await process_frame
 	_apply_choice_style_preview(root_node)
 	_force_3d_full_table_preview(root_node)
+	_apply_requested_table_skin(root_node)
+	if _capture_mode() == "skin-panel":
+		var skin_panel := root_node.get("table_skin_panel") as Control
+		if skin_panel != null:
+			skin_panel.call("open", _requested_table_skin_id())
+			await process_frame
+			await process_frame
 	if _capture_mode() == "camera":
 		_force_clean_table_preview(root_node)
 	elif _capture_mode() in SETTLEMENT_TRANSITION_MODES:
@@ -189,6 +196,26 @@ func _capture() -> void:
 
 	print(path)
 	quit()
+
+
+func _requested_table_skin_id() -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--table-skin="):
+			return argument.trim_prefix("--table-skin=")
+	return "deep_emerald_crepe"
+
+
+func _apply_requested_table_skin(root_node: Node) -> void:
+	var requested_skin_id := _requested_table_skin_id()
+	var stage := root_node.get("table_stage_3d") as Node3D
+	if stage == null or not stage.has_method("apply_table_skin") \
+			or not bool(stage.call("apply_table_skin", requested_skin_id)):
+		push_error("Failed to apply requested table skin: %s" % requested_skin_id)
+		return
+	root_node.set("table_skin_id", requested_skin_id)
+	var action_bar := root_node.get("table_action_bar") as Control
+	if action_bar != null and action_bar.has_method("set_table_skin"):
+		action_bar.call("set_table_skin", requested_skin_id)
 
 
 func _profile_real_metal_frame_pacing(root_node: Node) -> void:

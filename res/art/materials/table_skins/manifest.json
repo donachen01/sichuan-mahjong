@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "source": "Poly Haven CC0 local downloads",
+  "runtime_resolution": 2048,
+  "skins": [
+    {
+      "id": "deep_emerald_crepe",
+      "source_asset": "crepe_georgette",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    },
+    {
+      "id": "emerald_linen",
+      "source_asset": "rough_linen",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    },
+    {
+      "id": "warm_caban_velvet",
+      "source_asset": "caban",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    },
+    {
+      "id": "black_gold_jacquard",
+      "source_asset": "quatrefoil_jacquard_fabric",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    },
+    {
+      "id": "champagne_satin",
+      "source_asset": "crepe_satin",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    },
+    {
+      "id": "teal_teddy_check",
+      "source_asset": "curly_teddy_checkered",
+      "files": [
+        "albedo_2k.jpg",
+        "normal_2k.png",
+        "roughness_2k.png",
+        "preview.jpg"
+      ]
+    }
+  ]
+}

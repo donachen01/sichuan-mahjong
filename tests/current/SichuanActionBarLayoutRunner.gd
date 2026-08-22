@@ -2,8 +2,8 @@ extends SceneTree
 
 const MAIN_SCENE := preload("res://scenes/table/MainSceneV2.tscn")
 const VIEWPORT_SIZE := Vector2i(2048, 1152)
-const PRIMARY_MIN := Vector2(132.0, 132.0)
-const SECONDARY_MIN := Vector2(108.0, 108.0)
+const PRIMARY_MIN := Vector2(264.0, 264.0)
+const SECONDARY_MIN := Vector2(216.0, 216.0)
 
 
 func _init() -> void:

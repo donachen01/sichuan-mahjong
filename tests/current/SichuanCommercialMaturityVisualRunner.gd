@@ -147,10 +147,12 @@ func _verify_decision_seals(failures: Array[String]) -> void:
 	get_root().add_child(action_bar)
 	await process_frame
 	var contract: Dictionary = action_bar.call("get_visual_contract")
-	if str(contract.get("primary_shape", "")) != "round_jade_seal":
-		failures.append("操作按钮必须使用移动麻将常用的大型圆印轮廓")
-	if str(contract.get("context_surface", "")) != "floating_decision_seals":
-		failures.append("碰杠胡必须是分离的浮空决策按钮")
+	if str(contract.get("primary_shape", "")) != "single_ring_table_badge":
+		failures.append("操作按钮必须使用重新设计的简洁单圈徽章轮廓")
+	if str(contract.get("skin_binding", "")) != "active_table_skin_palette_and_material":
+		failures.append("操作按钮必须跟随当前桌布皮肤色板")
+	if str(contract.get("context_surface", "")) != "floating_single_ring_badges":
+		failures.append("碰杠胡必须是分离的浮空单圈决策按钮")
 	var craft := action_bar.get_node_or_null("%CraftPanel") as Control
 	if craft == null or craft.visible:
 		failures.append("操作区不得再显示整块工具面板外框")

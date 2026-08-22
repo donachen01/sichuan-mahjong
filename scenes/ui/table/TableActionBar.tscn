@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/ui/table/SichuanCraftPanel.gd" id="2_craft"]
 
 [node name="TableActionBar" type="Control"]
-custom_minimum_size = Vector2(540, 166)
+custom_minimum_size = Vector2(1080, 380)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 1
@@ -82,24 +82,24 @@ theme_override_constants/separation = 14
 
 [node name="HuButton" type="Button" parent="Margin/Content/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(132, 132)
+custom_minimum_size = Vector2(264, 264)
 layout_mode = 2
 text = "胡"
 
 [node name="GangButton" type="Button" parent="Margin/Content/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(108, 108)
+custom_minimum_size = Vector2(216, 216)
 layout_mode = 2
 text = "杠"
 
 [node name="PengButton" type="Button" parent="Margin/Content/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(108, 108)
+custom_minimum_size = Vector2(216, 216)
 layout_mode = 2
 text = "碰"
 
 [node name="PassButton" type="Button" parent="Margin/Content/ButtonRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(108, 108)
+custom_minimum_size = Vector2(216, 216)
 layout_mode = 2
 text = "过"
