@@ -36,11 +36,13 @@ public sealed class SichuanCandidateDetail
     public double ExpectedReadyValue { get; init; }
     public double PosteriorAdjustment { get; init; }
     public double DefenseAdjustment { get; init; }
+    public double DefenseTempoAdjustment { get; init; }
     public int GoodShapeCount { get; init; }
     public int BadShapeCount { get; init; }
     public int PairPressure { get; init; }
     public int TaatsuOverflow { get; init; }
     public int SameShantenImprovementCount { get; init; }
+    public double ClassicPatternScore { get; init; }
     public int MiddleTileFlexibility { get; init; }
     public double ShapeScore { get; init; }
     public bool BreaksPair { get; init; }
@@ -53,7 +55,22 @@ public sealed class SichuanCandidateDetail
     public int PenchanWaitCount { get; init; }
     public int TankiWaitCount { get; init; }
     public int ShanponWaitCount { get; init; }
-    public double LimitedLookaheadScore { get; init; }
+	public double LimitedLookaheadScore { get; init; }
+	public double TwoPlyReadyProbability { get; set; }
+	public double TwoPlyFirstStepMass { get; set; }
+	public double TwoPlyWorstReadyShapeScore { get; set; }
+	public double TwoPlyWorstReadyWaitMass { get; set; }
+	/// <summary>
+	/// Shadow-only, uncalibrated probability under the explicitly bounded public
+	/// joint-wall model. It is not full-game win probability or a score bonus.
+	/// </summary>
+	public bool PublicJointRouteSupported { get; set; }
+	public string PublicJointRouteReason { get; set; } = string.Empty;
+	public double PublicJointRouteModelProbability { get; set; }
+	public int PublicJointRouteOwnDrawBudget { get; set; }
+	public int PublicJointRouteOwnDrawsEvaluated { get; set; }
+	public int PublicJointRouteSamples { get; set; }
+	public double PublicJointRouteEffectiveSampleSize { get; set; }
     public int LimitedLookaheadSamples { get; init; }
     public int LimitedLookaheadBestShanten { get; init; }
     public int LimitedLookaheadBestLiveUkeire { get; init; }

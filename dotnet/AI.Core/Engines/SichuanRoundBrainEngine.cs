@@ -221,7 +221,8 @@ public sealed class SichuanRoundBrainEngine
             hash.Add(state.WallCount);
             hash.Add(state.VisibleVersion);
             hash.Add(state.HandVersion);
-			hash.Add(state.EventVersion);
+            hash.Add(state.EventVersion);
+			hash.Add(state.ExchangeThreeEnabled);
             foreach (var count in state.Hand18) hash.Add(count);
             foreach (var list in state.Discards18)
             {

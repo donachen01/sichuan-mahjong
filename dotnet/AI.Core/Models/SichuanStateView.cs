@@ -25,6 +25,8 @@ public sealed class SichuanStateView
 	public bool[] ActiveSeats { get; set; } = Enumerable.Repeat(true, 4).ToArray();
 	public long EventVersion { get; set; }
 	public string InformationMode { get; set; } = "public";
+	public string PolicyVariant { get; set; } = "current";
+	public bool ExchangeThreeEnabled { get; set; }
 	public List<SichuanPublicEvent> PublicEvents { get; } = new();
 	public List<SichuanMeldView>[] MeldViews { get; } = Enumerable.Range(0, 4).Select(_ => new List<SichuanMeldView>()).ToArray();
 

@@ -87,15 +87,17 @@ public sealed class SichuanSelfActionDecisionEngine
         foreach (var tileType in addGangTileTypes.Where(tile => tile is >= 0 and < 27).Distinct())
         {
             if (state.Hand18[tileType] < 1) continue;
-            var qiangGangCount = Math.Max(0, addGangQiangGangCounts?.GetValueOrDefault(tileType, 0) ?? 0);
-			var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, qiangGangCount, preservesSevenPairs);
+            // Retain the old argument for transport compatibility, but never
+            // condition a fair decision on concealed-hand-derived legal counts.
+            var robGangRisk = PublicRobGangRisk(state, belief, tileType);
+			var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, robGangRisk, preservesSevenPairs);
             scores[$"add_gang:{tileType}"] = candidate.Action.Score;
             if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
                 mandatoryGang = candidate;
-            if (qiangGangCount > 0 && candidate.Action.Score <= best.Action.Score)
+            if (robGangRisk > 0 && candidate.Action.Score <= best.Action.Score)
             {
                 best.Reasons = best.Reasons
-                    .Concat(new[] { $"补杠 {tileType} 存在 {qiangGangCount} 家可抢杠胡，C# 已压低补杠权重" })
+                    .Concat(new[] { $"补杠 {tileType} 存在公开后验风险，C# 已比较补杠代价；不读取实际可抢杠人数" })
                     .ToArray();
             }
             if (candidate.Action.Score > best.Action.Score)
@@ -131,7 +133,7 @@ public sealed class SichuanSelfActionDecisionEngine
         int roundStage,
         int threatLevel,
         double maxReadyPosterior,
-		int qiangGangCandidateCount = 0,
+		double robGangRisk = 0,
 		bool preservesSevenPairs = false)
     {
         var removeCount = subtype == "an_gang" ? 4 : 1;
@@ -186,11 +188,10 @@ public sealed class SichuanSelfActionDecisionEngine
 			- (currentPlan.ForbidsGangs || preservesSevenPairs ? 1200 : 0);
 
         var robGangLoss = 0;
-        if (subtype == "add_gang" && qiangGangCandidateCount > 0)
+        if (subtype == "add_gang" && robGangRisk > 0)
         {
-            var perOpponentRobProbability = Math.Clamp(0.16 + maxReadyPosterior * 0.18 + roundStage * 0.04, 0.12, 0.42);
-            var robGangProbability = 1.0 - Math.Pow(1.0 - perOpponentRobProbability, qiangGangCandidateCount);
-            robGangLoss = (int)Math.Round(robGangProbability * (8.0 + counterfactual.ExpectedFan * 6.0));
+            // Existing score conversion is heuristic, not calibrated net EV.
+            robGangLoss = (int)Math.Round(robGangRisk * (8.0 + counterfactual.ExpectedFan * 6.0));
             score -= robGangLoss;
         }
 
@@ -210,8 +211,8 @@ public sealed class SichuanSelfActionDecisionEngine
         if (followUp.Shanten <= current.Shanten && followUp.LiveUkeire + 3 >= current.LiveUkeire && discardRisk < 64)
             reasons.Add("老手进攻：杠税收益明确且速度不亏");
         if (followUp.Shanten > current.Shanten) reasons.Add("杠后向听变差，降权");
-        if (subtype == "add_gang" && qiangGangCandidateCount > 0)
-            reasons.Add($"存在 {qiangGangCandidateCount} 家可抢杠胡，概率化损失 {robGangLoss}");
+        if (subtype == "add_gang" && robGangRisk > 0)
+            reasons.Add($"公开听口后验的补杠风险启发式扣分 {robGangLoss}，不是已知可抢杠人数或校准净收益");
         if (subtype == "add_gang" && followUp.Shanten > 0)
             reasons.Add("补杠后仍未成叫，先保留手牌效率");
         if (subtype == "add_gang" && roundStage >= 2 && followUp.Shanten > 0)
@@ -291,6 +292,24 @@ public sealed class SichuanSelfActionDecisionEngine
         if (currentPlan.ForbidsGangs || meldCount > 0 || CountPairs(state.Hand18) < 5)
             return Array.Empty<string>();
         return new[] { "七对路线：五对以上门清牌优先过牌，保留七对/龙七对" };
+    }
+
+    public static double PublicRobGangRisk(SichuanStateView state, SichuanBeliefSnapshot belief, int tileType)
+    {
+        if (tileType is < 0 or >= 27) throw new ArgumentOutOfRangeException(nameof(tileType));
+        var none = 1.0;
+        for (var seat = 0; seat < 4; seat++)
+        {
+            if (seat == state.SeatIndex || !state.ActiveSeats[seat] || state.HasHu[seat]
+                || state.DingQueSuits[seat] == tileType / 9) continue;
+            // Marginal public wait estimates are combined with an independence
+            // approximation. They are not calibrated real-game probabilities.
+            var estimate = belief.SeatTileWaitProbability.TryGetValue(seat, out var waits)
+                ? waits.GetValueOrDefault(tileType, 0.0) : 0.0;
+            if (!double.IsFinite(estimate)) throw new ArgumentException("Nonfinite public wait estimate");
+            none *= 1.0 - Math.Clamp(estimate, 0.0, 1.0);
+        }
+        return 1.0 - none;
     }
 
     private static int CountPairs(int[] hand18)

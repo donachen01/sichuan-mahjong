@@ -31,22 +31,18 @@ public sealed class SichuanReactionDecisionEngine
     {
         if (canHu)
         {
-			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType);
+			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain);
 			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
-			var huScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Hu).ExpectedNetScore * 1000.0);
-			var passEvScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Pass).ExpectedNetScore * 1000.0);
-			var selectedScore = selected.Action.ActionType == SichuanActionType.Hu ? huScore : passEvScore;
+			var actionScores = comparison.Candidates.ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),
+				candidate => (int)Math.Round(candidate.ExpectedNetScore * 1000.0));
+			var selectedScore = actionScores[selected.Action.ActionType.ToString().ToLowerInvariant()];
             return new SichuanReactionDecisionResult
             {
 				Action = new SichuanAction(selected.Action.ActionType, reactionTileType, selectedScore, comparison.Summary),
 				ShantenAfter = selected.Action.ActionType == SichuanActionType.Hu ? -1 : 0,
 				CurrentShanten = 0,
 				Reasons = comparison.Reasons,
-                ActionScores = new Dictionary<string, int>
-                {
-					["hu"] = huScore,
-					["pass"] = passEvScore
-                }
+                ActionScores = actionScores
             };
         }
 

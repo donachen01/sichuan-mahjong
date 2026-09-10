@@ -1,0 +1,4 @@
+interface:
+  display_name: "四川麻将视频深学"
+  short_description: "把教学视频提炼为可泛化的四川麻将决策算法"
+  default_prompt: "Use $sichuan-mahjong-video-deep-learning to吃透四川麻将教学视频，生成可复核证据包，并以反过拟合和跨牌例测试把专家思路应用到公平 AI。"

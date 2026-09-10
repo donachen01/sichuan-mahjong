@@ -8,6 +8,34 @@ namespace SichuanMahjong.AI.Core.Entry;
 
 public sealed class SichuanAiFacade
 {
+    // Explicit diagnostic entry, never an automatic policy override. The public
+    // adapter rejects incomplete tile allocations and accepts no actual hidden wall.
+    public Decision.SichuanPublicJointRouteReport AnalyzePublicJointRoutes(
+        SichuanStateView state, int sampleCount, int seed)
+        => new Decision.SichuanPublicJointRouteAnalysis().Analyze(state, sampleCount, seed);
+
+    // Calibration-only entry. It exposes public posterior summaries and cannot
+    // mutate candidate scores or accept post-decision hidden information.
+    public Decision.SichuanPublicPosteriorReport AnalyzePublicPosterior(
+        SichuanStateView state, int sampleCount, int seed)
+        => new Decision.SichuanPublicPosteriorAnalysis().Analyze(state, sampleCount, seed);
+
+    public Decision.SichuanPublicPosteriorEnsembleReport AnalyzePublicPosteriorSeedEnsemble(
+        SichuanStateView state, int sampleCountPerSeed, int baseSeed, int seedCount = 6)
+        => new Decision.SichuanPublicPosteriorAnalysis().AnalyzeSeedEnsemble(
+            state, sampleCountPerSeed, baseSeed, seedCount);
+
+    // Long-horizon blood-battle diagnostic. This is deliberately separate from
+    // DecideDiscard: an uncalibrated video-derived mechanism cannot change play.
+    public Decision.SichuanPublicContinuationReport AnalyzePublicContinuation(
+        SichuanStateView state,
+        IEnumerable<int> discardTiles,
+        int maximumWall = 32,
+        int sampleCount = 128,
+        int seed = 20260909)
+        => new Decision.SichuanPublicEndgameEvaluator().AnalyzeContinuation(
+            state, discardTiles, maximumWall, sampleCount, seed);
+
     private readonly SichuanDecisionEngine _decisionEngine = new();
     private readonly SichuanReactionDecisionEngine _reactionDecisionEngine = new();
     private readonly SichuanSelfActionDecisionEngine _selfActionDecisionEngine = new();

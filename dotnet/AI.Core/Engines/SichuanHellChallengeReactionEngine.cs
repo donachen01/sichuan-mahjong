@@ -371,6 +371,7 @@ public sealed class SichuanHellChallengeReactionEngine
             WallCount = state.WallCount,
             TurnIndex = state.TurnIndex,
             Phase = state.Phase,
+			ExchangeThreeEnabled = state.ExchangeThreeEnabled,
             Hand18 = handAfterPeng,
             Visible18 = state.Visible18,
             Remaining18 = state.Remaining18,

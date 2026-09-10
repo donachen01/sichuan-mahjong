@@ -1,0 +1,1 @@
+6e199862e24cb84a423c21b234b178f84bed1ed8cf51d8dd6ae0c58ef5958c91  build/android/SichuanMahjong-2.6.49-release.apk

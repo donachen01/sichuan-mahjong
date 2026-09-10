@@ -25,16 +25,17 @@ public sealed class SichuanQingYiSePlanner
     private readonly SichuanExactHandAnalyzer _analyzer = new();
     private readonly SichuanShantenEngine _shanten = new();
 
-    public IReadOnlyList<SichuanQingPlanCandidate> Evaluate(SichuanStateView state, int targetSuit = -1)
+    public IReadOnlyList<SichuanQingPlanCandidate> Evaluate(
+        SichuanStateView state,
+        int targetSuit = -1,
+        SichuanBeliefSnapshot? belief = null)
     {
         var hand = (int[])state.Hand18.Clone();
         if (targetSuit is < 0 or > 2)
             targetSuit = Enumerable.Range(0, 3).OrderByDescending(suit => Enumerable.Range(suit * 9, 9).Sum(tile => hand[tile])).First();
         var totalRemaining = Math.Max(1, state.Remaining18.Sum());
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-		var targetCompetition = Enumerable.Range(0, 4)
-			.Where(seat => seat != state.SeatIndex && state.ActiveSeats.ElementAtOrDefault(seat))
-			.Count(seat => state.DingQueSuits.ElementAtOrDefault(seat) != targetSuit);
+		var targetCompetition = EstimateTargetSuitCompetition(state, targetSuit, belief);
         var results = new List<SichuanQingPlanCandidate>();
         for (var discard = 0; discard < 27; discard++)
         {
@@ -79,13 +80,46 @@ public sealed class SichuanQingYiSePlanner
                 $"两层前瞻下轮成叫率 {tenpaiProbability:P1}",
                 $"期望听口活张 {expectedWaits:F1}",
 				$"清色完成率 {completionProbability:P1}，预计 {expectedFan:F1} 番",
-				$"目标门竞争 {targetCompetition} 家，普通胡退路 {ordinaryFallback:F2}",
+				$"目标门公开等效竞争 {targetCompetition:F2} 家，普通胡退路 {ordinaryFallback:F2}",
                 discard / 9 != targetSuit ? "清理异门且保留清一色路线" : "打目标门会损失清一色连续性"
             };
             results.Add(new SichuanQingPlanCandidate(discard, targetSuit, tenpaiProbability, expectedWaits, expectedValue, exitValue, completionProbability, expectedFan, genGangPotential, dangerCost, targetCompetition, ordinaryFallback, reasons));
             hand[discard]++;
         }
         return results.OrderByDescending(item => item.ExpectedValue).ToArray();
+    }
+
+    private static double EstimateTargetSuitCompetition(
+        SichuanStateView state,
+        int targetSuit,
+        SichuanBeliefSnapshot? belief)
+    {
+        var competition = 0.0;
+        for (var seat = 0; seat < 4; seat++)
+        {
+            if (seat == state.SeatIndex || !state.ActiveSeats.ElementAtOrDefault(seat))
+                continue;
+            if (state.DingQueSuits.ElementAtOrDefault(seat) == targetSuit)
+                continue;
+
+            if (belief?.SeatSuitDemand.TryGetValue(seat, out var suitDemand) == true
+                && suitDemand.TryGetValue(targetSuit, out var targetDemand))
+            {
+                // Normalize against this seat's strongest public suit demand. Neutral
+                // evidence therefore preserves one full competitor, while public
+                // discards/melds can only reduce the equivalent competition smoothly.
+                var strongestDemand = suitDemand.Values.DefaultIfEmpty(0.0).Max();
+                competition += strongestDemand <= 0.0
+                    ? 1.0
+                    : Math.Clamp(targetDemand / strongestDemand, 0.0, 1.0);
+                continue;
+            }
+
+            // Preserve the previous rule-only behavior for callers without a public
+            // belief snapshot; no hidden hand is required by either branch.
+            competition += 1.0;
+        }
+        return competition;
     }
 
     private (int DiscardTileType, int Shanten, int LiveWaits) EvaluateBestFutureDiscard(

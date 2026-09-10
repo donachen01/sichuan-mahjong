@@ -20,4 +20,5 @@ public sealed class SichuanDecisionResult
     public IReadOnlyList<string> Reasons { get; init; } = Array.Empty<string>();
     public IReadOnlyDictionary<int, int> CandidateScores { get; init; } = new Dictionary<int, int>();
     public IReadOnlyList<SichuanCandidateDetail> Candidates { get; init; } = Array.Empty<SichuanCandidateDetail>();
+    public SichuanClassicPatternAnalysis? ClassicPattern { get; init; }
 }

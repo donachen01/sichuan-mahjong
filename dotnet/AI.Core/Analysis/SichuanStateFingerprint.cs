@@ -8,7 +8,9 @@ public static class SichuanStateFingerprint
     public static string BuildTurnKey(SichuanStateView state, bool preferCsharp, bool forceLightweight)
     {
         var builder = new StringBuilder(512);
-        builder.Append("seat=").Append(state.SeatIndex)
+		builder.Append("seat=").Append(state.SeatIndex)
+			.Append("|policy=").Append(state.PolicyVariant)
+			.Append("|exchange3=").Append(state.ExchangeThreeEnabled ? 1 : 0)
             .Append("|dealer=").Append(state.DealerSeat)
             .Append("|current=").Append(state.CurrentSeat)
             .Append("|wall=").Append(state.WallCount)

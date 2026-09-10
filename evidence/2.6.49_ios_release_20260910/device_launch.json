@@ -1,0 +1,58 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "516E99D2-18B6-5DD8-94E1-6993510A036D",
+      "--terminate-existing",
+      "--activate",
+      "com.chendong.sichuanmahjong.iosdev",
+      "--json-output",
+      "evidence/2.6.49_ios_release_20260910/device_launch.json"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 3,
+    "outcome" : "success",
+    "version" : "518.33"
+  },
+  "result" : {
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "dumb"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        5957,
+        0,
+        16150
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/9A815D6E-8BC4-44F8-B513-5E5A7FD0E49A/SichuanMahjongIOS.app/SichuanMahjongIOS",
+      "processIdentifier" : 5957
+    }
+  }
+}

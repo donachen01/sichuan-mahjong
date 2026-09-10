@@ -20,7 +20,7 @@ public sealed class SichuanTableSituationEvaluator
         var ownScore = state.Scores.ElementAtOrDefault(state.SeatIndex);
         var rank = state.Scores.Count(score => score > ownScore) + 1;
         var threats = Enumerable.Range(0, 4)
-            .Where(seat => seat != state.SeatIndex && !state.HasHu[seat])
+            .Where(seat => seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
             .Select(seat => (seat, value: (posterior?.ReadyProbabilities.ElementAtOrDefault(seat) ?? 0.0) + state.Melds18[seat].Count / 12.0 + (state.IsReady[seat] ? 0.45 : 0)))
             .OrderByDescending(item => item.value)
             .ToArray();

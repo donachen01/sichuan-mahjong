@@ -172,6 +172,15 @@ public sealed class SichuanBeliefEngine
                 var rank = tileType % 9 + 1;
                 var noHu = evidence.SeatNoHuEvidence[seat][tileType];
                 noHuEvidence[tileType] = noHu;
+                if (state.DingQueSuits[seat] == suit)
+                {
+                    // Do not turn a possible concealed holding into an illegal wait.
+                    perTile[tileType] = 0.0;
+                    holdWeights[tileType] = BlendPosterior(
+                        range.HoldProbability18[tileType], particlePosterior.HoldProbabilities[seat][tileType]);
+                    waitWeights[tileType] = 0.0;
+                    continue;
+                }
                 if (exactSafeTiles.Contains(tileType))
                 {
                     perTile[tileType] = 0.03;
@@ -287,7 +296,13 @@ public sealed class SichuanBeliefEngine
             .Append("|turn=").Append(state.TurnIndex)
             .Append("|phase=").Append(state.Phase)
             .Append("|event=").Append(state.EventVersion)
+			.Append("|exchange3=").Append(state.ExchangeThreeEnabled ? 1 : 0)
+            .Append("|visibleVersion=").Append(state.VisibleVersion)
             .Append("|mode=").Append(state.InformationMode);
+        // Hidden-hand sampling depends on these public inputs (and uses
+        // VisibleVersion in its seed); cached and uncached inference must agree.
+        AppendIntArray(builder, "|dingque=", state.DingQueSuits);
+        AppendIntArray(builder, "|handCounts=", state.HandCounts);
         AppendIntArray(builder, "|hand=", state.Hand18);
         AppendIntArray(builder, "|visible=", state.Visible18);
         AppendIntArray(builder, "|remaining=", state.Remaining18);
@@ -299,7 +314,26 @@ public sealed class SichuanBeliefEngine
         AppendMatrix(builder, "|passedHu=", state.PassedHu18);
         AppendMatrix(builder, "|passedPeng=", state.PassedPeng18);
         AppendMatrix(builder, "|passedGang=", state.PassedGang18);
+        AppendPublicEvents(builder, state.PublicEvents);
         return builder.ToString();
+    }
+
+    private static void AppendPublicEvents(StringBuilder builder, IReadOnlyList<SichuanPublicEvent> events)
+    {
+        builder.Append("|publicEvents=");
+        foreach (var item in events)
+        {
+            builder.Append(item.EventIndex).Append(':')
+                .Append(item.TurnIndex).Append(':')
+                .Append(item.Seat).Append(':')
+                .Append((int)item.Type).Append(':')
+                .Append(item.TileType).Append(':')
+                .Append((int)item.Origin).Append(':')
+                .Append(item.CanHu ? '1' : '0')
+                .Append(item.CanPeng ? '1' : '0')
+                .Append(item.CanGang ? '1' : '0')
+                .Append(';');
+        }
     }
 
     private static void AppendIntArray(StringBuilder builder, string label, IReadOnlyList<int> values)

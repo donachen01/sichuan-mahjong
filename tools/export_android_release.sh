@@ -143,7 +143,7 @@ BASE_APK_BYTES="$(stat -f '%z' "$FINAL_APK")"
 echo "Base APK bytes: $BASE_APK_BYTES"
 
 cp "$FINAL_APK" "$PRUNED_APK"
-zip -q -d "$PRUNED_APK" 'assets/build/*' 'assets/tests/*' 'assets/tools/*' 'assets/evidence/*' 'assets/dotnet/*' 'assets/backups/*' 'assets/source_assets/*' 'assets/planning/*' 'assets/测试数据统计/*' 'assets/设计文档/*' 'assets/.tmp_tts/*' 'assets/.venv_tts/*' 2>/dev/null || true
+zip -q -d "$PRUNED_APK" 'assets/build/*' 'assets/tests/*' 'assets/tools/*' 'assets/evidence/*' 'assets/research/*' 'assets/dotnet/*' 'assets/backups/*' 'assets/source_assets/*' 'assets/planning/*' 'assets/测试数据统计/*' 'assets/设计文档/*' 'assets/.tmp_tts/*' 'assets/.venv_tts/*' 2>/dev/null || true
 zip -q -d "$PRUNED_APK" 'assets/docs/*' 2>/dev/null || true
 zip -q -d "$PRUNED_APK" 'assets/*/current_ai_*' 'assets/*/hell_training/*' 'assets/*/hell_marked_cases/*' 'assets/*/hell_replay/*' 'assets/*/*seedlive*' 'assets/*/*seed250514*' 2>/dev/null || true
 CURRENT_GODOT_LIB_SHA256="$(unzip -p "$PRUNED_APK" 'lib/arm64-v8a/libgodot_android.so' | shasum -a 256 | awk '{print $1}')"

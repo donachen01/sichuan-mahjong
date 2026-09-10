@@ -112,6 +112,7 @@ var pending_trainer_hint_request_id: int = 0
 var pending_trainer_hint_request_cache_key: String = ""
 var pending_trainer_hint_request_seat: int = -1
 var ai_decision_metrics: Dictionary = {}
+var ai_mechanism_events: Array[Dictionary] = []
 var ai_reaction_review_history: Array[Dictionary] = []
 var latest_ai_reaction_review: Dictionary = {}
 var reaction_pass_evidence: Array[Dictionary] = []
@@ -217,6 +218,7 @@ func start_new_round(preserve_dealer: bool = false) -> void:
 	trainer_history.clear()
 	latest_trainer_hint.clear()
 	ai_decision_metrics = _create_empty_ai_decision_metrics()
+	ai_mechanism_events.clear()
 	ai_reaction_review_history.clear()
 	latest_ai_reaction_review.clear()
 	reaction_pass_evidence.clear()
@@ -1370,6 +1372,12 @@ func _execute_ai_turn_decision(decision: Dictionary) -> bool:
 			active_ai_discard_decision = decision.duplicate(true)
 			var ok := _discard_tile_internal(seat, tile_id)
 			active_ai_discard_decision.clear()
+			var decision_reasons: Array = decision.get("analysis", {}).get("csharp_result", {}).get("reasons", [])
+			if ok and decision_reasons.has("TWO_PLY_READY_OVERRIDE"):
+				_record_ai_metric("discard_two_ply_ready_override")
+			if ok and decision_reasons.has("PUBLIC_ROUTE_FRONTIER_OVERRIDE"):
+				_record_ai_metric("discard_public_route_frontier_override")
+				_record_ai_mechanism_event("PUBLIC_ROUTE_FRONTIER_OVERRIDE", seat, tile_type, decision)
 			_record_ai_chain_debug("turn_execute_discard seat=%d tile_id=%d ok=%s msg=%s" % [
 				seat,
 				tile_id,
@@ -3485,11 +3493,30 @@ func _create_empty_ai_decision_metrics() -> Dictionary:
 		"discard_strategy_均衡": 0,
 		"discard_strategy_防守平衡": 0,
 		"discard_strategy_全守": 0,
+		"discard_two_ply_ready_override": 0,
+		"discard_public_route_frontier_override": 0,
 	}
 
 
 func _record_ai_metric(key: String, amount: int = 1) -> void:
 	ai_decision_metrics[key] = int(ai_decision_metrics.get(key, 0)) + amount
+
+
+func _record_ai_mechanism_event(reason_code: String, seat: int, tile_type: int, decision: Dictionary) -> void:
+	var csharp_result: Dictionary = decision.get("analysis", {}).get("csharp_result", {})
+	var player: Dictionary = players[seat] if seat >= 0 and seat < players.size() else {}
+	ai_mechanism_events.append({
+		"round_index": round_index,
+		"seat": seat,
+		"reason_code": reason_code,
+		"selected_tile_type": tile_type,
+		"wall_count": wall_count,
+		"ding_que": int(player.get("ding_que", -1)),
+		"meld_count": Array(player.get("melds", [])).size(),
+		"decision_elapsed_ms": float(csharp_result.get("elapsedMs", -1.0)),
+		"decision_reasons": Array(csharp_result.get("reasons", [])).duplicate(true),
+		"selected_candidate": Dictionary(csharp_result.get("selected_candidate", {})).duplicate(true),
+	})
 
 func _resolve_ai_reaction_action(seat: int, candidate: Dictionary, requested_action: String) -> String:
 	if requested_action == "hu" and bool(candidate.get("can_hu", false)):
@@ -4738,19 +4765,31 @@ func _seat_display_name(seat: int) -> String:
 
 
 func _resolve_next_dealer_seat() -> int:
-	var end_reason: String = str(settlement_data.get("end_reason", ""))
-	if end_reason == "draw_wall_empty":
-		return posmod(current_dealer_seat - 1, players.size())
 	var win_events: Array = settlement_data.get("win_events", [])
 	if win_events.is_empty():
 		return posmod(current_dealer_seat - 1, players.size())
-	var dealer_keeps := false
-	for event in win_events:
-		if int(event.get("winner_seat", -1)) == current_dealer_seat:
-			dealer_keeps = true
+	# 下一局庄家由本局的首个胡牌事件决定，而不是沿用旧庄家或固定轮转。
+	# 一炮多响（也包括抢杠的一次多胡）共享同一个来源座位；此时没有唯一
+	# 的“首胡者”，按产品规则由点炮/被抢杠者坐庄。
+	var first_event: Dictionary = win_events[0]
+	var first_source_seat := int(first_event.get("source_seat", -1))
+	var first_win_type := str(first_event.get("win_type", ""))
+	var simultaneous_first_wins := 0
+	for event_value in win_events:
+		var event: Dictionary = event_value
+		if int(event.get("source_seat", -1)) != first_source_seat:
 			break
-	if dealer_keeps:
-		return current_dealer_seat
+		if str(event.get("win_type", "")) != first_win_type:
+			break
+		if first_win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
+			simultaneous_first_wins += 1
+		else:
+			break
+	if simultaneous_first_wins >= 2 and first_source_seat >= 0 and first_source_seat < players.size():
+		return first_source_seat
+	var first_winner_seat := int(first_event.get("winner_seat", -1))
+	if first_winner_seat >= 0 and first_winner_seat < players.size():
+		return first_winner_seat
 	return posmod(current_dealer_seat - 1, players.size())
 
 

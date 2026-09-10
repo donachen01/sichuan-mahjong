@@ -42,8 +42,13 @@ public sealed class SichuanFanProjectionEngine
         var isDaDuiZi = decompositions.Any(item => !item.IsSevenPairs && item.Groups.All(group => group.Type != SichuanGroupType.Sequence));
         var isJinGouDiao = melds.Count == 4 && hand.Sum() == 2;
         var concealedQuadCount = hand.Sum(count => count / 4);
+        var exposedQuadCount = melds.Count(item => item.Type != SichuanMeldType.Peng);
         var isDragonSevenPairs = isSevenPairs && concealedQuadCount > 0;
-        var genCount = Math.Max(0, concealedQuadCount - (isDragonSevenPairs ? 1 : 0));
+        // A root is any four identical tiles owned by the hand. Gang melds have
+        // left the concealed array but must still contribute one root each.
+        // Dragon seven pairs consumes its first concealed quad as the built-in
+        // dragon upgrade; only additional concealed quads add separate roots.
+        var genCount = exposedQuadCount + Math.Max(0, concealedQuadCount - (isDragonSevenPairs ? 1 : 0));
         var isJiangDui = isDaDuiZi && Enumerable.Range(0, 27)
             .Where(tile => allTiles[tile] > 0)
             .All(tile => tile % 9 is 1 or 4 or 7);

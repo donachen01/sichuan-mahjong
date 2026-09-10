@@ -155,7 +155,8 @@ func render_snapshot(
 	all_hands: Array,
 	reveal_opponents: bool,
 	selected_tile_id: int,
-	markers: Dictionary = {}
+	markers: Dictionary = {},
+	reveal_winning_tiles: bool = false
 ) -> void:
 	if tile_root == null:
 		return
@@ -196,7 +197,8 @@ func render_snapshot(
 			selected_tile_id,
 			new_draw_id,
 			recommended_id,
-			danger_ids
+			danger_ids,
+			reveal_winning_tiles
 		)
 		_append_meld_entries(desired, seat, player.get("melds", []))
 		_append_discard_entries(desired, seat, player.get("discards", []), latest_discard_id)
@@ -589,7 +591,8 @@ func _append_hand_entries(
 	selected_id: int,
 	new_draw_id: int,
 	recommended_id: int,
-	danger_ids: Array
+	danger_ids: Array,
+	reveal_winning_tiles: bool
 ) -> void:
 	var has_won := bool(player.get("has_won", false))
 	var winning_tile: Dictionary = player.get("winning_tile", {})
@@ -676,7 +679,7 @@ func _append_hand_entries(
 		)
 		if seat == 0 and not has_won:
 			self_hand_keys.append(key)
-	if discard_win:
+	if discard_win and reveal_winning_tiles:
 		var source_seat := winning_source_seat
 		var winning_position := _hand_position(seat, count, count + 1, step)
 		# 下家的 +Z 端紧邻本家安全区。点炮胡时把外来胡牌放到其牌列的 -Z 端，

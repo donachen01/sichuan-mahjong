@@ -15,7 +15,9 @@ public sealed class SichuanEvidenceEngine
             foreach (var tileType in discards)
             {
                 if (tileType is < 0 or >= 27) continue;
-                snapshot.SeatExactSafeTiles[seat].Add(tileType);
+                // Sichuan has no permanent own-discard furiten. A previous
+                // discard is soft behavioral evidence, not proof that the
+                // player cannot later win on another copy after changing shape.
                 discardByTile[tileType]++;
                 discardBySuit[tileType / 9]++;
             }

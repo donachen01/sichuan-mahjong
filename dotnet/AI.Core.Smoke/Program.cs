@@ -407,9 +407,9 @@ if (!SmokeFoldSortUsesSafetyBandsWithoutTinyDangerOverpay())
     return 2865;
 }
 
-if (!SmokeWideTwoAwayHighEvCanBeatNarrowOneAway())
+if (!SmokeCourseTempoKeepsNarrowOneAwayExceptExplicitChase())
 {
-    Console.Error.WriteLine("wide_two_away_high_ev_sort_smoke_failed");
+    Console.Error.WriteLine("course_tempo_priority_sort_smoke_failed");
     return 2866;
 }
 
@@ -591,6 +591,36 @@ if (!SichuanTheorySmoke.PublicInferenceBeatsUniformOnBehaviorConsistentHand())
 {
     Console.Error.WriteLine("sichuan_inference_calibration_smoke_failed");
     return 3912;
+}
+
+if (!SichuanTheorySmoke.PublicActionCompatibilityIsSuitRotationInvariant())
+{
+    Console.Error.WriteLine("sichuan_ordered_public_inference_smoke_failed");
+    return 39121;
+}
+
+if (!SichuanTheorySmoke.FixedDiscardSequenceDoesNotCreateProductionFeatures())
+{
+    Console.Error.WriteLine("sichuan_pair_break_claim_sequence_smoke_failed");
+    return 39124;
+}
+
+if (!SichuanTheorySmoke.InactiveSeatLeavesThreatAndSuitCompetition())
+{
+    Console.Error.WriteLine("sichuan_inactive_seat_public_strategy_smoke_failed");
+    return 39125;
+}
+
+if (!SichuanTheorySmoke.PassedReactionEvidenceRejectsCompositePairHypothesisWithoutEliminatingIt())
+{
+    Console.Error.WriteLine("sichuan_composite_pass_evidence_smoke_failed");
+    return 39122;
+}
+
+if (!SichuanTheorySmoke.BeliefPipelineUsesGenericEventOriginWithoutSequencePattern())
+{
+    Console.Error.WriteLine("sichuan_ordered_belief_pipeline_smoke_failed");
+    return 39123;
 }
 
 if (!SichuanTheorySmoke.MultiPlayerUtilityHonorsStrategicRiskBounds())
@@ -1279,7 +1309,7 @@ static bool SmokeFoldSortUsesSafetyBandsWithoutTinyDangerOverpay()
         && sameBandTop?.TileType == sameBandBetterReady.TileType;
 }
 
-static bool SmokeWideTwoAwayHighEvCanBeatNarrowOneAway()
+static bool SmokeCourseTempoKeepsNarrowOneAwayExceptExplicitChase()
 {
     var method = typeof(SichuanDecisionEngine).GetMethod(
         "SortDiscardCandidates",
@@ -1323,7 +1353,7 @@ static bool SmokeWideTwoAwayHighEvCanBeatNarrowOneAway()
     var attackTop = attackSorted?.FirstOrDefault();
     var chaseTop = chaseSorted?.FirstOrDefault();
     Console.WriteLine($"wide_two_away_attack_top={attackTop?.TileType} chase_top={chaseTop?.TileType} narrow={narrowOneAway.Score}/{narrowOneAway.Shanten}/{narrowOneAway.LiveUkeire} wide={wideTwoAwayHighEv.Score}/{wideTwoAwayHighEv.Shanten}/{wideTwoAwayHighEv.LiveUkeire}");
-    return attackTop?.TileType == wideTwoAwayHighEv.TileType
+    return attackTop?.TileType == narrowOneAway.TileType
         && chaseTop?.TileType == wideTwoAwayHighEv.TileType;
 }
 
@@ -2090,7 +2120,9 @@ static bool SmokeEvidenceSnapshot()
         discards);
     var evidence = new SichuanEvidenceEngine().Build(state);
     Console.WriteLine($"evidence_safe={evidence.SeatExactSafeTiles[0].Count} no_hu_tile1={evidence.SeatNoHuEvidence[0][1]:F2}");
-    return evidence.SeatExactSafeTiles[0].Contains(1)
+    // Sichuan has no permanent own-discard furiten. A repeated historical
+    // discard is strong soft evidence, but must not become an exact-safe fact.
+    return !evidence.SeatExactSafeTiles[0].Contains(1)
         && evidence.SeatNoHuEvidence[0][1] >= 0.80
         && evidence.SeatRecentDiscardTrend[0].Count > 0;
 }
@@ -2954,10 +2986,21 @@ static bool SmokeLateWallRiskRegression(SichuanAiFacade facade)
         && result37Selected.Shanten <= 0
         && result37Selected.WaitCount > 0
         && result37Selected.Danger < 78;
+    var result84Selected = result84.Candidates.First(candidate => candidate.TileType == result84.Action.TileType);
+    var case84BestShanten = result84.Candidates.Min(candidate => candidate.Shanten);
+    var case84Comparable = result84.Candidates.Where(candidate => candidate.Shanten == case84BestShanten).ToArray();
+    // Ordered public inference can legitimately move the best tile within the
+    // same late-wall structural tier. Preserve the actual regression contract:
+    // do not lose speed, keep useful live improvement, and stay close to the
+    // safest candidate of that tier instead of pinning one historical tile id.
+    var case84KeepsSpeedWithBoundedRisk = result84Selected.Shanten == case84BestShanten
+        && result84Selected.LiveUkeire == case84Comparable.Max(candidate => candidate.LiveUkeire)
+        && result84Selected.Danger <= case84Comparable.Min(candidate => candidate.Danger) + 5;
     var case215Top = string.Join(",", result215.Candidates.Take(6).Select(candidate => $"{candidate.TileType}:{candidate.Score}/u{candidate.UnifiedActionValue:F2}/r{candidate.StrategicResidual:F2}/s{candidate.Shanten}/w{candidate.WaitCount}/l{candidate.LiveUkeire}/d{candidate.Danger}"));
-    Console.WriteLine($"late_wall_case37_tile={result37.Action.TileType} case37_ready={case37KeepsReadyWithAcceptableRisk} case84_tile={result84.Action.TileType} case215_tile={result215.Action.TileType} case215_top={case215Top}");
+    var case84Top = string.Join(",", result84.Candidates.Take(6).Select(candidate => $"{candidate.TileType}:{candidate.Score}/u{candidate.UnifiedActionValue:F2}/r{candidate.StrategicResidual:F2}/s{candidate.Shanten}/w{candidate.WaitCount}/l{candidate.LiveUkeire}/d{candidate.Danger}"));
+    Console.WriteLine($"late_wall_case37_tile={result37.Action.TileType} case37_ready={case37KeepsReadyWithAcceptableRisk} case84_tile={result84.Action.TileType} case84_top={case84Top} case215_tile={result215.Action.TileType} case215_top={case215Top}");
     return (result37.Action.TileType != 0 || case37KeepsReadyWithAcceptableRisk)
-        && result84.Action.TileType != 2
+        && case84KeepsSpeedWithBoundedRisk
         && result215.Action.TileType != 8;
 }
 

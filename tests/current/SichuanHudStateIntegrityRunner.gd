@@ -399,7 +399,8 @@ func _verify_reveal_and_won_states(scene: Node, failures: Array[String]) -> void
 	var won_snapshot := snapshot.duplicate(true)
 	won_snapshot["players"] = won_players
 	won_snapshot["human_can_discard"] = false
-	stage.call("render_snapshot", won_snapshot, all_hands, false, -1, {})
+	# 非明牌模式不得把点炮来源牌单独摊出。
+	stage.call("render_snapshot", won_snapshot, all_hands, false, -1, {}, false)
 	await process_frame
 	var flat_revealed := 0
 	var arrow_count := 0
@@ -413,10 +414,28 @@ func _verify_reveal_and_won_states(scene: Node, failures: Array[String]) -> void
 			arrow_count += 1
 			if tile.winner_seat != 0 or tile.winning_source_seat != 1:
 				failures.append("点炮箭头丢失赢家/来源座位身份")
-	if flat_revealed != all_hands[0].size():
-		failures.append("已胡手牌没有 %d/%d 全部倒下明牌" % [flat_revealed, all_hands[0].size()])
+	if flat_revealed != all_hands[0].size() - 1:
+		failures.append("非明牌点炮胡不得把来源牌摊出，实际明牌 %d" % flat_revealed)
+	if arrow_count != 0:
+		failures.append("非明牌点炮胡不应显示来源箭头，actual=%d" % arrow_count)
+
+	# 明牌模式必须同时翻开四家手牌，并展示点炮的来源牌及其来源箭头。
+	stage.call("render_snapshot", won_snapshot, all_hands, true, -1, {}, true)
+	await process_frame
+	var opponent_face_count := 0
+	arrow_count = 0
+	for key in (stage.get("tile_nodes") as Dictionary):
+		var tile = (stage.get("tile_nodes") as Dictionary)[key]
+		if str(key).begins_with("hand_") and not str(key).begins_with("hand_0_") and bool(tile.showing_face):
+			opponent_face_count += 1
+		if tile.winning_source_marker != null and tile.winning_source_marker.visible:
+			arrow_count += 1
+			if tile.winner_seat != 0 or tile.winning_source_seat != 1:
+				failures.append("点炮箭头丢失赢家/来源座位身份")
+	if opponent_face_count != all_hands[1].size() + all_hands[2].size() + all_hands[3].size():
+		failures.append("明牌模式没有翻开全部对手手牌，actual=%d" % opponent_face_count)
 	if arrow_count != 1:
-		failures.append("点炮胡来源箭头必须恰好一个，actual=%d" % arrow_count)
+		failures.append("明牌点炮胡来源箭头必须恰好一个，actual=%d" % arrow_count)
 	var compact_badge: Node = scene.call("_create_winning_source_badge", Vector2(84, 112), 1)
 	if compact_badge == null or compact_badge.get_child_count() != 1:
 		failures.append("2D 胡牌来源必须只保留一个简单箭头图形")

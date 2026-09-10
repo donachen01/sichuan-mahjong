@@ -1329,7 +1329,18 @@ func _update_3d_table(snapshot: Dictionary) -> void:
 		"recommended_tile_id": int(trainer_hint.get("recommended_tile_id", -1)),
 		"danger_tile_ids": Array(trainer_hint.get("danger_tile_ids", [])).duplicate(),
 	}
-	table_stage_3d.render_snapshot(snapshot, all_hands, opponent_hands_enabled, selected_tile_id, markers)
+	# 结算是公开复盘状态：无论对局中是否开启明牌，四家手牌均需翻开。
+	# 但单独移入赢家牌列的点炮/抢杠胡牌，仅在明牌模式显示；非明牌模式
+	# 不额外暴露该张来源牌。
+	var round_complete := int(snapshot.get("current_phase", -1)) == GameState.RoundPhase.SETTLEMENT
+	table_stage_3d.render_snapshot(
+		snapshot,
+		all_hands,
+		opponent_hands_enabled or round_complete,
+		selected_tile_id,
+		markers,
+		opponent_hands_enabled
+	)
 	_apply_3d_presentation_visibility()
 	_layout_3d_center_indicator()
 
@@ -3370,7 +3381,7 @@ func _update_self_area(snapshot: Dictionary, self_hand_tiles: Array) -> void:
 		self_trainer_markers
 	)
 	_update_self_hu_tile_display(
-		self_winning_tile if self_winning_source_seat != 0 else {},
+		self_winning_tile if opponent_hands_enabled and self_winning_source_seat != 0 else {},
 		self_winning_source_seat
 	)
 	_update_discard_helper_panel(snapshot, trainer_hint, can_discard)

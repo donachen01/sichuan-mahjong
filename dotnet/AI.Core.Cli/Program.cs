@@ -888,7 +888,8 @@ static SichuanStateView BuildState(DiscardPayload payload)
 
     if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
     if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
-    if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
+	if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
+	state.PolicyVariant = payload.PolicyVariant;
     state.LastDrawTileType = payload.LastDrawTileType;
 	state.LastDrawOrigin = payload.LastDrawOrigin;
 	state.LastGangSeat = payload.LastGangSeat;

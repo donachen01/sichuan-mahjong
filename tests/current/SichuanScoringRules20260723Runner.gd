@@ -65,7 +65,7 @@ func _verify_base_hand_table() -> void:
 	])
 	var jin_gou_melds := [
 		_meld("peng", "wan", 1), _meld("peng", "wan", 3),
-		_meld("gang", "tong", 5), _meld("peng", "tong", 7),
+		_meld("peng", "tong", 5), _meld("peng", "tong", 7),
 	]
 	var qing_jin_gou_melds := [
 		_meld("peng", "wan", 1), _meld("peng", "wan", 3),
@@ -103,6 +103,18 @@ func _verify_root_and_bonus_table() -> void:
 	var one_root := _detail(qing_one_root, [], "self_draw")
 	_check(int(one_root.get("base_fan", -1)) == 2 and int(one_root.get("gen_count", -1)) == 1, "concealed un-ganged quad must add one root")
 	_check(int(one_root.get("uncapped_fan", -1)) == 3, "qing-yise plus one root must total 3 fan")
+
+	var exposed_root := _detail(
+		_tiles([["wan", 9, 2]]),
+		[
+			_meld("peng", "wan", 1), _meld("peng", "wan", 3),
+			_meld("gang", "tong", 5), _meld("peng", "tong", 7),
+		],
+		"self_draw"
+	)
+	_check(str(exposed_root.get("hand_type", "")) == "jin_gou_diao", "exposed-root fixture must remain jin-gou-diao")
+	_check(int(exposed_root.get("gen_count", -1)) == 1, "an exposed gang must add one root")
+	_check(int(exposed_root.get("uncapped_fan", -1)) == 3, "jin-gou-diao plus exposed root must total 3 fan")
 
 	var double_quad_qi_dui := _tiles([
 		["wan", 1, 4], ["tong", 2, 4], ["wan", 3, 2], ["tong", 4, 2], ["wan", 5, 2],

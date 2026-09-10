@@ -16,6 +16,10 @@ public sealed class SichuanDangerEngine
         var suit = tileType / 9;
         foreach (var (seat, pressure) in belief.SeatPressure)
         {
+            // Legal public state outranks any statistical (or older) posterior.
+            // A player cannot win on their ding-que suit or after exiting.
+            if (seat is < 0 or >= 4 || seat == state.SeatIndex || !state.ActiveSeats[seat]
+                || state.HasHu[seat] || state.DingQueSuits[seat] == suit) continue;
             var tileDanger = 0.22;
             if (belief.SeatTileDanger.TryGetValue(seat, out var perTile) && perTile.TryGetValue(tileType, out var dangerValue))
                 tileDanger = dangerValue;
@@ -112,6 +116,9 @@ public sealed class SichuanDangerEngine
                 reasons.Add($"座位{seat}胡这张后验高");
             else if (holdProbability >= 0.20)
                 reasons.Add($"座位{seat}持张后验高");
+            if (belief.SeatTileInferenceReasons.TryGetValue(seat, out var orderedReasons)
+                && orderedReasons.TryGetValue(tileType, out var tileReasons))
+                reasons.AddRange(tileReasons.Take(1));
 
             if (seatRisk > topThreatScore)
             {
@@ -130,7 +137,8 @@ public sealed class SichuanDangerEngine
             TopThreatScore = Math.Round(topThreatScore, 2),
             Reasons = reasons
                 .Distinct()
-                .OrderByDescending(item => item.Contains("后验"))
+				.OrderByDescending(item => item.Contains("先手切"))
+				.ThenByDescending(item => item.Contains("后验"))
 				.ThenByDescending(item => item.Contains("已成叫"))
                 .Take(6)
                 .Append(reasons.Count == 0 ? $"当前{ResolveRiskLabel(riskInt)}可控" : $"整体{ResolveRiskLabel(riskInt)}")

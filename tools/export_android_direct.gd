@@ -37,6 +37,7 @@ func _export_android() -> void:
 	if export_mode == "":
 		export_mode = "debug"
 	var is_debug := export_mode != "release"
+	var use_gradle := OS.get_environment("GODOT_ANDROID_USE_GRADLE").to_lower() not in ["0", "false", "no", "off"]
 	var app_version := _app_version_name()
 	var platform: Object = ClassDB.instantiate("EditorExportPlatformAndroid")
 	if not platform:
@@ -48,9 +49,9 @@ func _export_android() -> void:
 	preset.set("custom_features", "C#")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
+	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
-	preset.set("gradle_build/use_gradle_build", true)
+	preset.set("gradle_build/use_gradle_build", use_gradle)
 	var gradle_build_dir := OS.get_environment("GODOT_ANDROID_GRADLE_BUILD_DIR")
 	if gradle_build_dir == "":
 		gradle_build_dir = "/tmp/sichuan_mahjong_android_gradle_build"

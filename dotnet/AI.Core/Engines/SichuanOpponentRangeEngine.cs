@@ -70,6 +70,11 @@ public sealed class SichuanOpponentRangeEngine
             wait[tileType] = Math.Clamp(readyProbability * (posterior * 0.44 + suitDemand[suit] * 0.24 + sequenceAffinity * 0.20) * (1.0 - noHu * 0.76), 0.0, 0.98);
         }
 
+        // Holding an uncleared missing-suit tile is possible; winning on it is not.
+        // Apply after every branch, including exact-safe evidence handling.
+        if (state.DingQueSuits[seat] is >= 0 and < 3)
+            Array.Clear(wait, state.DingQueSuits[seat] * 9, 9);
+
         var wallPosterior = BuildWallPosterior(state, hold, seat);
         return new SichuanOpponentRangeProfile
         {

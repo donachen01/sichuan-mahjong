@@ -119,7 +119,7 @@ public sealed class SichuanAiContextCache
     };
 
     private static string BuildLowFrequencyKey(SichuanStateView state)
-        => $"{state.RoundIndex}|{state.TotalRounds}|{state.RemainingRounds}|{state.WallCount}|{string.Join(',', state.Scores)}|{state.Discards18.Sum(list => list.Count)}|{state.Melds18.Sum(list => list.Count)}|{string.Join(',', state.IsCalled.Select(item => item ? 1 : 0))}|{string.Join(',', state.IsReady.Select(item => item ? 1 : 0))}";
+        => $"{state.RoundIndex}|{state.TotalRounds}|{state.RemainingRounds}|{state.WallCount}|x3:{(state.ExchangeThreeEnabled ? 1 : 0)}|{string.Join(',', state.Scores)}|{state.Discards18.Sum(list => list.Count)}|{state.Melds18.Sum(list => list.Count)}|{string.Join(',', state.IsCalled.Select(item => item ? 1 : 0))}|{string.Join(',', state.IsReady.Select(item => item ? 1 : 0))}";
 
     private static string BuildVisibleKey(SichuanStateView state)
         => $"{state.VisibleVersion}|{state.WallCount}|q:{string.Join(',', state.DingQueSuits)}|{string.Join(',', state.Visible18)}|d:{string.Join('|', state.Discards18.Select(list => string.Join(',', list)))}|m:{string.Join('|', state.Melds18.Select(list => string.Join(',', list)))}";
