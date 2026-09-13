@@ -3,20 +3,24 @@ using SichuanMahjong.AI.Core.Cache;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Strategy;
 using SichuanMahjong.AI.Core.Decision;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
 public sealed class SichuanDecisionEngine
 {
     private readonly SichuanShantenEngine _shanten = new();
+    private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanCallQualityEngine _quality = new();
     private readonly SichuanBeliefEngine _belief = new();
+	private readonly SichuanWallAvailabilityEngine _wall = new();
     private readonly SichuanDangerEngine _danger = new();
     private readonly SichuanMctsEngine _search = new();
     private readonly SichuanExpectedScoreEngine _expectedScore = new();
     private readonly SichuanSelfDrawProbabilityEngine _selfDraw = new();
     private readonly SichuanHandShapeEngine _shape = new();
+    private readonly SichuanClassicPatternEngine _classicPattern = new();
     private readonly SichuanWaitShapeEngine _waitShape = new();
     private readonly SichuanLimitedLookaheadEngine _limitedLookahead = new();
     private readonly SichuanRoutePlanEngine _routePlan = new();
@@ -25,6 +29,9 @@ public sealed class SichuanDecisionEngine
 	private readonly SichuanQingYiSePlanner _qingYiSePlanner = new();
 	private readonly SichuanRouteValueEvaluator _routeValueEvaluator = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
+	private readonly SichuanDefenseTempoEvaluator _defenseTempo = new();
+	private readonly SichuanTwoPlyReadyEvaluator _twoPlyReady = new();
+	private readonly SichuanPublicJointRouteAnalysis _publicJointRoutes = new();
 
     private sealed record SichuanBigHandRouteAdjustment(double Score, IReadOnlyList<string> Reasons)
     {
@@ -52,11 +59,13 @@ public sealed class SichuanDecisionEngine
     {
         var decisionStopwatch = Stopwatch.StartNew();
         var belief = _belief.Build(state);
+        var wallAvailability = _wall.Build(state, belief);
         var aiContext = _contextCache.GetOrUpdate(state, belief);
         var roundStage = aiContext.Stage.StageIndex;
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var currentShanten = _shanten.CalcBestShanten(state.Hand18, meldCount);
+        var classicPattern = _classicPattern.Analyze(state.Hand18, meldCount);
         var currentRoutes = EstimateRoutes(state.Hand18, state);
         roundBrain ??= new SichuanRoundBrainSnapshot
         {
@@ -71,12 +80,14 @@ public sealed class SichuanDecisionEngine
 			|| SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute)
 			|| qingRouteValue is { CompletionProbability: >= 0.42 };
 		var qingPlans = shouldPlanQing
-			? _qingYiSePlanner.Evaluate(state, roundBrain.TargetSuit >= 0 ? roundBrain.TargetSuit : routePlan.TargetSuit).ToDictionary(item => item.DiscardTileType)
+			? _qingYiSePlanner.Evaluate(
+				state,
+				roundBrain.TargetSuit >= 0 ? roundBrain.TargetSuit : routePlan.TargetSuit,
+				belief).ToDictionary(item => item.DiscardTileType)
 			: new Dictionary<int, SichuanQingPlanCandidate>();
 		var unifiedDiscardValues = forceLightweight
 			? new Dictionary<int, double>()
-			: _unified.RankDiscards(state).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
-		var unifiedMean = unifiedDiscardValues.Values.DefaultIfEmpty(0).Average();
+			: _unified.RankDiscards(state, belief).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -89,6 +100,13 @@ public sealed class SichuanDecisionEngine
         var forcedDingQueSuit = state.OwnDingQueSuit;
         var mustClearDingQue = forcedDingQueSuit is >= 0 and < 3
             && Enumerable.Range(forcedDingQueSuit * 9, 9).Any(tile => state.Hand18[tile] > 0);
+        var exactDiscardAnalyses = _hands.AnalyzeDiscards(
+            state.Hand18,
+            state.Remaining18,
+            meldCount,
+            meldCount == 0,
+            mustClearDingQue ? forcedDingQueSuit : -1)
+            .ToDictionary(item => item.DiscardTileType);
         for (var tileType = 0; tileType < 27; tileType++)
         {
             if (state.Hand18[tileType] <= 0) continue;
@@ -99,7 +117,11 @@ public sealed class SichuanDecisionEngine
             var exactReadyTiles = GetExactReadyTiles(remainingHand, meldCount);
             var effectiveUkeire = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : ukeire;
             var effectiveShanten = exactReadyTiles.Count > 0 ? 0 : shanten;
-            var effectiveLiveUkeire = exactReadyTiles.Count > 0 ? exactReadyTiles.Sum(item => Math.Max(0, state.Remaining18[item])) : liveUkeire;
+			var expectedLiveUkeire = wallAvailability.SumExpected(
+				exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles);
+			var effectiveLiveUkeire = expectedLiveUkeire <= 0.000001
+				? 0
+				: (int)Math.Ceiling(expectedLiveUkeire);
             var effectiveImprovingTiles = exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles;
             var waitCount = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : (effectiveShanten <= 0 ? improvingTiles.Count : 0);
             var routesAfter = EstimateRoutes(remainingHand, state);
@@ -112,9 +134,26 @@ public sealed class SichuanDecisionEngine
             var orphanTerminal = EvaluateOrphanTerminalDiscardAdjustment(state.Hand18, tileType, roundStage);
             var connectedRun = EvaluateConnectedRunPreservationAdjustment(state.Hand18, tileType, roundStage);
             var endgamePairWait = EvaluateEndgamePairWaitAdjustment(state.Hand18, tileType, state.WallCount, meldCount);
-            var qualityScore = _quality.EvaluateScore(effectiveImprovingTiles, state.Remaining18);
-            var shapeSummary = _shape.Evaluate(remainingHand, state.Remaining18, meldCount, effectiveShanten);
-            var waitShapeSummary = _waitShape.Evaluate(remainingHand, waitCount > 0 ? effectiveImprovingTiles : Array.Empty<int>());
+            var qualityScore = _quality.EvaluateScore(effectiveImprovingTiles, wallAvailability.RepresentativeCounts18);
+            var shapeSummary = _shape.Evaluate(remainingHand, wallAvailability.RepresentativeCounts18, meldCount, effectiveShanten);
+            var classicPatternScore = _classicPattern.EvaluateDiscard(classicPattern, remainingHand, meldCount);
+			var waitShapeSummary = _waitShape.Evaluate(remainingHand, waitCount > 0 ? effectiveImprovingTiles : Array.Empty<int>());
+            var exactDiscard = exactDiscardAnalyses.GetValueOrDefault(tileType);
+			var twoPlyV1 = string.Equals(state.PolicyVariant, "two_ply_ready_candidate_v1", StringComparison.OrdinalIgnoreCase);
+			var publicRouteV3 = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v3_exposed_hand", StringComparison.OrdinalIgnoreCase);
+			var publicRouteV4 = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase);
+			var publicRouteV5 = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase);
+			var publicRouteV6 = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v6_late_open_shape", StringComparison.OrdinalIgnoreCase);
+			var publicRouteV7 = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase);
+			var routeMechanismEnabled = twoPlyV1 || publicRouteV3 || publicRouteV4 || publicRouteV5 || publicRouteV6 || publicRouteV7;
+			// Order 97 is a late open-hand judgment made after two exposed sets.  V6
+			// deliberately keeps that evidence boundary instead of extending the rule
+			// to one-meld midgame hands, where the held-out replays showed regressions.
+			var routeStructureEligible = publicRouteV7 ? meldCount == 2 : publicRouteV6 ? meldCount >= 2 : meldCount >= 1;
+			var twoPlyReady = exactDiscard is null || !routeMechanismEnabled || !routeStructureEligible
+				? SichuanTwoPlyReadySummary.Empty
+				: _twoPlyReady.Evaluate(remainingHand, state.Remaining18, wallAvailability, meldCount,
+					exactDiscard.Shanten, exactDiscard.ImprovingTiles, meldCount == 0);
             var readyCentralPreservation = EvaluateReadyCentralPreservationAdjustment(
                 state.Hand18,
                 tileType,
@@ -124,13 +163,14 @@ public sealed class SichuanDecisionEngine
                 roundStage);
             var limitedLookahead = _limitedLookahead.Evaluate(
                 remainingHand,
-                state.Remaining18,
+                wallAvailability.RepresentativeCounts18,
                 meldCount,
                 effectiveShanten,
                 effectiveLiveUkeire,
-                0);
+				ResolveLookaheadDrawTypes(state.WallCount, effectiveShanten));
             var dangerEval = _danger.EvaluateDetail(tileType, state, belief);
             var danger = dangerEval.Risk;
+            var defenseTempo = _defenseTempo.Evaluate(state, belief, tileType, danger);
             var fastTingPriority = EvaluateFastTingPriorityAdjustment(currentShanten, effectiveShanten, effectiveLiveUkeire, waitCount, roundStage, danger);
             var wallDrawPosterior = EstimateWallDrawPosterior(effectiveImprovingTiles, belief);
             var tenpaiProbability = EstimateTenpaiProbability(effectiveShanten, effectiveLiveUkeire);
@@ -191,10 +231,39 @@ public sealed class SichuanDecisionEngine
                 + roundBrainAdjustment.Score
                 + dealInPolicy.AdjustmentScore / 100.0;
             var defenseAdjustment = posteriorAdjustment * ResolveDefenseAdjustmentWeight(effectiveShanten, waitCount, roundStage, maxReadyPosterior);
-            var unifiedAdjustment = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue)
-				? Math.Clamp((unifiedValue - unifiedMean) * 0.12, -0.65, 0.65)
-				: 0;
-			var expectedValue = expectedScore.Net + shapeValue - defenseAdjustment + unifiedAdjustment;
+            var hasUnifiedValue = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue);
+            var unifiedActionValue = hasUnifiedValue
+                ? unifiedValue
+                : -effectiveShanten * 4.0 + effectiveLiveUkeire * 0.16 + waitCount * 0.12;
+            // The common action value owns the ordering scale. Shape, route and danger
+            // engines remain useful evidence, but are bounded so a legacy heuristic
+            // cannot silently replace the full counterfactual comparison.
+            var criticalStructureEvidence = setPreservation.Score
+                + connectedRun.Score
+                + readyCentralPreservation.Score
+                + endgamePairWait.Score
+                + orphanTerminal.Score;
+            var routeContinuityEvidence = routePlanAdjustment.Score
+                + qingPlanAdjustment.Score
+                + bigHandRoute.Score
+                + roundBrainAdjustment.Score;
+            var generalShapeEvidence = shapeValue - criticalStructureEvidence - routeContinuityEvidence;
+            var orphanResidualCap = roundStage <= 0 ? 0.15 : 2.00;
+            var strategicResidual = Math.Clamp(generalShapeEvidence, -0.75, 0.75)
+                + Math.Clamp(setPreservation.Score, -2.50, 2.50)
+                + Math.Clamp(connectedRun.Score, -1.25, 1.25)
+                + Math.Clamp(readyCentralPreservation.Score, -1.25, 1.25)
+                + Math.Clamp(endgamePairWait.Score, -1.50, 1.50)
+                + Math.Clamp(orphanTerminal.Score, -orphanResidualCap, orphanResidualCap)
+                + Math.Clamp(routeContinuityEvidence, -2.00, 2.00)
+                + Math.Clamp(defenseTempo.DiscardNowAdjustment, -0.85, 0.85);
+            var modelResidual = Math.Clamp(expectedScore.Net - unifiedActionValue, -2.0, 2.0);
+            var boundedDefenseCost = Math.Clamp(defenseAdjustment, 0.0, 2.0);
+				var expectedValue = unifiedActionValue
+				+ Math.Clamp(limitedLookahead.Score, -18.0, 24.0) * 0.06
+                + strategicResidual * 0.05
+                + modelResidual * 0.20
+                - boundedDefenseCost * 0.35;
             var score = (int)Math.Round(expectedValue * 100.0);
             var fastTingDiscardRank = ResolveFastRank(effectiveShanten, waitCount, effectiveLiveUkeire);
             var riskLabel = dangerEval.RiskLabel;
@@ -219,7 +288,8 @@ public sealed class SichuanDecisionEngine
                 .Concat(setPreservation.Reasons)
                 .Concat(strategicAdjustment.Reasons)
                 .Concat(roundBrainAdjustment.Reasons)
-				.Concat(unifiedDiscardValues.ContainsKey(tileType) ? new[] { $"统一净分层修正 {unifiedAdjustment:F2}" } : Array.Empty<string>())
+				.Concat(defenseTempo.Reasons)
+				.Concat(hasUnifiedValue ? new[] { $"统一动作净值 {unifiedActionValue:F2}", $"有限策略残差 {strategicResidual:F2}" } : Array.Empty<string>())
                 .Concat(new[] { dealInPolicy.ReasonCode })
                 .ToArray();
             candidateScores[tileType] = score;
@@ -231,6 +301,7 @@ public sealed class SichuanDecisionEngine
                 Shanten = effectiveShanten,
                 Ukeire = effectiveUkeire,
                 LiveUkeire = effectiveLiveUkeire,
+                StructuralLoss = exactDiscardAnalyses.GetValueOrDefault(tileType)?.StructuralLoss ?? 0,
                 Danger = danger,
                 WaitCount = waitCount,
                 WaitQualityScore = qualityScore,
@@ -249,6 +320,8 @@ public sealed class SichuanDecisionEngine
                 ExpectedFan = expectedFan,
                 DealInProbability = dealInProbability,
                 ExpectedValue = expectedValue,
+                UnifiedActionValue = unifiedActionValue,
+                StrategicResidual = strategicResidual,
                 ExpectedNetScore = expectedScore.Net,
                 ExpectedWinGain = expectedScore.WinGain,
                 ExpectedDealInLoss = expectedScore.DealInLoss,
@@ -256,11 +329,13 @@ public sealed class SichuanDecisionEngine
                 ExpectedReadyValue = expectedScore.ReadyValue,
                 PosteriorAdjustment = posteriorAdjustment,
                 DefenseAdjustment = defenseAdjustment,
+                DefenseTempoAdjustment = defenseTempo.DiscardNowAdjustment,
                 GoodShapeCount = shapeSummary.GoodShapeCount,
                 BadShapeCount = shapeSummary.BadShapeCount,
                 PairPressure = shapeSummary.PairPressure,
                 TaatsuOverflow = shapeSummary.TaatsuOverflow,
                 SameShantenImprovementCount = shapeSummary.SameShantenImprovementCount,
+                ClassicPatternScore = classicPatternScore,
                 MiddleTileFlexibility = shapeSummary.MiddleTileFlexibility,
                 ShapeScore = shapeSummary.ShapeScore,
                 BreaksPair = setPreservation.BreaksPair,
@@ -273,7 +348,11 @@ public sealed class SichuanDecisionEngine
                 PenchanWaitCount = waitShapeSummary.PenchanCount,
                 TankiWaitCount = waitShapeSummary.TankiCount,
                 ShanponWaitCount = waitShapeSummary.ShanponCount,
-                LimitedLookaheadScore = limitedLookahead.Score,
+				LimitedLookaheadScore = limitedLookahead.Score,
+				TwoPlyReadyProbability = twoPlyReady.OrderedTwoDrawWinProbability,
+				TwoPlyFirstStepMass = twoPlyReady.FirstStepImprovingMass,
+				TwoPlyWorstReadyShapeScore = twoPlyReady.WorstReadyWaitShapeScore,
+				TwoPlyWorstReadyWaitMass = twoPlyReady.WorstReadyWaitMass,
                 LimitedLookaheadSamples = limitedLookahead.SampledDrawCount,
                 LimitedLookaheadBestShanten = limitedLookahead.BestNextShanten,
                 LimitedLookaheadBestLiveUkeire = limitedLookahead.BestNextLiveUkeire,
@@ -299,6 +378,29 @@ public sealed class SichuanDecisionEngine
         }
 
         candidates = SortDiscardCandidates(candidates, roundStage, aiContext);
+		// New route model enters the candidate record in shadow mode first.  The
+		// teaching video supplies no calibrated coefficient, so this must not
+		// modify Score, ExpectedValue, UnifiedActionValue, or the chosen action.
+		// A complete public allocation/history is required; incomplete source
+		// reconstructions receive an explicit unsupported reason instead of an
+		// invented probability.
+		if (string.Equals(state.PolicyVariant, "public_joint_route_shadow_v1", StringComparison.OrdinalIgnoreCase))
+		{
+			var jointRouteReport = _publicJointRoutes.Analyze(state, 256, 20260908);
+			var byDiscard = jointRouteReport.Candidates.ToDictionary(item => item.DiscardTile);
+			foreach (var candidate in candidates)
+			{
+				candidate.PublicJointRouteSupported = jointRouteReport.Supported;
+				candidate.PublicJointRouteReason = jointRouteReport.Reason;
+				candidate.PublicJointRouteOwnDrawBudget = jointRouteReport.FixedScheduleOwnDrawBudget;
+				candidate.PublicJointRouteSamples = jointRouteReport.SampleCount;
+				candidate.PublicJointRouteEffectiveSampleSize = jointRouteReport.EffectiveSampleSize;
+				candidate.PublicJointRouteModelProbability = byDiscard
+					.GetValueOrDefault(candidate.TileType)?.Estimate.ModelWinProbability ?? 0;
+				candidate.PublicJointRouteOwnDrawsEvaluated = byDiscard
+					.GetValueOrDefault(candidate.TileType)?.Estimate.OwnDrawsEvaluated ?? 0;
+			}
+		}
         if (candidates.Count > 0)
         {
             var sortedBestCandidate = candidates[0];
@@ -311,11 +413,16 @@ public sealed class SichuanDecisionEngine
             reasons = sortedBestCandidate.Reasons.ToList();
         }
 
-        var useSearch = !forceLightweight && candidates.Count <= 8 && aiContext.Stage.StageIndex <= 1;
+		var useSearch = !forceLightweight && ShouldUseDiscardSearch(candidates, state.WallCount);
         var searchResult = useSearch
-            ? _search.EvaluateTopCandidates(state, candidates, timeoutMs: 45, topK: 2, rolloutDepth: 1)
+			? _search.EvaluateTopCandidates(
+				state,
+				candidates,
+				timeoutMs: state.WallCount <= 8 ? 65 : 45,
+				topK: state.WallCount <= 8 ? 4 : 3,
+				rolloutDepth: state.WallCount <= 10 ? 2 : 1)
             : new SichuanSearchResult { Used = false };
-        if (searchResult.Used)
+		if (searchResult.Used)
         {
             candidates = ApplySearchBonuses(candidates, searchResult, roundStage, aiContext);
             candidateScores = candidates.ToDictionary(item => item.TileType, item => item.Score);
@@ -358,6 +465,92 @@ public sealed class SichuanDecisionEngine
                 .Concat(new[] { "尾盘硬防守：牌墙极少时优先避开证据不牢的抢听风险" })
                 .ToList();
         }
+
+		var lateWallTempo = SelectLateWallSafeTempoOverride(candidates, bestTile, state);
+		if (lateWallTempo is not null)
+		{
+			bestTile = lateWallTempo.TileType;
+			bestScore = lateWallTempo.Score;
+			bestShanten = lateWallTempo.Shanten;
+			bestUkeire = lateWallTempo.Ukeire;
+			bestLive = lateWallTempo.LiveUkeire;
+			bestSearchBonus = lateWallTempo.SearchBonus;
+			reasons = lateWallTempo.Reasons
+				.Concat(new[] { "尾盘安全降向听：不点炮的更快成叫路线优先" })
+				.ToList();
+		}
+
+		var unifiedNearTie = SelectUnifiedActionValueOverride(candidates, bestTile);
+		if (unifiedNearTie is not null)
+		{
+			bestTile = unifiedNearTie.TileType;
+			bestScore = unifiedNearTie.Score;
+			bestShanten = unifiedNearTie.Shanten;
+			bestUkeire = unifiedNearTie.Ukeire;
+			bestLive = unifiedNearTie.LiveUkeire;
+			bestSearchBonus = unifiedNearTie.SearchBonus;
+			reasons = unifiedNearTie.Reasons
+				.Concat(new[] { "统一净值校正：近分候选不让策略残差压过真实活张与净收益" })
+				.ToList();
+		}
+
+		var exactStructureNearTie = SelectExactStructureNearTieOverride(candidates, bestTile);
+        if (exactStructureNearTie is not null)
+        {
+            bestTile = exactStructureNearTie.TileType;
+            bestScore = exactStructureNearTie.Score;
+            bestShanten = exactStructureNearTie.Shanten;
+            bestUkeire = exactStructureNearTie.Ukeire;
+            bestLive = exactStructureNearTie.LiveUkeire;
+            bestSearchBonus = exactStructureNearTie.SearchBonus;
+            reasons = exactStructureNearTie.Reasons
+                .Concat(new[] { "精确牌形近分裁决：同速候选优先互斥分解的最低结构损失" })
+                .ToList();
+		}
+
+		var publicRouteV4Guarded = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase);
+		var publicRouteV5Robust = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase);
+		var publicRouteV6LateOpenShape = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v6_late_open_shape", StringComparison.OrdinalIgnoreCase);
+		var publicRouteV7TwoMeldPositiveEv = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase);
+		if (publicRouteV4Guarded || publicRouteV5Robust || publicRouteV6LateOpenShape || publicRouteV7TwoMeldPositiveEv)
+			PopulateGuardedPublicRouteMetrics(candidates, bestTile, state, wallAvailability, exactDiscardAnalyses, meldCount);
+
+		var twoPlyReadyChoice = string.Equals(state.PolicyVariant, "two_ply_ready_candidate_v1", StringComparison.OrdinalIgnoreCase)
+			? SelectTwoPlyReadyProbabilityOverride(candidates, bestTile)
+			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v3_exposed_hand", StringComparison.OrdinalIgnoreCase)
+				? SelectPublicRouteFrontierOverride(candidates, bestTile, meldCount, false)
+			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase)
+				? SelectPublicRouteFrontierOverride(candidates, bestTile, meldCount, true)
+			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase)
+				? SelectRobustPublicRouteFrontierOverride(candidates, bestTile, meldCount)
+			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v6_late_open_shape", StringComparison.OrdinalIgnoreCase)
+				? SelectLateOpenShapePublicRouteOverride(candidates, bestTile, meldCount)
+			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase)
+				? SelectTwoMeldPositiveEvPublicRouteOverride(candidates, bestTile, meldCount)
+			: null;
+		if (twoPlyReadyChoice is not null)
+		{
+			bestTile = twoPlyReadyChoice.TileType;
+			bestScore = twoPlyReadyChoice.Score;
+			bestShanten = twoPlyReadyChoice.Shanten;
+			bestUkeire = twoPlyReadyChoice.Ukeire;
+			bestLive = twoPlyReadyChoice.LiveUkeire;
+			bestSearchBonus = twoPlyReadyChoice.SearchBonus;
+			var reasonCode = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v3_exposed_hand", StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v6_late_open_shape", StringComparison.OrdinalIgnoreCase)
+				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase)
+				? "PUBLIC_ROUTE_FRONTIER_OVERRIDE"
+				: "TWO_PLY_READY_OVERRIDE";
+			reasons = new[]
+				{
+					reasonCode,
+					$"两次摸牌路线代理值：逐个进张后重算听口，未校准完成概率 {twoPlyReadyChoice.TwoPlyReadyProbability:F5}"
+				}
+				.Concat(twoPlyReadyChoice.Reasons)
+				.ToList();
+		}
 
         var lateWallKeepReady = SelectLateWallKeepReadyOverride(candidates, bestTile, state);
         if (lateWallKeepReady is not null)
@@ -406,6 +599,7 @@ public sealed class SichuanDecisionEngine
             Reasons = finalReasons,
             CandidateScores = candidateScores,
             Candidates = candidates,
+            ClassicPattern = classicPattern,
             RoutePlan = routePlan,
             RoundBrain = roundBrain
         };
@@ -712,7 +906,6 @@ public sealed class SichuanDecisionEngine
             return true;
         var mode = context?.StrategyMode.Mode ?? "balanced";
         var roundGoal = context?.RoundGoal.Goal ?? "";
-        var chase = mode == "chase" || roundGoal == "chase_score";
         var defensive = mode is "defense" or "fold" || roundGoal == "protect_lead";
         var scoreGap = challenger.Score - incumbent.Score;
         var dangerGap = challenger.Danger - incumbent.Danger;
@@ -722,19 +915,13 @@ public sealed class SichuanDecisionEngine
         if (defensive && dangerGap >= 24 && scoreGap < 900)
             return false;
 
-        var challengerRank = StrategicShantenRank(challenger, roundStage);
-        var incumbentRank = StrategicShantenRank(incumbent, roundStage);
-        if (challengerRank != incumbentRank)
-        {
-            if (chase && challengerRank > incumbentRank && scoreGap >= 520 && challenger.Danger <= 82)
-                return true;
-            if (chase && challengerRank < incumbentRank && scoreGap <= -780 && incumbent.Danger <= 82)
-                return false;
-            return challengerRank < incumbentRank;
-        }
-        if (challenger.Shanten != incumbent.Shanten && Math.Abs(challenger.Score - incumbent.Score) < 900)
+        if (challenger.Score != incumbent.Score)
+            return challenger.Score > incumbent.Score;
+        if (challenger.Danger != incumbent.Danger)
+            return challenger.Danger < incumbent.Danger;
+        if (challenger.Shanten != incumbent.Shanten)
             return challenger.Shanten < incumbent.Shanten;
-        return challenger.Score > incumbent.Score;
+        return challenger.LiveUkeire > incumbent.LiveUkeire;
     }
 
     private static List<SichuanCandidateDetail> SortDiscardCandidates(
@@ -762,22 +949,20 @@ public sealed class SichuanDecisionEngine
         if (mode == "defense" || protectiveLeadActive)
         {
             return candidates
-                .OrderBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
-                .ThenBy(item => item.Danger >= 72 ? 1 : 0)
+                .OrderBy(item => item.Danger >= 78 ? 1 : 0)
                 .ThenByDescending(item => item.Score)
                 .ThenBy(item => item.Danger)
-                .ThenBy(item => StrategicShantenRank(item, roundStage))
                 .ThenByDescending(item => item.LiveUkeire)
                 .ThenByDescending(item => item.WaitQualityScore)
+                .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
                 .ToList();
         }
 
         if (mode == "chase" || roundGoal == "chase_score")
         {
             return candidates
-                .OrderBy(item => item.Danger >= 86 ? 1 : 0)
-                .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
-                .ThenByDescending(item => item.Score)
+                .OrderByDescending(item => item.Score)
+                .ThenBy(item => item.Danger >= 86 ? 1 : 0)
                 .ThenByDescending(item => item.ExpectedNetScore)
                 .ThenByDescending(item => BigRouteCount(item))
                 .ThenBy(item => StrategicShantenRank(item, roundStage))
@@ -789,14 +974,29 @@ public sealed class SichuanDecisionEngine
         }
 
         return candidates
-            .OrderBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
+            // Course speed contract for ordinary attack/balanced play:
+            // 1) never let a blended heuristic hide a worse shanten result;
+            // 2) at equal shanten maximize strict live ukeire: only draws that
+            //    reduce shanten count, after deducting visible/owned copies;
+            // 3) only then compare EV, shape, fan route and danger residuals.
+            // Explicit defense/fold/protect-lead and chase-score branches above
+            // retain their separate table-state objectives.
+            .OrderBy(item => StrategicShantenRank(item, roundStage))
+            .ThenByDescending(item => item.LiveUkeire)
+            .ThenByDescending(item => item.ClassicPatternScore)
+            // These are course tie-breakers, not substitutes for speed: only
+            // compare them after shanten and strict live ukeire are identical.
+            .ThenByDescending(item => item.SetPreservationScore)
+            .ThenByDescending(item => item.WaitShapeScore)
             .ThenByDescending(item => item.Score)
-            .ThenBy(item => StrategicShantenRank(item, roundStage))
+            .ThenBy(item => item.Danger >= 86 ? 1 : 0)
+            .ThenByDescending(item => item.ExpectedNetScore)
             .ThenBy(item => item.FastTingDiscardRank)
             .ThenByDescending(item => item.WaitCount)
             .ThenByDescending(item => item.LiveUkeire)
             .ThenBy(item => item.Danger)
             .ThenByDescending(item => item.WaitQualityScore)
+            .ThenBy(item => CandidateTierRank(item, mode, rankRoundGoal, roundStage))
             .ToList();
     }
 
@@ -863,6 +1063,12 @@ public sealed class SichuanDecisionEngine
         }
 
         if (candidate.Shanten <= 0 && candidate.WaitCount > 0)
+            return 0;
+        if (roundStage <= 1
+            && BigRouteCount(candidate) > 0
+            && candidate.Shanten <= 1
+            && candidate.ExpectedNetScore >= 6.0
+            && candidate.Danger < 70)
             return 0;
         if (candidate.Shanten <= 1 && candidate.LiveUkeire >= 4)
             return 10;
@@ -1328,6 +1534,25 @@ public sealed class SichuanDecisionEngine
         return 5;
     }
 
+	private static int ResolveLookaheadDrawTypes(int wallCount, int shanten)
+	{
+		if (wallCount <= 0) return 0;
+		if (wallCount <= 6) return 6;
+		if (wallCount <= 12 && shanten <= 1) return 4;
+		return 0;
+	}
+
+	private static bool ShouldUseDiscardSearch(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int wallCount)
+	{
+		if (wallCount is <= 0 or > 12 || candidates.Count < 2) return false;
+		var first = candidates[0];
+		var second = candidates[1];
+		return Math.Abs(first.UnifiedActionValue - second.UnifiedActionValue) <= 0.70
+			|| Math.Abs(first.ExpectedValue - second.ExpectedValue) <= 0.55;
+	}
+
     private static double EstimateTenpaiProbability(int shanten, int liveUkeire)
     {
         if (shanten <= 0) return 0.94;
@@ -1549,7 +1774,7 @@ public sealed class SichuanDecisionEngine
         _ => "后期"
     };
 
-    private static SichuanCandidateDetail? SelectExtremeDangerSameSpeedOverride(
+	private static SichuanCandidateDetail? SelectExtremeDangerSameSpeedOverride(
         IReadOnlyList<SichuanCandidateDetail> candidates,
         int currentTile,
         SichuanStateView state)
@@ -1682,6 +1907,276 @@ public sealed class SichuanDecisionEngine
             .FirstOrDefault();
     }
 
+	private static SichuanCandidateDetail? SelectLateWallSafeTempoOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		SichuanStateView state)
+	{
+		if (state.WallCount is < 1 or > 8 || candidates.Count < 2)
+			return null;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null || current.Shanten <= 0)
+			return null;
+		var bestShanten = candidates.Min(item => item.Shanten);
+		if (bestShanten >= current.Shanten)
+			return null;
+
+		var faster = candidates
+			.Where(item => item.Shanten == bestShanten
+				&& item.Danger < 70
+				&& item.DealInProbability <= Math.Max(0.04, current.DealInProbability + 0.015))
+			.OrderByDescending(item => item.Shanten <= 0 && item.WaitCount > 0)
+			.ThenBy(item => item.Danger)
+			.ThenByDescending(item => item.LiveUkeire)
+			.ThenByDescending(item => item.WaitQualityScore)
+			.ThenByDescending(item => item.Score)
+			.FirstOrDefault();
+		if (faster is null)
+			return null;
+		return faster;
+	}
+
+	private static SichuanCandidateDetail? SelectUnifiedActionValueOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile)
+	{
+		if (candidates.Count < 2)
+			return null;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null)
+			return null;
+
+		var higherUnified = candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten <= current.Shanten
+				&& item.UnifiedActionValue >= current.UnifiedActionValue + 0.025
+				&& item.Score >= current.Score - 12
+				&& item.Danger <= current.Danger + 8
+				&& item.DealInProbability <= current.DealInProbability + 0.02)
+			.OrderByDescending(item => item.UnifiedActionValue)
+			.ThenByDescending(item => item.LiveUkeire)
+			.ThenBy(item => item.Danger)
+			.FirstOrDefault();
+		if (higherUnified is not null)
+			return higherUnified;
+
+		return candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten == current.Shanten
+				&& Math.Abs(item.UnifiedActionValue - current.UnifiedActionValue) <= 0.01
+				&& Math.Abs(item.Score - current.Score) <= 2
+				&& item.LiveUkeire + 1 >= current.LiveUkeire
+				&& item.Danger + 2 <= current.Danger)
+			.OrderBy(item => item.Danger)
+			.ThenByDescending(item => item.LiveUkeire)
+			.FirstOrDefault();
+	}
+
+	private static SichuanCandidateDetail? SelectExactStructureNearTieOverride(
+        IReadOnlyList<SichuanCandidateDetail> candidates,
+        int currentTile)
+    {
+        if (candidates.Count < 2)
+            return null;
+        var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+        if (current is null)
+            return null;
+
+        var exactBest = candidates
+            .OrderBy(item => item.Shanten)
+            .ThenByDescending(item => item.LiveUkeire)
+            .ThenByDescending(item => item.WaitQualityScore)
+            .ThenBy(item => item.StructuralLoss)
+            .ThenBy(item => item.TileType)
+            .First();
+        if (exactBest.TileType == current.TileType)
+            return null;
+        if (exactBest.Shanten > current.Shanten
+            || exactBest.LiveUkeire < current.LiveUkeire
+            || exactBest.Score < current.Score - 15
+            || exactBest.UnifiedActionValue < current.UnifiedActionValue - 0.04
+            || exactBest.Danger > current.Danger + 12
+            || exactBest.DealInProbability > current.DealInProbability + 0.025)
+            return null;
+        if (exactBest.BreaksPair && !current.BreaksPair
+            && exactBest.Shanten == current.Shanten
+            && exactBest.LiveUkeire <= current.LiveUkeire)
+            return null;
+        return exactBest;
+	}
+
+	private static SichuanCandidateDetail? SelectTwoPlyReadyProbabilityOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile)
+	{
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null || current.Shanten != 1 || current.TwoPlyReadyProbability <= 0)
+			return null;
+
+		var best = candidates
+			.Where(item => item.Shanten == 1
+				&& item.TwoPlyReadyProbability > 0
+				// The two-ply model is deliberately allowed to overturn the mature
+				// policy only on a clear dominance result, not on approximation noise.
+				&& item.TwoPlyReadyProbability >= current.TwoPlyReadyProbability * 2.0
+				&& item.Danger <= current.Danger + 8
+				&& item.DealInProbability <= current.DealInProbability + 0.02)
+			.OrderByDescending(item => item.TwoPlyReadyProbability)
+			.ThenByDescending(item => item.Score)
+			.ThenBy(item => item.Danger)
+			.ThenBy(item => item.TileType)
+			.FirstOrDefault();
+		return best is not null && best.TileType != current.TileType ? best : null;
+	}
+
+	/// <summary>
+	/// Candidate-only public-route frontier.  A one-shanten challenger may replace
+	/// the mature policy only when it is Pareto-superior on the route evidence we
+	/// actually observe: exact ordered two-draw completion, the weakest resulting
+	/// ready shape, discard danger, and calibrated deal-in probability.  This uses
+	/// no multiplier or tolerance learned from a single teaching video.
+	/// </summary>
+	private static SichuanCandidateDetail? SelectPublicRouteFrontierOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		int meldCount,
+		bool guardedScope)
+	{
+		const double epsilon = 0.000001;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null || current.Shanten != 1 || current.TwoPlyReadyProbability <= epsilon)
+			return null;
+		if (guardedScope && current.RiskLabel is "高危" or "极危险")
+			return null;
+
+		var best = candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten == current.Shanten
+				&& item.TwoPlyReadyProbability > current.TwoPlyReadyProbability + epsilon
+				&& item.TwoPlyWorstReadyShapeScore + epsilon >= current.TwoPlyWorstReadyShapeScore
+				&& (!guardedScope || item.RiskLabel is not ("高危" or "极危险"))
+				&& (!guardedScope || meldCount > 0 || item.LiveUkeire >= current.LiveUkeire)
+				&& item.Danger <= current.Danger
+				&& item.DealInProbability <= current.DealInProbability + epsilon)
+			.OrderByDescending(item => item.TwoPlyReadyProbability)
+			.ThenByDescending(item => item.TwoPlyWorstReadyShapeScore)
+			.ThenBy(item => item.Danger)
+			.ThenByDescending(item => item.UnifiedActionValue)
+			.ThenBy(item => item.TileType)
+			.FirstOrDefault();
+		return best;
+	}
+
+	private static SichuanCandidateDetail? SelectRobustPublicRouteFrontierOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		int meldCount)
+	{
+		const double epsilon = 0.000001;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (meldCount < 1 || current is null || current.Shanten != 1
+			|| current.RiskLabel is "高危" or "极危险")
+			return null;
+
+		return candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten == current.Shanten
+				&& item.RiskLabel is not ("高危" or "极危险")
+				&& item.TwoPlyReadyProbability > current.TwoPlyReadyProbability + epsilon
+				&& item.TwoPlyWorstReadyShapeScore > current.TwoPlyWorstReadyShapeScore + epsilon
+				&& item.TwoPlyWorstReadyWaitMass > current.TwoPlyWorstReadyWaitMass + epsilon
+				&& item.Danger <= current.Danger
+				&& item.DealInProbability <= current.DealInProbability + epsilon)
+			.OrderByDescending(item => item.TwoPlyWorstReadyWaitMass)
+			.ThenByDescending(item => item.TwoPlyReadyProbability)
+			.ThenByDescending(item => item.TwoPlyWorstReadyShapeScore)
+			.ThenBy(item => item.Danger)
+			.ThenBy(item => item.TileType)
+			.FirstOrDefault();
+	}
+
+	/// <summary>
+	/// Order-97 capability boundary: only arbitrate one-shanten routes after at
+	/// least two exposed sets.  The challenger must strictly improve the public
+	/// two-ply completion frontier and its worst ready wait/shape, while never
+	/// worsening calibrated danger.  This is intentionally narrower than V5:
+	/// natural held-out counterexamples showed that the same override is not
+	/// justified in one-meld midgame hands.
+	/// </summary>
+	private static SichuanCandidateDetail? SelectLateOpenShapePublicRouteOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		int meldCount)
+	{
+		if (meldCount < 2)
+			return null;
+
+		return SelectRobustPublicRouteFrontierOverride(candidates, currentTile, meldCount);
+	}
+
+	/// <summary>
+	/// V7 keeps the exact structural phase evidenced by Order 97: two exposed
+	/// sets with two concealed blocks still to organize.  A three-meld one-block
+	/// endgame is a different decision problem.  It also refuses an offensive
+	/// route override when the challenger's own calibrated net expectation is
+	/// already non-positive, which is a general stop-loss rather than a
+	/// video-specific weight.
+	/// </summary>
+	private static SichuanCandidateDetail? SelectTwoMeldPositiveEvPublicRouteOverride(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		int meldCount)
+	{
+		if (meldCount != 2)
+			return null;
+
+		var choice = SelectRobustPublicRouteFrontierOverride(candidates, currentTile, meldCount);
+		return choice is not null && choice.ExpectedNetScore > 0.0 ? choice : null;
+	}
+
+	private void PopulateGuardedPublicRouteMetrics(
+		IReadOnlyList<SichuanCandidateDetail> candidates,
+		int currentTile,
+		SichuanStateView state,
+		SichuanWallAvailability wallAvailability,
+		IReadOnlyDictionary<int, SichuanDiscardAnalysis> exactDiscardAnalyses,
+		int meldCount)
+	{
+		const double epsilon = 0.000001;
+		var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+		if (current is null || current.Shanten != 1 || current.RiskLabel is "高危" or "极危险")
+			return;
+
+		var challengers = candidates
+			.Where(item => item.TileType != current.TileType
+				&& item.Shanten == current.Shanten
+				&& item.RiskLabel is not ("高危" or "极危险")
+				&& (meldCount > 0 || item.LiveUkeire >= current.LiveUkeire)
+				&& item.Danger <= current.Danger
+				&& item.DealInProbability <= current.DealInProbability + epsilon)
+			.ToArray();
+		if (challengers.Length == 0)
+			return;
+
+		foreach (var item in challengers.Prepend(current))
+		{
+			if (!exactDiscardAnalyses.TryGetValue(item.TileType, out var exactDiscard))
+				continue;
+			var summary = _twoPlyReady.Evaluate(
+				RemoveOne(state.Hand18, item.TileType),
+				state.Remaining18,
+				wallAvailability,
+				meldCount,
+				exactDiscard.Shanten,
+				exactDiscard.ImprovingTiles,
+				meldCount == 0);
+			item.TwoPlyReadyProbability = summary.OrderedTwoDrawWinProbability;
+			item.TwoPlyFirstStepMass = summary.FirstStepImprovingMass;
+			item.TwoPlyWorstReadyShapeScore = summary.WorstReadyWaitShapeScore;
+			item.TwoPlyWorstReadyWaitMass = summary.WorstReadyWaitMass;
+		}
+	}
+
     private static List<SichuanCandidateDetail> ApplySearchBonuses(
         IReadOnlyList<SichuanCandidateDetail> candidates,
         SichuanSearchResult searchResult,
@@ -1691,10 +2186,11 @@ public sealed class SichuanDecisionEngine
         var updated = new List<SichuanCandidateDetail>(candidates.Count);
         foreach (var candidate in candidates)
         {
-            var bonus = searchResult.CandidateBonuses.GetValueOrDefault(candidate.TileType, 0.0);
+            var rawBonus = searchResult.CandidateBonuses.GetValueOrDefault(candidate.TileType, 0.0);
+            var bonus = Math.Clamp(rawBonus, -0.75, 0.75);
             var mergedReasons = candidate.Reasons.ToList();
             if (Math.Abs(bonus) > 0.001)
-                mergedReasons.Add($"前瞻修正 {bonus:F2}");
+                mergedReasons.Add($"有界前瞻修正 {bonus:F2}（原始 {rawBonus:F2}）");
 
             updated.Add(new SichuanCandidateDetail
             {
@@ -1704,6 +2200,7 @@ public sealed class SichuanDecisionEngine
                 Shanten = candidate.Shanten,
                 Ukeire = candidate.Ukeire,
                 LiveUkeire = candidate.LiveUkeire,
+                StructuralLoss = candidate.StructuralLoss,
                 Danger = candidate.Danger,
                 WaitCount = candidate.WaitCount,
                 WaitQualityScore = candidate.WaitQualityScore,
@@ -1722,6 +2219,8 @@ public sealed class SichuanDecisionEngine
                 ExpectedFan = candidate.ExpectedFan,
                 DealInProbability = candidate.DealInProbability,
                 ExpectedValue = candidate.ExpectedValue + bonus,
+                UnifiedActionValue = candidate.UnifiedActionValue,
+                StrategicResidual = candidate.StrategicResidual,
                 ExpectedNetScore = candidate.ExpectedNetScore,
                 ExpectedWinGain = candidate.ExpectedWinGain,
                 ExpectedDealInLoss = candidate.ExpectedDealInLoss,
@@ -1734,6 +2233,7 @@ public sealed class SichuanDecisionEngine
                 PairPressure = candidate.PairPressure,
                 TaatsuOverflow = candidate.TaatsuOverflow,
                 SameShantenImprovementCount = candidate.SameShantenImprovementCount,
+                ClassicPatternScore = candidate.ClassicPatternScore,
                 MiddleTileFlexibility = candidate.MiddleTileFlexibility,
                 ShapeScore = candidate.ShapeScore,
                 BreaksPair = candidate.BreaksPair,
@@ -1746,7 +2246,18 @@ public sealed class SichuanDecisionEngine
                 PenchanWaitCount = candidate.PenchanWaitCount,
                 TankiWaitCount = candidate.TankiWaitCount,
                 ShanponWaitCount = candidate.ShanponWaitCount,
-                LimitedLookaheadScore = candidate.LimitedLookaheadScore,
+				LimitedLookaheadScore = candidate.LimitedLookaheadScore,
+				TwoPlyReadyProbability = candidate.TwoPlyReadyProbability,
+				TwoPlyFirstStepMass = candidate.TwoPlyFirstStepMass,
+				TwoPlyWorstReadyShapeScore = candidate.TwoPlyWorstReadyShapeScore,
+				TwoPlyWorstReadyWaitMass = candidate.TwoPlyWorstReadyWaitMass,
+				PublicJointRouteSupported = candidate.PublicJointRouteSupported,
+				PublicJointRouteReason = candidate.PublicJointRouteReason,
+				PublicJointRouteModelProbability = candidate.PublicJointRouteModelProbability,
+				PublicJointRouteOwnDrawBudget = candidate.PublicJointRouteOwnDrawBudget,
+				PublicJointRouteOwnDrawsEvaluated = candidate.PublicJointRouteOwnDrawsEvaluated,
+				PublicJointRouteSamples = candidate.PublicJointRouteSamples,
+				PublicJointRouteEffectiveSampleSize = candidate.PublicJointRouteEffectiveSampleSize,
                 LimitedLookaheadSamples = candidate.LimitedLookaheadSamples,
                 LimitedLookaheadBestShanten = candidate.LimitedLookaheadBestShanten,
                 LimitedLookaheadBestLiveUkeire = candidate.LimitedLookaheadBestLiveUkeire,

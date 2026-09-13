@@ -49,8 +49,8 @@ func _verify_seat_motion_and_text(failures: Array[String]) -> void:
 	seat_hud.call("render", {"nickname": "本家", "score": 100, "ding_que": "wan", "_is_dealer": false, "has_won": true}, 2, true)
 	await create_timer(0.32).timeout
 	var won_badge := seat_hud.get_node_or_null("%WonBadge") as Label
-	if won_badge == null or won_badge.text != "已胡" or not won_badge.visible:
-		failures.append("won state must include the 已胡 text")
+	if won_badge == null or won_badge.text != "自摸" or not won_badge.visible:
+		failures.append("self-draw won state must include the 自摸 text")
 	if not seat_hud.get_global_rect().size.is_equal_approx(before_size):
 		failures.append("SeatHUD won animation changed layout size")
 	seat_hud.call("set_reduced_motion", true)
@@ -140,8 +140,11 @@ func _verify_center_text(failures: Array[String]) -> void:
 	var left_direction := center.get_node_or_null("%LeftDirectionLabel") as Label
 	var wall_count := center.get_node_or_null("%TurnChipLabel") as Label
 	var countdown := center.get_node_or_null("%CountLabel") as Label
-	if left_direction == null or left_direction.visible:
-		failures.append("center must not expose highlighted direction text")
+	if left_direction == null or not left_direction.visible or left_direction.text != "北":
+		failures.append("center fallback must expose the active north direction for seat 1")
+	elif left_direction.get_theme_color("font_color") != Color("FFF4E0") \
+			or left_direction.get_theme_color("font_outline_color") != Color("2A090B"):
+		failures.append("center fallback must encode the active direction with a warm ivory glyph and dark outline")
 	if wall_count == null or wall_count.text != "22":
 		failures.append("center must keep wall count as a borderless static number on the center surface")
 	elif not wall_count.rotation == 0.0:

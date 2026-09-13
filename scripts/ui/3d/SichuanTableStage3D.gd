@@ -6,16 +6,50 @@ signal tile_pressed(tile_id: int)
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
 const TABLE_SCENE := preload("res://res/art/3d/sichuan_table_v2.glb")
 const CENTER_COMPASS_SCENE := preload("res://res/art/3d/sichuan_center_compass_v2.glb")
+const CENTER_NUMBER_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 const FALLBACK_TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
+const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 
-const HAND_STEP_SELF := 0.80
+# Keep the original compact self-hand rhythm while preserving a real physical
+# seam. At the normal 1.94 scale each tile is 0.8148 world units wide, so 0.80
+# made adjacent ivory shells overlap into one white strip. A 0.83 centre pitch
+# leaves a restrained 0.0152 gap; 2.6.23's 0.873 pitch looked scattered.
+const HAND_STEP_SELF := 0.83
 # 侧家(上/下家)牌沿桌边码放的步距。0.45 太密，牌挤成一条分不清；
 # 加大到 0.62 让每张牌之间留出清晰分界，贴合目标图一张一张的层次感。
 const HAND_STEP_SIDE := 0.62
 const HAND_STEP_FAR := 0.55
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
-const FAR_HAND_SCALE := 1.27
+const FAR_HAND_SCALE := 1.28
+# Standing and flat result tiles use one shared GLB and one uniform runtime
+# scale. A rotation changes pose only; it must not compress a winning hand.
+const SELF_FLAT_VISUAL_SCALE_FACTOR := 1.0
+# 平扣后不能直接复用站立牌根倍率：侧家平放的 0.58 长轴朝向相机，投影
+# 面积会比立牌偏大；对家平放在远端，投影面积又会偏小。下面两个倍率是按
+# 当前商业透视相机下“平扣单牌投影面积 ≈ 同座位立牌单牌投影面积”校准的，
+# 仍然是整块同一 GLB 的三轴统一缩放，不是单轴拉厚或二维贴片。
+const SIDE_FLAT_CONCEALED_RESULT_SCALE := 1.34
+const FAR_FLAT_CONCEALED_RESULT_SCALE := 1.56
+# 保留旧合同字段作为“无额外统一放大”的兼容标记；实际三家倍率由上面
+# 的座位专用投影补偿决定。
+const FLAT_CONCEALED_RESULT_SCALE_FACTOR := 1.0
+const SELF_LAYOUT_MAX_TILES := 18
+const SELF_LAYOUT_LEFT_X := -5.95
+const SELF_LAYOUT_RIGHT_X := 6.15
+const SELF_LAYOUT_CENTER_X := 0.10
+const SELF_TILE_PITCH_PER_SCALE := HAND_STEP_SELF / SELF_HAND_SCALE
+const SELF_MELD_TILE_PITCH_FACTOR := 0.82
+# Keep the already approved compact meld rhythm independent from this hand-only
+# correction. 0.45 was the pre-correction per-scale pitch used for this row.
+const SELF_MELD_TILE_PITCH_PER_SCALE := 0.45 * SELF_MELD_TILE_PITCH_FACTOR
+const SELF_MELD_GROUP_GAP_PER_SCALE := 0.12
+const SELF_MELD_HAND_GAP_PER_SCALE := 0.12
+const SELF_NEW_DRAW_GAP_PER_SCALE := 0.10
+# 本家副露与本家手牌共用同一实体 GLB，但副露在更靠近镜头的底部轨道上，
+# 直接使用 1.94 会显得压过手牌；保持三轴统一并按整体视觉比例收至 84%。
+const SELF_MELD_VISUAL_SCALE_FACTOR := 0.84
+const SELF_LAYOUT_MIN_SCALE := 1.42
 const SIDE_WIN_RESULT_UPSHIFT_Z := 0.72
 const SIDE_WINNING_TILE_MAX_LOCAL_Z := 1.65
 const MELD_SCALE := 1.12
@@ -32,22 +66,31 @@ const DRAW_SETTLE_SECONDS := 0.05
 const DISCARD_TRAVEL_SECONDS := 0.20
 const DISCARD_SETTLE_SECONDS := 0.04
 const DISCARD_REFLOW_BEAT_SECONDS := 0.06
+# 翻扣只旋转同一块实体牌，不改变缩放。由于 GLB 原点位于背层底面，翻转后
+# 必须抬高完整的 0.24 牌厚，才能让底面仍落在原桌面高度。
+const CONCEALED_BACK_FLIP_Y_OFFSET := 0.24
 const SELF_RACK_TILT_DEGREES := 48.0
 # 对家、上家和下家的暗手按用户验收要求严格垂直于桌面，不再向桌心内倾。
 # 正负号只决定哪一实体表面朝向牌主；绝对值都必须保持 90°。
 const SIDE_RACK_TILT_DEGREES := 90.0
-const FAR_RACK_TILT_DEGREES := -90.0
+const FAR_RACK_TILT_DEGREES := 90.0
 const CENTER_INDICATOR_WORLD_Z := -1.60
 const DISCARD_GLOBAL_Z_SHIFT := -1.60
-const WALL_COUNT_SURFACE_HEIGHT := 0.64
-const CENTER_WALL_SURFACE_RADIUS := 0.72
-const CENTER_WALL_SURFACE_HEIGHT := 0.12
-const CENTER_WALL_INSET_RADIUS := 0.63
-const CENTER_WALL_INSET_HEIGHT := 0.035
-const DRAW_MARKER_STYLE_NAMES := ["小号蓝色立体菱形"]
+# Authored TableFelt AABB top in the manufactured table asset. The turn panel's
+# low shell starts here so it reads as a fitted table component, not a HUD card.
+const TABLETOP_CONTACT_Y := 0.155
+const CENTER_PANEL_TOP_Y := 0.0635
+const CENTER_COUNTER_BEZEL_RADIUS := 0.505
+const CENTER_ACTIVE_CUTOUT_RADIUS := 0.510
+const CENTER_SEPARATOR_CORNER_ANGLE_DEGREES := 30.02940
+const UPRIGHT_HAND_CLEARANCE_Y := 0.012
+const CENTER_PANEL_DIRECTIONS := ["东", "南", "西", "北"]
+# Segment order is top, right, bottom, left. Seats are self, left, opposite,
+# right, so this map highlights the physical side whose turn is active.
+const CENTER_PANEL_SEGMENT_FOR_SEAT := [2, 3, 0, 1]
+const DRAW_MARKER_STYLE_NAMES: Array[String] = []
 const SELECTED_MARKER_STYLE_NAMES := ["无选中图案"]
 
-@export_enum("小号蓝色立体菱形")
 var draw_marker_style_variant := 0
 
 @export_enum("无选中图案")
@@ -69,6 +112,10 @@ var center_wall_count_anchor: Node3D
 var center_wall_count_label: Label3D
 var center_wall_count_surface: MeshInstance3D
 var center_wall_count_inset: MeshInstance3D
+var center_glass_diamond: MeshInstance3D
+var center_direction_active_overlays: Array[MeshInstance3D] = []
+var center_direction_labels: Array[Label3D] = []
+var center_active_turn_seat := -1
 var center_wall_count_visible := true
 var tile_nodes: Dictionary = {}
 var self_hand_keys: Array[String] = []
@@ -76,10 +123,21 @@ var last_contract: Dictionary = {}
 var reduced_motion := false
 var interaction_enabled := false
 var self_meld_tile_count := 0
+var self_meld_group_count := 0
+var self_layout_hand_count := 0
+var self_layout_scale := SELF_HAND_SCALE
+var self_layout_pitch := HAND_STEP_SELF
+var self_layout_start_x := 0.0
+var self_layout_span := 0.0
+var self_layout_is_flat := false
+var self_layout_has_detached_draw := false
 var meld_tile_counts_by_seat: Array[int] = [0, 0, 0, 0]
 var discard_slots_by_seat: Array[Dictionary] = [{}, {}, {}, {}]
 var active_motion_tweens: Array[Tween] = []
 var last_desired_entries: Dictionary = {}
+var active_table_skin_id := SichuanTableSkinCatalog.DEFAULT_SKIN_ID
+var table_felt_materials: Array[StandardMaterial3D] = []
+var table_skin_texture_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -97,7 +155,8 @@ func render_snapshot(
 	all_hands: Array,
 	reveal_opponents: bool,
 	selected_tile_id: int,
-	markers: Dictionary = {}
+	markers: Dictionary = {},
+	reveal_winning_tiles: bool = true
 ) -> void:
 	if tile_root == null:
 		return
@@ -105,12 +164,24 @@ func render_snapshot(
 	self_hand_keys.clear()
 	var desired: Dictionary = {}
 	var players: Array = snapshot.get("players", [])
-	_set_center_wall_count(int(snapshot.get("wall_count", 0)))
+	_set_center_panel_state(
+		int(snapshot.get("wall_count", 0)),
+		int(snapshot.get("current_turn_seat", -1))
+	)
 	var latest_discard_id := int(snapshot.get("recent_discard_tile_id", -1))
 	var new_draw_id := int(snapshot.get("human_last_draw_tile_id", -1))
 	var recommended_id := int(markers.get("recommended_tile_id", -1))
 	var danger_ids: Array = markers.get("danger_tile_ids", [])
-	self_meld_tile_count = _meld_tile_count(_player_by_seat(players, 0).get("melds", []))
+	var self_player := _player_by_seat(players, 0)
+	self_meld_tile_count = _meld_tile_count(self_player.get("melds", []))
+	var has_detached_draw := _has_detached_human_draw(
+		all_hands[0] if not all_hands.is_empty() else [], self_player, new_draw_id
+	)
+	_configure_self_row_layout(
+		all_hands[0].size() if not all_hands.is_empty() else 0,
+		self_player,
+		has_detached_draw
+	)
 	for seat in range(4):
 		meld_tile_counts_by_seat[seat] = _meld_tile_count(_player_by_seat(players, seat).get("melds", []))
 
@@ -126,7 +197,8 @@ func render_snapshot(
 			selected_tile_id,
 			new_draw_id,
 			recommended_id,
-			danger_ids
+			danger_ids,
+			reveal_winning_tiles
 		)
 		_append_meld_entries(desired, seat, player.get("melds", []))
 		_append_discard_entries(desired, seat, player.get("discards", []), latest_discard_id)
@@ -204,6 +276,88 @@ func get_camera() -> Camera3D:
 	return camera
 
 
+func apply_table_skin(skin_id: String) -> bool:
+	if not TABLE_SKIN_CATALOG.has_skin(skin_id):
+		return false
+	var skin: Dictionary = TABLE_SKIN_CATALOG.get_skin(skin_id)
+	var albedo := _load_table_skin_texture(skin_id, "albedo_2k.jpg")
+	var normal := _load_table_skin_texture(skin_id, "normal_2k.png")
+	var roughness_map := _load_table_skin_texture(skin_id, "roughness_2k.png")
+	if albedo == null or normal == null or roughness_map == null:
+		push_error("Table skin texture set is incomplete: %s" % skin_id)
+		return false
+	for felt_material in table_felt_materials:
+		if felt_material == null:
+			continue
+		felt_material.albedo_color = skin.get("albedo_tint", Color.WHITE)
+		felt_material.albedo_texture = albedo
+		felt_material.normal_enabled = true
+		felt_material.normal_texture = normal
+		felt_material.normal_scale = float(skin.get("normal_scale", 0.30))
+		felt_material.roughness = float(skin.get("roughness", 0.92))
+		felt_material.roughness_texture = roughness_map
+		felt_material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+		felt_material.metallic = 0.0
+		felt_material.uv1_scale = skin.get("uv_scale", Vector3(2.8, 2.8, 1.0))
+		felt_material.texture_filter = (
+			BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+			if _uses_mobile_gpu_budget()
+			else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		)
+		felt_material.anisotropy_enabled = not _uses_mobile_gpu_budget()
+		felt_material.anisotropy = 0.0 if _uses_mobile_gpu_budget() else float(skin.get("anisotropy", 0.12))
+		felt_material.rim_enabled = false
+	active_table_skin_id = skin_id
+	return true
+
+
+func get_table_skin_id() -> String:
+	return active_table_skin_id
+
+
+func _uses_mobile_gpu_budget() -> bool:
+	return OS.has_feature("ios") \
+		or OS.has_feature("android") \
+		or str(RenderingServer.get_current_rendering_method()) == "mobile"
+
+
+func get_mobile_render_budget_contract() -> Dictionary:
+	return {
+		"mobile_renderer": str(ProjectSettings.get_setting("rendering/renderer/rendering_method.mobile", "")),
+		"ssao_enabled": bool(ProjectSettings.get_setting("performance/mobile_ssao_enabled", false)),
+		"directional_shadows_enabled": bool(ProjectSettings.get_setting("performance/mobile_directional_shadows_enabled", false)),
+		"expensive_materials_enabled": bool(ProjectSettings.get_setting("performance/mobile_expensive_materials_enabled", false)),
+		"felt_anisotropy": "disabled_on_mobile",
+	}
+
+
+func get_table_skin_contract() -> Dictionary:
+	var ids: Array[String] = []
+	for skin in TABLE_SKIN_CATALOG.all_skins():
+		ids.append(str(skin.get("id", "")))
+	return {
+		"active_skin_id": active_table_skin_id,
+		"skin_ids": ids,
+		"skin_count": ids.size(),
+		"felt_material_count": table_felt_materials.size(),
+		"material_target": "TableFelt",
+		"uses_displacement": false,
+		"gameplay_geometry_unchanged": true,
+		"table_transform_unchanged": true,
+		"tile_materials_unchanged": true,
+	}
+
+
+func _load_table_skin_texture(skin_id: String, filename: String) -> Texture2D:
+	var cache_key := "%s/%s" % [skin_id, filename]
+	if table_skin_texture_cache.has(cache_key):
+		return table_skin_texture_cache[cache_key] as Texture2D
+	var texture := ResourceLoader.load(TABLE_SKIN_CATALOG.texture_path(skin_id, filename)) as Texture2D
+	if texture != null:
+		table_skin_texture_cache[cache_key] = texture
+	return texture
+
+
 func _setup_world() -> void:
 	var world_environment := WorldEnvironment.new()
 	world_environment.name = "ClubWorldEnvironment"
@@ -211,25 +365,27 @@ func _setup_world() -> void:
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color("202A43")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	# Keep ambient fill restrained so the authored #167A64/#0F6957 felt does
-	# not wash into cyan under Metal's filmic tonemapper. Mahjong tiles receive
-	# their own layer-2 fill below, so reducing table ambient does not cost glyph
-	# readability.
-	environment.ambient_light_color = Color("8FB3A9")
-	environment.ambient_light_energy = 0.18
+	# A restrained warm-grey ambient keeps the splash-matched felt natural under
+	# Metal's filmic tonemapper. Mahjong tiles receive their own layer-2 fill
+	# below, so this table calibration does not cost glyph readability.
+	environment.ambient_light_color = Color("A9B79C")
+	environment.ambient_light_energy = 0.22
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	# Small-radius SSAO grounds adjacent tiles without turning the ivory faces
-	# grey. This effect is available in the project's iOS Compatibility renderer;
-	# SSIL/GI remain off to preserve the mobile budget.
-	environment.ssao_enabled = true
-	environment.ssao_radius = 0.72
-	environment.ssao_intensity = 1.15
-	environment.ssao_power = 1.35
-	environment.ssao_detail = 0.45
-	environment.ssao_horizon = 0.06
-	environment.ssao_sharpness = 0.82
-	environment.ssao_light_affect = 0.28
+	# Small-radius SSAO is reserved for desktop Forward+. Godot's Mobile renderer
+	# does not implement SSAO, and assigning its properties there also emits a
+	# runtime warning. Mobile relies on the low-cost fill/ambient lighting instead.
+	var mobile_power_profile := OS.has_feature("ios") or OS.has_feature("android")
+	var mobile_renderer := str(RenderingServer.get_current_rendering_method()) == "mobile"
+	if not mobile_renderer:
+		environment.ssao_enabled = bool(ProjectSettings.get_setting("performance/mobile_ssao_enabled", false)) if mobile_power_profile else true
+		environment.ssao_radius = 0.58
+		environment.ssao_intensity = 0.84
+		environment.ssao_power = 1.35
+		environment.ssao_detail = 0.45
+		environment.ssao_horizon = 0.06
+		environment.ssao_sharpness = 0.82
+		environment.ssao_light_affect = 0.28
 	world_environment.environment = environment
 	add_child(world_environment)
 
@@ -254,16 +410,23 @@ func _setup_world() -> void:
 	# the forest-green felt from drifting toward cyan. Tile faces still receive
 	# the dedicated layer-2 fill light, so this table calibration does not cost
 	# glyph readability.
-	key_light.light_color = Color("FFF0E3")
-	key_light.light_energy = 0.91
-	# DirectionalLight3D shines along local -Z. The -146-degree yaw points the
+	key_light.light_color = Color("FFF1E1")
+	key_light.light_energy = 0.79
+	# DirectionalLight3D shines along local -Z. The -170-degree yaw points the
 	# ground component toward the player's right/down screen quadrant, matching
 	# the supplied commercial reference instead of the former right/up shadow.
-	key_light.rotation_degrees = Vector3(-60.0, -165.0, -8.0)
-	key_light.shadow_enabled = true
-	key_light.directional_shadow_max_distance = 24.0
-	key_light.shadow_opacity = 0.94
-	key_light.shadow_blur = 1.55
+	key_light.rotation_degrees = Vector3(-70.0, -170.0, -6.0)
+	key_light.shadow_enabled = (
+		bool(ProjectSettings.get_setting("performance/mobile_directional_shadows_enabled", false))
+		if mobile_power_profile
+		else true
+	)
+	# The table occupies a compact plane. Restricting the orthogonal shadow map to
+	# the visible play area gives every tile edge more texels; explicit opacity and
+	# blur keep the single contact shadow short and soft across render profiles.
+	key_light.directional_shadow_max_distance = 14.0 if mobile_power_profile else 22.0
+	key_light.shadow_opacity = 0.64
+	key_light.shadow_blur = 1.90
 	key_light.shadow_bias = 0.035
 	key_light.shadow_normal_bias = 0.82
 	add_child(key_light)
@@ -271,16 +434,15 @@ func _setup_world() -> void:
 	var fill_light := OmniLight3D.new()
 	fill_light.name = "CenterSoftFill"
 	fill_light.position = Vector3(-2.6, 7.8, 8.0)
-	fill_light.light_color = Color("9CBAE7")
-	fill_light.light_energy = 1.60
+	fill_light.light_color = Color("DED8CC")
+	fill_light.light_energy = 1.30
 	fill_light.omni_range = 18.0
 	# Layer 2 is reserved for Mahjong tiles. A camera-side fill preserves glyph
-	# readability on upright faces without washing out the blue table or filling
+	# readability on upright faces without washing out the green table or filling
 	# the single key shadow.
 	fill_light.light_cull_mask = 1 << 1
 	fill_light.shadow_enabled = false
 	add_child(fill_light)
-
 
 func _setup_table() -> void:
 	var table := TABLE_SCENE.instantiate() as Node3D
@@ -299,97 +461,149 @@ func _setup_table() -> void:
 	# PBR materials.  Runtime flat-colour overrides are intentionally forbidden:
 	# they erase roughness/normal detail and caused the previous plastic table.
 	_preserve_imported_pbr_materials(table)
+	_configure_imported_table_meshes(table)
+	apply_table_skin(active_table_skin_id)
+
+
+func _configure_imported_table_meshes(node: Node) -> void:
+	if node is MeshInstance3D:
+		var table_mesh := node as MeshInstance3D
+		if table_mesh.name == "TableFelt":
+			for surface_index in range(table_mesh.get_surface_override_material_count()):
+				var imported_material := table_mesh.get_active_material(surface_index)
+				if imported_material is StandardMaterial3D:
+					var felt_material := imported_material.duplicate() as StandardMaterial3D
+					felt_material.resource_local_to_scene = true
+					felt_material.texture_filter = (
+						BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+						if _uses_mobile_gpu_budget()
+						else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+					)
+					felt_material.anisotropy_enabled = not _uses_mobile_gpu_budget()
+					felt_material.rim_enabled = false
+					table_mesh.set_surface_override_material(surface_index, felt_material)
+					table_felt_materials.append(felt_material)
+	for child in node.get_children():
+		_configure_imported_table_meshes(child)
 
 
 func _setup_center_compass() -> void:
 	center_compass_model = CENTER_COMPASS_SCENE.instantiate() as Node3D
 	if center_compass_model == null:
-		push_error("Deep Emerald center compass failed to instantiate")
+		push_error("Premium Blender center instrument failed to instantiate")
 		return
-	center_compass_model.name = "DeepEmeraldCenterCompass"
-	center_compass_model.position = Vector3(0.0, 0.34, CENTER_INDICATOR_WORLD_Z)
-	# Keep the direction body deliberately subordinate to the river. At 0.46
-	# its visible footprint stays below 55% of the retired central plaque.
-	center_compass_model.scale = Vector3.ONE * 0.46
-	add_child(center_compass_model)
-	_preserve_imported_pbr_materials(center_compass_model)
+	center_compass_model.name = "PremiumBlenderCenterPanel"
+	center_compass_model.position = Vector3.ZERO
+	center_compass_model.scale = Vector3.ONE
+	center_compass_model.visible = true
 
 
 func _setup_center_wall_count() -> void:
-	# The compass and remaining-wall value form one diegetic counter. The
-	# shallow octagonal surface sits on the physical compass face and the number
-	# is its face marking, rather than a separate floating status label.
+	# Mount the deterministic Blender-authored GLB as the complete physical
+	# instrument. Godot owns only live text and active-sector visibility; it must
+	# never rebuild the premium bevels or replace their imported PBR materials.
 	center_wall_count_anchor = Node3D.new()
 	center_wall_count_anchor.name = "CenterWallCount3DAnchor"
-	center_wall_count_anchor.position = Vector3(0.0, WALL_COUNT_SURFACE_HEIGHT, CENTER_INDICATOR_WORLD_Z)
-	center_wall_count_anchor.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	center_wall_count_anchor.position = Vector3(0.0, TABLETOP_CONTACT_Y, CENTER_INDICATOR_WORLD_Z)
 	add_child(center_wall_count_anchor)
-
-	center_wall_count_surface = _make_center_counter_mesh(
-		"CenterWallCount3DUnifiedSurface",
-		CENTER_WALL_SURFACE_RADIUS,
-		CENTER_WALL_SURFACE_HEIGHT,
-		Color("B8863B"),
-		-0.055
-	)
-	center_wall_count_anchor.add_child(center_wall_count_surface)
-	center_wall_count_inset = _make_center_counter_mesh(
-		"CenterWallCount3DUnifiedInset",
-		CENTER_WALL_INSET_RADIUS,
-		CENTER_WALL_INSET_HEIGHT,
-		Color("184A3A"),
-		0.018
-	)
-	center_wall_count_anchor.add_child(center_wall_count_inset)
+	if center_compass_model == null:
+		push_error("Premium Blender center instrument is unavailable")
+	else:
+		center_wall_count_anchor.add_child(center_compass_model)
+		_preserve_imported_pbr_materials(center_compass_model)
+		_configure_imported_center_meshes(center_compass_model)
+		center_wall_count_surface = center_compass_model.find_child("DirectionBase0", true, false) as MeshInstance3D
+		center_wall_count_inset = center_compass_model.find_child("CounterNumberPlate", true, false) as MeshInstance3D
+		center_glass_diamond = center_compass_model.find_child("CounterNumberPlate", true, false) as MeshInstance3D
+		for mesh_value in center_compass_model.find_children("*", "MeshInstance3D", true, false):
+			var center_mesh := mesh_value as MeshInstance3D
+			if center_mesh != null:
+				center_mesh.layers |= 1 << 2
+		var center_glint := OmniLight3D.new()
+		center_glint.name = "CenterInstrumentGlint"
+		center_glint.position = Vector3(-0.72, 1.10, 0.58)
+		center_glint.light_color = Color("FFF0C8")
+		center_glint.light_energy = 0.26
+		center_glint.omni_range = 2.6
+		center_glint.light_cull_mask = 1 << 2
+		center_glint.shadow_enabled = false
+		center_wall_count_anchor.add_child(center_glint)
+		var center_key := SpotLight3D.new()
+		center_key.name = "CenterInstrumentOverallKey"
+		center_key.position = Vector3(-0.42, 2.75, 0.62)
+		center_key.light_color = Color("FFE2A6")
+		center_key.light_energy = 0.86
+		center_key.spot_range = 4.4
+		center_key.spot_angle = 54.0
+		center_key.spot_attenuation = 1.55
+		center_key.shadow_enabled = false
+		center_wall_count_anchor.add_child(center_key)
+		center_key.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
+		for index in range(4):
+			var overlay := center_compass_model.find_child("DirectionActive%d" % index, true, false) as MeshInstance3D
+			if overlay == null:
+				push_error("Premium Blender center instrument is missing DirectionActive%d" % index)
+				continue
+			overlay.visible = false
+			center_direction_active_overlays.append(overlay)
 
 	center_wall_count_label = Label3D.new()
 	center_wall_count_label.name = "CenterWallCount3DText"
 	center_wall_count_label.text = "55"
-	center_wall_count_label.font_size = 96
-	center_wall_count_label.pixel_size = 0.0062
-	center_wall_count_label.modulate = Color("F6F5E9")
-	center_wall_count_label.outline_modulate = Color("123D30")
-	center_wall_count_label.outline_size = 12
+	center_wall_count_label.font = CENTER_NUMBER_FONT
+	center_wall_count_label.font_size = 90
+	center_wall_count_label.pixel_size = 0.0058
+	center_wall_count_label.modulate = Color("FFF7DE")
+	center_wall_count_label.outline_modulate = Color("071713")
+	center_wall_count_label.outline_size = 5
 	center_wall_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_wall_count_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	center_wall_count_label.no_depth_test = false
-	# The inset is a physical face layer; lift the glyph a few millimetres above
-	# it so the count is readable without becoming a floating HUD element.
-	center_wall_count_label.position = Vector3(0.0, 0.0, 0.045)
+	center_wall_count_label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	center_wall_count_label.position = Vector3(-0.024, 0.142, 0.0)
 	center_wall_count_anchor.add_child(center_wall_count_label)
+	_set_center_panel_state(55, -1)
 
 
-func _make_center_counter_mesh(
-	node_name: String,
-	radius: float,
-	height: float,
-	color: Color,
-	local_z_offset: float
-) -> MeshInstance3D:
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = radius
-	mesh.bottom_radius = radius * 1.035
-	mesh.height = height
-	mesh.radial_segments = 8
-	var material := StandardMaterial3D.new()
-	material.albedo_color = color
-	material.metallic = 0.28 if color == Color("B8863B") else 0.05
-	material.roughness = 0.38 if color == Color("B8863B") else 0.46
-	var instance := MeshInstance3D.new()
-	instance.name = node_name
-	instance.mesh = mesh
-	instance.material_override = material
-	# The parent anchor remains flat for the text contract. Rotate the mesh back
-	# so the cylinder's Y axis stays the physical tabletop normal.
-	instance.rotation_degrees = Vector3(90.0, 0.0, 0.0)
-	instance.position = Vector3(0.0, 0.0, local_z_offset)
-	return instance
+func _configure_imported_center_meshes(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh_instance := node as MeshInstance3D
+		mesh_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON \
+			if mesh_instance.name.begins_with("Counter") \
+				or mesh_instance.name.begins_with("DirectionBase") \
+			else GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+	for child in node.get_children():
+		_configure_imported_center_meshes(child)
 
 
-func _set_center_wall_count(wall_count: int) -> void:
-	var display_text := str(maxi(0, wall_count))
+func _make_center_direction_label(node_name: String, text: String, position: Vector3) -> Label3D:
+	var label := Label3D.new()
+	label.name = node_name
+	label.text = text
+	label.font_size = 58
+	label.pixel_size = 0.0056
+	label.modulate = Color.WHITE
+	label.outline_modulate = Color("071713")
+	label.outline_size = 3
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.no_depth_test = true
+	label.sorting_offset = 10.0
+	label.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+	label.position = position
+	return label
+
+
+func _set_center_panel_state(wall_count: int, turn_seat: int) -> void:
 	if center_wall_count_label != null:
-		center_wall_count_label.text = display_text
+		center_wall_count_label.text = str(maxi(0, wall_count))
+	center_active_turn_seat = turn_seat if turn_seat >= 0 and turn_seat < 4 else -1
+	var active_segment := -1
+	if center_active_turn_seat >= 0:
+		active_segment = int(CENTER_PANEL_SEGMENT_FOR_SEAT[center_active_turn_seat])
+	for index in range(center_direction_active_overlays.size()):
+		center_direction_active_overlays[index].visible = index == active_segment
 
 
 func _preserve_imported_pbr_materials(node: Node) -> void:
@@ -408,26 +622,33 @@ func _append_hand_entries(
 	selected_id: int,
 	new_draw_id: int,
 	recommended_id: int,
-	danger_ids: Array
+	danger_ids: Array,
+	reveal_winning_tiles: bool
 ) -> void:
 	var has_won := bool(player.get("has_won", false))
 	var winning_tile: Dictionary = player.get("winning_tile", {})
 	var winning_tile_id := int(winning_tile.get("id", -1))
 	var winning_source_seat := int(player.get("winning_source_seat", seat))
 	# 自摸牌本来就在手牌中：必须与全部手牌一起倒下，不能先抽出再当成点炮牌附加。
-	# 自摸结算时整手扣在桌面，只展示统一翡翠牌背，不能泄露全部牌面。
-	# 只有点炮胡才在原手牌旁附加一张外来胡牌，AI 点炮胡同时保留原站立手牌。
+	# 默认胡牌演出仍可盖牌；主动明牌和牌局结算是更高优先级的
+	# 公开复盘状态，必须翻开所有暗手。副露继续走独立展示逻辑。
 	var self_draw_win := has_won and not winning_tile.is_empty() and winning_source_seat == seat
 	var discard_win := has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	var ai_discard_win := seat != 0 and has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	# 三家明牌时统一平放正面，避免严格 90° 的侧家牌面与相机视线近乎平行，
 	# 看起来仍像牌背。胡牌展示与主动明牌共用真实 3D 牌，不引入额外 HUD 贴图。
-	var reveal_opponent_hand := show_face and seat != 0 and not has_won
-	var conceal_self_draw_result := self_draw_win and seat != 0
-	var lay_down_hand := (has_won and not ai_discard_win) or reveal_opponent_hand
+	var reveal_opponent_hand := show_face and seat != 0
+	var conceal_ai_win_result := has_won and not winning_tile.is_empty() and seat != 0 and not show_face
+	var lay_down_hand := has_won or reveal_opponent_hand
 	var display_hand: Array = hand.duplicate(true)
 	if seat == 0:
 		display_hand = _sort_human_hand_for_display(display_hand, str(player.get("ding_que", "")))
+		if self_layout_has_detached_draw:
+			for draw_index in range(display_hand.size()):
+				if int((display_hand[draw_index] as Dictionary).get("id", -1)) == new_draw_id:
+					var drawn_tile: Dictionary = display_hand.pop_at(draw_index)
+					display_hand.append(drawn_tile)
+					break
 	if discard_win and winning_tile_id >= 0:
 		var winning_index := -1
 		for index in range(display_hand.size()):
@@ -439,23 +660,36 @@ func _append_hand_entries(
 	var count := display_hand.size()
 	var step := _hand_step_for_seat(seat)
 	var scale_value := _hand_scale_for_seat(seat)
+	var flat_result_scale := _flat_concealed_result_scale_for_seat(seat) if conceal_ai_win_result else scale_value
+	if conceal_ai_win_result and scale_value > 0.0:
+		step *= flat_result_scale / scale_value
 	for index in range(count):
 		var tile: Dictionary = display_hand[index]
 		var tile_id := int(tile.get("id", -1))
 		var position := _hand_position(seat, index, count, step)
-		# 侧家胡牌时整条保留手牌向桌面上方收紧，给本家手牌留出固定保护带。
+		# 侧家点炮胡的平扣结果继续沿用既有安全位移，给本家手牌与附加胡牌留出
+		# 保护带；这只是整条结果的平移，不改变牌距或桌面布局合同。
 		if ai_discard_win and seat in [1, 3]:
 			position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		if lay_down_hand:
 			position.y = 0.09
+		if conceal_ai_win_result:
+			# 牌体 GLB 的原点位于背层底面。绕本地 X 轴物理翻扣后，必须抬高
+			# 一整块牌的实体厚度。抬高量必须跟当前座位的等比倍率同步；固定
+			# 0.24 会让 1.44/1.28 倍的牌底重新嵌入桌面，只剩一条薄边可见。
+			position.y += CONCEALED_BACK_FLIP_Y_OFFSET * flat_result_scale
 		var selected := seat == 0 and tile_id == selected_id
 		if selected:
 			position.y += 0.11
-		var hand_basis := _flat_basis_for_seat(seat) if lay_down_hand else _standing_basis_for_seat(seat)
+		var hand_basis := (
+			_concealed_back_up_basis_for_seat(seat)
+			if conceal_ai_win_result
+			else (_flat_basis_for_seat(seat) if lay_down_hand else _standing_basis_for_seat(seat))
+		)
 		var key := "hand_%d_%d" % [seat, tile_id if tile_id >= 0 else index]
 		desired[key] = _entry(
 			tile,
-			(show_face or lay_down_hand) and not conceal_self_draw_result,
+			(show_face or lay_down_hand) and not conceal_ai_win_result,
 			Transform3D(hand_basis, position),
 			selected,
 			seat == 0 and (
@@ -466,27 +700,30 @@ func _append_hand_entries(
 			seat == 0 and danger_ids.has(tile_id),
 			false,
 			seat == 0 and not has_won,
-			Vector3.ONE * scale_value,
+			Vector3.ONE * flat_result_scale,
 			-1,
 			seat,
 			180.0 if seat != 0 else 0.0,
 			seat == 0,
-			conceal_self_draw_result or (seat == 2 and not show_face),
-			conceal_self_draw_result
+			false,
+			conceal_ai_win_result
 		)
 		if seat == 0 and not has_won:
 			self_hand_keys.append(key)
-	if discard_win:
+	if discard_win and reveal_winning_tiles:
 		var source_seat := winning_source_seat
 		var winning_position := _hand_position(seat, count, count + 1, step)
+		# 下家的 +Z 端紧邻本家安全区。点炮胡时把外来胡牌放到其牌列的 -Z 端，
+		# 与上家使用同一远离本家的安全侧，避免平扣整手后被 1.65 保护线压回牌列。
+		if ai_discard_win and seat == 3:
+			winning_position = _hand_position(seat, -1, count + 1, step)
 		if ai_discard_win and seat in [1, 3]:
 			winning_position.z -= SIDE_WIN_RESULT_UPSHIFT_Z
 		# The winning tile is a separate result token, not another compressed hand
-		# tile. Point-winning AI racks need a larger break because the upright hand
-		# projects farther along the rail than a flat tile; human laid-down results
-		# retain the tighter established spacing.
+		# tile. Both human and AI point-win results are now flat, so they share the
+		# tighter established spacing while keeping one visible separation gap.
 		if count > 0:
-			var edge_break := (2.60 if seat in [1, 3] else 1.75) if ai_discard_win else 0.85
+			var edge_break := 0.85
 			match seat:
 				0:
 					winning_position.x += step * edge_break
@@ -495,7 +732,7 @@ func _append_hand_entries(
 				2:
 					winning_position.x -= step * edge_break
 				3:
-					winning_position.z += step * edge_break
+					winning_position.z += step * (-edge_break if ai_discard_win else edge_break)
 		# 下家原先沿 +Z 继续外摆，会侵入本家手牌。上下两家都受同一世界坐标
 		# 保护线约束，保持结果牌邻近自己的牌轨但绝不进入本家手牌区。
 		if ai_discard_win and seat in [1, 3]:
@@ -512,7 +749,7 @@ func _append_hand_entries(
 			false,
 			false,
 			false,
-			Vector3.ONE * scale_value,
+			Vector3.ONE * (_flat_concealed_result_scale_for_seat(seat) if ai_discard_win else scale_value),
 			source_seat if source_seat != seat else -1,
 			seat
 		)
@@ -544,22 +781,34 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 			# 因此外侧正面也不会错误出现碰/杠来源箭头。
 			var show_face := not concealed_gang or tile_index == 0 or tile_index == meld_tiles.size() - 1
 			var is_claim_tile := not concealed_gang and source_seat != seat and tile_index == claim_index
+			if not show_face:
+				var concealed_scale := self_layout_scale if seat == 0 else MELD_SCALE
+				position.y += CONCEALED_BACK_FLIP_Y_OFFSET * concealed_scale
+			var meld_basis := (
+				_flat_basis_for_seat(seat)
+				if show_face
+				else _concealed_back_up_basis_for_seat(seat)
+			)
 			desired[key] = _entry(
 				tile,
 				show_face,
-				Transform3D(_flat_basis_for_seat(seat), position),
+				Transform3D(meld_basis, position),
 				false,
 				false,
 				false,
 				false,
 				false,
 				false,
-				Vector3.ONE * MELD_SCALE,
+				Vector3.ONE * (
+					(self_layout_scale * SELF_MELD_VISUAL_SCALE_FACTOR)
+					if seat == 0
+					else MELD_SCALE
+				),
 				-1,
 				seat,
 				180.0 if seat != 0 else 0.0,
 				false,
-				not show_face,
+				false,
 				concealed_gang and not show_face,
 				source_seat if is_claim_tile else -1,
 				seat,
@@ -629,7 +878,7 @@ func _append_discard_entries(desired: Dictionary, seat: int, discards: Array, la
 			used_slots[free_slot] = true
 		var position := _discard_position(seat, int(slots[tile_id]))
 		var key := "discard_%d_%d" % [seat, tile_id]
-		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat)
+		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat, 0.0, false, false, false, -1, -1, "", true)
 
 
 func _apply_entries(desired: Dictionary) -> void:
@@ -639,6 +888,22 @@ func _apply_entries(desired: Dictionary) -> void:
 		if bool(desired_data.get("latest", false)) and not tile_nodes.has(desired_key):
 			discard_landing_delay_by_seat[int(desired_data.get("winner_seat", -1))] = \
 				DISCARD_TRAVEL_SECONDS + DISCARD_SETTLE_SECONDS + DISCARD_REFLOW_BEAT_SECONDS
+	# Preserve the exact physical node when a human hand tile becomes a river
+	# tile. The stable tile id lets a detached draw travel directly from the
+	# right edge instead of disappearing and respawning at the discard cell.
+	for desired_key in desired.keys():
+		if tile_nodes.has(desired_key) or not str(desired_key).begins_with("discard_0_"):
+			continue
+		var desired_id := int(((desired[desired_key] as Dictionary).get("tile", {}) as Dictionary).get("id", -1))
+		for existing_key in tile_nodes.keys():
+			if not str(existing_key).begins_with("hand_0_"):
+				continue
+			var candidate := tile_nodes[existing_key] as SichuanTile3D
+			if candidate != null and candidate.tile_id == desired_id:
+				tile_nodes.erase(existing_key)
+				tile_nodes[desired_key] = candidate
+				candidate.name = _safe_node_name(str(desired_key))
+				break
 	for existing_key in tile_nodes.keys():
 		if desired.has(existing_key):
 			continue
@@ -656,7 +921,7 @@ func _apply_entries(desired: Dictionary) -> void:
 			tile.name = _safe_node_name(str(key))
 			tile_root.add_child(tile)
 			tile_nodes[key] = tile
-		tile.draw_marker_style_variant = clampi(draw_marker_style_variant, 0, DRAW_MARKER_STYLE_NAMES.size() - 1)
+		tile.draw_marker_style_variant = 0
 		tile.selected_marker_style_variant = clampi(selected_marker_style_variant, 0, SELECTED_MARKER_STYLE_NAMES.size() - 1)
 		tile.set_reduced_motion(reduced_motion)
 		# Snapshot state is dynamic even when the tile id is stable. Reconfigure
@@ -679,7 +944,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			bool(data.get("flat_concealed_result", false)),
 			int(data.get("meld_source_seat", -1)),
 			int(data.get("meld_owner_seat", -1)),
-			str(data.get("meld_source_type", ""))
+			str(data.get("meld_source_type", "")),
+			bool(data.get("show_flat_back_layer", false))
 		)
 		var target_transform: Transform3D = data.get("transform", Transform3D.IDENTITY)
 		var target_scale: Vector3 = data.get("scale", Vector3.ONE)
@@ -726,8 +992,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			var reflow_delay := float(discard_landing_delay_by_seat.get(hand_seat, 0.0))
 			if reflow_delay > 0.0:
 				move_tween.tween_interval(reflow_delay)
-			move_tween.tween_property(tile, "transform", target_transform, 0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			move_tween.parallel().tween_property(tile, "scale", target_scale, 0.14)
+			move_tween.tween_property(tile, "transform", target_transform, TWEEN_SECONDS).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+			move_tween.parallel().tween_property(tile, "scale", target_scale, TWEEN_SECONDS)
 		else:
 			tile.transform = target_transform
 			tile.scale = target_scale
@@ -810,7 +1076,8 @@ func _entry(
 	flat_concealed_result: bool = false,
 	meld_source_seat: int = -1,
 	meld_owner_seat: int = -1,
-	meld_source_type: String = ""
+	meld_source_type: String = "",
+	show_flat_back_layer: bool = false
 ) -> Dictionary:
 	return {
 		"tile": tile,
@@ -832,6 +1099,7 @@ func _entry(
 		"meld_source_seat": meld_source_seat,
 		"meld_owner_seat": meld_owner_seat,
 		"meld_source_type": meld_source_type,
+		"show_flat_back_layer": show_flat_back_layer,
 	}
 
 
@@ -839,23 +1107,34 @@ func _hand_position(seat: int, index: int, count: int, step: float) -> Vector3:
 	var centered := (float(index) - float(count - 1) * 0.5) * step
 	match seat:
 		0:
-			return Vector3(centered + _self_hand_center_x(), 0.25, _self_hand_depth())
+			return Vector3(_self_hand_tile_x(index), 0.25, _self_hand_depth())
 		1:
 			# 左家沿导轨排成世界空间直线：X 固定，仅 Z 随牌位变化。之前的
 			# `- centered * 0.044` 横向斜移让每张牌左右错开，在透视下呈锯齿边；
 			# 去掉后牌列边缘整齐连续，贴合目标图的一条直墙观感。
-			return Vector3(-5.92, 0.36, -centered - 1.22)
+			return Vector3(-5.92, _upright_hand_center_y(1), -centered - 1.22)
 		2:
 			# 目标图的对家牌墙略偏左，右侧为其碰杠留出一段清楚的横向副露带。
 			# 四组副露时只剩很短的暗手；让短手继续沿对家导轨向左收缩，避免
 			# 最后一组副露穿入暗手，同时不改变零/一组副露的常规构图。
 			var far_meld_pressure := maxi(0, meld_tile_counts_by_seat[2] - 4)
 			var far_hand_center_x := -1.40 - minf(float(far_meld_pressure) * 0.22, 2.0)
-			return Vector3(-centered + far_hand_center_x, 0.36, -6.00)
+			return Vector3(-centered + far_hand_center_x, _upright_hand_center_y(2), -6.00)
 		3:
 			# 右家镜像左家：同样保持 X 固定消除锯齿。
-			return Vector3(5.92, 0.36, centered - 1.22)
+			return Vector3(5.92, _upright_hand_center_y(3), centered - 1.22)
 	return Vector3.ZERO
+
+
+func _upright_hand_center_y(seat: int) -> float:
+	# At 90 degrees the tile's local Z half-height becomes its world-space
+	# vertical half-height.  Deriving the centre from the real shared GLB size
+	# prevents the far and side racks from sinking into the felt when their
+	# uniform seat scale changes, and the 12 mm clearance leaves a visible soft
+	# contact shadow without making the rack appear to float.
+	return TABLETOP_CONTACT_Y \
+		+ SichuanTile3D.TILE_SIZE.z * _hand_scale_for_seat(seat) * 0.5 \
+		+ UPRIGHT_HAND_CLEARANCE_Y
 
 
 func _self_hand_depth() -> float:
@@ -869,9 +1148,7 @@ func _self_hand_depth() -> float:
 
 func _hand_step_for_seat(seat: int) -> float:
 	if seat == 0:
-		# 1.94 倍牌宽约 0.815；0.80 只保留约 1.8% 的轻微搭接，让圆角分界仍
-		# 清楚可见，同时把 14 张满手稳定在目标图 74%–80% 画宽和手机可读高度。
-		return HAND_STEP_SELF
+		return self_layout_pitch
 	if seat == 2:
 		return HAND_STEP_FAR
 	return HAND_STEP_SIDE
@@ -879,17 +1156,84 @@ func _hand_step_for_seat(seat: int) -> float:
 
 func _hand_scale_for_seat(seat: int) -> float:
 	if seat == 0:
-		return SELF_HAND_SCALE
+		return self_layout_scale
 	if seat == 2:
 		return FAR_HAND_SCALE
 	return SIDE_HAND_SCALE
 
 
+func _flat_concealed_result_scale_for_seat(seat: int) -> float:
+	if seat == 2:
+		return FAR_FLAT_CONCEALED_RESULT_SCALE
+	return SIDE_FLAT_CONCEALED_RESULT_SCALE
+
+
 func _self_hand_center_x() -> float:
-	# The reference layout reserves the lower-left rail for exposed sets and lets
-	# the remaining concealed hand slide right as more sets are formed. The cap
-	# keeps short end-game hands away from the action buttons and right safe edge.
-	return clampf(0.25 + float(self_meld_tile_count) * 0.38, 0.25, 3.10)
+	if self_layout_hand_count <= 0:
+		return SELF_LAYOUT_CENTER_X
+	return (_self_hand_tile_x(0) + _self_hand_tile_x(self_layout_hand_count - 1)) * 0.5
+
+
+func _configure_self_row_layout(hand_count: int, player: Dictionary, has_detached_draw: bool = false) -> void:
+	self_layout_hand_count = maxi(0, hand_count)
+	self_layout_has_detached_draw = has_detached_draw and self_layout_hand_count > 0
+	var melds: Array = player.get("melds", [])
+	self_meld_group_count = melds.size()
+	self_layout_is_flat = bool(player.get("has_won", false))
+	var base_scale := SELF_HAND_SCALE * (SELF_FLAT_VISUAL_SCALE_FACTOR if self_layout_is_flat else 1.0)
+	var total_tile_count := self_layout_hand_count + self_meld_tile_count
+	var group_gap_count := maxi(0, self_meld_group_count - 1)
+	var has_meld_hand_gap := self_meld_tile_count > 0 and self_layout_hand_count > 0
+	var span_per_scale := 0.0
+	if total_tile_count > 0:
+		var meld_pitch_count := mini(self_meld_tile_count, maxi(0, total_tile_count - 1))
+		var hand_pitch_count := maxi(0, total_tile_count - self_meld_tile_count - 1)
+		span_per_scale = SichuanTile3D.TILE_SIZE.x \
+			+ float(meld_pitch_count) * SELF_MELD_TILE_PITCH_PER_SCALE \
+			+ float(hand_pitch_count) * SELF_TILE_PITCH_PER_SCALE \
+			+ float(group_gap_count) * SELF_MELD_GROUP_GAP_PER_SCALE \
+			+ (SELF_MELD_HAND_GAP_PER_SCALE if has_meld_hand_gap else 0.0) \
+			+ (SELF_NEW_DRAW_GAP_PER_SCALE if self_layout_has_detached_draw else 0.0)
+	var available_width := SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X
+	self_layout_scale = base_scale
+	if span_per_scale > 0.0:
+		self_layout_scale = minf(base_scale, available_width / span_per_scale)
+	# The rules contract caps the combined physical row at 18 tiles. The lower
+	# bound is only a defensive guard for malformed debug snapshots beyond that
+	# contract; legal 18-tile rows still fit without crossing it.
+	self_layout_scale = maxf(SELF_LAYOUT_MIN_SCALE, self_layout_scale)
+	self_layout_pitch = SELF_TILE_PITCH_PER_SCALE * self_layout_scale
+	self_layout_span = span_per_scale * self_layout_scale
+	var tile_width := SichuanTile3D.TILE_SIZE.x * self_layout_scale
+	self_layout_start_x = SELF_LAYOUT_CENTER_X - self_layout_span * 0.5 + tile_width * 0.5
+
+
+func _self_meld_tile_x(flat_index: int, meld_index: int) -> float:
+	return self_layout_start_x \
+		+ float(flat_index) * SELF_MELD_TILE_PITCH_PER_SCALE * self_layout_scale \
+		+ float(meld_index) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
+
+
+func _self_hand_tile_x(index: int) -> float:
+	var x := self_layout_start_x
+	if self_meld_tile_count > 0:
+		x += float(self_meld_tile_count) * SELF_MELD_TILE_PITCH_PER_SCALE * self_layout_scale
+		x += float(maxi(0, self_meld_group_count - 1)) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
+		if self_layout_hand_count > 0:
+			x += SELF_MELD_HAND_GAP_PER_SCALE * self_layout_scale
+	x += float(index) * self_layout_pitch
+	if self_layout_has_detached_draw and index == self_layout_hand_count - 1:
+		x += SELF_NEW_DRAW_GAP_PER_SCALE * self_layout_scale
+	return x
+
+
+func _has_detached_human_draw(hand: Array, player: Dictionary, draw_tile_id: int) -> bool:
+	if not interaction_enabled or draw_tile_id < 0 or bool(player.get("has_won", false)):
+		return false
+	for tile_value in hand:
+		if int((tile_value as Dictionary).get("id", -1)) == draw_tile_id:
+			return true
+	return false
 
 
 func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int, concealed_gang: bool = false) -> Vector3:
@@ -898,12 +1242,10 @@ func _meld_position(seat: int, tile_index: int, meld_index: int, flat_index: int
 	# complete groups inside the left 27% without touching the concealed rack.
 	match seat:
 		0:
-			# 暗杠四张牌必须逐张看清。普通副露沿用紧凑 0.40 节距；
-			# 暗杠组内额外拉开 0.08，最终 0.48 大于 1.12 倍牌宽，
-			# 中间两张不会再熔成一整块无边界的浅色长条。
-			var concealed_spacing := float(tile_index) * 0.08 if concealed_gang else 0.0
-			var self_offset := float(flat_index) * 0.40 + float(meld_index) * 0.23 + concealed_spacing
-			return Vector3(-5.95 + self_offset, 0.09, 3.20)
+			# 本家副露与剩余手牌共用一条最多 18 张的连续牌轨。牌组间距和
+			# 副露/手牌间距都随统一三轴缩放变化，既不会形成截图中的大空洞，
+			# 也不会通过压薄牌体来挤进安全区。
+			return Vector3(_self_meld_tile_x(flat_index, meld_index), 0.09, _self_hand_depth())
 		1:
 			# 侧家所有碰杠沿同一条手牌方向的副露导轨连续摆放；组间加 0.10 缝。
 			# 这样第二至第四组不会横向侵入对家副露带，座位归属始终清楚。
@@ -958,6 +1300,12 @@ func _flat_basis_for_seat(seat: int) -> Basis:
 	# human hand and discard glyphs on iPhone.
 	var rotation: float = float([0.0, -PI * 0.5, PI, PI * 0.5][clampi(seat, 0, 3)])
 	return Basis(Vector3.UP, rotation)
+
+
+func _concealed_back_up_basis_for_seat(seat: int) -> Basis:
+	# GLB 的实体 MahjongTileBack 位于本地 -Y 面。暗杠和 AI 自摸的扣牌必须
+	# 真正把整块牌翻到背层朝上，不能只给 +Y 覆盖面换一张绿色材质。
+	return _flat_basis_for_seat(seat) * Basis(Vector3.RIGHT, PI)
 
 
 func _standing_basis_for_seat(seat: int) -> Basis:
@@ -1027,60 +1375,117 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"camera_target": CAMERA_TARGET,
 		"center_indicator_world_z": CENTER_INDICATOR_WORLD_Z,
 		"center_compass_asset": "res://res/art/3d/sichuan_center_compass_v2.glb",
-		"center_compass_pbr_preserved": center_compass_model != null,
+		"center_compass_pbr_preserved": center_compass_model != null and center_compass_model.visible,
 		"discard_global_z_shift": DISCARD_GLOBAL_Z_SHIFT,
 		"discard_row_step": DISCARD_ROW_STEP,
 		"wall_count": int(snapshot.get("wall_count", 0)),
 		"rendered_wall_tile_count": 0,
-		"wall_representation": "static_numeric_count_embedded_on_center_compass",
-		"wall_count_surface": "flat_label3d_on_physical_center_compass",
-		"center_display_asset": "unified_octagonal_wall_count_tile",
-		"center_display_nodes": ["CenterWallCount3DUnifiedSurface", "CenterWallCount3DUnifiedInset", "CenterWallCount3DText"],
+		"wall_representation": "static_numeric_count_on_blender_four_way_instrument",
+		"wall_count_surface": "central_opaque_matte_smoked_jade_counter_flush_with_felt",
+		"center_display_asset": "blender_authored_single_ring_four_way_turn_instrument",
+		"center_display_shape": "single_extruded_deep_jade_body_with_four_flush_colour_fields_and_single_gold_ring",
+		"center_display_material": "imported_blender_pbr_deep_jade_signal_yellow_gold_ring_and_matte_counter",
+		"center_display_nodes": ["CenterRecessBed", "DirectionBase0", "DirectionSeparator0", "CounterSingleGoldRing", "CounterNumberPlate", "CenterWallCount3DText"],
+		"center_display_detail": "one_continuous_extruded_dark_jade_body_four_boundary_matched_flush_colour_inlays_four_pearl_lines_one_hollow_gold_ring_and_one_number_plate",
+		"center_display_mobile_cost": "static_imported_glb_no_process_animation_under_10000_triangles",
+		"center_display_source": "res://tools/3d/generate_neijiang_center_compass_v2.py",
+		"center_display_triangle_budget": 5440,
+		"center_display_material_count": 7,
+		"center_display_object_count": 13,
+		"center_display_runtime_mesh_generation": false,
+		"center_light_rig": "isolated_ring_glint_plus_whole_instrument_warm_spot_plus_global_soft_shadow_key",
+		"center_glass_finish": "low_gloss_smoked_jade_alpha_blend_with_restrained_transmission",
+		"center_counter_finish": "opaque_matte_smoked_jade_without_emission_or_transmission",
+		"center_outer_keyline": "removed_clean_glass_and_recess_silhouette",
+		"center_inlay_max_rise_world": CENTER_PANEL_TOP_Y,
+		"center_inlay_flush_tolerance_world": 0.010,
+		"center_direction_labels": [],
+		"center_component_boundaries": "colour_inlay_boundaries_and_pearl_separators_share_one_coordinate_system_without_internal_physical_bevel_seams",
+		"center_active_encoding": ["non_metallic_signal_yellow_lacquer_field", "shape_only_without_direction_glyphs"],
+		"center_active_color_hex": "F4C430",
+		"center_inactive_color_hex": "3A644D",
+		"center_active_geometry": "flush_signal_yellow_inlay_with_circular_counter_cutout_and_no_internal_bevel_shadow",
+		"center_counter_bezel_radius": CENTER_COUNTER_BEZEL_RADIUS,
+		"center_active_counter_cutout_radius": CENTER_ACTIVE_CUTOUT_RADIUS,
+		"center_separator_corner_angle_degrees": CENTER_SEPARATOR_CORNER_ANGLE_DEGREES,
+		"center_active_sector_spans_degrees": [124.48292, 55.51708, 124.48292, 55.51708],
+		"center_counter_highlight": "restrained_antique_bronze_high_roughness_low_clearcoat",
+		"center_active_turn_seat": center_active_turn_seat,
+		"center_active_segment": CENTER_PANEL_SEGMENT_FOR_SEAT[center_active_turn_seat] if center_active_turn_seat >= 0 else -1,
 		"wall_count_format": "%d",
 		"wall_count_motion": "none_static_on_table_surface",
-		"wall_count_surface_height": WALL_COUNT_SURFACE_HEIGHT,
-		"wall_count_surface_rotation_degrees": -90.0,
+		"wall_count_surface_height": TABLETOP_CONTACT_Y + CENTER_PANEL_TOP_Y,
+		"wall_count_surface_plane": "raised_manufactured_plate_with_visible_bevels_above_felt_y_0_155",
+		"wall_count_surface_rotation_degrees": 0.0,
 		"wall_count_3d_node": center_wall_count_label != null,
 		"hand_counts": hand_counts,
 		"discard_counts": discard_counts,
 		"meld_tile_counts": meld_tile_counts,
 		"rendered_tile_nodes": desired.size(),
 		"self_pickable_count": self_hand_keys.size(),
-		"self_hand_scale": SELF_HAND_SCALE,
+		"self_hand_scale": self_layout_scale,
 		"opponent_hand_scale": SIDE_HAND_SCALE,
 		"far_hand_scale": FAR_HAND_SCALE,
+		"meld_scale": MELD_SCALE,
+		"self_meld_scale": self_layout_scale * SELF_MELD_VISUAL_SCALE_FACTOR,
+		"self_meld_visual_scale_factor": SELF_MELD_VISUAL_SCALE_FACTOR,
+		"self_flat_visual_scale_factor": SELF_FLAT_VISUAL_SCALE_FACTOR,
+		"flat_concealed_result_scale_factor": FLAT_CONCEALED_RESULT_SCALE_FACTOR,
+		"side_flat_concealed_result_scale": SIDE_FLAT_CONCEALED_RESULT_SCALE,
+		"far_flat_concealed_result_scale": FAR_FLAT_CONCEALED_RESULT_SCALE,
+		"self_layout_max_tiles": SELF_LAYOUT_MAX_TILES,
+		"self_layout_total_tiles": self_layout_hand_count + self_meld_tile_count,
+		"self_layout_span": self_layout_span,
+		"self_layout_available_width": SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X,
+		"self_layout_is_flat": self_layout_is_flat,
+		"self_hand_pitch_policy": "compact_visible_seam_0_83",
+		"self_hand_world_pitch": self_layout_pitch,
+		"self_hand_world_gap": maxf(
+			0.0,
+			self_layout_pitch - SichuanTile3D.TILE_SIZE.x * self_layout_scale
+		),
+		"discard_scale": DISCARD_SCALE,
+		"tile_physical_size": SichuanTile3D.TILE_SIZE,
+		"flat_back_cover_size": SichuanTile3D.CONCEALED_BACK_SIZE,
+		"flat_back_cover_contract": "shared_jade_back_nearly_full_footprint_with_3mm_ivory_lip",
+		"tile_pose_geometry": "one_shared_0_42x0_24x0_58_model_uniform_scale_rotation_only",
+		"meld_model_geometry": "peng_ming_gang_an_gang_add_gang_share_one_model_uniform_scale_only",
 		"self_hand_pose": "standing_concealed",
 		"opponent_hand_pose": "standing_concealed",
 		"opponent_hand_face_rotation_degrees": 180.0,
 		"opponent_rack_tilt_degrees": absf(SIDE_RACK_TILT_DEGREES),
 		"far_rack_tilt_degrees": absf(FAR_RACK_TILT_DEGREES),
+		"opponent_hand_contact_policy": "shared_glb_half_height_plus_12mm_felt_clearance",
+		"opponent_hand_contact_clearance": UPRIGHT_HAND_CLEARANCE_Y,
+		"opponent_hand_shadow": "physical_body_casts_short_soft_single_key_contact_shadow",
 		"opponent_concealed_surface": "jade_back_with_ivory_rim",
-		"opponent_concealed_owner_surface": "warm_ivory_front",
+		"opponent_concealed_owner_surface": "warm_ivory_sides_target_white_far",
 		"side_concealed_top_tilt": "perpendicular_to_table",
-		"self_hand_lighting": "unshaded_discard_white_face",
+		"self_hand_lighting": "shared_warm_ivory_pbr_without_emission",
 		"won_hand_pose": "human_self_draw_revealed_ai_self_draw_concealed",
 		"self_draw_hand_pose": "human_face_up_with_draw_marker_ai_flat_concealed_back",
 		"opponent_reveal_pose": "three_flat_face_up_hands",
-		"opponent_back_material": "shared_shaded_jade",
+		"opponent_back_material": "all_three_shared_pbr_emerald_back",
 		"discard_win_hand_pose": "flat_revealed_for_human",
-		"ai_discard_win_presentation": "standing_hand_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
+		"ai_discard_win_presentation": "flat_concealed_back_plus_adjacent_winning_tile_outside_self_hand_safe_zone",
 		"side_win_result_upshift_z": SIDE_WIN_RESULT_UPSHIFT_Z,
 		"side_winning_tile_max_local_z": SIDE_WINNING_TILE_MAX_LOCAL_Z,
-		"self_meld_zone": "left_of_concealed_hand",
+		"self_meld_zone": "continuous_left_segment_of_shared_18_tile_row",
 		"self_meld_tile_count": self_meld_tile_count,
 		"self_hand_center_x": _self_hand_center_x(),
 		"human_ding_que_sort": "rightmost_then_rank_then_tile_id",
-		"new_draw_feedback": "small_flat_blue_3d_diamond_with_world_yaw_tight_to_drawn_tile",
-		"new_draw_rotation": "world_vertical_axis_and_rate_match_latest_discard",
+		"new_draw_feedback": "detached_rightmost_physical_tile_without_marker",
+		"new_draw_rotation": "none",
+		"self_new_draw_gap_per_scale": SELF_NEW_DRAW_GAP_PER_SCALE,
 		"new_draw_travel_seconds": DRAW_TRAVEL_SECONDS,
 		"new_draw_settle_seconds": DRAW_SETTLE_SECONDS,
-		"new_draw_marker_variants": DRAW_MARKER_STYLE_NAMES,
+		"new_draw_marker_variants": [],
 		"selected_new_draw_marker_variant": draw_marker_style_variant,
 		"selected_tile_feedback": "physical_lift_without_overlay_graphic",
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
 		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
-		"latest_discard_feedback": "rotating_solid_golden_3d_diamond_directly_above_tile",
+		"latest_discard_feedback": "static_solid_golden_diamond_above_latest_discard",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,
@@ -1099,17 +1504,25 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"right_meld_axis": "same_yaw_and_z_flow_as_right_hand",
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
-		"meld_source_feedback": "compact_sky_blue_flat_face_arrow_on_second_tile_without_seat_label",
-		"winning_source_feedback": "compact_sky_blue_flat_face_arrow_without_seat_label",
+		"meld_source_feedback": "centered_extruded_golden_direction_arrow_on_second_tile_without_seat_label",
+		"winning_source_feedback": "centered_extruded_golden_direction_arrow_without_seat_label",
 		"winning_source_text": false,
 		"tile_back_color": SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false),
 		"season_theme": "deep_emerald_refined_table",
 		"table_asset": "sichuan_table_v2_pbr",
 		"table_material_pipeline": "blender_pbr_preserved_without_flat_overrides",
-		"table_surface_finish": "dense_directional_microfibre_velvet_with_restrained_shu_brocade_edge",
+		"table_surface_finish": "splash_matched_natural_warm_green_dual_scale_short_nap_felt",
+		"table_divider_finish": "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners",
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
+		"table_skin_count": SichuanTableSkinCatalog.all_skins().size(),
+		"table_skin_id": active_table_skin_id,
+		"table_skin_material_target": "TableFelt",
+		"table_skin_geometry_policy": "felt_material_only_no_extra_lights_geometry_or_gameplay_changes",
+		"directional_shadow_max_distance": 22.0,
+		"mobile_directional_shadow_size": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/size.mobile", 0)),
+		"mobile_soft_shadow_filter_quality": int(ProjectSettings.get_setting("rendering/lights_and_shadows/directional_shadow/soft_shadow_filter_quality.mobile", 0)),
 		"physics_tiles": 0,
 		"tripo_calls": 0,
 	}

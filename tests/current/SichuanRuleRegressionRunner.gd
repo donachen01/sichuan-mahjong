@@ -26,13 +26,16 @@ func _init() -> void:
 	_run_test("draw_assessment_builds_cha_jiao_max_score", _test_draw_assessment_builds_cha_jiao_max_score, failures)
 	_run_test("display_hand_sorts_missing_suit_to_right", _test_display_hand_sorts_missing_suit_to_right, failures)
 	_run_test("qiang_gang_hu_executes_without_finalizing_add_gang", _test_qiang_gang_hu_executes_without_finalizing_add_gang, failures)
+	_run_test("added_gang_remains_available_after_draw_tile_is_kept_in_hand", _test_added_gang_remains_available_after_draw_tile_is_kept_in_hand, failures)
 	_run_test("competitive_score_table_applies_basic_score_and_self_draw_bottom", _test_competitive_score_table_applies_basic_score_and_self_draw_bottom, failures)
 	_run_test("gang_score_table_applies_sichuan_units", _test_gang_score_table_applies_sichuan_units, failures)
 	_run_test("round_scores_apply_to_player_totals_and_persist", _test_round_scores_apply_to_player_totals_and_persist, failures)
+	_run_test("next_dealer_uses_first_winner_or_shared_discarder", _test_next_dealer_uses_first_winner_or_shared_discarder, failures)
 	_run_test("gang_scores_apply_immediately_while_players_remain", _test_gang_scores_apply_immediately_while_players_remain, failures)
 	_run_test("hu_jiao_zhuan_yi_transfers_gang_score_to_winner", _test_hu_jiao_zhuan_yi_transfers_gang_score_to_winner, failures)
 	_run_test("draw_does_not_refund_immediate_gang_money", _test_draw_does_not_refund_immediate_gang_money, failures)
 	_run_test("draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments", _test_draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments, failures)
+	_run_test("draw_cha_jiao_excludes_already_won_players", _test_draw_cha_jiao_excludes_already_won_players, failures)
 	_run_test("legacy_tui_gang_refunds_are_ignored", _test_legacy_tui_gang_refunds_are_ignored, failures)
 	_run_test("fan_combinations_follow_sichuan_table_and_cap", _test_fan_combinations_follow_sichuan_table_and_cap, failures)
 	_run_test("sea_bottom_never_adds_fan", _test_sea_bottom_never_adds_fan, failures)
@@ -42,7 +45,7 @@ func _init() -> void:
 	_run_test("multi_payer_gang_is_never_refunded", _test_multi_payer_gang_is_never_refunded, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 33/33")
+		print("RULE REGRESSION OK: 36/36")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -431,13 +434,13 @@ func _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu():
 	if win_events.size() != 1:
 		return "expected one gang-self-draw settlement event"
 	var fan_detail: Dictionary = win_events[0].get("fan_detail", {})
-	if int(fan_detail.get("capped_fan", -1)) != 1 \
-		or int(fan_detail.get("hand_score", -1)) != 2 \
-		or int(fan_detail.get("per_payer_score", -1)) != 3:
-		return "expected ping-hu gang-shang-hua to be 1 fan, 2 base + fixed 1 per payer, got %s" % fan_detail
+	if int(fan_detail.get("capped_fan", -1)) != 2 \
+		or int(fan_detail.get("hand_score", -1)) != 4 \
+		or int(fan_detail.get("per_payer_score", -1)) != 5:
+		return "expected ping-hu exposed-root plus gang-shang-hua to be 2 fan, 4 base + fixed 1 per payer, got %s" % fan_detail
 	# The physical last wall tile also triggers the separate draw audit for
 	# unresolved players. Strip that audit here to verify the Hu and gang
-	# transactions themselves: +9 self-draw and independent +6 gang money.
+	# transactions themselves: +15 self-draw and independent +6 gang money.
 	var direct_event_data: Dictionary = game_state.settlement_data.duplicate(true)
 	direct_event_data["draw_assessment"] = []
 	var direct_score_changes: Dictionary = game_state.score_resolver.build_score_changes(
@@ -445,11 +448,11 @@ func _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu():
 		direct_event_data,
 		game_state.rules
 	)
-	if int(direct_score_changes.get(0, 0)) != 15:
-		return "expected +9 gang-self-draw and independent +6 concealed-gang money, got %s" % direct_score_changes
+	if int(direct_score_changes.get(0, 0)) != 21:
+		return "expected +15 gang-self-draw and independent +6 concealed-gang money, got %s" % direct_score_changes
 	for payer_seat in [1, 2, 3]:
-		if int(direct_score_changes.get(payer_seat, 0)) != -5:
-			return "expected each payer to pay 3 for Hu plus 2 concealed-gang money, got %s" % direct_score_changes
+		if int(direct_score_changes.get(payer_seat, 0)) != -7:
+			return "expected each payer to pay 5 for Hu plus 2 concealed-gang money, got %s" % direct_score_changes
 	return true
 
 
@@ -802,6 +805,45 @@ func _test_qiang_gang_hu_executes_without_finalizing_add_gang():
 	return true
 
 
+func _test_added_gang_remains_available_after_draw_tile_is_kept_in_hand():
+	var game_state = _build_test_game_state()
+	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
+	game_state.current_turn_seat = 0
+	var players: Array[Dictionary] = [
+		_make_player(
+			0,
+			"tiao",
+			[_make_tile(120, "wan", 5), _make_tile(121, "wan", 1)],
+			[{
+				"type": "peng",
+				"from_seat": 1,
+				"tiles": [_make_tile(122, "wan", 5), _make_tile(123, "wan", 5), _make_tile(124, "wan", 5)],
+			}]
+		),
+		_make_player(1, "tiao", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	# The fourth tile was drawn earlier and kept in the hand; it is no longer
+	# required to be the current last_draw_tile for a legal later-turn add gang.
+	game_state.last_draw_tile = {}
+	if not bool(game_state.can_human_add_gang(0)):
+		return "expected a kept fourth tile to expose the add-gang action"
+	if not bool(game_state.execute_human_add_gang(0)):
+		return "expected kept fourth tile add-gang execution to succeed"
+	var melds: Array = game_state.players[0].get("melds", [])
+	if melds.is_empty() or str(melds[0].get("type", "")) != "gang" or not bool(melds[0].get("gang_upgrade", false)) or Array(melds[0].get("tiles", [])).size() != 4:
+		return "expected peng to upgrade to a four-tile add-gang meld"
+	var gang_events: Array = game_state.settlement_data.get("gang_events", [])
+	if gang_events.size() != 1 or str(gang_events[0].get("gang_type", "")) != "add_gang":
+		return "expected add-gang settlement event to be recorded"
+	var changes: Dictionary = game_state.settlement_data.get("preapplied_score_changes", {})
+	if int(changes.get(0, 0)) != 3 or int(changes.get(1, 0)) != -1 or int(changes.get(2, 0)) != -1 or int(changes.get(3, 0)) != -1:
+		return "expected add-gang to pay one point from each active payer, got %s" % [changes]
+	return true
+
+
 func _test_competitive_score_table_applies_basic_score_and_self_draw_bottom():
 	var game_state = _build_test_game_state()
 	var players: Array[Dictionary] = [
@@ -904,6 +946,43 @@ func _test_round_scores_apply_to_player_totals_and_persist():
 	return true
 
 
+func _test_next_dealer_uses_first_winner_or_shared_discarder():
+	var game_state = _build_test_game_state()
+	game_state.current_dealer_seat = 0
+	var players: Array[Dictionary] = [
+		_make_player(0, "wan", []),
+		_make_player(1, "tiao", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	game_state.settlement_data = game_state._create_empty_settlement_data()
+	game_state.settlement_data["win_events"] = [
+		{"winner_seat": 2, "source_seat": 2, "win_type": "self_draw"},
+		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win"},
+	]
+	if int(game_state._resolve_next_dealer_seat()) != 2:
+		return "expected first self-draw winner seat 2 to become dealer"
+	game_state.settlement_data["win_events"] = [
+		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win"},
+		{"winner_seat": 2, "source_seat": 1, "win_type": "discard_win"},
+	]
+	if int(game_state._resolve_next_dealer_seat()) != 1:
+		return "expected shared discarder seat 1 to become dealer after one-discard two-win"
+	game_state.settlement_data["win_events"] = [
+		{"winner_seat": 1, "source_seat": 0, "win_type": "discard_win"},
+		{"winner_seat": 2, "source_seat": 0, "win_type": "discard_win"},
+		{"winner_seat": 3, "source_seat": 0, "win_type": "discard_win"},
+	]
+	if int(game_state._resolve_next_dealer_seat()) != 0:
+		return "expected shared discarder seat 0 to become dealer after one-discard three-win"
+	game_state.current_dealer_seat = 3
+	game_state.settlement_data["win_events"] = []
+	if int(game_state._resolve_next_dealer_seat()) != 3:
+		return "expected current dealer seat 3 to remain dealer after a draw"
+	return true
+
+
 func _test_gang_score_table_applies_sichuan_units():
 	var game_state = _build_test_game_state()
 	var players: Array[Dictionary] = [
@@ -923,7 +1002,7 @@ func _test_gang_score_table_applies_sichuan_units():
 			"tile": _make_tile(401, "wan", 1),
 			"gang_type": "melded_gang",
 			"related_outcome": "",
-			"payer_seats": [1],
+			"payer_seats": [1, 2, 3],
 		},
 		{
 			"actor_seat": 0,
@@ -943,8 +1022,8 @@ func _test_gang_score_table_applies_sichuan_units():
 		},
 	]
 	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
-	if int(changes.get(0, 0)) != 11 or int(changes.get(1, 0)) != -5 or int(changes.get(2, 0)) != -3 or int(changes.get(3, 0)) != -3:
-		return "expected melded=2 from discarder, an=2 each, add=1 each, got %s" % [changes]
+	if int(changes.get(0, 0)) != 13 or int(changes.get(1, 0)) != -5 or int(changes.get(2, 0)) != -4 or int(changes.get(3, 0)) != -4:
+		return "expected melded=2 from discarder plus 1 from each other active player, an=2 each, add=1 each, got %s" % [changes]
 	return true
 
 
@@ -1093,6 +1172,38 @@ func _test_draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments():
 	return true
 
 
+func _test_draw_cha_jiao_excludes_already_won_players():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "tiao", []),
+		_make_player(1, "wan", []),
+		_make_player(2, "tong", []),
+		_make_player(3, "wan", []),
+	]
+	players[0]["has_won"] = true
+	var settlement_data: Dictionary = game_state._create_empty_settlement_data()
+	# Retain a real win event so this fixture catches any future attempt to turn
+	# winners back into draw-settlement targets. Its payer list is intentionally
+	# empty so only the cha-jiao adjustment is measured below.
+	settlement_data["win_events"] = [{
+		"winner_seat": 0,
+		"payer_seats": [],
+		"win_type": "discard_win",
+		"fan_detail": {"capped_fan": 2, "hand_score": 4},
+	}]
+	settlement_data["draw_assessment"] = [
+		{"seat": 1, "hua_zhu": false, "is_ting": true, "cha_jiao_score": 2},
+		{"seat": 2, "hua_zhu": false, "is_ting": false, "cha_jiao_score": 0},
+		{"seat": 3, "hua_zhu": false, "is_ting": false, "cha_jiao_score": 0},
+	]
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
+	if int(changes.get(0, 99)) != 0:
+		return "already-won seat must not receive cha-jiao again, got %s" % [changes]
+	if int(changes.get(1, 0)) != 4 or int(changes.get(2, 0)) != -2 or int(changes.get(3, 0)) != -2:
+		return "cha-jiao must settle only among unresolved seats, got %s" % [changes]
+	return true
+
+
 func _test_legacy_tui_gang_refunds_are_ignored():
 	var game_state = _build_test_game_state()
 	var players: Array[Dictionary] = [
@@ -1170,7 +1281,7 @@ func _test_fan_combinations_follow_sichuan_table_and_cap():
 			]),
 			"hand_type": "qing_jin_gou_diao",
 			"required_labels": ["清金钩钓", "杠上花", "自摸"],
-			"uncapped_fan": 5,
+			"uncapped_fan": 6,
 		},
 	]
 	for case_data in cases:

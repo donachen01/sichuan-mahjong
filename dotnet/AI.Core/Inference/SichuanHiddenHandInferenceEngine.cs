@@ -21,10 +21,21 @@ public sealed class SichuanHiddenHandInferenceEngine
         if (mode == SichuanInformationMode.Oracle && oracleHands is not null)
             return BuildOracle(state, oracleHands, oracleWall);
 
+        return Aggregate(state, SampleParticles(state, particleCount, seed));
+    }
+
+    public IReadOnlyList<SichuanHiddenHandParticle> SampleParticles(
+        SichuanStateView state,
+        int particleCount = 256,
+        int seed = 20260713,
+        SichuanHiddenHandProposal proposal = SichuanHiddenHandProposal.BehaviorWeightedLegacy)
+    {
+
         particleCount = Math.Clamp(particleCount, 32, 4096);
         var random = new Random(seed ^ state.VisibleVersion ^ (state.SeatIndex << 16));
         var pool = Enumerable.Range(0, 27).Select(tile => Math.Max(0, state.Remaining18[tile])).ToArray();
-        var handSizes = ResolveHiddenHandSizes(state);
+        var handSizes = ResolveHiddenHandSizes(
+            state, includeExitedSeats: proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood);
         var particles = new List<SichuanHiddenHandParticle>(particleCount);
         for (var sample = 0; sample < particleCount; sample++)
         {
@@ -32,22 +43,45 @@ public sealed class SichuanHiddenHandInferenceEngine
             var hands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
             var logWeight = 0.0;
             var valid = true;
-            foreach (var seat in Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex && !state.HasHu[seat]))
+            foreach (var seat in Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex))
             {
                 for (var draw = 0; draw < handSizes[seat]; draw++)
                 {
-                    var tile = WeightedDraw(remaining, state, seat, random);
+                    // Legacy callers retain their historical behavior-weighted
+                    // proposal. New probability work draws from the public tile
+                    // prior and applies BehaviorLogLikelihood exactly once in the
+                    // particle weight; otherwise the same evidence enters both
+                    // proposal and weight without an importance correction.
+                    var tile = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
+                        ? PriorDraw(remaining, random)
+                        : WeightedDraw(remaining, state, seat, random);
                     if (tile < 0) { valid = false; break; }
                     hands[seat][tile]++;
                     remaining[tile]--;
-                    logWeight += BehaviorLogLikelihood(state, seat, tile, hands[seat][tile]);
+                    if (proposal == SichuanHiddenHandProposal.BehaviorWeightedLegacy)
+                        logWeight += BehaviorLogLikelihood(state, seat, tile, hands[seat][tile]);
                 }
                 if (!valid) break;
+                logWeight += proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
+                    ? PublicHandLogLikelihood(state, seat, hands[seat])
+                    : Math.Log(SichuanOrderedPublicInference.CandidateHandCompatibility(state, seat, hands[seat])) * 0.35;
             }
             if (!valid) continue;
             particles.Add(new SichuanHiddenHandParticle(hands, remaining, Math.Exp(Math.Clamp(logWeight, -30, 20))));
         }
-        return Aggregate(state, particles);
+        if (particles.Count == 0)
+        {
+            var emptyHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+            particles.Add(new SichuanHiddenHandParticle(emptyHands, pool, 1.0));
+        }
+        return NormalizeWeights(particles);
+    }
+
+    private static IReadOnlyList<SichuanHiddenHandParticle> NormalizeWeights(IReadOnlyList<SichuanHiddenHandParticle> particles)
+    {
+        var total = particles.Sum(item => item.Weight);
+        if (total <= 0) total = particles.Count;
+        return particles.Select(item => item with { Weight = Math.Max(0, item.Weight) / total }).ToArray();
     }
 
     private SichuanHiddenHandPosterior Aggregate(SichuanStateView state, IReadOnlyList<SichuanHiddenHandParticle> particles)
@@ -105,7 +139,11 @@ public sealed class SichuanHiddenHandInferenceEngine
         return new SichuanHiddenHandPosterior(hold, ready, waits, routes, wall, 1, 1);
     }
 
-    private static int WeightedDraw(int[] remaining, SichuanStateView state, int seat, Random random)
+    private static int WeightedDraw(
+        int[] remaining,
+        SichuanStateView state,
+        int seat,
+        Random random)
     {
         var weights = new double[27];
         var total = 0.0;
@@ -126,7 +164,23 @@ public sealed class SichuanHiddenHandInferenceEngine
         return Array.FindLastIndex(remaining, value => value > 0);
     }
 
-    private static double BehaviorTileLikelihood(SichuanStateView state, int seat, int tile)
+    private static int PriorDraw(IReadOnlyList<int> remaining, Random random)
+    {
+        var total = remaining.Sum();
+        if (total <= 0) return -1;
+        var target = random.Next(total);
+        for (var tile = 0; tile < remaining.Count; tile++)
+        {
+            if (target < remaining[tile]) return tile;
+            target -= remaining[tile];
+        }
+        return -1;
+    }
+
+    private static double BehaviorTileLikelihood(
+        SichuanStateView state,
+        int seat,
+        int tile)
     {
         var suit = tile / 9;
         var weight = 1.0;
@@ -174,7 +228,84 @@ public sealed class SichuanHiddenHandInferenceEngine
         return Math.Clamp(likelihood, 0.08, 1.20);
     }
 
-    private static double BehaviorLogLikelihood(SichuanStateView state, int seat, int tile, int copyIndex)
+    /// <summary>
+    /// Applies each public feature family once to a completed concealed-hand
+    /// hypothesis. In particular, ordered discards replace the old aggregate
+    /// same-suit-discard multiplier, and explicit pass decisions are evaluated
+    /// once from the candidate copy count instead of once per drawn copy.
+    /// </summary>
+    private static double PublicHandLogLikelihood(SichuanStateView state, int seat, IReadOnlyList<int> hand)
+    {
+        const double temperature = 0.12;
+        var log = 0.0;
+        for (var tile = 0; tile < 27; tile++)
+        {
+            var copies = hand[tile];
+            if (copies <= 0) continue;
+            var suit = tile / 9;
+            if (state.DingQueSuits[seat] == suit)
+                log += copies * Math.Log(0.22);
+            var sameSuitMelds = state.Melds18[seat].Count(value => value / 9 == suit);
+            if (sameSuitMelds > 0)
+                log += copies * Math.Log(1 + sameSuitMelds * 0.08);
+            log += copies * Math.Log(OrderedDiscardLikelihood(state, seat, tile));
+        }
+
+        foreach (var item in RecentEvents(state).Where(item => item.Seat == seat
+            && item.Type == SichuanPublicEventType.Pass && item.TileType is >= 0 and < 27))
+        {
+            var copies = hand[item.TileType];
+            if (item.CanPeng && copies >= 2) log += Math.Log(0.60);
+            if (item.CanGang && copies >= 3) log += Math.Log(0.72);
+            // CanHu is intentionally not scored until the candidate wait shape,
+            // passed-Hu lock, and legal rule context are reconstructed together.
+        }
+        return log * temperature;
+    }
+
+    private static double OrderedDiscardLikelihood(SichuanStateView state, int seat, int tile)
+    {
+        var likelihood = 1.0;
+        var tileSuit = tile / 9;
+        foreach (var (item, recency) in RecentEventsWithRecency(state))
+        {
+            if (item.Seat != seat || item.Type != SichuanPublicEventType.Discard) continue;
+            if (item.TileType == tile)
+            {
+                var rejection = item.Origin == SichuanTileOrigin.Hand ? 0.50 : 0.76;
+                likelihood *= 1.0 - (1.0 - rejection) * recency;
+            }
+            else if (item.TileType / 9 == tileSuit && item.Origin == SichuanTileOrigin.Hand)
+            {
+                likelihood *= 1.0 - 0.055 * recency;
+            }
+        }
+        return Math.Clamp(likelihood, 0.08, 1.20);
+    }
+
+    private static IEnumerable<SichuanPublicEvent> RecentEvents(SichuanStateView state)
+    {
+        var start = Math.Max(0, state.PublicEvents.Count - 24);
+        for (var index = start; index < state.PublicEvents.Count; index++)
+            yield return state.PublicEvents[index];
+    }
+
+    private static IEnumerable<(SichuanPublicEvent Event, double Recency)> RecentEventsWithRecency(
+        SichuanStateView state)
+    {
+        var start = Math.Max(0, state.PublicEvents.Count - 24);
+        for (var index = start; index < state.PublicEvents.Count; index++)
+        {
+            var age = state.PublicEvents.Count - index;
+            yield return (state.PublicEvents[index], 0.45 + 0.55 * Math.Exp(-age / 8.0));
+        }
+    }
+
+    private static double BehaviorLogLikelihood(
+        SichuanStateView state,
+        int seat,
+        int tile,
+        int copyIndex)
     {
         var log = Math.Log(BehaviorTileLikelihood(state, seat, tile));
         if (copyIndex >= 2 && state.PassedPeng18[seat][tile] > 0) log -= 1.0;
@@ -182,13 +313,17 @@ public sealed class SichuanHiddenHandInferenceEngine
         return log * 0.12;
     }
 
-    private static int[] ResolveHiddenHandSizes(SichuanStateView state)
+    private static int[] ResolveHiddenHandSizes(SichuanStateView state, bool includeExitedSeats)
     {
         var sizes = new int[4];
         for (var seat = 0; seat < 4; seat++)
         {
-            if (seat == state.SeatIndex || state.HasHu[seat]) continue;
-            sizes[seat] = state.HandCounts[seat] > 0 ? state.HandCounts[seat] : Math.Max(1, 13 - state.Melds18[seat].Count);
+            if (seat == state.SeatIndex || !includeExitedSeats && state.HasHu[seat]) continue;
+            sizes[seat] = includeExitedSeats
+                ? Math.Max(0, state.HandCounts[seat])
+                : state.HandCounts[seat] > 0
+                    ? state.HandCounts[seat]
+                    : Math.Max(1, 13 - state.Melds18[seat].Count);
         }
         return sizes;
     }

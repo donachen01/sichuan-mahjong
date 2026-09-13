@@ -14,12 +14,19 @@ func _init() -> void:
 
 
 func _run() -> void:
+	var measurement_started_at := Time.get_datetime_string_from_system(true) + "Z"
 	var total_rounds := _read_int_arg("--rounds=", DEFAULT_TOTAL_ROUNDS)
 	var max_steps_per_round := _read_int_arg("--max-steps=", DEFAULT_MAX_STEPS_PER_ROUND)
 	var preset_name := _read_string_arg("--preset=", "bone_ash")
 	var compare_preset_name := _read_string_arg("--compare-preset=", "")
 	var seed_base := _read_int_arg("--seed-base=", 20260712)
 	var record_discard_audit := _read_bool_arg("--record-discard-audit=", false)
+	var paired_policy := _read_bool_arg("--paired-policy=", false)
+	var opportunity_scan := _read_bool_arg("--opportunity-scan=", false)
+	var paired_seat := _read_nonnegative_int_arg("--paired-seat=", -1)
+	var paired_audit := _read_bool_arg("--paired-audit=", false)
+	var order97_checkpoint := _read_bool_arg("--order97-checkpoint=", false)
+	var opponent_variant := _read_string_arg("--opponent-variant=", "frozen_hard_tier_v1")
 	var output_path := _read_string_arg("--output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "json"))
 	var csv_output_path := _read_string_arg("--csv-output=", _build_default_report_path(total_rounds, preset_name, compare_preset_name, "csv"))
 	var discard_audit_output_path := _read_string_arg("--discard-audit-output=", _build_default_audit_path(total_rounds, preset_name, compare_preset_name, "jsonl"))
@@ -31,7 +38,15 @@ func _run() -> void:
 
 	var discard_audit_records: Array = []
 	var report: Dictionary
-	if compare_preset_name != "":
+	if opportunity_scan:
+		game_state.queue_free()
+		await process_frame
+		report = await _run_public_route_opportunity_scan(total_rounds, max_steps_per_round, seed_base, opponent_variant)
+	elif paired_policy:
+		game_state.queue_free()
+		await process_frame
+		report = await _run_policy_rotation_benchmark(total_rounds, max_steps_per_round, seed_base, paired_seat, paired_audit, order97_checkpoint, opponent_variant)
+	elif compare_preset_name != "":
 		report = await _run_ab_benchmark(game_state, preset_name, compare_preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records, seed_base)
 	else:
 		report = await _run_single_preset_benchmark(game_state, preset_name, total_rounds, max_steps_per_round, record_discard_audit, discard_audit_records)
@@ -39,11 +54,78 @@ func _run() -> void:
 		_write_discard_audit(discard_audit_records, discard_audit_output_path)
 		_write_discard_audit_csv(discard_audit_records, discard_audit_csv_output_path)
 		report["discard_audit"] = _build_discard_audit_summary(discard_audit_records, discard_audit_output_path, discard_audit_csv_output_path, game_state)
-	report["acceptance_metrics"] = _build_acceptance_metrics(report)
+	report["measurement_started_at"] = measurement_started_at
+	report["measurement_completed_at"] = Time.get_datetime_string_from_system(true) + "Z"
+	if not paired_policy and not opportunity_scan:
+		report["acceptance_metrics"] = _build_acceptance_metrics(report)
 	_print_summary(report)
 	_write_report(report, output_path)
-	_write_csv_report(report, csv_output_path)
+	if not paired_policy and not opportunity_scan:
+		_write_csv_report(report, csv_output_path)
 	quit()
+
+
+func _run_public_route_opportunity_scan(deals: int, max_steps_per_round: int, seed_base: int,
+		opponent_variant: String) -> Dictionary:
+	if opponent_variant != "current":
+		push_error("All-seat opportunity scan is valid only when the frozen evaluation opponent is current: before the first V7 override both policies are then action-equivalent")
+		return {
+			"schema_version": "xiaolaoshi_natural_opportunity_scan_v1",
+			"benchmark_mode": "invalid_opponent_population",
+			"valid": false,
+			"opponent_policy": opponent_variant,
+			"rows": [],
+		}
+	var rows: Array[Dictionary] = []
+	var selected_groups: Array[Dictionary] = []
+	var total_triggers := 0
+	for deal in range(deals):
+		var deal_seed := seed_base + deal * 1009
+		print("opportunity_scan_start deal=", deal + 1, " seed=", deal_seed)
+		# All four seats use the frozen candidate only for scouting.  Before the
+		# first override every action is baseline-equivalent, so the first trigger
+		# is a naturally reached, outcome-independent eligibility event.
+		var arm: Dictionary = await _run_policy_arm(
+			deal_seed, -1, "public_route_frontier_candidate_v7_two_meld_positive_ev", max_steps_per_round,
+			deal + 1, "public_route_frontier_v7_opportunity_scan", false, false, true)
+		var events: Array = arm.get("ai_mechanism_events", [])
+		var first_event: Dictionary = events[0] if not events.is_empty() else {}
+		var trigger_count := events.size()
+		total_triggers += trigger_count
+		var row := {
+			"group_id": "natural-seed-%d" % deal_seed,
+			"seed": deal_seed,
+			"triggered": trigger_count > 0,
+			"first_trigger_seat": int(first_event.get("seat", -1)),
+			"first_trigger_wall_count": int(first_event.get("wall_count", -1)),
+			"first_trigger_meld_count": int(first_event.get("meld_count", -1)),
+			"first_trigger_reason_code": str(first_event.get("reason_code", "")),
+			"initial_world_hash": str(arm.get("initial_world_hash", "")),
+			"scan_stopped_on_first_trigger": bool(arm.get("scan_stopped_on_trigger", false)),
+			"uses_hidden_information": false,
+			"game_origin": "natural_full_round",
+		}
+		rows.append(row)
+		if trigger_count > 0:
+			selected_groups.append(row.duplicate(true))
+		print("opportunity_scan_end seed=", deal_seed, " triggered=", trigger_count > 0,
+			" seat=", int(row.get("first_trigger_seat", -1)))
+	return {
+		"schema_version": "xiaolaoshi_natural_opportunity_scan_v1",
+		"benchmark_mode": "natural_first_trigger_opportunity_scan",
+		"valid": true,
+		"selection_rule": "include every seed in the frozen range whose first naturally reached V7 override occurs before any candidate divergence; ignore score and outcome",
+		"candidate_policy": "bone_ash_public_route_frontier_candidate_v7_two_meld_positive_ev",
+		"baseline_policy": "bone_ash_current",
+		"opponent_policy": opponent_variant,
+		"seed_base": seed_base,
+		"seed_stride": 1009,
+		"scanned_deals": deals,
+		"selected_deals": selected_groups.size(),
+		"mechanism_triggers": total_triggers,
+		"rows": rows,
+		"selected_groups": selected_groups,
+	}
 
 
 func _run_single_preset_benchmark(game_state: Node, preset_name: String, total_rounds: int, max_steps_per_round: int, record_discard_audit: bool = false, discard_audit_records: Array = []) -> Dictionary:
@@ -93,7 +175,485 @@ func _run_ab_benchmark(game_state: Node, preset_a: String, preset_b: String, tot
 	return combined
 
 
-func _play_single_round(game_state: Node, round_no: int, max_steps_per_round: int, preset_name: String, record_discard_audit: bool = false, discard_audit_records: Array = []) -> Dictionary:
+func _run_policy_rotation_benchmark(deals: int, max_steps_per_round: int, seed_base: int,
+		paired_seat: int = -1, paired_audit: bool = false, order97_checkpoint: bool = false,
+		opponent_variant: String = "frozen_hard_tier_v1") -> Dictionary:
+	var candidate_deltas: Array[float] = []
+	var games: Array[Dictionary] = []
+	var forced_stops := 0
+	var ledger_failures := 0
+	var initial_world_mismatches := 0
+	var checkpoint_legality_failures := 0
+	var candidate_override_triggers := 0
+	var baseline_override_triggers := 0
+	var pairs_with_candidate_override := 0
+	for deal in range(deals):
+		var deal_seed := seed_base + deal * 1009
+		for candidate_seat in range(4):
+			if paired_seat >= 0 and candidate_seat != paired_seat:
+				continue
+			print("paired_policy_start deal=", deal + 1, " candidate_seat=", candidate_seat, " seed=", deal_seed)
+			var candidate_arm: Dictionary = await _run_policy_arm(
+				deal_seed, candidate_seat, "public_route_frontier_candidate_v7_two_meld_positive_ev", max_steps_per_round,
+				deal * 8 + candidate_seat * 2 + 1, "public_route_frontier_v7_two_meld_positive_ev", paired_audit, order97_checkpoint,
+				false, opponent_variant)
+			var baseline_arm: Dictionary = await _run_policy_arm(
+				deal_seed, candidate_seat, "current", max_steps_per_round,
+				deal * 8 + candidate_seat * 2 + 2, "current", paired_audit, order97_checkpoint,
+				false, opponent_variant)
+			for arm in [candidate_arm, baseline_arm]:
+				if not bool(arm.get("ledger_balanced", false)):
+					ledger_failures += 1
+				if bool(arm.get("forced_stop", false)):
+					forced_stops += 1
+				if not bool(arm.get("checkpoint_legality", {}).get("passed", false)):
+					checkpoint_legality_failures += 1
+			if str(candidate_arm.get("initial_world_hash", "")) != str(baseline_arm.get("initial_world_hash", "")):
+				initial_world_mismatches += 1
+			var candidate_score := float(candidate_arm.get("seat_delta", 0))
+			var baseline_score := float(baseline_arm.get("seat_delta", 0))
+			var candidate_delta := candidate_score - baseline_score
+			var candidate_triggers := int(candidate_arm.get("ai_decision_metrics", {}).get("discard_public_route_frontier_override", 0))
+			var baseline_triggers := int(baseline_arm.get("ai_decision_metrics", {}).get("discard_public_route_frontier_override", 0))
+			candidate_override_triggers += candidate_triggers
+			baseline_override_triggers += baseline_triggers
+			if candidate_triggers > 0:
+				pairs_with_candidate_override += 1
+			candidate_deltas.append(candidate_delta)
+			games.append({
+				"deal": deal + 1,
+				"seed": deal_seed,
+				"candidate_seat": candidate_seat,
+				"candidate_delta": candidate_delta,
+				"candidate_override_triggers": candidate_triggers,
+				"baseline_override_triggers": baseline_triggers,
+				"candidate_arm": candidate_arm,
+				"baseline_arm": baseline_arm,
+			})
+			print("paired_policy_end delta=", candidate_delta,
+				" candidate=", candidate_score, " baseline=", baseline_score)
+
+	var ci := _bootstrap_mean_ci(candidate_deltas, seed_base ^ 0x5A17)
+	var average_delta := 0.0 if candidate_deltas.is_empty() else _float_mean(candidate_deltas)
+	var gate_reasons: Array[String] = []
+	if forced_stops > 0:
+		gate_reasons.append("存在强制结束对局")
+	if ledger_failures > 0:
+		gate_reasons.append("存在收支账本不守恒对局")
+	if float(ci.get("low", 0.0)) <= 0.0:
+		gate_reasons.append("候选平均净分 95% 置信区间下界未高于 0")
+	if candidate_deltas.size() < 40:
+		gate_reasons.append("有效轮换对局不足 40 局，仅作烟雾或趋势证据")
+	if candidate_override_triggers <= 0:
+		gate_reasons.append("候选组未实际触发公开路线前沿裁决")
+	if baseline_override_triggers > 0:
+		gate_reasons.append("基线组错误触发公开路线前沿裁决")
+	if initial_world_mismatches > 0:
+		gate_reasons.append("候选与基线的初始隐藏世界不一致")
+	if checkpoint_legality_failures > 0:
+		gate_reasons.append("存在物理牌守恒或定缺副露非法的初始世界")
+	if order97_checkpoint:
+		gate_reasons.append("人工检查点续局仅作机制诊断，不具备棋力晋级资格")
+	if gate_reasons.is_empty():
+		gate_reasons.append("整局配对晋级门槛通过")
+	return {
+		"benchmark_mode": "paired_order97_public_checkpoint" if order97_checkpoint else "paired_policy_rotation",
+		"game_origin": "legal_checkpoint_continuation" if order97_checkpoint else "natural_full_round",
+		"strength_eligible": not order97_checkpoint,
+		"checkpoint_scope": "Order 97 public decision state; opponent concealed hands and remaining wall independently generated per seed, then both arms run to settlement" if order97_checkpoint else "natural shuffled opening deal",
+		"candidate_policy": "bone_ash_public_route_frontier_candidate_v7_two_meld_positive_ev",
+		"baseline_policy": "bone_ash_current",
+		"opponent_policy": opponent_variant,
+		"deals": deals,
+		"paired_games": candidate_deltas.size(),
+		"games": candidate_deltas.size(),
+		"complete_game_arms": candidate_deltas.size() * 2,
+		"seed_base": seed_base,
+		"candidate_average_delta": average_delta,
+		"candidate_positive_rate": _positive_rate(candidate_deltas),
+		"candidate_delta_ci_low": float(ci.get("low", 0.0)),
+		"candidate_delta_ci_high": float(ci.get("high", 0.0)),
+		"candidate_override_triggers": candidate_override_triggers,
+		"baseline_override_triggers": baseline_override_triggers,
+		"pairs_with_candidate_override": pairs_with_candidate_override,
+		"forced_stop_games": forced_stops,
+		"ledger_failure_games": ledger_failures,
+		"initial_world_mismatch_pairs": initial_world_mismatches,
+		"checkpoint_legality_failure_arms": checkpoint_legality_failures,
+		"promotion_gate_passed": gate_reasons.size() == 1 and gate_reasons[0].begins_with("整局配对晋级"),
+		"gate_reasons": gate_reasons,
+		"game_results": games,
+	}
+
+
+func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: String,
+		max_steps_per_round: int, round_no: int, label: String, record_audit: bool = false,
+		order97_checkpoint: bool = false, stop_on_public_route_trigger: bool = false,
+		opponent_variant: String = "frozen_hard_tier_v1") -> Dictionary:
+	var game_state: Node = GAME_STATE_SCRIPT.new()
+	get_root().add_child(game_state)
+	await process_frame
+	game_state.call("set_test_seed", deal_seed)
+	game_state.call("set_ai_preset", "bone_ash")
+	var variants := {}
+	for seat in range(4):
+		variants[seat] = candidate_variant if candidate_seat < 0 or seat == candidate_seat else opponent_variant
+	game_state.set("test_ai_policy_variants_by_seat", variants)
+	game_state.call("start_new_round")
+	await process_frame
+	_prepare_all_ai_table(game_state)
+	if order97_checkpoint:
+		_apply_order97_public_checkpoint(game_state, deal_seed, candidate_seat)
+	var checkpoint_legality := _validate_physical_checkpoint(game_state, candidate_seat if order97_checkpoint else -1)
+	var initial_wall_hash := _tile_id_sequence_hash(game_state.get("wall"))
+	var initial_world_hash := _checkpoint_world_hash(game_state, candidate_seat)
+	var audit_records: Array = []
+	var started_ms := Time.get_ticks_msec()
+	var result := await _play_single_round(
+		game_state, round_no, max_steps_per_round,
+		"paired_%s_seat_%d" % [label, candidate_seat], record_audit, audit_records,
+		stop_on_public_route_trigger)
+	var score_changes: Dictionary = result.get("score_changes", {})
+	var gang_net := _build_gang_net(result)
+	var cha_jiao_net := _build_cha_jiao_net(result.get("draw_assessment", []))
+	var score_sum := _net_sum(score_changes)
+	var gang_sum := _net_sum(gang_net)
+	var cha_jiao_sum := _net_sum(cha_jiao_net)
+	var elapsed_ms := Time.get_ticks_msec() - started_ms
+	var mechanism_events: Array = game_state.get("ai_mechanism_events").duplicate(true)
+	var replay_hash := JSON.stringify({
+		"score_changes": score_changes,
+		"gang_net": gang_net,
+		"cha_jiao_net": cha_jiao_net,
+		"end_reason": result.get("end_reason", ""),
+		"winner_seats": result.get("winner_seats", []),
+		"discard_audit": audit_records,
+	}).sha256_text()
+	var arm := {
+		"policy": candidate_variant,
+		"seat_delta": _seat_delta(score_changes, candidate_seat) if candidate_seat >= 0 else 0,
+		"score_changes": score_changes.duplicate(true),
+		"gang_net": gang_net.duplicate(true),
+		"cha_jiao_net": cha_jiao_net.duplicate(true),
+		"score_sum": score_sum,
+		"gang_sum": gang_sum,
+		"cha_jiao_sum": cha_jiao_sum,
+		"ledger_balanced": score_sum == 0 and gang_sum == 0 and cha_jiao_sum == 0,
+		"forced_stop": bool(result.get("forced_stop", false)),
+		"completed": not bool(result.get("forced_stop", false)) and int(result.get("current_phase", -1)) == 7,
+		"uses_hidden_information": false,
+		"game_origin": "legal_checkpoint_continuation" if order97_checkpoint else "natural_full_round",
+		"strength_eligible": not order97_checkpoint,
+		"checkpoint_legality": checkpoint_legality,
+		"initial_wall_hash": initial_wall_hash,
+		"initial_world_hash": initial_world_hash,
+		"replay_hash": replay_hash,
+		"elapsed_ms": elapsed_ms,
+		"deal_in_rate": 1.0 if candidate_seat >= 0 and _did_seat_deal_in(result.get("win_events", []), candidate_seat) else 0.0,
+		"mechanism_decision_latency_p95_ms": _mechanism_latency_p95(mechanism_events, candidate_seat),
+		"scan_stopped_on_trigger": bool(result.get("scan_stopped_on_trigger", false)),
+		"steps": int(result.get("steps", 0)),
+		"end_reason": str(result.get("end_reason", "")),
+		"ai_decision_metrics": result.get("ai_decision_metrics", {}).duplicate(true),
+		"ai_mechanism_events": mechanism_events,
+		"debug_decision_trace": result.get("debug_decision_trace", {}).duplicate(true),
+	}
+	if record_audit:
+		arm["discard_audit"] = audit_records
+		arm["win_events"] = result.get("win_events", []).duplicate(true)
+		arm["gang_events"] = result.get("gang_events", []).duplicate(true)
+		arm["tui_gang_refunds"] = result.get("tui_gang_refunds", []).duplicate(true)
+		arm["transfer_events"] = result.get("transfer_events", []).duplicate(true)
+		arm["draw_assessment"] = result.get("draw_assessment", []).duplicate(true)
+	game_state.queue_free()
+	await process_frame
+	return arm
+
+
+func _did_seat_deal_in(win_events: Array, seat: int) -> bool:
+	for event_value in win_events:
+		var event: Dictionary = event_value
+		var win_type := str(event.get("win_type", ""))
+		if int(event.get("source_seat", -1)) == seat and win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
+			return true
+	return false
+
+
+func _mechanism_latency_p95(events: Array, seat: int) -> float:
+	var values: Array[float] = []
+	for event_value in events:
+		var event: Dictionary = event_value
+		var elapsed := float(event.get("decision_elapsed_ms", -1.0))
+		if (seat < 0 or int(event.get("seat", -1)) == seat) and elapsed >= 0.0:
+			values.append(elapsed)
+	if values.is_empty():
+		return 0.0
+	values.sort()
+	var index := mini(values.size() - 1, int(ceil(0.95 * values.size())) - 1)
+	return values[index]
+
+
+func _tile_id_sequence_hash(tiles: Array) -> String:
+	var ids: Array[int] = []
+	for tile_value in tiles:
+		ids.append(int(Dictionary(tile_value).get("id", -1)))
+	return JSON.stringify(ids).sha256_text()
+
+
+func _validate_physical_checkpoint(game_state: Node, current_seat: int) -> Dictionary:
+	var reasons: Array[String] = []
+	var ids := {}
+	var physical_count := 0
+	for tile_value in game_state.get("wall"):
+		var tile: Dictionary = tile_value
+		var tile_id := int(tile.get("id", -1))
+		physical_count += 1
+		if tile_id < 0 or ids.has(tile_id):
+			reasons.append("牌墙存在无效或重复物理牌")
+		ids[tile_id] = true
+	for player_value in game_state.get("players"):
+		var player: Dictionary = player_value
+		var ding_que := str(player.get("ding_que", ""))
+		var meld_count := 0
+		for tile_value in player.get("hand_tiles", []):
+			var tile: Dictionary = tile_value
+			var tile_id := int(tile.get("id", -1))
+			physical_count += 1
+			if tile_id < 0 or ids.has(tile_id):
+				reasons.append("暗手存在无效或重复物理牌")
+			ids[tile_id] = true
+		for meld_value in player.get("melds", []):
+			var meld: Dictionary = meld_value
+			for tile_value in meld.get("tiles", []):
+				var tile: Dictionary = tile_value
+				var tile_id := int(tile.get("id", -1))
+				physical_count += 1
+				meld_count += 1
+				if str(tile.get("suit", "")) == ding_que:
+					reasons.append("副露包含本座定缺花色")
+				if tile_id < 0 or ids.has(tile_id):
+					reasons.append("副露存在无效或重复物理牌")
+				ids[tile_id] = true
+		for tile_value in player.get("discards", []):
+			var tile: Dictionary = tile_value
+			var tile_id := int(tile.get("id", -1))
+			physical_count += 1
+			if tile_id < 0 or ids.has(tile_id):
+				reasons.append("牌河存在无效或重复物理牌")
+			ids[tile_id] = true
+		if int(player.get("hand_count", -1)) != Array(player.get("hand_tiles", [])).size():
+			reasons.append("hand_count 与暗手数组不一致")
+		if meld_count % 3 != 0 and meld_count % 4 != 0:
+			reasons.append("副露物理张数非法")
+	if physical_count != 108 or ids.size() != 108:
+		reasons.append("108 张物理牌不守恒：count=%d unique=%d" % [physical_count, ids.size()])
+	if int(game_state.get("wall_count")) != Array(game_state.get("wall")).size():
+		reasons.append("wall_count 与牌墙数组不一致")
+	if current_seat >= 0 and int(game_state.get("current_turn_seat")) != current_seat:
+		reasons.append("检查点行动座位不一致")
+	return {
+		"passed": reasons.is_empty(),
+		"physical_count": physical_count,
+		"unique_tile_ids": ids.size(),
+		"reasons": reasons,
+	}
+
+
+func _checkpoint_world_hash(game_state: Node, candidate_seat: int) -> String:
+	var player_rows: Array = []
+	for player_value in game_state.get("players"):
+		var player: Dictionary = player_value
+		var meld_rows: Array = []
+		for meld_value in player.get("melds", []):
+			var meld: Dictionary = meld_value
+			meld_rows.append({
+				"type": str(meld.get("type", "")),
+				"from_seat": int(meld.get("from_seat", -1)),
+				"tile_ids": _tile_ids(meld.get("tiles", [])),
+			})
+		player_rows.append({
+			"seat": int(player.get("seat", -1)),
+			"ding_que": str(player.get("ding_que", "")),
+			"hand_ids": _tile_ids(player.get("hand_tiles", [])),
+			"melds": meld_rows,
+			"discard_ids": _tile_ids(player.get("discards", [])),
+		})
+	return JSON.stringify({
+		"candidate_seat": candidate_seat,
+		"players": player_rows,
+		"wall_ids": _tile_ids(game_state.get("wall")),
+		"current_turn_seat": int(game_state.get("current_turn_seat")),
+		"wall_count": int(game_state.get("wall_count")),
+	}).sha256_text()
+
+
+func _tile_ids(tiles: Array) -> Array[int]:
+	var ids: Array[int] = []
+	for tile_value in tiles:
+		ids.append(int(Dictionary(tile_value).get("id", -1)))
+	return ids
+
+
+func _apply_order97_public_checkpoint(game_state: Node, hidden_seed: int, candidate_seat: int) -> void:
+	var pool: Array = game_state.call("_build_wall")
+	var candidate_hand := _take_tile_specs(pool, [
+		["wan", 2], ["wan", 4], ["wan", 5], ["wan", 5], ["wan", 6], ["wan", 8],
+		["tong", 8], ["tong", 9],
+	])
+	var candidate_meld_wan := _take_tile_specs(pool, [["wan", 1], ["wan", 1], ["wan", 1]])
+	var candidate_meld_tong := _take_tile_specs(pool, [["tong", 1], ["tong", 1], ["tong", 1]])
+	var visible_meld_seat := (candidate_seat + 1) % 4
+	var visible_discard_seat := (candidate_seat + 2) % 4
+	var visible_meld := _take_tile_specs(pool, [["tong", 7], ["tong", 7], ["tong", 7]])
+	var visible_discard := _take_tile(pool, "wan", 7)
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hidden_seed ^ (candidate_seat * 0x45D9F3B)
+	_shuffle_tiles_with_rng(pool, rng)
+	var players: Array = game_state.get("players").duplicate(true)
+	for seat in range(4):
+		var player: Dictionary = players[seat].duplicate(true)
+		player["score"] = 0
+		player["is_ai"] = true
+		player["ai_level"] = int(game_state.get("ai_level"))
+		player["has_won"] = false
+		player["win_type"] = ""
+		player["winning_source_seat"] = -1
+		player["winning_tile"] = {}
+		player["rule_marks"] = []
+		player["melds"] = []
+		player["discards"] = []
+		if seat == candidate_seat:
+			player["hand_tiles"] = candidate_hand.duplicate(true)
+			player["melds"] = [
+				{"type": "peng", "from_seat": (candidate_seat + 2) % 4, "tiles": candidate_meld_wan.duplicate(true)},
+				{"type": "peng", "from_seat": (candidate_seat + 3) % 4, "tiles": candidate_meld_tong.duplicate(true)},
+			]
+			player["ding_que"] = "tiao"
+		else:
+			var concealed_count := 10 if seat == visible_meld_seat else 13
+			var concealed: Array = []
+			for _index in range(concealed_count):
+				concealed.append(pool.pop_back())
+			game_state.call("_sort_tiles_in_place", concealed)
+			player["hand_tiles"] = concealed
+			var relative_seat := (seat - candidate_seat + 4) % 4
+			player["ding_que"] = ["tiao", "wan", "wan", "tong"][relative_seat]
+			if seat == visible_meld_seat:
+				player["melds"] = [{"type": "peng", "from_seat": candidate_seat, "tiles": visible_meld.duplicate(true)}]
+		player["hand_count"] = Array(player["hand_tiles"]).size()
+		players[seat] = player
+	var public_discards: Array = [{"seat": visible_discard_seat, "tile": visible_discard.duplicate(true)}]
+	players[visible_discard_seat]["discards"] = [visible_discard.duplicate(true)]
+	game_state.set("players", players)
+	game_state.set("wall", pool)
+	game_state.set("wall_count", pool.size())
+	game_state.set("discard_pile", public_discards)
+	game_state.set("round_winners", [])
+	game_state.set("settlement_data", game_state.call("_create_empty_settlement_data"))
+	game_state.set("current_dealer_seat", candidate_seat)
+	game_state.set("current_turn_seat", candidate_seat)
+	game_state.set("current_phase", 5)
+	game_state.set("current_discard_context", {})
+	game_state.set("pending_reactions", [])
+	game_state.set("last_draw_tile", {})
+	game_state.set("last_turn_context", {"seat": candidate_seat, "draw_reason": "checkpoint"})
+	game_state.set("opening_roll_pending_completion", false)
+	game_state.set("ai_public_events", [])
+	game_state.set("ai_public_event_version", 0)
+	game_state.set("ai_decision_metrics", game_state.call("_create_empty_ai_decision_metrics"))
+	game_state.call("_clear_pending_ai_async_state")
+
+
+func _take_tile_specs(pool: Array, specs: Array) -> Array:
+	var tiles: Array = []
+	for spec_value in specs:
+		var spec: Array = spec_value
+		var tile := _take_tile(pool, str(spec[0]), int(spec[1]))
+		assert(not tile.is_empty(), "Order 97 checkpoint tile allocation failed")
+		tiles.append(tile)
+	return tiles
+
+
+func _take_tile(pool: Array, suit: String, rank: int) -> Dictionary:
+	for index in range(pool.size()):
+		var tile: Dictionary = pool[index]
+		if str(tile.get("suit", "")) == suit and int(tile.get("rank", 0)) == rank:
+			pool.remove_at(index)
+			return tile
+	return {}
+
+
+func _shuffle_tiles_with_rng(tiles: Array, rng: RandomNumberGenerator) -> void:
+	for index in range(tiles.size() - 1, 0, -1):
+		var swap_index := rng.randi_range(0, index)
+		var temp = tiles[index]
+		tiles[index] = tiles[swap_index]
+		tiles[swap_index] = temp
+
+
+func _least_populated_suit(hand: Array, forbidden_suit: String = "") -> String:
+	var counts := {"tiao": 0, "tong": 0, "wan": 0}
+	for tile_value in hand:
+		var tile: Dictionary = tile_value
+		var suit := str(tile.get("suit", ""))
+		counts[suit] = int(counts.get(suit, 0)) + 1
+	var choices := ["tiao", "tong", "wan"]
+	choices.sort_custom(func(a: String, b: String) -> bool:
+		if a == forbidden_suit:
+			return false
+		if b == forbidden_suit:
+			return true
+		return int(counts[a]) < int(counts[b])
+	)
+	return str(choices[0])
+
+
+func _net_sum(values: Dictionary) -> int:
+	var total := 0
+	for value in values.values():
+		total += int(value)
+	return total
+
+
+func _float_mean(values: Array[float]) -> float:
+	var total := 0.0
+	for value in values:
+		total += value
+	return total / float(maxi(1, values.size()))
+
+
+func _positive_rate(values: Array[float]) -> float:
+	if values.is_empty():
+		return 0.0
+	var positive := 0
+	for value in values:
+		if value > 0:
+			positive += 1
+	return float(positive) / float(values.size())
+
+
+func _bootstrap_mean_ci(values: Array[float], seed: int) -> Dictionary:
+	if values.is_empty():
+		return {"low": 0.0, "high": 0.0}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed
+	var means: Array[float] = []
+	for _sample in range(800):
+		var sum := 0.0
+		for _index in range(values.size()):
+			sum += values[rng.randi_range(0, values.size() - 1)]
+		means.append(sum / float(values.size()))
+	means.sort()
+	return {
+		"low": means[int(floor(means.size() * 0.025))],
+		"high": means[int(floor(means.size() * 0.975))],
+	}
+
+
+func _play_single_round(game_state: Node, round_no: int, max_steps_per_round: int, preset_name: String,
+		record_discard_audit: bool = false, discard_audit_records: Array = [],
+		stop_on_public_route_trigger: bool = false) -> Dictionary:
 	var step := 0
 	while step < max_steps_per_round:
 		_prepare_all_ai_table(game_state)
@@ -125,6 +685,10 @@ func _play_single_round(game_state: Node, round_no: int, max_steps_per_round: in
 				pass
 		if record_discard_audit:
 			_append_new_discard_audit_records(discard_audit_records, game_state, round_no, step, preset_name, before_discard_count, before_scores)
+		if stop_on_public_route_trigger and int(game_state.get("ai_decision_metrics").get("discard_public_route_frontier_override", 0)) > 0:
+			var scan_result := _extract_round_result(game_state, round_no, step)
+			scan_result["scan_stopped_on_trigger"] = true
+			return scan_result
 		step += 1
 		await process_frame
 
@@ -661,6 +1225,19 @@ func _finalize_stats(stats: Dictionary, game_state: Node) -> void:
 
 
 func _print_summary(stats: Dictionary) -> void:
+	if str(stats.get("benchmark_mode", "")) == "natural_first_trigger_opportunity_scan":
+		print("=== AI NATURAL OPPORTUNITY SCAN ===")
+		print("valid=", stats.get("valid", false), " scanned_deals=", stats.get("scanned_deals", 0),
+			" selected_deals=", stats.get("selected_deals", 0), " triggers=", stats.get("mechanism_triggers", 0))
+		print("opponent_policy=", stats.get("opponent_policy", ""), " selection_rule=", stats.get("selection_rule", ""))
+		return
+	if str(stats.get("benchmark_mode", "")) == "paired_policy_rotation":
+		print("=== AI PAIRED POLICY ROTATION ===")
+		print("games=", stats.get("games", 0), " avg_delta=", stats.get("candidate_average_delta", 0.0))
+		print("ci=[", stats.get("candidate_delta_ci_low", 0.0), ", ", stats.get("candidate_delta_ci_high", 0.0), "]")
+		print("ledger_failures=", stats.get("ledger_failure_games", 0), " forced_stops=", stats.get("forced_stop_games", 0))
+		print("promotion=", stats.get("promotion_gate_passed", false), " reasons=", stats.get("gate_reasons", []))
+		return
 	if str(stats.get("benchmark_mode", "")) == "ab_compare":
 		print("=== AI PRESSURE BENCHMARK A/B ===")
 		print("preset_a=", stats.get("preset_a", ""))
@@ -1061,6 +1638,13 @@ func _read_int_arg(prefix: String, fallback: int) -> int:
 	for arg in OS.get_cmdline_user_args():
 		if String(arg).begins_with(prefix):
 			return maxi(1, int(String(arg).trim_prefix(prefix)))
+	return fallback
+
+
+func _read_nonnegative_int_arg(prefix: String, fallback: int) -> int:
+	for arg in OS.get_cmdline_user_args():
+		if String(arg).begins_with(prefix):
+			return maxi(0, int(String(arg).trim_prefix(prefix)))
 	return fallback
 
 

@@ -54,7 +54,16 @@ func _run() -> void:
 
 func _verify_sources_and_images() -> void:
 	_check(FileAccess.file_exists("res://tools/3d/generate_sichuan_ui_shells_v2.py"), "Blender UI shell generator is versioned")
+	var generator := FileAccess.get_file_as_string("res://tools/3d/generate_sichuan_ui_shells_v2.py")
+	_check(not generator.contains("ReliefDot"), "ding-que generator does not bake decorative dots under the glyph")
+	_check(generator.contains("--ding-que-only"), "ding-que shells can be regenerated without rewriting unrelated UI assets")
 	_check(FileAccess.file_exists("res://tools/3d/generate_sichuan_center_compass_v2.py"), "Blender center compass generator is versioned")
+	var center_generator := FileAccess.get_file_as_string("res://tools/3d/generate_sichuan_center_compass_v2.py")
+	_check(center_generator.contains("DirectionSeparatorHairlines"), "Blender center generator authors coplanar graphite direction hairlines")
+	_check(not center_generator.contains("CornerFasteners"), "Blender center generator omits decorative corner fasteners")
+	_check(not center_generator.contains("DirectionDividerSet"), "Blender center generator keeps the neutral face free of permanent divider bars")
+	_check(center_generator.contains("DirectionActive"), "Blender center generator authors four PBR active overlays")
+	_check(center_generator.contains("CounterGlassLens"), "Blender center generator authors the counter lens")
 	_check(ResourceLoader.exists("res://res/art/3d/sichuan_center_compass_v2.glb"), "Blender center compass GLB is loadable")
 	_check(FileAccess.file_exists(UI_ROOT + "README.md"), "UI shell provenance/readme is versioned")
 	var specs := {

@@ -1,0 +1,160 @@
+{
+  "claimed_discard_removal": {
+    "allowed_delta": 0.0001,
+    "max_survivor_world_delta": 0.0,
+    "removed_tile_id": 62107,
+    "seat": 1,
+    "stable": true,
+    "survivor_count": 71
+  },
+  "criterion": "AC-LAYOUT-02/03",
+  "discard_pressure": {
+    "center_intersections": 0,
+    "center_reserve": [
+      0.46,
+      0.33,
+      0.08,
+      0.13
+    ],
+    "cross_river_intersections": 0,
+    "discard_count_per_seat": 18,
+    "groups": {
+      "discard_0": [
+        0.394,
+        0.4782,
+        0.212,
+        0.1755
+      ],
+      "discard_1": [
+        0.2335,
+        0.2956,
+        0.1492,
+        0.2162
+      ],
+      "discard_2": [
+        0.4114,
+        0.1985,
+        0.1771,
+        0.1243
+      ],
+      "discard_3": [
+        0.6173,
+        0.2956,
+        0.1492,
+        0.2162
+      ]
+    },
+    "hand_intersections": 0,
+    "row_intersections": 0
+  },
+  "failures": [],
+  "four_meld_pressure": {
+    "far_rack_tilt_degrees": 90.0,
+    "groups": {
+      "seat_0_group_0": [
+        0.0861,
+        0.7618,
+        0.1629,
+        0.0953
+      ],
+      "seat_0_group_1": [
+        0.2567,
+        0.7618,
+        0.1556,
+        0.0953
+      ],
+      "seat_0_group_2": [
+        0.4273,
+        0.7618,
+        0.1516,
+        0.0953
+      ],
+      "seat_0_group_3": [
+        0.5936,
+        0.7618,
+        0.2072,
+        0.0953
+      ],
+      "seat_1_group_0": [
+        0.233,
+        0.1754,
+        0.0447,
+        0.0772
+      ],
+      "seat_1_group_1": [
+        0.2176,
+        0.2598,
+        0.048,
+        0.0862
+      ],
+      "seat_1_group_2": [
+        0.2002,
+        0.354,
+        0.0517,
+        0.0968
+      ],
+      "seat_1_group_3": [
+        0.1738,
+        0.4599,
+        0.0627,
+        0.1498
+      ],
+      "seat_2_group_0": [
+        0.6335,
+        0.1611,
+        0.072,
+        0.0325
+      ],
+      "seat_2_group_1": [
+        0.5625,
+        0.1611,
+        0.0704,
+        0.0325
+      ],
+      "seat_2_group_2": [
+        0.4913,
+        0.1611,
+        0.0691,
+        0.0325
+      ],
+      "seat_2_group_3": [
+        0.3959,
+        0.1611,
+        0.0922,
+        0.0325
+      ],
+      "seat_3_group_0": [
+        0.7223,
+        0.1754,
+        0.0447,
+        0.0772
+      ],
+      "seat_3_group_1": [
+        0.7345,
+        0.2598,
+        0.048,
+        0.0862
+      ],
+      "seat_3_group_2": [
+        0.7482,
+        0.354,
+        0.0517,
+        0.0968
+      ],
+      "seat_3_group_3": [
+        0.7635,
+        0.4599,
+        0.0627,
+        0.1498
+      ]
+    },
+    "intersections": 0,
+    "meld_groups_per_seat": 4,
+    "side_rack_tilt_degrees": 90.0
+  },
+  "objective_result": "PASS",
+  "requested_resolution": [
+    1365,
+    768
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "mode": "three_book_evidence_first_learning",
+  "stage": "core_probability_and_shape_applied_with_exercise_gap",
+  "source_count": 3,
+  "total_pages": 783,
+  "low_resolution_pages_rendered": 783,
+  "local_ocr_pages_indexed": 783,
+  "priority": [
+    "shanten_and_ready_transition",
+    "effective_draws_and_live_copies",
+    "mutually_exclusive_decomposition",
+    "classic_patterns_and_two_pairs_half",
+    "chengdu_sichuan_rules_and_scoring",
+    "phase_and_risk_adjustment"
+  ],
+  "current_findings": [
+    "candidate opportunity count is next-draw transition enumeration minus owned and public copies",
+    "single-tile 11/15/19 opportunity values are local connectivity heuristics, not calibrated success probabilities",
+    "four-person-sedan and seven-tiles-not-ready are fast visual decompositions but overlapping decompositions must be unioned",
+    "ready speed is primary in ordinary play; score-chasing and late public-risk conditions are explicit reversals"
+  ],
+  "next_action": "resolve the remaining 10 of 20 course exercises by reconstructing the teacher's nonstandard local opportunity-count decomposition without using the answer key as production input, then run independent isomorph and opposite-premise validation"
+}

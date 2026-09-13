@@ -58,5 +58,11 @@ public sealed class SichuanMultiPlayerUtilityEngine
     }
 
     public bool CanPassHu(double immediateGain, double futureNetGain, double confidence, bool ruleAllowsPass)
-        => ruleAllowsPass && confidence >= 0.82 && futureNetGain >= immediateGain + 1.5;
+	{
+		// A fixed 1.5-point hurdle made a one-point Hu require a 150% premium,
+		// while barely protecting a high-value Hu.  Scale the refusal premium
+		// with the realized score and retain a small absolute safety margin.
+		var refusalPremium = Math.Max(0.25, Math.Max(0, immediateGain) * 0.25);
+		return ruleAllowsPass && confidence >= 0.82 && futureNetGain >= immediateGain + refusalPremium;
+	}
 }

@@ -1,0 +1,4 @@
+8e7b8686250a0b9bee7a5b907d3cb417201353f891f640e667114d4ada26f798  res/art/materials/table_v2/felt_basecolor.png
+34ba96033230cf094efe718035e19c72b260fbeaeaa03509986a1a023daa1848  res/art/materials/table_v2/felt_normal.png
+d8685cb6dde53f6a3889b7289dabf8e2d25fb17c05b663044deb418d63f4bdf9  res/art/materials/table_v2/felt_orm.png
+4b66ecb8c13c871decab0a7ab2d60edf5e685313590b81ab9bc2676f44f4fd77  res/art/3d/sichuan_table_v2.glb

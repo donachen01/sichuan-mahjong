@@ -241,8 +241,10 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 	if not bool(readability_contract.get("collapsed_summary_contains_risk", false)):
 		failures.append("AI 紧凑提示必须同时显示推荐牌和风险摘要")
 	var collapsed_size: Vector2 = readability_contract.get("collapsed_size", Vector2.ZERO)
-	if collapsed_size.y > 76.0 or collapsed_size.x > 580.0:
-		failures.append("AI 紧凑提示条仍然过大")
+	if collapsed_size.y < 100.0 or collapsed_size.x < 780.0:
+		failures.append("AI 紧凑提示条未达到手机可读尺寸")
+	if collapsed_size.y > 120.0 or collapsed_size.x > 860.0:
+		failures.append("AI 紧凑提示条超出约定的可移动尺寸")
 	var collapsed_opacity_label: Label = drawer.get_node_or_null("RootPanel/Margin/VBox/Header/OpacityLabel") as Label
 	var collapsed_opacity_slider: HSlider = drawer.get_node_or_null("RootPanel/Margin/VBox/Header/OpacitySlider") as HSlider
 	if collapsed_opacity_label == null or collapsed_opacity_slider == null:
@@ -250,6 +252,28 @@ func _verify_glass_ai_hint(scene: Node, failures: Array[String]) -> void:
 	elif collapsed_opacity_label.visible or collapsed_opacity_slider.visible:
 		failures.append("AI 提示面板缩进后只应保留摘要和展开入口")
 	drawer.call("set_expanded", true)
+	drawer.call("apply_hint", _trainer_hint(), true, -1)
+	drawer.call("apply_hint", _reaction_hint("peng"), false, -1)
+	var summary_label := drawer.get_node_or_null("RootPanel/Margin/VBox/Content/SummaryLabel") as Label
+	var reason_label := drawer.get_node_or_null("RootPanel/Margin/VBox/Content/ReasonLabel") as Label
+	var available_label := drawer.get_node_or_null("RootPanel/Margin/VBox/Content/DangerLabel") as Label
+	if summary_label == null or not summary_label.text.contains("建议碰") or not summary_label.text.contains("6筒"):
+		failures.append("AI 提示框没有显示碰牌建议及响应牌")
+	if reason_label == null or not reason_label.text.contains("碰后更快成叫"):
+		failures.append("AI 碰牌提示没有显示核心判断原因")
+	if available_label == null or not available_label.text.contains("碰") or not available_label.text.contains("过"):
+		failures.append("AI 响应提示没有列出当前可选操作")
+	drawer.call("set_expanded", false)
+	var action_header := drawer.get_node_or_null("RootPanel/Margin/VBox/Header/Title") as Label
+	if action_header == null or not action_header.text.contains("碰"):
+		failures.append("AI 提示框收起后没有保留碰牌建议摘要")
+	drawer.call("set_expanded", true)
+	drawer.call("apply_hint", _self_action_hint(), false, -1)
+	if summary_label == null or not summary_label.text.contains("建议：暗杠5筒"):
+		failures.append("AI 提示框没有显示暗杠建议和对应牌")
+	if reason_label == null or not reason_label.text.contains("不损速度"):
+		failures.append("AI 暗杠提示没有显示判断原因")
+	# Restore the discard example before the remaining placement/readability checks.
 	drawer.call("apply_hint", _trainer_hint(), true, -1)
 	scene.call("_layout_ai_assistant_drawer")
 	await process_frame
@@ -346,7 +370,7 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 		failures.append("本局结束时必须显示原完整结算面板")
 	if simplified_overlay != null and simplified_overlay.visible:
 		failures.append("简化结算面板不得覆盖原完整结算")
-	var player_list: VBoxContainer = scene.get("settlement_player_list")
+	var player_list: HBoxContainer = scene.get("settlement_player_list")
 	var hand_row: VBoxContainer = scene.get("settlement_hand_row")
 	var breakdown_list: VBoxContainer = scene.get("settlement_breakdown_list")
 	if player_list == null or player_list.get_child_count() != 4:
@@ -363,12 +387,51 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	if panel != null and root_ui != null and (panel.size.x > root_ui.size.x + 1.0 or panel.size.y > root_ui.size.y + 1.0):
 		failures.append("结算面板不得超出屏幕")
 	var panel_style := panel.get_theme_stylebox("panel") if panel != null else null
-	if not panel_style is StyleBoxTexture:
-		failures.append("结算主面板必须使用 Blender 生成的深翡翠九宫格资源")
+	if not panel_style is StyleBoxFlat:
+		failures.append("结算主面板必须保留目标图的描金外框")
 	else:
-		var textured_style := panel_style as StyleBoxTexture
-		if textured_style.texture == null or not textured_style.texture.resource_path.ends_with("settlement_panel_9slice.png"):
-			failures.append("结算主面板九宫格资源路径不正确")
+		var flat_style := panel_style as StyleBoxFlat
+		var border_total := flat_style.get_border_width(SIDE_LEFT) \
+			+ flat_style.get_border_width(SIDE_TOP) \
+			+ flat_style.get_border_width(SIDE_RIGHT) \
+			+ flat_style.get_border_width(SIDE_BOTTOM)
+		if border_total < 12:
+			failures.append("结算主面板必须保留目标图的多层描金视觉重量")
+	var ornament := panel.get_node_or_null("SettlementOrnamentOverlay") as TextureRect if panel != null else null
+	if ornament == null or ornament.texture == null:
+		failures.append("结算页必须加载云纹、山水和竹叶装饰层")
+	for card_name in ["settlement_player_list_card", "settlement_detail_card", "settlement_hand_card", "settlement_breakdown_card"]:
+		var section := scene.get(card_name) as Panel
+		var section_style := section.get_theme_stylebox("panel") as StyleBoxFlat if section != null else null
+		if section_style == null:
+			failures.append("结算区域 %s 缺少简洁底色" % card_name)
+			continue
+		var section_border_total := section_style.get_border_width(SIDE_LEFT) \
+			+ section_style.get_border_width(SIDE_TOP) \
+			+ section_style.get_border_width(SIDE_RIGHT) \
+			+ section_style.get_border_width(SIDE_BOTTOM)
+		if section_border_total < 4:
+			failures.append("结算区域 %s 必须保留目标图的金边米白卡片层级" % card_name)
+
+	# Exercise the same explicit ScreenTouch path used on iOS. The full-screen
+	# overlay must route a player-row press before it consumes the event.
+	scene.set("last_snapshot", snapshot)
+	var player_buttons: Dictionary = scene.get("settlement_player_buttons")
+	var target_button := player_buttons.get(2) as Button
+	if target_button == null:
+		failures.append("结算玩家行没有暴露可点击的对家按钮")
+	else:
+		var player_touch := InputEventScreenTouch.new()
+		player_touch.position = target_button.get_global_rect().get_center()
+		player_touch.pressed = true
+		scene.call("_input", player_touch)
+		await process_frame
+		await process_frame
+		var hero_name: Label = scene.get("settlement_hero_name")
+		if int(scene.get("settlement_selected_seat")) != 2 or hero_name == null or not hero_name.text.contains("对家"):
+			failures.append("点击任一玩家后必须切换到该家的手牌与具体分数来源")
+
+	await _verify_settlement_responsive_bounds(scene, failures)
 
 	var wall_draw_after_win := {
 		"end_reason": "draw_wall_empty",
@@ -400,20 +463,87 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 		snapshot.get("players", []),
 		wall_draw_after_win,
 		0,
-		11
+		10
 	)
 	var wall_draw_total := int(scene.call("_sum_settlement_breakdown_scores", wall_draw_lines))
-	if wall_draw_total != 11:
-		failures.append("结算明细合计必须严格等于最终收分：期望 +11，实际 %+d" % wall_draw_total)
+	if wall_draw_total != 10:
+		failures.append("已胡玩家不得重复查叫：胡牌与杠分合计期望 +10，实际 %+d" % wall_draw_total)
 	var has_winner_cha_jiao := false
 	var has_generic_reconciliation := false
 	for line in wall_draw_lines:
 		has_winner_cha_jiao = has_winner_cha_jiao or str(line.get("reason", "")).contains("查大叫收益（已胡）")
 		has_generic_reconciliation = has_generic_reconciliation or str(line.get("reason", "")) == "其他结算调整"
-	if not has_winner_cha_jiao:
-		failures.append("牌墙流局后已胡玩家收到的查大叫必须作为独立明细显示")
+	if has_winner_cha_jiao:
+		failures.append("已胡玩家的分数明细不得再次出现查大叫收益")
 	if has_generic_reconciliation:
-		failures.append("已知查大叫收益不得退化成无法解释的其他结算调整")
+		failures.append("修正后的权威总账不得依赖无法解释的其他结算调整")
+
+
+func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) -> void:
+	var original_size := get_root().size
+	for viewport_size in [Vector2i(1365, 768), Vector2i(2048, 1152), Vector2i(2400, 1080), Vector2i(2556, 1179)]:
+		get_root().size = viewport_size
+		await process_frame
+		scene.call("_layout_settlement_overlay")
+		await process_frame
+		await process_frame
+		var root_ui: Control = scene.get("root_ui")
+		var panel: Control = scene.get("settlement_panel")
+		var content: Control = scene.get("settlement_content")
+		var next_button: Control = scene.get("next_round_button")
+		var player_list: HBoxContainer = scene.get("settlement_player_list")
+		var breakdown_list: VBoxContainer = scene.get("settlement_breakdown_list")
+		if root_ui == null or panel == null or content == null or next_button == null:
+			failures.append("结算四档布局验证缺少必要控件")
+			break
+		var root_rect := root_ui.get_global_rect()
+		var panel_rect := panel.get_global_rect()
+		if not _rect_contains_with_tolerance(root_rect, panel_rect, 1.0):
+			failures.append("结算面板在 %dx%d 超出界面：%s / %s" % [viewport_size.x, viewport_size.y, panel_rect, root_rect])
+		for entry in [
+			{"name": "主体内容", "rect": content.get_global_rect()},
+			{"name": "下一局", "rect": next_button.get_global_rect()},
+		]:
+			if not _rect_contains_with_tolerance(panel_rect, entry.get("rect"), 1.0):
+				failures.append("结算%s在 %dx%d 超出主面板" % [entry.get("name"), viewport_size.x, viewport_size.y])
+		if panel.size.x < root_ui.size.x * 0.94 - 2.0 or panel.size.y < root_ui.size.y * 0.91 - 2.0:
+			failures.append("结算面板在 %dx%d 未按方案B充满安全屏幕" % [viewport_size.x, viewport_size.y])
+		if player_list != null and _children_width_ratio(player_list) < 0.88:
+			failures.append("结算四家横排卡在 %dx%d 未充分利用横向空间" % [viewport_size.x, viewport_size.y])
+		if breakdown_list != null and _children_height_ratio(breakdown_list) < 0.72:
+			failures.append("结算明细区域在 %dx%d 留白过多" % [viewport_size.x, viewport_size.y])
+	get_root().size = original_size
+	await process_frame
+	scene.call("_layout_settlement_overlay")
+	await process_frame
+
+
+func _rect_contains_with_tolerance(outer: Rect2, inner: Rect2, tolerance: float) -> bool:
+	return inner.position.x >= outer.position.x - tolerance \
+		and inner.position.y >= outer.position.y - tolerance \
+		and inner.end.x <= outer.end.x + tolerance \
+		and inner.end.y <= outer.end.y + tolerance
+
+
+func _children_width_ratio(container: Container) -> float:
+	if container == null or container.size.x <= 1.0:
+		return 0.0
+	var occupied := 0.0
+	for child in container.get_children():
+		if child is Control and (child as Control).visible:
+			occupied += (child as Control).size.x
+	return occupied / container.size.x
+
+
+func _children_height_ratio(container: Control) -> float:
+	if container == null or container.size.y <= 1.0:
+		return 0.0
+	var occupied := 0.0
+	for child in container.get_children():
+		var control := child as Control
+		if control != null and control.visible:
+			occupied += control.size.y
+	return occupied / container.size.y
 
 
 func _verify_interaction_status(scene: Node, failures: Array[String]) -> void:
@@ -463,6 +593,34 @@ func _trainer_hint() -> Dictionary:
 		"options": [],
 		"danger_tiles": [{"tile_name": "7万", "risk_label": "中危", "risk_reasons": ["下家连续舍相邻牌"]}],
 		"current_routes": ["做清一色", "保留两面进张"],
+	}
+
+
+func _reaction_hint(action: String) -> Dictionary:
+	return {
+		"hint_kind": "reaction",
+		"reaction_advice": {
+			"action": action,
+			"reasons": ["碰后更快成叫", "保持当前牌路"],
+			"source_tile_name": "6筒",
+			"source_seat": 1,
+		},
+		"available_reactions": {"can_peng": true, "can_pass": true},
+	}
+
+
+func _self_action_hint() -> Dictionary:
+	return {
+		"hint_kind": "self_action",
+		"self_action_advice": {
+			"action": "gang",
+			"gang_subtype": "an_gang",
+			"tile_name": "5筒",
+			"reasons": ["暗杠后不损速度", "杠牌收益可接受"],
+			"can_self_hu": false,
+			"can_an_gang": true,
+			"can_add_gang": false,
+		},
 	}
 
 

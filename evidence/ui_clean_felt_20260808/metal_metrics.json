@@ -1,0 +1,81 @@
+{
+  "maps": {
+    "root": "res/art/materials/table_v2",
+    "metrics": {
+      "normal_energy_x": 0.016995687987061022,
+      "normal_energy_y": 0.013952034462969474,
+      "normal_energy_ratio": 1.218151233224789,
+      "base_luminance_cv": 9.683849753183637e-15,
+      "base_lowpass_std_fraction": 0.0,
+      "base_lowfreq_p99_p1": 0.0,
+      "normal_lowpass_std_fraction": 0.0027392332561256027,
+      "roughness_median": 0.8784313725490196,
+      "roughness_span": 0.03137254901960784,
+      "roughness_p99_p1": 0.019607843137254832,
+      "metallic_max": 0.0
+    },
+    "checks": {
+      "balanced_normal_energy": true,
+      "subtle_base_variation": true,
+      "clean_base_low_frequency": true,
+      "restrained_base_lowfreq_span": true,
+      "clean_normal_low_frequency": true,
+      "high_roughness": true,
+      "restrained_roughness_span": true,
+      "restrained_roughness_percentiles": true,
+      "non_metallic": true
+    },
+    "passed": true
+  },
+  "renders": [
+    {
+      "path": "evidence/ui_clean_felt_20260808/metal/table_empty_2556x1179.png",
+      "metrics": {
+        "image_size": [
+          2556,
+          1180
+        ],
+        "felt_pixel_count": 1532975,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    },
+    {
+      "path": "evidence/ui_clean_felt_20260808/metal/table_game_2556x1179.png",
+      "metrics": {
+        "image_size": [
+          2556,
+          1180
+        ],
+        "felt_pixel_count": 1303015,
+        "median_rgb8": [
+          53,
+          131,
+          64
+        ],
+        "red_green_ratio": 0.4045801526717558,
+        "blue_green_ratio": 0.4885496183206107,
+        "luminance": 0.4297247058823529
+      },
+      "checks": {
+        "warm_green_red_ratio": true,
+        "reduced_cyan_blue_ratio": true,
+        "splash_matched_luminance": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

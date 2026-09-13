@@ -7,7 +7,7 @@
 [ext_resource type="Texture2D" path="res://res/art/ui/table_v2/hud_shell.png" id="5_shell"]
 
 [node name="SeatHUD" type="Control"]
-custom_minimum_size = Vector2(196, 146)
+custom_minimum_size = Vector2(230, 200)
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
@@ -65,6 +65,7 @@ mouse_filter = 2
 
 [node name="AvatarMedallion" type="Control" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 0
 offset_left = 10.0
 offset_top = 38.0
@@ -75,6 +76,7 @@ script = ExtResource("4_avatar")
 
 [node name="AvatarGlyph" type="Label" parent="."]
 unique_name_in_owner = true
+visible = false
 layout_mode = 0
 offset_left = 10.0
 offset_top = 38.0
@@ -98,37 +100,45 @@ theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 6
 mouse_filter = 2
 
-[node name="Content" type="VBoxContainer" parent="ContentMargin"]
+[node name="Content" type="HBoxContainer" parent="ContentMargin"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 0
+theme_override_constants/separation = 2
 mouse_filter = 2
 
 [node name="NameSafeMargin" type="MarginContainer" parent="ContentMargin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/margin_left = 62
-theme_override_constants/margin_right = 40
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.95
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 6
 mouse_filter = 2
 
-[node name="NameLabel" type="Label" parent="ContentMargin/Content/NameSafeMargin"]
+[node name="IdentityColumn" type="VBoxContainer" parent="ContentMargin/Content/NameSafeMargin"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="ContentMargin/Content/NameSafeMargin/IdentityColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-horizontal_alignment = 1
+horizontal_alignment = 0
 vertical_alignment = 1
 text_overrun_behavior = 3
 text = "本家"
 
-[node name="ScoreLabel" type="Label" parent="ContentMargin/Content"]
+[node name="ScoreLabel" type="Label" parent="ContentMargin/Content/NameSafeMargin/IdentityColumn"]
 unique_name_in_owner = true
 layout_mode = 2
-horizontal_alignment = 1
+horizontal_alignment = 0
 vertical_alignment = 1
 text = "0分"
 
 [node name="DingQueCenter" type="CenterContainer" parent="ContentMargin/Content"]
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.05
 
 [node name="DingQueBadge" parent="ContentMargin/Content/DingQueCenter" instance=ExtResource("2_badge")]
 unique_name_in_owner = true

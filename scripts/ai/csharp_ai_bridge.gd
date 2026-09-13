@@ -95,12 +95,14 @@ func build_reaction_transport_payload(candidate: Dictionary, player_state: Dicti
 	return _build_reaction_payload(candidate, player_state, table_state, discard_context, rules_config)
 
 
-func build_self_action_transport_payload(player_state: Dictionary, table_state: Dictionary, rules_config, can_self_hu: bool, an_gang_tile_types: Array, add_gang_tile_types: Array, add_gang_qiang_gang_counts: Dictionary = {}, mandatory_gang_tile_types: Array = []) -> Dictionary:
+func build_self_action_transport_payload(player_state: Dictionary, table_state: Dictionary, rules_config, can_self_hu: bool, an_gang_tile_types: Array, add_gang_tile_types: Array, _add_gang_qiang_gang_counts: Dictionary = {}, mandatory_gang_tile_types: Array = []) -> Dictionary:
 	var payload := _build_payload(player_state, table_state, rules_config)
 	payload["canSelfHu"] = can_self_hu
 	payload["anGangTileTypes"] = an_gang_tile_types.duplicate(true)
 	payload["addGangTileTypes"] = add_gang_tile_types.duplicate(true)
-	payload["addGangQiangGangCounts"] = add_gang_qiang_gang_counts.duplicate(true)
+	# Actual rob-gang candidates are computed from concealed opponent hands.
+	# Unknown is not zero risk: the decision engine must use public belief.
+	payload["addGangQiangGangCounts"] = {}
 	payload["mandatoryGangTileTypes"] = mandatory_gang_tile_types.duplicate(true)
 	return payload
 
@@ -217,9 +219,9 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	var discards18: Array = []
 	var melds18: Array = []
 	var meld_views: Array = []
-	var passed_hu18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_hu")
-	var passed_peng18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_peng")
-	var passed_gang18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_gang")
+	var passed_hu18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_hu", self_seat)
+	var passed_peng18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_peng", self_seat)
+	var passed_gang18: Array = _build_reaction_pass_count_matrix(table_state.get("reaction_pass_evidence", []), active_suits, "can_gang", self_seat)
 	var is_called := PackedByteArray()
 	is_called.resize(4)
 	var is_ready := PackedByteArray()
@@ -246,7 +248,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		hand_counts.append(int(player.get("hand_count", 0)))
 		active_seats.append(not bool(player.get("has_won", false)))
 		is_called[index] = 1 if not Array(player.get("melds", [])).is_empty() else 0
-		is_ready[index] = 1 if bool(player.get("is_ting", false)) else 0
+		# Sichuan has no public ready declaration: opponent is_ting is private.
+		is_ready[index] = 1 if index == self_seat and bool(player.get("is_ting", false)) else 0
 		has_hu[index] = 1 if bool(player.get("has_won", false)) else 0
 	while discards18.size() < 4:
 		discards18.append([])
@@ -263,10 +266,9 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	while meld_views.size() < 4:
 		meld_views.append([])
 	var public_events: Array = table_state.get("public_ai_events", [])
-	var event_version := int(table_state.get("event_version", 0))
-	if event_version <= 0:
-		for event_item in public_events:
-			event_version = maxi(event_version, int(Dictionary(event_item).get("eventIndex", 0)))
+	var encoded_public_events := _encode_public_events(public_events, active_suits, self_seat)
+	# Private reaction counts must not leak through event IDs/cache seeds either.
+	var event_version := int(JSON.stringify(encoded_public_events).hash() & 0x7fffffff)
 	var visible_version := event_version
 	var hand_version := int(player_state.get("hand_count", hand_tiles.size())) * 19 + hand_tiles.size()
 	var shun_locks: Dictionary = table_state.get("shun_he_locks", {})
@@ -275,10 +277,14 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	var unlock_on_own_draw: Array[bool] = []
 	for seat in range(4):
 		var lock_info: Dictionary = shun_locks.get(seat, shun_locks.get(str(seat), {}))
+		if seat != self_seat:
+			lock_info = {}
 		locked_fans.append(int(lock_info.get("locked_fan", lock_info.get("min_fan", -1))))
 		lock_turns.append(int(lock_info.get("lock_turn", -1)))
 		unlock_on_own_draw.append(bool(lock_info.get("unlock_on_own_draw", true)))
 	var last_gang: Dictionary = table_state.get("last_gang_context", {})
+	var test_policy_variants: Dictionary = table_state.get("test_ai_policy_variants_by_seat", {})
+	var policy_variant := str(test_policy_variants.get(self_seat, test_policy_variants.get(str(self_seat), "current")))
 	return {
 		"seatIndex": self_seat,
 		"dealerSeat": _resolve_dealer_seat(players, table_state, self_seat),
@@ -292,6 +298,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"strategyContextVersion": visible_version + hand_version,
 		"eventVersion": event_version,
 		"informationMode": "public",
+		"policyVariant": policy_variant,
 		"scores": scores,
 		"dingQueSuits": ding_que_suits,
 		"handCounts": hand_counts,
@@ -299,7 +306,10 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"lockTurns": lock_turns,
 		"unlockOnOwnDraw": unlock_on_own_draw,
 		"activeSeats": active_seats,
-		"mobileSpeedMode": OS.has_feature("android") or OS.has_feature("ios"),
+		# bone_ash is the public-information veteran baseline on every device.
+		# Lightweight mode remains opt-in through an explicit forceLightweight payload
+		# flag; the platform itself must not change the AI's action selection.
+		"mobileSpeedMode": false,
 		"compactResult": OS.has_feature("android") or OS.has_feature("ios"),
 		"hand18": hand18,
 		"visible18": visible18,
@@ -307,7 +317,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"discards18": discards18,
 		"melds18": melds18,
 		"meldViews": meld_views,
-		"publicEvents": _encode_public_events(public_events, active_suits, self_seat),
+		"publicEvents": encoded_public_events,
 		"passedHu18": passed_hu18,
 		"passedPeng18": passed_peng18,
 		"passedGang18": passed_gang18,
@@ -356,11 +366,15 @@ func _encode_public_events(events: Array, active_suits: Array, self_seat: int) -
 			"melded_gang": event_type = "meldedGang"
 			"added_gang": event_type = "addedGang"
 		var event_seat := int(event.get("seat", -1))
+		# These events exist only when the engine found a legal private reaction.
+		# Even retaining a pass with all permission bits false reveals its presence.
+		if event_type == "pass" and event_seat != self_seat:
+			continue
 		var tile_type := tile_codec.tile_type(event.get("tile", {}), active_suits)
 		if event_type == "draw" and event_seat != self_seat:
 			tile_type = -1
 		result.append({
-			"eventIndex": int(event.get("eventIndex", 0)),
+			"eventIndex": result.size() + 1,
 			"turnIndex": int(event.get("turnIndex", 0)),
 			"seat": event_seat,
 			"type": event_type,
@@ -375,7 +389,7 @@ func _encode_public_events(events: Array, active_suits: Array, self_seat: int) -
 	return result
 
 
-func _build_reaction_pass_count_matrix(pass_evidence: Array, active_suits: Array, flag_key: String) -> Array:
+func _build_reaction_pass_count_matrix(pass_evidence: Array, active_suits: Array, flag_key: String, self_seat: int) -> Array:
 	var matrix: Array = []
 	var tile_type_count := active_suits.size() * 9
 	for _seat in range(4):
@@ -388,7 +402,7 @@ func _build_reaction_pass_count_matrix(pass_evidence: Array, active_suits: Array
 		if not bool(event.get(flag_key, false)):
 			continue
 		var seat := int(event.get("seat", -1))
-		if seat < 0 or seat >= 4:
+		if seat < 0 or seat >= 4 or seat != self_seat:
 			continue
 		var tile: Dictionary = event.get("tile", {})
 		var tile_type := tile_codec.tile_type(tile, active_suits)

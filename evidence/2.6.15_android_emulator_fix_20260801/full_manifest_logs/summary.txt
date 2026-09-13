@@ -1,0 +1,11 @@
+四川麻将 2.6.15 Android 启动稳定性修复固定清单
+日期: 2026-08-01
+清单: docs/ui_rework/emerald_final_runner_manifest_V1.txt
+通过: 27
+失败: 0
+结论: 27/27 PASS
+
+说明:
+- 01-26 为 Godot 当前 Runner，覆盖布局、触控、规则、计分、3D 牌桌、牌体、四档空间布局、相机构图与灯光。
+- 09 验证碰、明杠、暗杠、加杠共享同一实体模型且缩放不压薄。
+- 27 为 dotnet/AI.Core/AI.Core.csproj Release 编译。

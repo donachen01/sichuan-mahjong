@@ -83,8 +83,10 @@ public sealed class SichuanPosteriorNormalizer
 
     private static double BuildWallWeight(SichuanStateView state, int tileType, int remainingCount)
     {
+        if (state.WallCount <= 0)
+            return 0.0;
         var countWeight = Math.Max(0.001, remainingCount);
-        var wallDepth = Math.Clamp(state.WallCount / 19.0, 0.08, 1.0);
+        var wallDepth = Math.Clamp(state.WallCount / 19.0, 0.0, 1.0);
         var visibleScarcity = Math.Clamp(1.0 - state.Visible18[tileType] / 4.0, 0.0, 1.0);
         return countWeight * (0.74 + wallDepth * 0.18 + visibleScarcity * 0.08);
     }

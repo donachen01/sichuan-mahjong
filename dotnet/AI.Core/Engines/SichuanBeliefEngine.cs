@@ -160,6 +160,7 @@ public sealed class SichuanBeliefEngine
             }
             snapshot.SeatAbandonedSuits[seat] = abandonedSuits;
             snapshot.SeatSuitDemand[seat] = suitDemand;
+            BuildPublicReadFeatures(snapshot, state, seat, discards, meldTiles, abandonedSuits);
 
             var perTile = new Dictionary<int, double>();
             var holdWeights = new Dictionary<int, double>();
@@ -171,6 +172,15 @@ public sealed class SichuanBeliefEngine
                 var rank = tileType % 9 + 1;
                 var noHu = evidence.SeatNoHuEvidence[seat][tileType];
                 noHuEvidence[tileType] = noHu;
+                if (state.DingQueSuits[seat] == suit)
+                {
+                    // Do not turn a possible concealed holding into an illegal wait.
+                    perTile[tileType] = 0.0;
+                    holdWeights[tileType] = BlendPosterior(
+                        range.HoldProbability18[tileType], particlePosterior.HoldProbabilities[seat][tileType]);
+                    waitWeights[tileType] = 0.0;
+                    continue;
+                }
                 if (exactSafeTiles.Contains(tileType))
                 {
                     perTile[tileType] = 0.03;
@@ -237,6 +247,42 @@ public sealed class SichuanBeliefEngine
         return snapshot;
     }
 
+    private static void BuildPublicReadFeatures(
+        SichuanBeliefSnapshot snapshot,
+        SichuanStateView state,
+        int seat,
+        IReadOnlyList<int> discards,
+        IReadOnlyList<int> meldTiles,
+        IReadOnlySet<int> abandonedSuits)
+    {
+        var discardCount = Math.Max(1, discards.Count);
+        var handCut = state.PublicEvents.Count(item =>
+            item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Hand);
+        var drawCut = state.PublicEvents.Count(item =>
+            item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Draw);
+        var rootCount = meldTiles.Count(tile => tile is >= 0 and < 27) / 3
+            + (seat == state.SeatIndex ? state.Hand18.Count(tile => tile >= 3) : 0);
+        var brokenLines = 0;
+        var liveLines = 0;
+        foreach (var tile in discards.Where(tile => tile is >= 0 and < 27).Distinct())
+        {
+            var rank = tile % 9;
+            var hasLeft = rank > 0 && discards.Contains(tile - 1);
+            var hasRight = rank < 8 && discards.Contains(tile + 1);
+            if (hasLeft || hasRight) brokenLines++;
+            if (!hasLeft && !hasRight) liveLines++;
+        }
+        snapshot.PublicReadFeatures[$"seat:{seat}:hand_cut_ratio"] = handCut / (double)discardCount;
+        snapshot.PublicReadFeatures[$"seat:{seat}:draw_cut_ratio"] = drawCut / (double)discardCount;
+        snapshot.PublicReadFeatures[$"seat:{seat}:筋线断张"] = Math.Clamp(brokenLines / 9.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:孤张活性"] = Math.Clamp(liveLines / 9.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:根潜力"] = Math.Clamp(rootCount / 6.0, 0, 1);
+        snapshot.PublicReadFeatures[$"seat:{seat}:定缺竞争"] = Math.Clamp(
+            abandonedSuits.Count == 0 ? 0 : abandonedSuits.Count / 3.0,
+            0,
+            1);
+    }
+
     private static double BlendPosterior(double matureEstimate, double combinatoricEstimate)
         => Math.Clamp(matureEstimate * 0.85 + combinatoricEstimate * 0.15, 0.0, 0.99);
 
@@ -250,7 +296,13 @@ public sealed class SichuanBeliefEngine
             .Append("|turn=").Append(state.TurnIndex)
             .Append("|phase=").Append(state.Phase)
             .Append("|event=").Append(state.EventVersion)
+			.Append("|exchange3=").Append(state.ExchangeThreeEnabled ? 1 : 0)
+            .Append("|visibleVersion=").Append(state.VisibleVersion)
             .Append("|mode=").Append(state.InformationMode);
+        // Hidden-hand sampling depends on these public inputs (and uses
+        // VisibleVersion in its seed); cached and uncached inference must agree.
+        AppendIntArray(builder, "|dingque=", state.DingQueSuits);
+        AppendIntArray(builder, "|handCounts=", state.HandCounts);
         AppendIntArray(builder, "|hand=", state.Hand18);
         AppendIntArray(builder, "|visible=", state.Visible18);
         AppendIntArray(builder, "|remaining=", state.Remaining18);
@@ -262,7 +314,26 @@ public sealed class SichuanBeliefEngine
         AppendMatrix(builder, "|passedHu=", state.PassedHu18);
         AppendMatrix(builder, "|passedPeng=", state.PassedPeng18);
         AppendMatrix(builder, "|passedGang=", state.PassedGang18);
+        AppendPublicEvents(builder, state.PublicEvents);
         return builder.ToString();
+    }
+
+    private static void AppendPublicEvents(StringBuilder builder, IReadOnlyList<SichuanPublicEvent> events)
+    {
+        builder.Append("|publicEvents=");
+        foreach (var item in events)
+        {
+            builder.Append(item.EventIndex).Append(':')
+                .Append(item.TurnIndex).Append(':')
+                .Append(item.Seat).Append(':')
+                .Append((int)item.Type).Append(':')
+                .Append(item.TileType).Append(':')
+                .Append((int)item.Origin).Append(':')
+                .Append(item.CanHu ? '1' : '0')
+                .Append(item.CanPeng ? '1' : '0')
+                .Append(item.CanGang ? '1' : '0')
+                .Append(';');
+        }
     }
 
     private static void AppendIntArray(StringBuilder builder, string label, IReadOnlyList<int> values)
@@ -324,6 +395,11 @@ public sealed class SichuanBeliefEngine
         var normalized = normalizer.Normalize(state, activeSeats, seatWeightsByTile);
         for (var tileType = 0; tileType < 27; tileType++)
         {
+            if (state.WallCount <= 0)
+            {
+                snapshot.TileWallPosterior[tileType] = 0.0;
+                continue;
+            }
             var particleWallShare = state.Remaining18[tileType] <= 0
                 ? 0.0
                 : Math.Clamp(particlePosterior.WallProbabilities[tileType] / state.Remaining18[tileType], 0.0, 1.0);

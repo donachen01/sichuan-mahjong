@@ -27,18 +27,38 @@ func _run() -> void:
 		_verify_mesh(table, "TableFelt", Vector3(13.38, 0.31, 8.18), "DeepEmeraldShortNapFelt")
 		_verify_material_family(table, "WalnutApronRing", "WarmWalnutFrame")
 		_check(table.find_child("WalnutLongitudinalGrain", true, false) == null, "raised dark grain lines are removed from the walnut frame")
-		_verify_material_family(table, "LeatherGasketRing", "InkGreenLeather")
+		_verify_mesh(table, "LeatherGasketRing", Vector3(13.76, 0.22, 8.56), "InkGreenLeather")
+		_verify_ring_inner_dimensions(table, "LeatherGasketRing", Vector2(13.42, 8.22))
 		for retired_trim_name in [
 			"WalnutApronTop", "WalnutApronBottom", "WalnutApronLeft", "WalnutApronRight",
 			"CopperInlayTop", "CopperInlayBottom", "CopperInlayLeft", "CopperInlayRight",
 			"LeatherStitchesTop", "LeatherStitchesBottom", "LeatherStitchesLeft", "LeatherStitchesRight"
 		]:
 			_check(table.find_child(retired_trim_name, true, false) == null, "%s retired without leaving a visible seam" % retired_trim_name)
-		for groove_name in [
-			"PlayfieldGrooveTop", "PlayfieldGrooveBottom", "PlayfieldGrooveLeft", "PlayfieldGrooveRight",
-			"CenterGrooveTop", "CenterGrooveBottom", "CenterGrooveLeft", "CenterGrooveRight"
-		]:
+		var groove_bounds := {
+			"PlayfieldGrooveTop": AABB(Vector3(-5.86, 0.151, 3.014), Vector3(11.72, 0.003, 0.012)),
+			"PlayfieldGrooveBottom": AABB(Vector3(-5.86, 0.151, -3.026), Vector3(11.72, 0.003, 0.012)),
+			"PlayfieldGrooveLeft": AABB(Vector3(-5.846, 0.151, -2.95), Vector3(0.012, 0.003, 5.90)),
+			"PlayfieldGrooveRight": AABB(Vector3(5.834, 0.151, -2.95), Vector3(0.012, 0.003, 5.90)),
+			"CenterCornerNWTop": AABB(Vector3(-3.70, 0.151, 1.714), Vector3(0.80, 0.003, 0.012)),
+			"CenterCornerNWLeft": AABB(Vector3(-3.706, 0.151, 1.170), Vector3(0.012, 0.003, 0.55)),
+			"CenterCornerNETop": AABB(Vector3(2.90, 0.151, 1.714), Vector3(0.80, 0.003, 0.012)),
+			"CenterCornerNERight": AABB(Vector3(3.694, 0.151, 1.170), Vector3(0.012, 0.003, 0.55)),
+			"CenterCornerSWBottom": AABB(Vector3(-3.70, 0.151, -1.726), Vector3(0.80, 0.003, 0.012)),
+			"CenterCornerSWLeft": AABB(Vector3(-3.706, 0.151, -1.720), Vector3(0.012, 0.003, 0.55)),
+			"CenterCornerSEBottom": AABB(Vector3(2.90, 0.151, -1.726), Vector3(0.80, 0.003, 0.012)),
+			"CenterCornerSERight": AABB(Vector3(3.694, 0.151, -1.720), Vector3(0.012, 0.003, 0.55)),
+		}
+		for groove_name in groove_bounds:
 			_verify_material_family(table, groove_name, "PlayfieldRecessedGroove")
+			var groove := table.find_child(groove_name, true, false) as MeshInstance3D
+			if groove != null:
+				var world_bounds := groove.transform * groove.mesh.get_aabb()
+				_check_aabb(world_bounds, groove_bounds[groove_name], 0.003, "%s authored bounds" % groove_name)
+				var groove_top := world_bounds.end.y
+				_check(groove_top <= 0.157, "%s must remain embedded as a felt dark-weave hairline" % groove_name)
+		for retired_center_line in ["CenterGrooveTop", "CenterGrooveBottom", "CenterGrooveLeft", "CenterGrooveRight"]:
+			_check(table.find_child(retired_center_line, true, false) == null, "%s full technical rectangle is retired" % retired_center_line)
 		_verify_triangle_budget(table)
 		_verify_no_flat_overrides(table)
 
@@ -50,8 +70,12 @@ func _run() -> void:
 	_check(str(contract.get("table_asset", "")) == "sichuan_table_v2_pbr", "stage exposes the V2 PBR asset")
 	_check(str(contract.get("table_material_pipeline", "")) == "blender_pbr_preserved_without_flat_overrides", "stage exposes preserved Blender PBR pipeline")
 	_check(
-		str(contract.get("table_surface_finish", "")) == "dense_directional_microfibre_velvet_with_restrained_shu_brocade_edge",
-		"stage exposes the dense directional velvet surface contract"
+		str(contract.get("table_surface_finish", "")) == "splash_matched_natural_warm_green_dual_scale_short_nap_felt",
+		"stage exposes the tactile dual-scale short-nap felt contract"
+	)
+	_check(
+		str(contract.get("table_divider_finish", "")) == "subsurface_low_contrast_outer_boundary_with_fragmented_center_corners",
+		"stage exposes the integrated outer boundary and fragmented center-corner contract"
 	)
 
 	stage.queue_free()
@@ -105,12 +129,43 @@ func _verify_material_family(root: Node, mesh_name: String, family: String) -> v
 		_verify_surface_material(mesh, family)
 
 
+func _verify_ring_inner_dimensions(root: Node, mesh_name: String, expected_size: Vector2) -> void:
+	var mesh := _find_mesh(root, mesh_name)
+	if mesh == null:
+		return
+	var half_inner := expected_size * 0.5
+	var inner_x_error := INF
+	var inner_z_error := INF
+	for surface in range(mesh.mesh.get_surface_count()):
+		var arrays := mesh.mesh.surface_get_arrays(surface)
+		var vertices: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		for vertex in vertices:
+			inner_x_error = minf(inner_x_error, absf(absf(vertex.x) - half_inner.x))
+			inner_z_error = minf(inner_z_error, absf(absf(vertex.z) - half_inner.y))
+	_check(inner_x_error <= 0.002 and inner_z_error <= 0.002, "%s inner opening is %s" % [mesh_name, expected_size])
+
+
+func _check_aabb(actual: AABB, expected: AABB, tolerance: float, message: String) -> void:
+	_check(
+		actual.position.distance_to(expected.position) <= tolerance
+		and actual.size.distance_to(expected.size) <= tolerance,
+		"%s: actual=%s expected=%s" % [message, actual, expected]
+	)
+
+
 func _verify_surface_material(mesh: MeshInstance3D, expected_family: String) -> void:
 	_check(mesh.material_override == null, "%s has no runtime material override" % mesh.name)
 	var material := mesh.mesh.surface_get_material(0)
 	_check(material != null, "%s has an imported surface material" % mesh.name)
 	if material != null:
 		_check(expected_family.to_lower() in material.resource_name.to_lower(), "%s material family is %s" % [mesh.name, expected_family])
+		if expected_family == "DeepEmeraldShortNapFelt":
+			_check(material is StandardMaterial3D, "%s keeps an imported StandardMaterial3D" % mesh.name)
+			if material is StandardMaterial3D:
+				var pbr := material as StandardMaterial3D
+				_check(pbr.normal_enabled and pbr.normal_texture != null, "%s keeps its imported Normal map" % mesh.name)
+				_check(pbr.roughness_texture != null, "%s keeps its imported ORM roughness channel" % mesh.name)
+				_check(pbr.metallic_texture != null, "%s keeps its imported ORM metallic channel" % mesh.name)
 
 
 func _verify_no_flat_overrides(root: Node) -> void:

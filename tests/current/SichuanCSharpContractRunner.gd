@@ -51,14 +51,22 @@ func _init() -> void:
 	_expect(int(discard_payload["hand18"][18]) == 2 and int(discard_payload["hand18"][19]) == 1, "万字没有编码到 18..26", failures)
 	_expect(str(discard_payload.get("informationMode", "")) == "public", "非透视合同不是 public", failures)
 	_expect(not discard_payload.has("allHands18") and not discard_payload.has("exactWall18"), "公开合同泄露隐藏手牌或精确牌墙", failures)
-	_expect(int(discard_payload.get("eventVersion", -1)) == 12, "公开事件版本丢失", failures)
+	_expect(int(discard_payload.get("eventVersion", -1)) >= 0, "公开事件指纹丢失", failures)
+	var changed_private_version := table_state.duplicate(true)
+	changed_private_version["event_version"] = 999
+	var version_probe: Dictionary = bridge.build_discard_transport_payload(player_state, changed_private_version, rules)
+	_expect(version_probe == discard_payload, "内部事件计数泄漏到公开输入", failures)
 	_expect(discard_payload.get("publicEvents", []).size() == 3, "公开事件序列丢失", failures)
 	_expect(str(discard_payload["publicEvents"][0].get("origin", "")) == "hand", "手切来源丢失", failures)
 	_expect(str(discard_payload["publicEvents"][1].get("origin", "")) == "draw", "摸切来源丢失", failures)
 	_expect(int(discard_payload["publicEvents"][2].get("tileType", -2)) == -1, "公开合同泄露对手摸牌", failures)
 	_expect(discard_payload.get("meldViews", [])[0].size() == 1, "副露视图丢失", failures)
 	_expect(int(discard_payload.get("lockedFans", [])[1]) == 2, "顺胡锁番值丢失", failures)
-	_expect(int(discard_payload.get("passedHu18", [])[2][20]) == 1, "过胡公开证据丢失", failures)
+	_expect(int(discard_payload.get("passedHu18", [])[2][20]) == 0, "对手私有过胡权限泄漏", failures)
+	var own_pass_table := table_state.duplicate(true)
+	own_pass_table["reaction_pass_evidence"] = [{"seat": 1, "tile": _tile(44, "wan", 3), "can_hu": true}]
+	var own_pass_payload: Dictionary = bridge.build_discard_transport_payload(player_state, own_pass_table, rules)
+	_expect(int(own_pass_payload["passedHu18"][1][20]) == 1, "自身已知过胡记录丢失", failures)
 
 	var reaction_payload: Dictionary = bridge.build_reaction_transport_payload(
 		{"can_hu": true, "can_peng": true, "can_gang": false, "source_seat": 0},
@@ -73,7 +81,7 @@ func _init() -> void:
 	var self_payload: Dictionary = bridge.build_self_action_transport_payload(player_state, table_state, rules, false, [18], [19], {19: 1}, [18])
 	_expect(self_payload.get("anGangTileTypes", []) == [18], "暗杠候选丢失", failures)
 	_expect(self_payload.get("addGangTileTypes", []) == [19], "补杠候选丢失", failures)
-	_expect(int(self_payload.get("addGangQiangGangCounts", {}).get(19, self_payload.get("addGangQiangGangCounts", {}).get("19", 0))) == 1, "抢杠风险丢失", failures)
+	_expect(self_payload.get("addGangQiangGangCounts", {}).is_empty(), "精确可抢杠人数泄漏", failures)
 
 	var runtime := get_root().get_node_or_null("SichuanCSharpRuntime")
 	_expect(runtime != null and runtime.has_method("AnalyzeDiscardAotCompact"), "iOS AOT 出牌接口不存在", failures)

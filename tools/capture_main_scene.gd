@@ -74,7 +74,7 @@ func _capture() -> void:
 		_force_clean_table_preview(root_node)
 	elif _capture_mode() in ["ding-que", "ding-que-selected", "ding-que-reduced"]:
 		_force_ding_que_preview(root_node)
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-2", "ai-discard-win-3", "an-gang-static", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 	elif _capture_mode() in ["response-hu", "self-hu", "gang-self-hu", "action-1", "action-2", "action-3", "action-4"]:
@@ -115,7 +115,7 @@ func _capture() -> void:
 			_force_action_bar_preview(root_node)
 		for _frame in range(2):
 			await process_frame
-	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-3", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
+	elif _capture_mode() in ["won", "self-draw", "ai-self-draw-1", "ai-self-draw-2", "ai-self-draw-3", "ai-discard-win", "ai-discard-win-1", "ai-discard-win-2", "ai-discard-win-3", "an-gang-static", "max-meld", "right-meld", "meld-pressure", "meld-source-matrix", "discard-pressure", "hud-current", "hud-current-reduced", "hud-won", "hud-score-plus", "hud-score-minus"]:
 		_force_clean_table_preview(root_node)
 		_force_hud_state_preview(root_node)
 		for _frame in range(2):
@@ -141,6 +141,22 @@ func _capture() -> void:
 			await process_frame
 	_apply_choice_style_preview(root_node)
 	_force_3d_full_table_preview(root_node)
+	_apply_requested_table_skin(root_node)
+	if _capture_mode() == "settlement":
+		# Re-render after the requested table skin is active so the captured
+		# settlement palette proves the same runtime linkage used by real play.
+		_force_settlement_preview(root_node)
+		await process_frame
+	if _capture_mode() == "skin-panel":
+		var utility := root_node.get("table_utility_bar") as Control
+		if utility != null:
+			utility.call("set_collapsed", false)
+			root_node.call("_layout_table_utility_bar")
+		var skin_panel := root_node.get("table_skin_panel") as Control
+		if skin_panel != null:
+			skin_panel.call("open", _requested_table_skin_id())
+			await process_frame
+			await process_frame
 	if _capture_mode() == "camera":
 		_force_clean_table_preview(root_node)
 	elif _capture_mode() in SETTLEMENT_TRANSITION_MODES:
@@ -189,6 +205,26 @@ func _capture() -> void:
 
 	print(path)
 	quit()
+
+
+func _requested_table_skin_id() -> String:
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--table-skin="):
+			return argument.trim_prefix("--table-skin=")
+	return "deep_emerald_crepe"
+
+
+func _apply_requested_table_skin(root_node: Node) -> void:
+	var requested_skin_id := _requested_table_skin_id()
+	var stage := root_node.get("table_stage_3d") as Node3D
+	if stage == null or not stage.has_method("apply_table_skin") \
+			or not bool(stage.call("apply_table_skin", requested_skin_id)):
+		push_error("Failed to apply requested table skin: %s" % requested_skin_id)
+		return
+	root_node.set("table_skin_id", requested_skin_id)
+	var action_bar := root_node.get("table_action_bar") as Control
+	if action_bar != null and action_bar.has_method("set_table_skin"):
+		action_bar.call("set_table_skin", requested_skin_id)
 
 
 func _profile_real_metal_frame_pacing(root_node: Node) -> void:
@@ -807,9 +843,17 @@ func _force_settlement_preview(root_node: Node) -> void:
 	for index in range(players.size()):
 		var player: Dictionary = players[index]
 		player["nickname"] = ["陈旭", "舒燕", "陈东", "舒玲"][index]
-		player["score"] = [15, 3, -11, -7][index]
+		player["score"] = [14, 3, -11, -6][index]
 		player["has_won"] = index == 0
 		players[index] = player
+	# The settlement fixture intentionally exercises the revised grouped-label
+	# contract: one exposed peng and one discard-winning tile from the upper seat.
+	var focus_hand: Array = players[0].get("hand_tiles", [])
+	if focus_hand.size() >= 4:
+		players[0]["melds"] = [{
+			"type": "peng",
+			"tiles": [focus_hand[0], focus_hand[1], focus_hand[2]],
+		}]
 	var winning_tile: Dictionary = players[0].get("hand_tiles", [{}]).back() if not players[0].get("hand_tiles", []).is_empty() else {"id": 9999, "suit": "wan", "rank": 9}
 	snapshot["current_phase"] = 7
 	snapshot["current_dealer_seat"] = 1
@@ -819,14 +863,14 @@ func _force_settlement_preview(root_node: Node) -> void:
 		"dealer_seat": 1,
 		"end_reason": "draw_wall_empty",
 		"winner_seats": [0],
-		"score_changes": {0: 11, 1: -2, 2: -2, 3: -7},
+		"score_changes": {0: 10, 1: -2, 2: -2, 3: -6},
 		"win_events": [{
 			"winner_seat": 0,
-			"source_seat": 0,
-			"payer_seats": [2, 3],
-			"win_type": "self_draw",
+			"source_seat": 1,
+			"payer_seats": [1],
+			"win_type": "discard_win",
 			"winning_tile": winning_tile,
-			"fan_detail": {"capped_fan": 0, "hand_score": 1, "per_payer_score": 2, "labels": ["平胡", "自摸"]},
+			"fan_detail": {"capped_fan": 0, "hand_score": 1, "per_payer_score": 1, "labels": ["平胡", "点炮"]},
 		}],
 		"gang_events": [{"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3]}],
 		"draw_assessment": [
@@ -1152,7 +1196,7 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		root_node.set("opponent_hands_enabled", false)
 		root_node.set("ai_helper_enabled", false)
 	var motion_recording := _capture_mode() in MOTION_RECORD_MODES
-	var hand_counts := [14, 13, 13, 13] if _capture_mode() == "camera" else ([2, 2, 2, 2] if _capture_mode() == "meld-pressure" else [11, 10, 10, 10])
+	var hand_counts := [14, 13, 13, 13] if _capture_mode() == "camera" else ([2, 10, 10, 10] if _capture_mode() == "max-meld" else ([2, 2, 2, 2] if _capture_mode() == "meld-pressure" else [11, 10, 10, 10]))
 	# The camera-reference frame mirrors the supplied ding-que screenshot: four
 	# concealed hands, no discards and no melds. Dense gameplay remains covered
 	# by the contract runner and the normal beauty-shot modes.
@@ -1163,11 +1207,18 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		var hand := _make_3d_demo_tiles(10000 + seat * 100, hand_counts[seat], seat)
 		var discards := _make_3d_demo_tiles(20000 + seat * 100, discard_counts[seat], seat + 1)
 		var source_matrix_gang := _capture_mode() == "meld-source-matrix" and seat in [1, 2]
-		var meld_tile_count := 13 if _capture_mode() == "meld-pressure" else (12 if seat == 0 and _capture_mode() == "max-meld" else (7 if seat == 3 and _capture_mode() == "right-meld" else (4 if seat == 2 or source_matrix_gang else 3)))
+		var meld_tile_count := 13 if _capture_mode() == "meld-pressure" else (16 if seat == 0 and _capture_mode() == "max-meld" else (7 if seat == 3 and _capture_mode() == "right-meld" else (4 if seat == 2 or source_matrix_gang else 3)))
 		var meld_tiles := _make_3d_demo_tiles(30000 + seat * 100, meld_tile_count, seat + 2)
 		all_hands.append(hand)
 		var preview_melds: Array = []
-		if motion_recording:
+		if _capture_mode() == "an-gang-static":
+			preview_melds = [{
+				"type": "gang",
+				"gang_subtype": "an_gang",
+				"tiles": meld_tiles,
+				"from_seat": seat,
+			}]
+		elif motion_recording:
 			if _capture_mode() == "motion-add-gang" and seat == 3:
 				preview_melds = [{
 					"type": "peng",
@@ -1192,14 +1243,15 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 						"from_seat": (seat + group_index + 1) % 4,
 					})
 			elif seat == 0 and _capture_mode() == "max-meld":
-				# Four exposed groups exercise the widest legal lower-left rail and
-				# prove that the shifted concealed hand still remains unobstructed.
+				# Four gangs plus two concealed tiles exercise the legal 18-tile
+				# pressure limit on the shared lower rail.
 				for group_index in range(4):
 					var group_tiles: Array = []
-					for tile_index in range(group_index * 3, group_index * 3 + 3):
+					for tile_index in range(group_index * 4, group_index * 4 + 4):
 						group_tiles.append(meld_tiles[tile_index])
 					preview_melds.append({
-						"type": "peng",
+						"type": "gang",
+						"gang_subtype": "ming_gang",
 						"tiles": group_tiles,
 						"from_seat": (seat + group_index + 1) % 4,
 					})
@@ -1308,11 +1360,15 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 		"recommended_tile_id": int(self_hand_for_markers[recommended_index].get("id", -1)),
 		"danger_tile_ids": [int(self_hand_for_markers[danger_index].get("id", -1))],
 	})
+	# The synthetic fixture bypasses MainSceneV2's normal phase visibility refresh.
+	# Make the live-game center surface explicit so beauty shots verify the actual
+	# glass diamond and wall number instead of inheriting opening-roll visibility.
+	stage.call("set_center_wall_count_visible", true)
 	if root_node.has_method("_update_seat_huds"):
 		root_node.call("_update_seat_huds", snapshot)
 	var center_indicator := root_node.get("center_turn_indicator") as Control
+	var evidence_turn_seat := _capture_turn_seat()
 	if center_indicator != null and center_indicator.has_method("render"):
-		var evidence_turn_seat := _capture_turn_seat()
 		if evidence_turn_seat >= 0:
 			center_indicator.call("render", 40, evidence_turn_seat)
 		elif _capture_mode() == "won":
@@ -1325,6 +1381,10 @@ func _force_3d_full_table_preview(root_node: Node) -> void:
 			center_indicator.call("render", 40, 0, "等待本家响应" if _capture_mode() != "self-hu" else "本家操作中")
 		else:
 			center_indicator.call("render", 40, int(snapshot.get("current_turn_seat", 0)))
+	# The 3D stage owns the visible production panel. Drive it explicitly for
+	# direction-state evidence instead of only changing the hidden 2D fallback.
+	if evidence_turn_seat >= 0:
+		stage.call("_set_center_panel_state", 40, evidence_turn_seat)
 	root_node.call("_layout_3d_center_indicator")
 
 

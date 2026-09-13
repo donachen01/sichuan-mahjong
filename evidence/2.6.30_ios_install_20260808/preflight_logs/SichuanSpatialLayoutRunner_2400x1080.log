@@ -1,0 +1,6 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+SPATIAL_LAYOUT_METRICS {"center_reserve":[0.46,0.33,0.08,0.13],"discard_0":[0.394,0.4728,0.212,0.2194],"discard_1":[0.2335,0.2445,0.1492,0.2703],"discard_2":[0.4114,0.1232,0.1771,0.1553],"discard_3":[0.6173,0.2445,0.1492,0.2703],"hand_1":[0.0662,0.0495,0.1255,0.7724],"hand_2":[0.2583,-0.0064,0.3472,0.0679],"hand_3":[0.8084,0.0495,0.1255,0.7724],"meld_1":[0.2284,0.0943,0.0494,0.1316],"meld_2":[0.6112,0.0764,0.0943,0.0407],"meld_3":[0.7223,0.0943,0.0494,0.1316],"self_hand":[0.3233,0.806,0.5869,0.1759],"self_meld":[0.1081,0.801,0.209,0.1167]}
+SICHUAN SPATIAL LAYOUT CONTRACT OK

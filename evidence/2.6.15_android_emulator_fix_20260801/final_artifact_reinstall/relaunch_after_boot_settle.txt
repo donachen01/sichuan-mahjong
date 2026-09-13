@@ -1,0 +1,7 @@
+Starting: Intent { cmp=com.chendong.sichuanmahjong/com.godot.game.GodotAppLauncher }
+Status: ok
+LaunchState: COLD
+Activity: com.chendong.sichuanmahjong/com.godot.game.GodotApp
+TotalTime: 250
+WaitTime: 251
+Complete

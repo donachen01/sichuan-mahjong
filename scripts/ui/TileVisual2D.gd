@@ -43,6 +43,7 @@ var is_selected: bool = false
 var is_recent_discard: bool = false
 var is_winning: bool = false
 var reduced_motion := false
+var settlement_display := false
 
 static var texture_cache: Dictionary = {}
 static var face_stylebox: StyleBoxFlat = _build_face_stylebox()
@@ -70,6 +71,11 @@ func set_reduced_motion(enabled: bool) -> void:
 	if reduced_motion:
 		scale = Vector2.ONE * (1.05 if is_selected else 1.0)
 	set_process(is_recent_discard and not reduced_motion)
+	queue_redraw()
+
+
+func set_settlement_display(enabled: bool) -> void:
+	settlement_display = enabled
 	queue_redraw()
 
 
@@ -220,6 +226,8 @@ func _draw_contact_shadow(shadow_rect: Rect2) -> void:
 	ambient.shadow_size = maxi(3, int(round(7.0 * tile_scale)))
 	ambient.shadow_offset = Vector2(4.0, 5.5) * tile_scale
 	draw_style_box(ambient, shadow_rect.grow(2.2 * tile_scale))
+	if settlement_display:
+		return
 	var contact_rect := Rect2(
 		shadow_rect.position + Vector2(5.0, shadow_rect.size.y - 8.0) * tile_scale,
 		Vector2(maxf(2.0, shadow_rect.size.x - 10.0 * tile_scale), maxf(2.0, 7.0 * tile_scale))

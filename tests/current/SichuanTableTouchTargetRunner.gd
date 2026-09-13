@@ -28,6 +28,7 @@ func _run() -> void:
 	else:
 		_verify_normal_round(root_node, utility_bar, failures)
 		_verify_settlement_visibility(utility_bar, failures)
+		await _verify_ios_settlement_close_and_next_round(root_node, utility_bar, failures)
 	await _verify_action_bar(root_node, failures)
 	_verify_summer_ding_que_controls(root_node, failures)
 	await _verify_hand_layout_pressure(failures)
@@ -63,6 +64,10 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		failures.append("缩进图标点击区必须至少为 76x76")
 	elif collapsed_toggle.focus_mode != Control.FOCUS_ALL:
 		failures.append("缩进入口必须支持键盘/手柄焦点")
+	var seat_huds: Dictionary = root_node.get("seat_huds")
+	var upper_hud: Control = seat_huds.get(1)
+	if upper_hud != null and collapsed_toggle.get_global_rect().intersects(upper_hud.get_global_rect()):
+		failures.append("收起状态的左上工具按钮不得遮挡上家铭牌")
 	utility_bar.call("set_collapsed", false)
 	utility_bar.call("_layout_buttons")
 	for legacy_name in ["top_ai_helper_button", "top_settlement_info_button", "top_next_round_button", "top_exit_button"]:
@@ -70,7 +75,7 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		if legacy_button != null and legacy_button.visible:
 			failures.append("legacy control must stay hidden: %s" % legacy_name)
 
-	var visible_actions := ["ai", "settings", "opponent_hands", "exit"]
+	var visible_actions := ["ai", "settings", "opponent_hands", "skin", "exit"]
 	var visible_rects: Array[Rect2] = []
 	for action in visible_actions:
 		var button: Button = utility_bar.call("get_button", action)
@@ -80,6 +85,9 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		var rect: Rect2 = utility_bar.call("get_touch_rect", action)
 		if rect.size.x < MIN_TOUCH_SIZE.x or rect.size.y < MIN_TOUCH_SIZE.y:
 			failures.append("%s touch target is smaller than 76x76" % action)
+		if root_node.get_viewport().get_visible_rect().size.is_equal_approx(Vector2(2048.0, 1152.0)) \
+				and (rect.size.x < 520.0 or rect.size.y < 164.0 or button.get_theme_font_size("font_size") < 64):
+			failures.append("%s 必须保持上一版工具按钮与文字的至少两倍尺寸" % action)
 		visible_rects.append(rect)
 	var exit_button: Button = utility_bar.call("get_button", "exit")
 	if exit_button == null or exit_button.text != "退出游戏":
@@ -103,12 +111,12 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 			if visible_rects[first_index].intersects(visible_rects[second_index]):
 				failures.append("utility touch targets overlap")
 
-	var seat_huds: Dictionary = root_node.get("seat_huds")
+	# 展开抽屉是顶层覆盖式界面，按产品合同允许覆盖牌桌和铭牌；但所有
+	# 入口必须保持在可见区内，不能用覆盖许可掩盖裁切或不可点击问题。
+	var root_rect: Rect2 = root_node.get("root_ui").get_global_rect()
 	for rect in visible_rects:
-		for seat in [0, 1, 2, 3]:
-			var seat_hud: Control = seat_huds.get(seat)
-			if seat_hud != null and rect.intersects(seat_hud.get_global_rect()):
-				failures.append("utility control overlaps SeatHUD%d" % seat)
+		if not root_rect.encloses(rect):
+			failures.append("expanded utility control leaves the visible viewport")
 
 	for hidden_action in ["settlement", "next_round"]:
 		var hidden_button: Button = utility_bar.call("get_button", hidden_action)
@@ -134,6 +142,49 @@ func _verify_settlement_visibility(utility_bar: Control, failures: Array[String]
 			failures.append("%s settlement touch target is smaller than 76x76" % action)
 
 
+func _verify_ios_settlement_close_and_next_round(root_node: Node, utility_bar: Control, failures: Array[String]) -> void:
+	var manager: Node = root_node.get("game_manager")
+	var game_state: Node = manager.get("game_state") if manager != null else null
+	var overlay: Control = root_node.get("settlement_overlay")
+	var close_button: Button = root_node.get("settlement_close_button")
+	if game_state == null or overlay == null or close_button == null:
+		failures.append("iOS 结算触控测试缺少 GameState 或结算按钮")
+		return
+	game_state.set("current_phase", 7)
+	manager.set("latest_snapshot", {})
+	manager.call("get_fresh_snapshot")
+	root_node.set("settlement_dismissed", false)
+	overlay.visible = true
+	utility_bar.call("set_collapsed", true)
+	root_node.call("_layout_settlement_overlay")
+	await process_frame
+
+	var close_touch := InputEventScreenTouch.new()
+	close_touch.position = close_button.get_global_rect().get_center()
+	close_touch.pressed = true
+	root_node.call("_input", close_touch)
+	await process_frame
+	if overlay.visible:
+		failures.append("iOS 原生触摸没有关闭积分结算层")
+	if bool(utility_bar.call("is_collapsed")):
+		failures.append("关闭积分后必须自动展开工具栏并露出下一局入口")
+	var next_round_button: Button = utility_bar.call("get_button", "next_round")
+	if next_round_button == null or not next_round_button.is_visible_in_tree() or next_round_button.disabled:
+		failures.append("关闭积分后下一局按钮不可见或不可点击")
+		return
+
+	var round_before := int(game_state.get("round_index"))
+	var next_touch := InputEventScreenTouch.new()
+	next_touch.position = next_round_button.get_global_rect().get_center()
+	next_touch.pressed = true
+	root_node.call("_input", next_touch)
+	await process_frame
+	if int(game_state.get("round_index")) != round_before + 1:
+		failures.append("iOS 原生触摸下一局后 round_index 没有推进")
+	if int(game_state.get("current_phase")) != 2:
+		failures.append("iOS 下一局触摸没有进入新一局投骰阶段")
+
+
 func _verify_action_bar(root_node: Node, failures: Array[String]) -> void:
 	var action_bar: Control = root_node.get("table_action_bar")
 	if action_bar == null or action_bar.get_script() == null or action_bar.get_script().resource_path != ACTION_BAR_SCRIPT_PATH:
@@ -146,7 +197,7 @@ func _verify_action_bar(root_node: Node, failures: Array[String]) -> void:
 	var action_rects: Array[Rect2] = []
 	for action in actions:
 		var rect: Rect2 = action_bar.call("get_touch_rect", action)
-		var minimum := Vector2(132.0, 132.0) if action == "hu" else Vector2(108.0, 108.0)
+		var minimum := Vector2(264.0, 264.0) if action == "hu" else Vector2(216.0, 216.0)
 		if rect.size.x < minimum.x or rect.size.y < minimum.y:
 			failures.append("%s action target is below its visual/touch contract" % action)
 		action_rects.append(rect)
@@ -248,7 +299,18 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		failures.append("定缺选中印章的视觉抬升必须为8-12px")
 	if bool(visual_contract.get("extra_confirmation_step", true)):
 		failures.append("定缺不得增加二次确认步骤")
+	if str(visual_contract.get("initial_focus_ring", "")) != "none":
+		failures.append("定缺出现时不得预选条并只给条显示亮圈")
+	root_node.call("_reset_ding_que_visual_state")
+	for button in buttons:
+		var normal_style := button.get_theme_stylebox("normal") as StyleBoxTexture
+		if button.has_focus():
+			failures.append("定缺初始状态仍有单个选项获得亮圈")
+		if normal_style != null and absf((normal_style.content_margin_top - normal_style.content_margin_bottom) + 14.0) > 0.01:
+			failures.append("定缺文字没有按 CJK 字面重心在圆印内视觉居中")
 	root_node.call("_apply_ding_que_selection_state", "tong")
+	if not buttons[1].has_focus() or buttons[0].has_focus() or buttons[2].has_focus():
+		failures.append("只有用户明确选择后，亮圈才应跟随被选中的筒")
 	var selected_style := buttons[1].get_theme_stylebox("normal") as StyleBoxTexture
 	if selected_style == null or selected_style.expand_margin_top < 8.0 or selected_style.expand_margin_top > 12.0:
 		failures.append("定缺选中印章没有按合同向上抬升")
@@ -264,12 +326,17 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		utility_bar.call("set_collapsed", true)
 		overlay.visible = true
 		var utility_toggle: Button = utility_bar.call("get_button", "toggle")
-		var blocked_touch := InputEventScreenTouch.new()
-		blocked_touch.position = utility_toggle.get_global_rect().get_center()
-		blocked_touch.pressed = true
-		root_node.call("_input", blocked_touch)
-		if not bool(utility_bar.call("is_collapsed")):
-			failures.append("定缺模态层期间左上工具不得穿透点击")
+		var utility_touch := InputEventScreenTouch.new()
+		utility_touch.position = utility_toggle.get_global_rect().get_center()
+		utility_touch.pressed = true
+		root_node.call("_input", utility_touch)
+		if bool(utility_bar.call("is_collapsed")):
+			failures.append("定缺阶段左上角工具必须仍能展开")
+		else:
+			utility_touch.position = utility_toggle.get_global_rect().get_center()
+			root_node.call("_input", utility_touch)
+			if not bool(utility_bar.call("is_collapsed")):
+				failures.append("定缺阶段左上角工具必须仍能缩进")
 		overlay.visible = false
 
 

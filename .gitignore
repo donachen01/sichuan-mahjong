@@ -26,6 +26,12 @@ evidence/1.0.42_to_1.0.44_github_diff/extracted/**
 !测试数据统计/
 !测试数据统计/.gdignore
 
+# Local video-learning runtimes and copyrighted source media.
+.codex_runtime/
+research/xiaolaoshi_deep_learning/**/source.mp4
+research/xiaolaoshi_deep_learning/**/raw_payload.json
+research/xiaolaoshi_deep_learning/**/artifacts/
+
 # Signing and local secrets
 *.keystore
 *.jks

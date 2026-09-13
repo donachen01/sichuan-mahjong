@@ -3,6 +3,8 @@ extends Control
 
 const METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
+const DIRECTION_LABELS := ["东", "南", "西", "北"]
+const SEGMENT_FOR_SEAT := [2, 3, 0, 1]
 
 @onready var background_panel: Panel = %BackgroundPanel
 @onready var craft_panel: Control = %CraftPanel
@@ -24,12 +26,8 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for label in [top_direction_label, countdown_label, bottom_direction_label, wall_count_label, left_direction_label, right_direction_label]:
 		STYLE_CONFIG.apply_label(label, false, false)
-	# The center surface is now a quiet compass plus a diegetic wall tile. The
-	# old four direction words and per-turn countdown competed with the table
-	# action; keep the nodes for scene/diagnostic compatibility but never show
-	# them in the release surface.
 	reduced_motion = bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
-	_hide_legacy_center_copy()
+	_configure_direction_copy()
 	_apply_layout()
 	# 3D 对局把数字直接贴在实体中心盘上；这里仅保留非 3D 降级路径
 	# 的静态数字，不能出现悬浮、绕行或旋转动效。
@@ -37,11 +35,14 @@ func _ready() -> void:
 
 
 func render(next_wall_count: int, turn_seat: int, _status_text: String = "") -> void:
-	var next_seat := clampi(turn_seat, 0, 3)
+	var next_seat := turn_seat if turn_seat >= 0 and turn_seat < 4 else -1
 	if next_seat != current_turn_seat:
 		current_turn_seat = next_seat
 	wall_count = maxi(0, next_wall_count)
 	wall_count_label.text = str(wall_count)
+	if compass_visual != null:
+		compass_visual.call("configure", current_turn_seat, reduced_motion)
+	_apply_direction_styles()
 
 
 func set_compact(compact_value: bool) -> void:
@@ -56,20 +57,26 @@ func get_reserved_rect() -> Rect2:
 
 
 func get_active_direction_text() -> String:
-	return ""
+	if current_turn_seat < 0:
+		return ""
+	return DIRECTION_LABELS[SEGMENT_FOR_SEAT[current_turn_seat]]
 
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"concept": "static_wall_count_on_physical_center",
-		"physical_asset": "res://res/art/3d/sichuan_center_compass_v2.glb",
-		"primary_information": "static_wall_count",
-		"wall_count_surface": "static_2d_fallback_number_on_center_graphic",
+		"concept": "reference_four_way_turn_panel",
+		"physical_asset": "blender_authored_flush_glass_four_way_inlay",
+		"shape": "flush_chamfered_glass_inlay_with_circular_counter",
+		"material": "gloss_smoked_jade_glass_with_clean_outer_edges_and_central_antique_bronze_counter",
+		"primary_information": "turn_direction_and_static_wall_count",
+		"wall_count_surface": "static_number_in_central_circular_counter",
 		"wall_count_format": "%d",
 		"wall_count_motion": "none",
-		"direction_labels": [],
-		"active_encoding": [],
-		"overlay_frames": "removed",
+		"direction_labels": DIRECTION_LABELS,
+		"active_encoding": ["opaque_vivid_red_main_field_and_both_chamfer_fills", "warm_ivory_direction_glyph_with_dark_outline"],
+		"active_color_hex": "A13D2D",
+		"active_direction": get_active_direction_text(),
+		"overlay_frames": "owned_by_3d_table_stage_without_duplicate_2d_panel",
 		"persistent_long_status_text": false,
 		"visual_density": "low",
 		"maximum_layout_size": Vector2(210.0, 210.0),
@@ -83,17 +90,20 @@ func _apply_layout() -> void:
 		return
 	craft_panel.visible = false
 	background_panel.visible = false
-	compass_visual.visible = false
+	# This fallback is hidden as a whole while the physical 3D stage is active,
+	# but remains complete if 3D initialization is unavailable.
+	compass_visual.visible = true
 	background_panel.add_theme_stylebox_override("panel", _transparent_style())
 	wall_count_label.visible = true
 	wall_count_label.add_theme_font_size_override("font_size", 30 if compact else 36)
-	wall_count_label.add_theme_color_override("font_color", Color("F6F5E9"))
-	wall_count_label.add_theme_color_override("font_outline_color", Color(0.01, 0.055, 0.042, 0.98))
+	wall_count_label.add_theme_color_override("font_color", Color("F3E7C6"))
+	wall_count_label.add_theme_color_override("font_outline_color", Color("061512"))
 	wall_count_label.add_theme_constant_override("outline_size", 5)
 	wall_count_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.02, 0.01, 0.62))
 	wall_count_label.add_theme_constant_override("shadow_offset_x", 2)
 	wall_count_label.add_theme_constant_override("shadow_offset_y", 4)
 	wall_count_label.add_theme_stylebox_override("normal", _transparent_style())
+	_apply_direction_styles()
 	_layout_labels()
 
 
@@ -130,7 +140,30 @@ func _transparent_style() -> StyleBoxFlat:
 	return style
 
 
-func _hide_legacy_center_copy() -> void:
-	for label in [top_direction_label, countdown_label, bottom_direction_label, left_direction_label, right_direction_label]:
-		if label != null:
-			label.visible = false
+func _configure_direction_copy() -> void:
+	top_direction_label.text = DIRECTION_LABELS[0]
+	right_direction_label.text = DIRECTION_LABELS[1]
+	bottom_direction_label.text = DIRECTION_LABELS[2]
+	left_direction_label.text = DIRECTION_LABELS[3]
+	for label in [top_direction_label, bottom_direction_label, left_direction_label, right_direction_label]:
+		label.visible = true
+		label.add_theme_font_size_override("font_size", 24 if compact else 28)
+		label.add_theme_color_override("font_outline_color", Color("071713"))
+		label.add_theme_constant_override("outline_size", 4)
+	countdown_label.visible = false
+
+
+func _apply_direction_styles() -> void:
+	if top_direction_label == null:
+		return
+	var labels := [top_direction_label, right_direction_label, bottom_direction_label, left_direction_label]
+	var active_segment := -1
+	if current_turn_seat >= 0:
+		active_segment = int(SEGMENT_FOR_SEAT[current_turn_seat])
+	for index in range(labels.size()):
+		var label := labels[index] as Label
+		label.add_theme_color_override(
+			"font_color",
+			Color("FFF4E0") if index == active_segment else Color.WHITE
+		)
+		label.add_theme_color_override("font_outline_color", Color("2A090B") if index == active_segment else Color("071713"))

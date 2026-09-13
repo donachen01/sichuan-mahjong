@@ -4,11 +4,9 @@ extends Control
 signal action_selected(action: String)
 
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
+const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
-const ACTION_HU_TEXTURE := preload("res://res/art/ui/table_v2/action_hu.png")
-const ACTION_GANG_TEXTURE := preload("res://res/art/ui/table_v2/action_gang.png")
-const ACTION_PENG_TEXTURE := preload("res://res/art/ui/table_v2/action_peng.png")
-const ACTION_PASS_TEXTURE := preload("res://res/art/ui/table_v2/action_pass.png")
+const ACTION_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 const ENTRANCE_DURATION := 0.16
 const ENTRANCE_STAGGER := 0.025
 const HOVER_DURATION := 0.10
@@ -16,10 +14,13 @@ const PRESS_DURATION := 0.12
 const ENTRANCE_SCALE := 0.94
 const HOVER_SCALE := 1.035
 const PRESS_SCALE := 0.94
-const PRIMARY_COMPACT_SIZE := Vector2(132.0, 132.0)
-const SECONDARY_COMPACT_SIZE := Vector2(108.0, 108.0)
-const PRIMARY_FOCUSED_SIZE := Vector2(184.0, 184.0)
-const SECONDARY_FOCUSED_SIZE := Vector2(156.0, 156.0)
+# Touch targets are intentionally generous on iPhone. The previous 132/108
+# compact and 184/156 focused seals were visually readable but too easy to
+# miss during a fast reaction; this doubles the actual hit rectangles.
+const PRIMARY_COMPACT_SIZE := Vector2(264.0, 264.0)
+const SECONDARY_COMPACT_SIZE := Vector2(216.0, 216.0)
+const PRIMARY_FOCUSED_SIZE := Vector2(368.0, 368.0)
+const SECONDARY_FOCUSED_SIZE := Vector2(312.0, 312.0)
 
 @onready var background_panel: Panel = %BackgroundPanel
 @onready var craft_panel: Control = %CraftPanel
@@ -35,6 +36,8 @@ var action_buttons: Dictionary = {}
 var reduced_motion := false
 var button_tweens: Dictionary = {}
 var button_overlays: Dictionary = {}
+var active_skin_id := TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID
+var active_skin: Dictionary = TABLE_SKIN_CATALOG.get_skin(TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID)
 
 
 func _ready() -> void:
@@ -60,20 +63,27 @@ func _ready() -> void:
 	var context_row := context_mark.get_parent() as Control
 	if context_row != null:
 		context_row.visible = false
-	# The action choices float above the table like individual jade seals. The
-	# previous shared cut-corner frame made the group feel like a desktop tool
-	# panel and reduced the clarity of each decision on a phone.
+	# The action choices float above the table as one clean family of single-ring
+	# decision badges. The ring remains the quick visual cue; the nested artwork
+	# and tiny inner labels are intentionally gone so the Chinese action word is
+	# the primary visual.
 	craft_panel.visible = false
 	background_panel.add_theme_stylebox_override("panel", _make_background_style())
 	for action in action_buttons:
 		var button: Button = action_buttons[action]
 		STYLE_CONFIG.apply_button(button, true)
+		button.add_theme_font_override("font", ACTION_FONT)
 		button.focus_mode = Control.FOCUS_ALL
 		button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		button.add_theme_font_size_override("font_size", TABLE_THEME.font_size("action_primary" if action == "hu" else "action_secondary"))
-		button.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
-		button.add_theme_color_override("font_outline_color", Color(0.08, 0.03, 0.02, 0.92))
-		button.add_theme_constant_override("outline_size", 3)
+		button.add_theme_font_size_override("font_size", 92 if action == "hu" else 80)
+		button.add_theme_color_override("font_color", TABLE_THEME.IVORY_TEXT)
+		button.add_theme_color_override("font_hover_color", Color("FFF2C9"))
+		button.add_theme_color_override("font_pressed_color", Color("FFE4A2"))
+		button.add_theme_color_override("font_outline_color", Color(TABLE_THEME.WALNUT_DARK, 0.98))
+		button.add_theme_constant_override("outline_size", 6)
+		button.add_theme_color_override("font_shadow_color", Color(0.0, 0.02, 0.015, 0.62))
+		button.add_theme_constant_override("shadow_offset_x", 2)
+		button.add_theme_constant_override("shadow_offset_y", 3)
 		button.add_theme_stylebox_override("normal", _make_action_seal_style(action, false))
 		button.add_theme_stylebox_override("hover", _make_hover_style(action))
 		button.add_theme_stylebox_override("focus", _make_focus_style(action))
@@ -84,6 +94,7 @@ func _ready() -> void:
 		button.mouse_exited.connect(_on_button_attention_exited.bind(button))
 		button.focus_entered.connect(_on_button_attention_entered.bind(button))
 		button.focus_exited.connect(_on_button_attention_exited.bind(button))
+	_apply_skin_typography()
 	_apply_focus_navigation()
 	hide_actions()
 
@@ -160,15 +171,51 @@ func get_visible_actions() -> Array[String]:
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"material_family": "jade_cinnabar_decision_seals",
-		"primary_shape": "round_jade_seal",
-		"shape_motif": "circular_chinese_seal",
+		"material_family": "skin_matched_single_ring_action_badges",
+		"primary_shape": "single_ring_table_badge",
+		"shape_motif": "simple_round_copper_ring",
+		"skin_binding": "active_table_skin_palette_and_material",
+		"text_hierarchy": "oversized_engraved_ivory_action_word",
 		"pass_hierarchy": "secondary",
-		"context_surface": "floating_decision_seals",
+		"context_surface": "floating_single_ring_badges",
 		"auxiliary_text": "hidden",
 		"pressed_feedback": "depth_compression",
 		"motion_language": "short_scale_and_light_response",
-	}
+}
+
+
+func set_table_skin(skin_id: String) -> void:
+	if not TABLE_SKIN_CATALOG.has_skin(skin_id):
+		return
+	active_skin_id = skin_id
+	active_skin = TABLE_SKIN_CATALOG.get_skin(skin_id)
+	for action in action_buttons:
+		var button := action_buttons[action] as Button
+		if button == null:
+			continue
+		button.add_theme_stylebox_override("normal", _make_action_seal_style(str(action), false))
+		button.add_theme_stylebox_override("hover", _make_hover_style(str(action)))
+		button.add_theme_stylebox_override("focus", _make_focus_style(str(action)))
+		button.add_theme_stylebox_override("pressed", _make_action_seal_style(str(action), true))
+	_apply_skin_typography()
+
+
+func _apply_skin_typography() -> void:
+	var skin_light := Color(active_skin.get("light_color", TABLE_THEME.IVORY_TEXT))
+	var skin_dark := Color(active_skin.get("albedo_tint", TABLE_THEME.TABLE_EDGE)).darkened(0.76)
+	for action in action_buttons:
+		var button := action_buttons[action] as Button
+		if button == null:
+			continue
+		var copy_color := skin_light.lerp(TABLE_THEME.IVORY_TEXT, 0.45)
+		if action == "hu":
+			copy_color = copy_color.lerp(Color("FFE2A0"), 0.46)
+		elif action == "pass":
+			copy_color = copy_color.darkened(0.22)
+		button.add_theme_color_override("font_color", copy_color)
+		button.add_theme_color_override("font_hover_color", copy_color.lightened(0.12))
+		button.add_theme_color_override("font_pressed_color", copy_color.darkened(0.08))
+		button.add_theme_color_override("font_outline_color", Color(skin_dark, 0.98))
 
 
 func get_motion_contract() -> Dictionary:
@@ -287,7 +334,9 @@ func _create_motion_overlay(button: Button) -> Panel:
 	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	style.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.92)
 	style.set_border_width_all(4)
-	style.set_corner_radius_all(96)
+	# Buttons are square touch targets with a circular visual badge. The overlay
+	# follows that badge silhouette so focus never turns it back into a box.
+	style.set_corner_radius_all(220)
 	style.shadow_color = Color(0.88, 0.42, 0.12, 0.42)
 	style.shadow_size = 10
 	style.shadow_offset = Vector2.ZERO
@@ -318,7 +367,7 @@ func _update_size() -> void:
 	var gap := float(button_row.get_theme_constant("separation")) * float(maxi(0, visible_count - 1))
 	var button_group_width := button_width + gap + 36.0
 	custom_minimum_size = Vector2(
-		clampf(button_group_width, 250.0, 540.0),
+		clampf(button_group_width, 250.0, 1200.0),
 		button_height + 34.0
 	)
 	size = custom_minimum_size
@@ -335,6 +384,7 @@ func _apply_action_size_profile(visible_count: int) -> void:
 			button.custom_minimum_size = PRIMARY_FOCUSED_SIZE if focused else PRIMARY_COMPACT_SIZE
 		else:
 			button.custom_minimum_size = SECONDARY_FOCUSED_SIZE if focused else SECONDARY_COMPACT_SIZE
+		button.add_theme_font_size_override("font_size", (104 if focused else 92) if action == "hu" else (92 if focused else 80))
 
 
 func _make_background_style() -> StyleBoxFlat:
@@ -351,42 +401,30 @@ func _make_background_style() -> StyleBoxFlat:
 
 func _make_hover_style(action: String) -> StyleBoxTexture:
 	var style := _make_action_seal_style(action, false)
-	style.modulate_color = Color(1.08, 1.06, 0.96, 1.0)
+	style.modulate_color = Color(1.10, 1.07, 0.92, 1.0)
 	return style
 
 
 func _make_focus_style(action: String) -> StyleBoxTexture:
 	var style := _make_hover_style(action)
+	style.expand_margin_left = 4.0
+	style.expand_margin_top = 4.0
+	style.expand_margin_right = 4.0
+	style.expand_margin_bottom = 4.0
+	return style
+
+
+func _make_action_seal_style(_action: String, pressed: bool) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = ResourceLoader.load(TABLE_SKIN_CATALOG.texture_path(active_skin_id, "action_badge.png")) as Texture2D
+	style.draw_center = true
+	style.modulate_color = Color(0.80, 0.80, 0.80, 1.0) if pressed else Color.WHITE
 	style.expand_margin_left = 3.0
 	style.expand_margin_top = 3.0
 	style.expand_margin_right = 3.0
 	style.expand_margin_bottom = 3.0
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 4.0 if not pressed else 8.0
+	style.content_margin_bottom = 8.0
 	return style
-
-
-func _make_action_seal_style(action: String, pressed: bool) -> StyleBoxTexture:
-	var style := StyleBoxTexture.new()
-	style.texture = _action_texture(action)
-	style.draw_center = true
-	style.modulate_color = Color(0.78, 0.78, 0.78, 1.0) if pressed else Color.WHITE
-	style.expand_margin_left = 2.0
-	style.expand_margin_top = 2.0
-	style.expand_margin_right = 2.0
-	style.expand_margin_bottom = 2.0
-	style.content_margin_left = 16.0
-	style.content_margin_right = 16.0
-	style.content_margin_top = 1.0 if not pressed else 6.0
-	style.content_margin_bottom = 4.0
-	return style
-
-
-func _action_texture(action: String) -> Texture2D:
-	match action:
-		"hu":
-			return ACTION_HU_TEXTURE
-		"gang":
-			return ACTION_GANG_TEXTURE
-		"peng":
-			return ACTION_PENG_TEXTURE
-		_:
-			return ACTION_PASS_TEXTURE

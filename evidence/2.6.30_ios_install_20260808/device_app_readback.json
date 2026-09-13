@@ -1,0 +1,16 @@
+{
+  "deviceIdentifier": "516E99D2-18B6-5DD8-94E1-6993510A036D",
+  "app": {
+    "appClip": false,
+    "builtByDeveloper": true,
+    "bundleIdentifier": "com.chendong.sichuanmahjong.iosdev",
+    "bundleVersion": "2.6.30",
+    "defaultApp": false,
+    "hidden": false,
+    "internalApp": false,
+    "name": "四川麻将新版",
+    "removable": true,
+    "url": "file:///private/var/containers/Bundle/Application/EA658B39-0340-4960-BE33-BCC94C54D952/SichuanMahjongIOS.app/",
+    "version": "2.6.30"
+  }
+}

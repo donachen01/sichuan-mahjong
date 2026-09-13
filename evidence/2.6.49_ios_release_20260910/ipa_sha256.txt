@@ -1,0 +1,1 @@
+d7a9cf21d183a3b4cc430aeb736312a0b179746b625f7bd707df9b7aed8c7ca0  build/ios/SichuanMahjong-2.6.49-development.ipa

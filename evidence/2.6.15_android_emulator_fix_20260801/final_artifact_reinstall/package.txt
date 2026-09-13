@@ -1,0 +1,3 @@
+    primaryCpuAbi=arm64-v8a
+    versionCode=275 minSdk=24 targetSdk=35
+    versionName=2.6.15

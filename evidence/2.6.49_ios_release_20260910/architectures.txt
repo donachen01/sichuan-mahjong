@@ -1,0 +1,2 @@
+build/ios/DerivedData-2.6.49-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS:                                              Mach-O 64-bit executable arm64
+build/ios/DerivedData-2.6.49-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.framework/SichuanMahjong.Godot: Mach-O 64-bit dynamically linked shared library arm64

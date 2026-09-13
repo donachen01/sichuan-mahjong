@@ -65,7 +65,7 @@ func _verify_base_hand_table() -> void:
 	])
 	var jin_gou_melds := [
 		_meld("peng", "wan", 1), _meld("peng", "wan", 3),
-		_meld("gang", "tong", 5), _meld("peng", "tong", 7),
+		_meld("peng", "tong", 5), _meld("peng", "tong", 7),
 	]
 	var qing_jin_gou_melds := [
 		_meld("peng", "wan", 1), _meld("peng", "wan", 3),
@@ -103,6 +103,18 @@ func _verify_root_and_bonus_table() -> void:
 	var one_root := _detail(qing_one_root, [], "self_draw")
 	_check(int(one_root.get("base_fan", -1)) == 2 and int(one_root.get("gen_count", -1)) == 1, "concealed un-ganged quad must add one root")
 	_check(int(one_root.get("uncapped_fan", -1)) == 3, "qing-yise plus one root must total 3 fan")
+
+	var exposed_root := _detail(
+		_tiles([["wan", 9, 2]]),
+		[
+			_meld("peng", "wan", 1), _meld("peng", "wan", 3),
+			_meld("gang", "tong", 5), _meld("peng", "tong", 7),
+		],
+		"self_draw"
+	)
+	_check(str(exposed_root.get("hand_type", "")) == "jin_gou_diao", "exposed-root fixture must remain jin-gou-diao")
+	_check(int(exposed_root.get("gen_count", -1)) == 1, "an exposed gang must add one root")
+	_check(int(exposed_root.get("uncapped_fan", -1)) == 3, "jin-gou-diao plus exposed root must total 3 fan")
 
 	var double_quad_qi_dui := _tiles([
 		["wan", 1, 4], ["tong", 2, 4], ["wan", 3, 2], ["tong", 4, 2], ["wan", 5, 2],
@@ -166,12 +178,12 @@ func _verify_payment_table() -> void:
 
 	var gang: Dictionary = score_resolver.build_score_changes(players, {
 		"gang_events": [
-			{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1]},
+			{"actor_seat": 0, "source_seat": 1, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]},
 			{"actor_seat": 0, "gang_type": "add_gang", "payer_seats": [1, 2, 3]},
 			{"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3]},
 		],
 	}, rules)
-	_check(gang == {0: 11, 1: -5, 2: -3, 3: -3}, "gang unit table must be direct=2, added=1x3, concealed=2x3")
+	_check(gang == {0: 13, 1: -5, 2: -4, 3: -4}, "gang table must be direct source=2 plus other active players=1, added=1 each, concealed=2 each")
 
 	var transfer: Dictionary = score_resolver.build_score_changes(players, {
 		"transfer_events": [{
@@ -197,9 +209,9 @@ func _verify_draw_table() -> void:
 			{"seat": 2, "is_ting": false, "hua_zhu": true, "cha_jiao_score": 0},
 		],
 	}, rules)
-	# 胡牌事件先让 0 向 3 支付 4；流局时 1 再向下叫 0 付 2、向已胡 3 付 4；
-	# 花猪 2 只向仍下叫的 0 固定支付 16。
-	_check(draw == {0: 14, 1: -6, 2: -16, 3: 8}, "draw settlement must combine fixed flower-pig and max-ready/winner big-call payments")
+	# 胡牌事件先让 0 向 3 支付 4；流局时 1 再向下叫 0 付 2；花猪 2
+	# 只向仍下叫的 0 固定支付 16。已胡的 3 不得再次成为查叫收款目标。
+	_check(draw == {0: 14, 1: -2, 2: -16, 3: 4}, "draw settlement must combine fixed flower-pig and unresolved-player big-call payments without paying an already-won seat twice")
 
 
 func _detail(hand: Array, melds: Array, win_type: String) -> Dictionary:

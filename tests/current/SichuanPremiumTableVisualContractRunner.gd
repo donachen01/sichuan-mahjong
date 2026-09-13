@@ -244,10 +244,12 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("SeatHUD must expose premium nameplate visual contract")
 	else:
 		var hud_contract: Dictionary = hud.call("get_visual_contract")
-		if str(hud_contract.get("material_family", "")) != "five_variant_emerald_nameplate":
-			failures.append("SeatHUD must use the five-variant emerald nameplate material")
-		if str(hud_contract.get("active_treatment", "")) != "pulsing_emerald_copper_nameplate_ring":
-			failures.append("SeatHUD current-turn state must use a pulsing emerald/copper nameplate ring")
+		if str(hud_contract.get("material_family", "")) != "unified_smoked_jade_nameplate":
+			failures.append("all SeatHUD cards must share one smoked-jade material family")
+		if str(hud_contract.get("active_treatment", "")) != "single_thin_antique_gold_edge":
+			failures.append("SeatHUD current-turn state must use one restrained antique-gold edge")
+		if str(hud_contract.get("default_treatment", "")) != "single_low_contrast_bronze_edge_without_glow":
+			failures.append("inactive SeatHUD cards must avoid seat-coloured borders and stacked glows")
 		if hud_contract.get("seat_avatar_glyphs", []) != ["旭", "燕", "东", "玲"]:
 			failures.append("SeatHUD avatar glyph order must remain self 旭, upper 燕, opposite 东, lower 玲")
 	hud.free()
@@ -259,16 +261,25 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("action bar must expose tactile tile-button visual contract")
 	else:
 		var action_contract: Dictionary = action_bar.call("get_visual_contract")
-		if str(action_contract.get("primary_shape", "")) != "round_jade_seal":
-			failures.append("action bar primary controls must use large round jade-seal geometry")
+		if str(action_contract.get("primary_shape", "")) != "single_ring_table_badge":
+			failures.append("action bar primary controls must use the redesigned single-ring badge")
+		if str(action_contract.get("skin_binding", "")) != "active_table_skin_palette_and_material":
+			failures.append("action bar must bind its palette to the active table skin")
 		if str(action_contract.get("pass_hierarchy", "")) != "secondary":
 			failures.append("pass must remain visually secondary")
-		if str(action_contract.get("context_surface", "")) != "floating_decision_seals":
-			failures.append("action bar must present reactions as separate floating decision seals")
+		if str(action_contract.get("context_surface", "")) != "floating_single_ring_badges":
+			failures.append("action bar must present reactions as separate floating single-ring badges")
 		if str(action_contract.get("auxiliary_text", "")) != "hidden":
 			failures.append("右下角碰杠胡操作区只能显示边框和按钮，不得显示提示文字")
 		if str(action_contract.get("motion_language", "")) != "short_scale_and_light_response":
 			failures.append("动作按钮必须使用短促缩放与受光反馈")
+		if action_bar.has_method("set_table_skin"):
+			action_bar.call("set_table_skin", "deep_emerald_crepe")
+			var deep_style := (action_bar.call("get_button", "peng") as Button).get_theme_stylebox("normal") as StyleBoxTexture
+			action_bar.call("set_table_skin", "champagne_satin")
+			var satin_style := (action_bar.call("get_button", "peng") as Button).get_theme_stylebox("normal") as StyleBoxTexture
+			if deep_style == null or satin_style == null or deep_style.texture == satin_style.texture:
+				failures.append("动作按钮必须随当前桌布皮肤刷新真实材质贴图")
 	var motion_contract: Dictionary = action_bar.call("get_motion_contract")
 	if float(motion_contract.get("entrance_duration", 1.0)) > 0.20 or float(motion_contract.get("press_duration", 1.0)) > 0.20:
 		failures.append("动作按钮动画必须控制在 200ms 内")

@@ -132,9 +132,10 @@ def generate_tile_body() -> None:
 
     目标是让每张牌读起来是一块圆润、光滑、微透的玉石注塑体，而不是“白色直角
     边框+内凹贴片”。符号由 Godot 的透明印刷层直接落在圆润顶面；牌身背面保留独立
-    翡翠绿层。整体外框尺寸保持
-    0.42×0.58×0.18 不变(布局与交互测试依赖)。Blender 为 Z-up，glTF 导出转
-    Godot Y-up。"""
+    翡翠绿层。整体外框尺寸统一为 0.42×0.58×0.24。旧 0.18 厚度在远端平扣、
+    手机宽屏透视下只剩几像素，牌身会读成纸片；这里直接加厚唯一的实体模型，
+    立牌、平扣牌、弃牌和副露继续共享同一几何，不按姿态做非等比缩放。Blender
+    为 Z-up，glTF 导出转 Godot Y-up。"""
     clear_scene()
     ivory = material("WarmIvoryJade", (0.90, 0.88, 0.84, 1.0), roughness=0.25)
     jade_back = material("JadeBack", (0.035, 0.46, 0.12, 1.0), roughness=0.28, metallic=0.01)
@@ -142,9 +143,10 @@ def generate_tile_body() -> None:
     # 商业参考的层次不是“白色平面贴在绿砖上”，而是完整的象牙注塑主体，
     # 背面再嵌一层翡翠绿树脂。目标图的平牌侧面约三分之一为绿色背层；旧值
     # 仅占 16%，在手机上缩成一根绿色细线，层次明显不足。
-    back_thickness = 0.055
+    # 绿背层继续占总厚度约 30.8%，避免只加厚象牙牌身后破坏既有分层比例。
+    back_thickness = 0.074
     body_bottom = back_thickness
-    body_top = 0.18
+    body_top = 0.24
     body_thickness = body_top - body_bottom
     body_center_z = (body_bottom + body_top) * 0.5
 
@@ -159,13 +161,15 @@ def generate_tile_body() -> None:
         box_material=ivory,
     )
 
-    # 翡翠绿背：薄薄一层贴在反面，宽度略窄于牌身(内缩 0.018)使象牙侧面在四周
-    # 连续露出，读起来是"象牙牌身、背面镀了层绿"，而不是绿块。
+    # 翡翠绿背：薄薄一层贴在反面，只保留 3mm 的真实象牙唇边。
+    # 旧的 18mm 总内缩在平扣/副露透视下会让白面明显“大一圈”，绿背像一块
+    # 没有盖住牌体的独立小片；收紧到 3mm 后仍有制造分层，但白绿边界读成同一
+    # 块完整麻将牌。平扣运行时覆盖层也复用这一尺寸。
     back = rounded_box(
         name="MahjongTileBack",
-        size=(0.42 - 0.018, 0.58 - 0.018, back_thickness),
+        size=(0.42 - 0.006, 0.58 - 0.006, back_thickness),
         location=(0.0, 0.0, back_thickness * 0.5),
-        bevel=0.018,
+        bevel=0.022,
         bevel_segments=6,
         box_material=jade_back,
     )

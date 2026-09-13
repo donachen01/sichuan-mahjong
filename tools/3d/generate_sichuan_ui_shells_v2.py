@@ -32,6 +32,14 @@ HU = "B84236"
 GANG = "6F542D"
 PENG = "2C9B8A"
 PASS = "53645E"
+SKIN_BADGES = {
+    "deep_emerald_crepe": ("3E6654", "F6E8CF", 0.90),
+    "emerald_linen": ("416B56", "F4E5CE", 0.94),
+    "warm_caban_velvet": ("4C6856", "F8E2C2", 0.96),
+    "black_gold_jacquard": ("2E443B", "F7DDB8", 0.92),
+    "champagne_satin": ("70644A", "FFF0D2", 0.86),
+    "teal_teddy_check": ("385D64", "E7E2D1", 0.98),
+}
 DING_QUE = {
     "tiao": ("176F58", "32B485"),
     "tong": ("8A6325", "D2A33E"),
@@ -64,6 +72,33 @@ def material(name: str, hex_value: str, metallic: float, roughness: float) -> bp
     shader.inputs["Base Color"].default_value = color(hex_value)
     shader.inputs["Metallic"].default_value = metallic
     shader.inputs["Roughness"].default_value = roughness
+    return mat
+
+
+def table_fabric_material(name: str, skin_id: str, tint_hex: str, roughness: float) -> bpy.types.Material:
+    """Use the exact selected tabletop albedo as a round action-badge face."""
+    image_path = ROOT / "res" / "art" / "materials" / "table_skins" / skin_id / "albedo_2k.jpg"
+    image = bpy.data.images.load(str(image_path), check_existing=True)
+    mat = material(name, tint_hex, 0.0, roughness)
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    tex_coord = nodes.new("ShaderNodeTexCoord")
+    mapping = nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = (1.65, 1.65, 1.0)
+    texture = nodes.new("ShaderNodeTexImage")
+    texture.image = image
+    texture.interpolation = "Linear"
+    tint = nodes.new("ShaderNodeRGB")
+    tint.outputs[0].default_value = color(tint_hex)
+    multiply = nodes.new("ShaderNodeMixRGB")
+    multiply.blend_type = "MULTIPLY"
+    multiply.inputs[0].default_value = 0.82
+    shader = nodes.get("Principled BSDF")
+    links.new(tex_coord.outputs["Generated"], mapping.inputs["Vector"])
+    links.new(mapping.outputs["Vector"], texture.inputs["Vector"])
+    links.new(tint.outputs[0], multiply.inputs[1])
+    links.new(texture.outputs["Color"], multiply.inputs[2])
+    links.new(multiply.outputs[0], shader.inputs["Base Color"])
     return mat
 
 
@@ -251,6 +286,30 @@ def render_action_seal(action: str, hex_value: str) -> None:
     strip_png_text_chunks(output)
 
 
+def render_skin_action_badge(skin_id: str, palette: tuple[str, str, float]) -> None:
+    """Render one minimal, text-free decision badge for one tabletop skin.
+
+    The asset deliberately contains only a fabric face and a single aged-copper
+    rim. Godot supplies the live 碰/杠/胡/取消 word, focus state and pressed
+    motion, so there is no repeated inner circle or baked state decoration.
+    """
+    reset_scene()
+    tint_hex, _light_hex, roughness = palette
+    skin_dir = ROOT / "res" / "art" / "materials" / "table_skins" / skin_id
+    skin_dir.mkdir(parents=True, exist_ok=True)
+    shadow = material(f"{skin_id}BadgeShadow", "020806", 0.0, 0.94)
+    copper = material(f"{skin_id}BadgeCopper", AGED_COPPER, 0.62, 0.34)
+    fabric = table_fabric_material(f"{skin_id}BadgeFabric", skin_id, tint_hex, roughness)
+    cylinder("BadgeShadow", 2.10, 0.14, -0.13, shadow, 0.09).location += Vector((0.10, -0.12, 0.0))
+    cylinder("BadgeCopperRim", 1.98, 0.19, 0.00, copper, 0.075)
+    cylinder("BadgeFabricFace", 1.80, 0.18, 0.14, fabric, 0.065)
+    add_camera_and_lights(ortho_scale=4.75)
+    output = skin_dir / "action_badge.png"
+    configure_render(512, 512, output)
+    bpy.ops.render.render(write_still=True)
+    strip_png_text_chunks(output)
+
+
 def render_ding_que_seal(suit: str, palette: tuple[str, str]) -> None:
     """Render a text-free jade seal while Godot retains the live label/touch."""
     reset_scene()
@@ -266,12 +325,6 @@ def render_ding_que_seal(suit: str, palette: tuple[str, str]) -> None:
     cylinder("JadeBody", 1.89, 0.22, 0.23, body, 0.075)
     cylinder("CopperKeyline", 1.61, 0.08, 0.36, copper, 0.04)
     cylinder("InsetSeal", 1.53, 0.11, 0.41, inset, 0.045)
-    # Three restrained relief dots give the shell a recognisable authored seal
-    # silhouette without baking text or state into the raster asset.
-    for index, x in enumerate((-0.52, 0.0, 0.52)):
-        dot = cylinder(f"ReliefDot{index}", 0.055, 0.035, 0.49, rim, 0.018)
-        dot.location.x = x
-        dot.location.y = -1.18
     add_camera_and_lights(ortho_scale=4.95)
     output = OUTPUT_DIR / f"ding_que_{suit}.png"
     configure_render(384, 384, output)
@@ -285,9 +338,16 @@ def main() -> None:
         render_settlement_panel()
         print(f"Generated settlement nine-slice in {OUTPUT_DIR}")
         return
+    if "--ding-que-only" in sys.argv:
+        for suit, palette in DING_QUE.items():
+            render_ding_que_seal(suit, palette)
+        print(f"Generated dot-free ding-que seals in {OUTPUT_DIR}")
+        return
     render_hud_shell()
     for action, hex_value in (("hu", HU), ("gang", GANG), ("peng", PENG), ("pass", PASS)):
         render_action_seal(action, hex_value)
+    for skin_id, palette in SKIN_BADGES.items():
+        render_skin_action_badge(skin_id, palette)
     for suit, palette in DING_QUE.items():
         render_ding_que_seal(suit, palette)
     render_settlement_panel()

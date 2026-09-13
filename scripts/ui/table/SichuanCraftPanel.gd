@@ -116,7 +116,9 @@ func _fill_color() -> Color:
 		"action":
 			return Color("031815", 0.975)
 		_:
-			return Color(TABLE_THEME.PANEL_JADE_BLACK, 0.965)
+			# HUD nameplates are translucent smoked jade glass. Keep the center and
+			# action panels opaque because they carry gameplay-critical controls.
+			return Color(TABLE_THEME.PANEL_JADE_BLACK, 0.34)
 
 
 func _border_color() -> Color:

@@ -251,6 +251,125 @@ internal static class SichuanTheorySmoke
             && modelCalibration.TopThreeCoverage > uniformCalibration.TopThreeCoverage;
     }
 
+    public static bool PublicActionCompatibilityIsSuitRotationInvariant()
+    {
+        var state = SichuanStateCodec.FromRaw(0, 0, 0, 30, new int[27], new int[27]);
+        var candidate = SichuanTileCodec.BuildCount18(new[] { 1, 1, 2, 2, 3, 3, 9, 10, 11, 18, 19, 20, 21 });
+        state.PassedPeng18[1][1] = 1;
+        state.PassedPeng18[1][2] = 1;
+        var original = SichuanOrderedPublicInference.CandidateHandCompatibility(state, 1, candidate);
+
+        var rotatedState = SichuanStateCodec.FromRaw(0, 0, 0, 30, new int[27], new int[27]);
+        var rotatedCandidate = new int[27];
+        for (var tile = 0; tile < 27; tile++)
+            rotatedCandidate[(tile + 9) % 27] = candidate[tile];
+        rotatedState.PassedPeng18[1][10] = 1;
+        rotatedState.PassedPeng18[1][11] = 1;
+        var rotated = SichuanOrderedPublicInference.CandidateHandCompatibility(rotatedState, 1, rotatedCandidate);
+        Console.WriteLine($"public_action_rotation original={original:F6} rotated={rotated:F6}");
+        return original is > 0 and < 1
+            && Math.Abs(original - rotated) < 0.000001;
+    }
+
+    public static bool FixedDiscardSequenceDoesNotCreateProductionFeatures()
+    {
+        var own = SichuanTileCodec.BuildCount18(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+        var state = SichuanStateCodec.FromRaw(0, 0, 0, 28, own, new int[27], handCounts: new[] { 13, 10, 13, 13 });
+        state.PublicEvents.Add(new SichuanPublicEvent(10, 5, 1, SichuanPublicEventType.Discard, 22, SichuanTileOrigin.Hand));
+        state.PublicEvents.Add(new SichuanPublicEvent(20, 6, 1, SichuanPublicEventType.Discard, 22, SichuanTileOrigin.Hand));
+        state.PublicEvents.Add(new SichuanPublicEvent(30, 7, 1, SichuanPublicEventType.Peng, 11, SichuanTileOrigin.Unknown, 2));
+        state.PublicEvents.Add(new SichuanPublicEvent(31, 7, 1, SichuanPublicEventType.Discard, 25, SichuanTileOrigin.Hand));
+        var belief = new SichuanBeliefEngine().Build(state);
+        var forbiddenFeatures = new[] { "有序邻张手切", "拆对碰后手切", "高端隔张递减手切", "碰后低端重组" };
+        var absent = forbiddenFeatures.All(name => !belief.PublicReadFeatures.ContainsKey($"seat:1:{name}"))
+            && !belief.SeatTileInferenceReasons.ContainsKey(1);
+        Console.WriteLine($"fixed_sequence_features_absent={absent}");
+        return absent;
+    }
+
+    public static bool InactiveSeatLeavesThreatAndSuitCompetition()
+    {
+        var hand = SichuanTileCodec.BuildCount18(new[] { 9,10,11,12,13,14,15,16,17,18,19,20,21,22 });
+        SichuanStateView Build(bool active)
+        {
+            var state = SichuanStateCodec.FromRaw(0, 0, 0, 18, hand, new int[27],
+                dingQueSuits: new[] { 0, 0, 1, 1 }, activeSeats: new[] { true, active, true, true });
+            state.HasHu[1] = !active;
+            state.Melds18[1].AddRange(new[] { 9, 9, 9, 16, 16, 16 });
+            return state;
+        }
+
+        var contested = new SichuanQingYiSePlanner().Evaluate(Build(true), 1).First();
+        var sole = new SichuanQingYiSePlanner().Evaluate(Build(false), 1).First();
+        var table = new SichuanTableSituationEvaluator().Evaluate(Build(false));
+        Console.WriteLine($"inactive_strategy competition={contested.TargetSuitCompetition}->{sole.TargetSuitCompetition} completion={contested.CompletionProbability:F3}->{sole.CompletionProbability:F3} threat={table.StrongestThreatSeat}");
+        return sole.TargetSuitCompetition == contested.TargetSuitCompetition - 1
+            && sole.CompletionProbability > contested.CompletionProbability
+            && table.StrongestThreatSeat != 1;
+    }
+
+    public static bool PassedReactionEvidenceRejectsCompositePairHypothesisWithoutEliminatingIt()
+    {
+        var ownHand = SichuanTileCodec.BuildCount18(new[] { 0, 1, 2, 3, 4, 5, 9, 10, 11, 18, 19, 20, 24 });
+        var state = SichuanStateCodec.FromRaw(0, 0, 0, 30, ownHand, new int[27]);
+        var candidate = SichuanTileCodec.BuildCount18(new[] { 14, 14, 15, 15, 16, 16, 0, 1, 2, 3, 4, 5, 6 });
+        var neutral = SichuanOrderedPublicInference.CandidateHandCompatibility(state, 1, candidate);
+        state.PassedPeng18[1][14] = 1;
+        var singlePass = SichuanOrderedPublicInference.CandidateHandCompatibility(state, 1, candidate);
+        state.PassedPeng18[1][15] = 1;
+        var adjacentDoublePass = SichuanOrderedPublicInference.CandidateHandCompatibility(state, 1, candidate);
+        Console.WriteLine($"ordered_pass_compatibility neutral={neutral:F3} single={singlePass:F3} adjacent_double={adjacentDoublePass:F3}");
+        return Math.Abs(neutral - 1.0) < 0.000001
+            && singlePass is > 0 and < 1.0
+            && adjacentDoublePass is > 0 and < 1.0
+            && adjacentDoublePass < singlePass * singlePass;
+    }
+
+    public static bool BeliefPipelineUsesGenericEventOriginWithoutSequencePattern()
+    {
+        static SichuanStateView BuildState(SichuanTileOrigin secondOrigin)
+        {
+            var ownHand = SichuanTileCodec.BuildCount18(new[] { 0, 1, 2, 3, 4, 5, 9, 10, 11, 18, 19, 20, 24 });
+            var visible = new int[27];
+            visible[10] = 1;
+            visible[11] = 1;
+            var discards = new[]
+            {
+                new List<int>(),
+                new List<int> { 11, 10 },
+                new List<int>(),
+                new List<int>()
+            };
+            var state = SichuanStateCodec.FromRaw(
+                0, 0, 0, 34, ownHand, visible,
+                discards18: discards,
+                handCounts: new[] { 13, 13, 13, 13 },
+                visibleVersion: 4200,
+                eventVersion: 4200);
+            state.PublicEvents.Add(new SichuanPublicEvent(100, 8, 1, SichuanPublicEventType.Discard, 11, SichuanTileOrigin.Hand));
+            state.PublicEvents.Add(new SichuanPublicEvent(108, 10, 1, SichuanPublicEventType.Discard, 10, secondOrigin));
+            return state;
+        }
+
+        SichuanBeliefEngine.ResetDiagnostics();
+        var engine = new SichuanBeliefEngine();
+        var handCut = engine.Build(BuildState(SichuanTileOrigin.Hand));
+        var drawCut = engine.Build(BuildState(SichuanTileOrigin.Draw));
+        var handHold = handCut.SeatTileHoldProbability[1][9];
+        var drawHold = drawCut.SeatTileHoldProbability[1][9];
+        var forbiddenFeature = handCut.PublicReadFeatures.Keys.Any(key =>
+            key.Contains("有序邻张", StringComparison.Ordinal)
+            || key.Contains("拆对碰后", StringComparison.Ordinal)
+            || key.Contains("高端隔张", StringComparison.Ordinal)
+            || key.Contains("碰后低端", StringComparison.Ordinal));
+        var diagnostics = SichuanBeliefEngine.GetDiagnostics();
+        Console.WriteLine($"generic_event_origin hand_hold={handHold:F3} draw_hold={drawHold:F3} forbidden_feature={forbiddenFeature} builds={diagnostics.BuildCount}");
+        return Math.Abs(handHold - drawHold) > 0.00001
+            && !forbiddenFeature
+            && !handCut.SeatTileInferenceReasons.ContainsKey(1)
+            && diagnostics.BuildCount == 2;
+    }
+
     public static bool MultiPlayerUtilityHonorsStrategicRiskBounds()
     {
         var utility = new SichuanMultiPlayerUtilityEngine();

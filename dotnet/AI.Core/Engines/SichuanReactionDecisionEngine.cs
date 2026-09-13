@@ -1,5 +1,6 @@
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Decision;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -8,9 +9,11 @@ public sealed class SichuanReactionDecisionEngine
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanBeliefEngine _belief = new();
+	private readonly SichuanWallAvailabilityEngine _wall = new();
     private readonly SichuanDangerEngine _danger = new();
-    private readonly SichuanRoutePlanEngine _routePlan = new();
+	private readonly SichuanRoutePlanEngine _routePlan = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
+	private readonly SichuanMeldCounterfactualEvaluator _meldCounterfactual = new();
     private const int ReactionSearchDepth = 2;
     private const int ReactionSearchRollouts = 24;
 
@@ -28,29 +31,26 @@ public sealed class SichuanReactionDecisionEngine
     {
         if (canHu)
         {
-			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType);
+			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain);
 			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
-			var huScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Hu).ExpectedNetScore * 1000.0);
-			var passEvScore = (int)Math.Round(comparison.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Pass).ExpectedNetScore * 1000.0);
-			var selectedScore = selected.Action.ActionType == SichuanActionType.Hu ? huScore : passEvScore;
+			var actionScores = comparison.Candidates.ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),
+				candidate => (int)Math.Round(candidate.ExpectedNetScore * 1000.0));
+			var selectedScore = actionScores[selected.Action.ActionType.ToString().ToLowerInvariant()];
             return new SichuanReactionDecisionResult
             {
 				Action = new SichuanAction(selected.Action.ActionType, reactionTileType, selectedScore, comparison.Summary),
 				ShantenAfter = selected.Action.ActionType == SichuanActionType.Hu ? -1 : 0,
 				CurrentShanten = 0,
 				Reasons = comparison.Reasons,
-                ActionScores = new Dictionary<string, int>
-                {
-					["hu"] = huScore,
-					["pass"] = passEvScore
-                }
+                ActionScores = actionScores
             };
         }
 
         var belief = _belief.Build(state);
+		var wallAvailability = _wall.Build(state, belief);
         var roundStage = ResolveRoundStage(state);
         var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-        var currentFollowUp = EvaluateBestFollowUp(state.Hand18, state.Remaining18, meldCount);
+		var currentFollowUp = EvaluateWaitingFollowUp(state.Hand18, wallAvailability, meldCount);
         var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var threatLevel = ResolveThreatLevel(state, belief);
@@ -81,16 +81,21 @@ public sealed class SichuanReactionDecisionEngine
             ActionScores = scores
         };
 
-        var candidates = new List<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter)>
+        var passDrawOffset = SichuanTurnOrder.DrawsBeforeSeatAfterDiscard(state, state.CurrentSeat, state.SeatIndex);
+		var candidates = new List<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter, int ownDrawOffset)>
         {
-            ("pass", best, (int[])state.Hand18.Clone(), meldCount)
+			("pass", best, (int[])state.Hand18.Clone(), meldCount, passDrawOffset)
         };
 
         if (canPeng && reactionTileType is >= 0 and < 27 && state.Hand18[reactionTileType] >= 2)
         {
             var pengResult = EvaluatePeng(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, roundBrain);
             scores["peng"] = pengResult.Action.Score;
-            candidates.Add(("peng", pengResult, RemoveCopies(state.Hand18, reactionTileType, 2), meldCount + 1));
+            var pengSearchHand = RemoveCopies(state.Hand18, reactionTileType, 2);
+			var pengImmediateDiscard = EvaluateBestFollowUp(pengSearchHand, wallAvailability.RepresentativeCounts18, meldCount + 1).BestDiscardTile;
+            if (pengImmediateDiscard >= 0)
+                pengSearchHand = RemoveCopies(pengSearchHand, pengImmediateDiscard, 1);
+			candidates.Add(("peng", pengResult, pengSearchHand, meldCount + 1, SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)));
             if (pengResult.Action.Score > best.Action.Score)
             {
                 pengResult.ActionScores = scores;
@@ -102,7 +107,7 @@ public sealed class SichuanReactionDecisionEngine
         {
             var gangResult = EvaluateGang(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, reactionType, sourceSeat);
             scores["gang"] = gangResult.Action.Score;
-            candidates.Add(("gang", gangResult, RemoveCopies(state.Hand18, reactionTileType, 3), meldCount + 1));
+			candidates.Add(("gang", gangResult, RemoveCopies(state.Hand18, reactionTileType, 3), meldCount + 1, 0));
             if (gangResult.Action.Score > best.Action.Score)
             {
                 gangResult.ActionScores = scores;
@@ -110,39 +115,50 @@ public sealed class SichuanReactionDecisionEngine
             }
         }
 
-        var pengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
-        var gangCandidate = candidates.FirstOrDefault(item => item.action == "gang");
-        var pengWouldRediscardClaimedTile = pengCandidate.result is not null
-            && EvaluateBestFollowUp(
-                RemoveCopies(state.Hand18, reactionTileType, 2),
-                state.Remaining18,
-                meldCount + 1).BestDiscardTile == reactionTileType;
-        var preferGangByCounterfactual = pengCandidate.result is not null
-            && gangCandidate.result is not null
-            && (pengWouldRediscardClaimedTile
-                || gangCandidate.result.ShantenAfter <= pengCandidate.result.ShantenAfter
-                || pengCandidate.result.ShantenAfter >= currentFollowUp.Shanten);
-        if (pengCandidate.result is not null
-            && gangCandidate.result is not null
-            && preferGangByCounterfactual
-            && pengCandidate.result.Action.Score >= gangCandidate.result.Action.Score - 120)
-        {
-            pengCandidate.result.Action = pengCandidate.result.Action with
-            {
-                Score = gangCandidate.result.Action.Score - (pengWouldRediscardClaimedTile ? 1200 : 120),
-                Reason = "同张可杠且杠后牌效不差，保留明杠收益"
-            };
-            pengCandidate.result.Reasons = pengCandidate.result.Reasons
-                .Concat(new[] { "反事实比较：明杠不比碰牌慢，碰牌会白白损失杠分和补张" })
-                .ToArray();
-            scores["peng"] = pengCandidate.result.Action.Score;
-            best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
-        }
+		// Apply the same meld counterfactual before the reaction gates and search
+        // choose a winner. Previously this adjustment was calculated after the
+        // winner had already been selected, so it could not change the action.
+		var unifiedMelds = _unified.RankMeldActions(
+			state,
+			reactionTileType,
+			canPeng,
+			canGang,
+			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
+			belief: belief);
+		foreach (var unifiedCandidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
+		{
+			var key = unifiedCandidate.Action.ActionType.ToString().ToLowerInvariant();
+			if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
+			var commonValueScore = (int)Math.Round(Math.Clamp(unifiedCandidate.ExpectedNetScore, -20, 20) * 100.0);
+			for (var index = 0; index < candidates.Count; index++)
+			{
+				if (candidates[index].action != key) continue;
+				var item = candidates[index];
+				var legacyDiagnostic = Math.Clamp(item.result.Action.Score, -40, 40);
+				var continuityPenalty = key == "peng" && roundBrain?.WasTripletBroken(reactionTileType) == true ? 1200 : 0;
+				var preservesFivePairRoute = key != "pass"
+					&& item.result.Reasons.Any(reason => reason.Contains("五对以上门清牌不", StringComparison.Ordinal));
+				var routePenalty = key != "pass" && currentPlan.ForbidsMelds
+					? 1200
+					: preservesFivePairRoute ? 1200 : 0;
+				var score = commonValueScore - continuityPenalty - routePenalty;
+				item.result.Action = item.result.Action with { Score = score };
+				item.result.Reasons = item.result.Reasons.Concat(new[]
+				{
+					$"统一动作净值 {unifiedCandidate.ExpectedNetScore:F2}",
+					$"旧启发式仅作诊断 {legacyDiagnostic:+#;-#;0}，不参与选择"
+				}).ToArray();
+				candidates[index] = item;
+				scores[key] = score;
+				break;
+			}
+		}
+        best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
 
         if (!forceLightweight && ShouldSearchReaction(candidates))
         {
             var simulations = 0;
-            var bonusMap = EvaluateReactionSearchBonuses(state, candidates, ref simulations);
+			var bonusMap = EvaluateReactionSearchBonuses(state, belief, candidates, ref simulations);
             for (var index = 0; index < candidates.Count; index++)
             {
                 var item = candidates[index];
@@ -163,24 +179,7 @@ public sealed class SichuanReactionDecisionEngine
                 .First();
         }
 
-        if (preferGangByCounterfactual
-            && pengCandidate.result is not null
-            && gangCandidate.result is not null
-            && pengCandidate.result.Action.Score >= gangCandidate.result.Action.Score)
-        {
-            pengCandidate.result.Action = pengCandidate.result.Action with
-            {
-                Score = gangCandidate.result.Action.Score - 120,
-                Reason = "反事实搜索确认明杠不慢，保留杠分和补张"
-            };
-            pengCandidate.result.Reasons = pengCandidate.result.Reasons
-                .Concat(new[] { "短搜索后复核：碰不比杠提速，不能用搜索噪声丢掉明杠收益" })
-                .ToArray();
-            scores["peng"] = pengCandidate.result.Action.Score;
-            best = gangCandidate.result;
-        }
-
-        var finalPengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
+		var finalPengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
         var passCandidate = candidates.First(item => item.action == "pass").result;
         if (best.Action.ActionType == SichuanActionType.Peng && finalPengCandidate.result is not null)
         {
@@ -198,10 +197,17 @@ public sealed class SichuanReactionDecisionEngine
             var damagesExistingReady = currentFollowUp.Shanten <= 0
                 && peng.ShantenAfter <= 0
                 && peng.LiveUkeireAfter < currentFollowUp.LiveUkeire;
-            if (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady)
+			var deadReadyAfterPeng = peng.ShantenAfter <= 0
+				&& peng.LiveUkeireAfter <= 0
+				&& currentFollowUp.LiveUkeire > 0;
+			var passWithinDecisionMargin = passCandidate.Action.Score >= peng.Action.Score - 45;
+			if (deadReadyAfterPeng
+				|| passWithinDecisionMargin && (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady))
             {
                 passCandidate.Reasons = passCandidate.Reasons
-                    .Concat(new[] { "连续大脑反应闸门：保留门前宽进张和当前听口，拒绝表面降向听的低质量碰牌" })
+					.Concat(new[] { deadReadyAfterPeng
+						? "连续大脑反应闸门：拒绝碰成墙内 0 活张的死叫，保留门前真实改良张"
+						: "连续大脑反应闸门：保留门前宽进张和当前听口，拒绝表面降向听的低质量碰牌" })
                     .ToArray();
                 best = passCandidate;
             }
@@ -221,17 +227,7 @@ public sealed class SichuanReactionDecisionEngine
 
         if (!scores.ContainsKey("peng")) scores["peng"] = int.MinValue / 4;
         if (!scores.ContainsKey("gang")) scores["gang"] = int.MinValue / 4;
-		var unifiedMelds = _unified.RankMeldActions(state, reactionTileType, canPeng, canGang);
-		foreach (var candidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
-		{
-			var key = candidate.Action.ActionType.ToString().ToLowerInvariant();
-			if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
-			scores[key] += (int)Math.Round(Math.Clamp(candidate.ExpectedNetScore, -6, 6) * 18.0);
-		}
-		var selectedKey = best.Action.ActionType.ToString().ToLowerInvariant();
-		if (scores.TryGetValue(selectedKey, out var unifiedScore))
-			best.Action = best.Action with { Score = unifiedScore };
-		best.Reasons = best.Reasons.Concat(new[] { $"统一反事实层已复核（{unifiedMelds.Summary}），最终动作仍服从规则和连续大脑闸门" }).ToArray();
+		best.Reasons = best.Reasons.Concat(new[] { "统一反事实层已参与全候选排序，最终动作服从规则、真实时序和连续大脑闸门" }).ToArray();
         best.ActionScores = new Dictionary<string, int>(scores);
         return best;
     }
@@ -249,7 +245,22 @@ public sealed class SichuanReactionDecisionEngine
     {
         var handAfter = RemoveCopies(state.Hand18, reactionTileType, 2);
         var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
-        var followUp = EvaluateBestFollowUp(handAfter, state.Remaining18, meldCountAfter);
+		var timing = _meldCounterfactual.Evaluate(
+			state,
+			"peng",
+			reactionTileType,
+			2,
+			meldCountAfter,
+			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
+			risk: 0,
+			gangGain: 0,
+			belief: belief);
+		var followUp = new FollowUpSummary(
+			timing.Shanten,
+			timing.LiveUkeire,
+			timing.LiveUkeire,
+			timing.BestDiscardTile,
+			Array.Empty<int>());
         var reDiscardsClaimedTile = followUp.BestDiscardTile == reactionTileType && followUp.BestDiscardTile >= 0;
         var currentPairCount = CountPairs(state.Hand18);
         var pairCountAfter = CountPairs(handAfter);
@@ -329,8 +340,8 @@ public sealed class SichuanReactionDecisionEngine
             score -= 6000;
         if (state.Hand18[reactionTileType] >= 3 && followUp.Shanten > 0)
             score -= 520;
-        if (roundBrain?.WasTripletBroken(reactionTileType) == true)
-            score -= 900;
+		if (roundBrain?.WasTripletBroken(reactionTileType) == true)
+			score -= 6000;
 
         var reasons = new List<string>
         {
@@ -401,9 +412,23 @@ public sealed class SichuanReactionDecisionEngine
         string reactionType,
         int sourceSeat)
     {
-        var handAfter = RemoveCopies(state.Hand18, reactionTileType, 3);
         var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
-        var followUp = EvaluateBestFollowUp(handAfter, state.Remaining18, meldCountAfter);
+        var timing = _meldCounterfactual.Evaluate(
+            state,
+            "gang",
+            reactionTileType,
+            3,
+            meldCountAfter,
+            routeLoss: currentPlan.ForbidsGangs ? 6.0 : 0,
+            risk: 0,
+			gangGain: 2.0,
+			belief: belief);
+        var followUp = new FollowUpSummary(
+            timing.Shanten,
+            timing.LiveUkeire,
+            timing.LiveUkeire,
+            timing.BestDiscardTile,
+            Array.Empty<int>());
         var discardRisk = followUp.BestDiscardTile >= 0 ? _danger.EvaluateDetail(followUp.BestDiscardTile, state, belief) : new SichuanDangerEvaluation();
         var waitWallPosterior = EstimateWallPosterior(followUp.ImprovingTiles, belief);
         var waitBlockPosterior = EstimateBlockPosterior(followUp.ImprovingTiles, belief);
@@ -528,6 +553,23 @@ public sealed class SichuanReactionDecisionEngine
         return new FollowUpSummary(bestShanten, bestUkeire, bestLive, bestTile, improvingTiles.ToArray());
     }
 
+	private FollowUpSummary EvaluateWaitingFollowUp(int[] hand18, SichuanWallAvailability wallAvailability, int meldCount)
+    {
+        var currentShanten = _shanten.CalcBestShanten(hand18, meldCount, meldCount == 0);
+        var improving = new List<int>();
+		var live = 0.0;
+        for (var draw = 0; draw < 27; draw++)
+        {
+			if (wallAvailability.ExpectedCounts18[draw] <= 0 || hand18[draw] >= 4) continue;
+            var probe = (int[])hand18.Clone();
+            probe[draw]++;
+            if (_shanten.CalcBestShanten(probe, meldCount, meldCount == 0) >= currentShanten) continue;
+            improving.Add(draw);
+			live += wallAvailability.ExpectedCounts18[draw];
+        }
+		return new FollowUpSummary(currentShanten, improving.Count, (int)Math.Round(live), -1, improving);
+    }
+
     private static int[] RemoveCopies(int[] hand18, int tileType, int removeCount)
     {
         var clone = (int[])hand18.Clone();
@@ -636,7 +678,7 @@ public sealed class SichuanReactionDecisionEngine
         };
     }
 
-    private bool ShouldSearchReaction(IReadOnlyList<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter)> candidates)
+    private bool ShouldSearchReaction(IReadOnlyList<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter, int ownDrawOffset)> candidates)
     {
         if (candidates.Count < 2) return false;
         var ordered = candidates
@@ -658,58 +700,69 @@ public sealed class SichuanReactionDecisionEngine
 
     private Dictionary<string, double> EvaluateReactionSearchBonuses(
         SichuanStateView state,
-        IReadOnlyList<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter)> candidates,
+		SichuanBeliefSnapshot belief,
+		IReadOnlyList<(string action, SichuanReactionDecisionResult result, int[] handAfter, int meldCountAfter, int ownDrawOffset)> candidates,
         ref int simulations)
     {
         var bonuses = candidates.ToDictionary(item => item.action, _ => 0.0);
-        foreach (var candidate in candidates)
+        for (var rollout = 0; rollout < ReactionSearchRollouts; rollout++)
         {
-            var total = 0.0;
-            for (var rollout = 0; rollout < ReactionSearchRollouts; rollout++)
+            var seed = unchecked(20260809
+                ^ state.RoundIndex * 397
+                ^ state.TurnIndex * 67
+                ^ state.EventVersion.GetHashCode()
+                ^ rollout * 7919);
+			var wallOrder = _wall.SampleWallOrder(state, belief, seed);
+            foreach (var candidate in candidates)
             {
-                total += SimulateReactionFuture(state, candidate.handAfter, candidate.meldCountAfter, ReactionSearchDepth);
+				bonuses[candidate.action] += SimulateReactionFuture(
+					state,
+					candidate.handAfter,
+					candidate.meldCountAfter,
+					ReactionSearchDepth,
+					wallOrder,
+					candidate.ownDrawOffset);
+                simulations++;
             }
-            bonuses[candidate.action] = total / Math.Max(1, ReactionSearchRollouts);
-            simulations += ReactionSearchRollouts;
         }
+        foreach (var key in bonuses.Keys.ToArray())
+            bonuses[key] /= Math.Max(1, ReactionSearchRollouts);
         var min = bonuses.Values.Min();
         return bonuses.ToDictionary(item => item.Key, item => (item.Value - min) * 0.18);
     }
 
-    private double SimulateReactionFuture(SichuanStateView state, int[] initialHand, int meldCount, int depth)
+    private double SimulateReactionFuture(
+		SichuanStateView state,
+		int[] initialHand,
+		int meldCount,
+		int depth,
+		IReadOnlyList<int> wallOrder,
+		int ownDrawOffset)
     {
         var hand = (int[])initialHand.Clone();
-        var remaining = (int[])state.Remaining18.Clone();
+		var remaining = new int[27];
+		foreach (var tile in wallOrder.Where(tile => tile is >= 0 and < 27))
+			remaining[tile]++;
         var total = 0.0;
-        for (var step = 0; step < depth; step++)
+		var ownDraws = 0;
+		var activePlayers = Math.Max(2, state.ActiveSeats.Count(active => active));
+		for (var drawIndex = 0; drawIndex < wallOrder.Count && ownDraws < depth; drawIndex++)
         {
-            var draw = SampleRemainingTile(remaining);
-            if (draw < 0) break;
+			var draw = wallOrder[drawIndex];
+			if (draw is < 0 or >= 27) continue;
+			remaining[draw] = Math.Max(0, remaining[draw] - 1);
+			var isOwnDraw = drawIndex >= ownDrawOffset
+				&& (drawIndex - ownDrawOffset) % activePlayers == 0;
+			if (!isOwnDraw) continue;
             hand[draw]++;
-            remaining[draw] = Math.Max(0, remaining[draw] - 1);
             var followUp = EvaluateBestFollowUp(hand, remaining, meldCount);
             total += (8 - followUp.Shanten) * 1.7 + followUp.LiveUkeire * 0.34 + followUp.Ukeire * 0.16;
             if (followUp.Shanten <= 0) total += 3.6;
             if (followUp.BestDiscardTile >= 0 && hand[followUp.BestDiscardTile] > 0)
                 hand[followUp.BestDiscardTile]--;
+			ownDraws++;
         }
-        return total / Math.Max(1, depth);
-    }
-
-    private static int SampleRemainingTile(int[] remaining)
-    {
-        var total = 0;
-        for (var index = 0; index < remaining.Length; index++)
-            total += Math.Max(0, remaining[index]);
-        if (total <= 0) return -1;
-        var roll = Random.Shared.Next(total);
-        for (var index = 0; index < remaining.Length; index++)
-        {
-            var count = Math.Max(0, remaining[index]);
-            if (roll < count) return index;
-            roll -= count;
-        }
-        return -1;
+		return total / Math.Max(1, ownDraws);
     }
 
     private static int EstimatePengStructureBoost(

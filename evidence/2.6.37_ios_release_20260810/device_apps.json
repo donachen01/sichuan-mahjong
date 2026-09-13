@@ -1,0 +1,84 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "--json-output",
+      "evidence/2.6.37_ios_release_20260810/device_apps.json",
+      "device",
+      "info",
+      "apps",
+      "--device",
+      "516E99D2-18B6-5DD8-94E1-6993510A036D",
+      "--filter",
+      "bundleIdentifier == 'com.chendong.sichuanmahjong.iosdev'"
+    ],
+    "commandType" : "devicectl.device.info.apps",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 3,
+    "outcome" : "success",
+    "version" : "518.33"
+  },
+  "result" : {
+    "apps" : [
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.kdt.livecontainer.9MB3C47BRZ",
+        "bundleVersion" : "3.6.1",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "LiveContainer",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/9C2311D9-DB51-4DB1-AAF6-944257F0BE38/LiveContainer.app/",
+        "version" : "3.6.1"
+      },
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.cocosxy2dii.xingyouuy",
+        "bundleVersion" : "1000",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "兴游竞技",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/274B80E5-C40B-47E5-B1E8-F46148C9946A/h5_hall-mobile.app/",
+        "version" : "1000_5"
+      },
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.chendong.neijiangmahjong.iosdev",
+        "bundleVersion" : "1.0.60",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "内江麻将",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/1E78B07A-7325-4D23-AD14-DEFC4A03332B/NeijiangMahjongIOS.app/",
+        "version" : "1.0.60"
+      },
+      {
+        "appClip" : false,
+        "builtByDeveloper" : true,
+        "bundleIdentifier" : "com.chendong.sichuanmahjong.iosdev",
+        "bundleVersion" : "2.6.37",
+        "defaultApp" : false,
+        "hidden" : false,
+        "internalApp" : false,
+        "name" : "四川麻将新版",
+        "removable" : true,
+        "url" : "file:///private/var/containers/Bundle/Application/67D84FBE-5EB5-4EB0-A32D-5D98DED1A3F8/SichuanMahjongIOS.app/",
+        "version" : "2.6.37"
+      }
+    ],
+    "defaultAppsIncluded" : false,
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "hiddenAppsIncluded" : false,
+    "internalAppsIncluded" : false,
+    "removableAppsIncluded" : true
+  }
+}

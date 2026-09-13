@@ -37,6 +37,7 @@ func _export_android() -> void:
 	if export_mode == "":
 		export_mode = "debug"
 	var is_debug := export_mode != "release"
+	var use_gradle := OS.get_environment("GODOT_ANDROID_USE_GRADLE").to_lower() not in ["0", "false", "no", "off"]
 	var app_version := _app_version_name()
 	var platform: Object = ClassDB.instantiate("EditorExportPlatformAndroid")
 	if not platform:
@@ -48,9 +49,9 @@ func _export_android() -> void:
 	preset.set("custom_features", "C#")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
+	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,artifacts/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
-	preset.set("gradle_build/use_gradle_build", true)
+	preset.set("gradle_build/use_gradle_build", use_gradle)
 	var gradle_build_dir := OS.get_environment("GODOT_ANDROID_GRADLE_BUILD_DIR")
 	if gradle_build_dir == "":
 		gradle_build_dir = "/tmp/sichuan_mahjong_android_gradle_build"
@@ -82,6 +83,9 @@ func _export_android() -> void:
 	preset.set("screen/support_large", true)
 	preset.set("screen/support_xlarge", true)
 	preset.set("screen/background_color", Color.BLACK)
+	# Android must start in the compatibility renderer even though the shared
+	# mobile project setting remains Forward+ for the existing iOS pipeline.
+	preset.set("command_line/extra_args", "--rendering-method gl_compatibility")
 	preset.set("user_data_backup/allow", false)
 	preset.set("shader_baker/enabled", false)
 	preset.set("xr_features/xr_mode", 0)
@@ -89,7 +93,9 @@ func _export_android() -> void:
 	preset.set("permissions/read_external_storage", is_debug)
 	preset.set("permissions/write_external_storage", is_debug)
 	preset.set("permissions/manage_external_storage", is_debug)
-	preset.set("dotnet/include_scripts_content", is_debug)
+	# Release 包也必须保留 .NET 脚本内容。仅排除调试符号，避免为了瘦身
+	# 裁掉 Godot .NET 在 Android 启动时需要的托管脚本元数据。
+	preset.set("dotnet/include_scripts_content", true)
 	preset.set("dotnet/include_debug_symbols", is_debug)
 	preset.set("dotnet/embed_build_outputs", true)
 	preset.set("dotnet/android_use_linux_bionic", false)

@@ -5,6 +5,10 @@ class_name CircularActionButtonOverlay
 const ACTION_LABEL_FONT := preload("res://res/fonts/nameplate_calligraphy.ttf")
 const TEXT_FILL := Color(1.0, 1.0, 1.0, 1.0)
 
+# Kept as a fixed phase so the existing highlight placement is unchanged.
+# This overlay is intentionally event-driven and no longer animates every frame.
+var phase := 0.0
+
 @export var primary: bool = true:
 	set(value):
 		primary = value
@@ -30,17 +34,19 @@ const TEXT_FILL := Color(1.0, 1.0, 1.0, 1.0)
 		label_text = value
 		queue_redraw()
 
-var phase := 0.0
-
-
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_process(true)
-
-
-func _process(delta: float) -> void:
-	phase = fmod(phase + delta * 0.18, 1.0)
-	queue_redraw()
+	# The former per-frame redraw advanced an unused phase value while rebuilding
+	# dozens of circles/arcs every frame. The visual is static; property setters
+	# and button state changes are the only reasons it needs another draw.
+	set_process(false)
+	var button := get_parent() as BaseButton
+	if button != null:
+		button.mouse_entered.connect(queue_redraw)
+		button.mouse_exited.connect(queue_redraw)
+		button.button_down.connect(queue_redraw)
+		button.button_up.connect(queue_redraw)
+		button.toggled.connect(func(_pressed: bool) -> void: queue_redraw())
 
 
 func _draw() -> void:

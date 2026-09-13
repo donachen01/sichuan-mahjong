@@ -169,6 +169,10 @@ func pump_ai_background_requests() -> int:
 	return 0 if game_state == null else int(game_state.call("pump_ai_background_requests"))
 
 
+func has_pending_ai_background_requests() -> bool:
+	return false if game_state == null else bool(game_state.call("has_pending_ai_background_requests"))
+
+
 func _on_state_changed(snapshot: Dictionary) -> void:
 	latest_snapshot = snapshot.duplicate(true)
 	snapshot_changed.emit(latest_snapshot.duplicate(true))

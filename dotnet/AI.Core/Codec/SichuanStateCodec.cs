@@ -31,7 +31,8 @@ public static class SichuanStateCodec
 		IEnumerable<bool>? unlockOnOwnDraw = null,
 		IEnumerable<bool>? activeSeats = null,
 		long eventVersion = 0,
-		string informationMode = "public")
+		string informationMode = "public",
+		bool exchangeThreeEnabled = false)
     {
         var hand = hand18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
         var visible = visible18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
@@ -57,6 +58,7 @@ public static class SichuanStateCodec
 			ActiveSeats = activeSeats?.Take(4).Concat(Enumerable.Repeat(true, 4)).Take(4).ToArray() ?? Enumerable.Repeat(true, 4).ToArray(),
 			EventVersion = eventVersion,
 			InformationMode = informationMode,
+			ExchangeThreeEnabled = exchangeThreeEnabled,
             RoundIndex = roundIndex,
             TotalRounds = totalRounds,
             RemainingRounds = remainingRounds,

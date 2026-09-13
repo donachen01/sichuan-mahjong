@@ -1,0 +1,6 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+CAMERA_COMPOSITION_METRICS {"bottom_safe_ratio":0.0911,"camera_fov":49.5,"camera_orthographic_size":1.0,"camera_projection":"perspective","far_bounds_ratio":[0.2596,0.1082,0.3453,0.0538],"far_self_height_ratio":0.3783,"left_bounds_ratio":[0.0704,0.1566,0.1233,0.6175],"left_perspective_ratio":1.2796,"left_safe_ratio":0.1165,"mirror_error_ratio":0.0,"right_bounds_ratio":[0.8062,0.1566,0.1233,0.6175],"right_perspective_ratio":1.2796,"right_safe_ratio":0.0807,"self_bounds_ratio":[0.1165,0.7668,0.8028,0.1421],"self_tile_height_ratio":0.1421,"self_width_ratio":0.8028,"viewport":[2560,1440]}
+SICHUAN CAMERA COMPOSITION CONTRACT OK

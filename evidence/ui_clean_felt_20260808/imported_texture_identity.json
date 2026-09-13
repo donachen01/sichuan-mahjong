@@ -1,0 +1,17 @@
+{
+  "felt_basecolor.png": {
+    "same_shape": true,
+    "max_channel_delta": 0,
+    "identical": true
+  },
+  "felt_normal.png": {
+    "same_shape": true,
+    "max_channel_delta": 0,
+    "identical": true
+  },
+  "felt_orm.png": {
+    "same_shape": true,
+    "max_channel_delta": 0,
+    "identical": true
+  }
+}

@@ -1,0 +1,44 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+PASS missing_suit_blocks_peng_and_gang_on_same_suit
+PASS non_missing_suit_still_allows_peng_and_gang
+PASS counterclockwise_turn_rotation_and_reaction_distance
+PASS chi_is_not_available_in_reaction_candidates
+PASS forced_discard_requires_missing_suit_first
+PASS missing_suit_blocks_add_gang_and_an_gang_only_for_missing_suit
+PASS cannot_hu_with_missing_suit_still_in_hand
+PASS qi_dui_is_blocked_when_exposed_meld_exists
+PASS self_draw_hu_with_exposed_meld_is_detected
+PASS concealed_gang_last_wall_draw_exposes_gang_self_draw_hu
+PASS multi_win_on_discard_keeps_other_hu_candidates
+PASS fan_cap_limits_high_value_hands_to_four_fan
+PASS shun_he_lock_blocks_same_fan_but_allows_higher_fan
+PASS battle_to_end_skips_won_players_when_advancing_turn
+PASS dealer_starts_with_14_and_others_hold_13_before_first_draw
+PASS draw_assessment_marks_hua_zhu_and_ting_correctly
+PASS draw_assessment_builds_cha_jiao_max_score
+PASS display_hand_sorts_missing_suit_to_right
+PASS qiang_gang_hu_executes_without_finalizing_add_gang
+PASS competitive_score_table_applies_basic_score_and_self_draw_bottom
+PASS gang_score_table_applies_sichuan_units
+PASS round_scores_apply_to_player_totals_and_persist
+PASS gang_scores_apply_immediately_while_players_remain
+PASS hu_jiao_zhuan_yi_transfers_gang_score_to_winner
+PASS draw_does_not_refund_immediate_gang_money
+PASS draw_score_changes_apply_ting_hua_zhu_and_no_ting_payments
+PASS legacy_tui_gang_refunds_are_ignored
+PASS fan_combinations_follow_sichuan_table_and_cap
+PASS sea_bottom_never_adds_fan
+PASS shun_he_lock_clears_on_own_draw
+PASS hu_jiao_zhuan_yi_supports_multiple_payers
+PASS hu_jiao_zhuan_yi_applies_immediately
+PASS multi_payer_gang_is_never_refunded
+RULE REGRESSION OK: 33/33
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+WARNING: 1 RID of type "CanvasItem" was leaked.
+     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2690)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 22 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

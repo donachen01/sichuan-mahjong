@@ -8,7 +8,8 @@ public sealed record SichuanGangScoreEvent(
     int ActorSeat,
     SichuanMeldType GangType,
     IReadOnlyList<int> PayerSeats,
-    bool IsGangDiscardWin = false);
+    bool IsGangDiscardWin = false,
+    int SourceSeat = -1);
 
 public sealed record SichuanGangRefundEvent(
     int ActorSeat,
@@ -76,7 +77,11 @@ public sealed class SichuanSettlementProjectionEngine
         var huaZhu = new int[4];
         // 杠钱独立即时结算：不等待本局结束，也不因杠上炮而跳过原杠分。
         foreach (var item in scenario.GangEvents ?? Array.Empty<SichuanGangScoreEvent>())
-            ApplyPayments(gang, item.ActorSeat, item.PayerSeats, GangUnit(item.GangType));
+            foreach (var payer in item.PayerSeats)
+                ApplyPayment(gang, item.ActorSeat, payer, GangPayment(
+                    item.GangType,
+                    payer,
+                    item.SourceSeat >= 0 ? item.SourceSeat : item.PayerSeats.Count == 1 ? payer : -1));
 
         if (SichuanRuleSnapshot.Frozen.EnableGangRefund)
         {
@@ -115,6 +120,11 @@ public sealed class SichuanSettlementProjectionEngine
             total[seat] = gang[seat] + refunds[seat] + transfers[seat] + chaJiao[seat] + huaZhu[seat];
         return new SichuanSettlementBreakdown(total, gang, refunds, transfers, chaJiao, huaZhu);
     }
+
+    public static int GangPayment(SichuanMeldType type, int payerSeat, int sourceSeat) =>
+        type == SichuanMeldType.MeldedGang
+            ? (payerSeat == sourceSeat ? 2 : 1)
+            : GangUnit(type);
 
     private static void ApplyPayments(int[] changes, int receiver, IEnumerable<int> payers, int unit)
     {

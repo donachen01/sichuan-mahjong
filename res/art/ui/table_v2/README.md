@@ -9,8 +9,9 @@ These PNGs are original project assets generated deterministically with Blender
   transparent circular seal surfaces. Godot owns labels, focus, pressed state,
   animation, reduced motion and touch rectangles.
 - `ding_que_tiao.png`, `ding_que_tong.png`, `ding_que_wan.png`: transparent
-  jade-seal shells. Godot keeps the live 条/筒/万 glyph, modal touch target,
-  focus ring and 140 ms submit feedback.
+  jade-seal shells without decorative dots. Godot keeps the live 条/筒/万
+  glyph, modal touch target, explicit-selection focus ring and 140 ms submit
+  feedback.
 - `settlement_panel_9slice.png`: 1024×640 deep-emerald, ink-jade and aged-
   copper nine-slice shell for the full four-player ledger. Godot owns every
   name, score, hand, fan label, payer and signed detail row. Its editable
@@ -25,5 +26,7 @@ Regenerate:
 
 To regenerate only the settlement shell without touching the other audited
 runtime textures, append `-- --settlement-only`.
+
+To regenerate only the three ding-que shells, append `-- --ding-que-only`.
 
 These are decorative runtime resources, not screenshots of third-party games.

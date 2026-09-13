@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 using SichuanMahjong.AI.Core.Codec;
 using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Entry;
+using SichuanMahjong.AI.Core.Engines;
+using SichuanMahjong.AI.Core.Evaluation;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
 
@@ -18,20 +20,55 @@ var options = new JsonSerializerOptions
 
 if (args.Length < 1)
 {
-    Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|host-tcp> [args]");
+	Console.Error.WriteLine("Usage: AI.Core.Cli <discard-json|reaction-json|self-action-json|ding-que-json|policy-league|train-action-value|host-tcp> [args]");
     return 2;
 }
 
 return args[0] switch
 {
     "discard-json" => await RunDiscardJsonAsync(args.Skip(1).ToArray(), options),
+    "hell-discard-json" => await RunHellDiscardJsonAsync(args.Skip(1).ToArray(), options),
     "reaction-json" => await RunReactionJsonAsync(args.Skip(1).ToArray(), options),
     "self-action-json" => await RunSelfActionJsonAsync(args.Skip(1).ToArray(), options),
     "ding-que-json" => await RunDingQueJsonAsync(args.Skip(1).ToArray(), options),
-    "learning-record" => await RunLearningRecordAsync(args.Skip(1).ToArray(), options),
+	"learning-record" => await RunLearningRecordAsync(args.Skip(1).ToArray(), options),
+	"policy-league" => RunPolicyLeague(args.Skip(1).ToArray(), options),
+	"train-action-value" => await RunActionValueTrainingAsync(args.Skip(1).ToArray(), options),
     "host-tcp" => await RunHostTcpAsync(args.Skip(1).ToArray(), options),
     _ => 2
 };
+
+static async Task<int> RunActionValueTrainingAsync(string[] args, JsonSerializerOptions options)
+{
+	var states = args.Length > 0 && int.TryParse(args[0], out var parsedStates) ? parsedStates : 640;
+	var seed = args.Length > 1 && int.TryParse(args[1], out var parsedSeed) ? parsedSeed : 20260810;
+	var result = new SichuanActionValueTrainingEngine().Train(states, seed);
+	var json = JsonSerializer.Serialize(result, options);
+	if (args.Length > 2)
+	{
+		var outputPath = Path.GetFullPath(args[2]);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		await File.WriteAllTextAsync(outputPath, json + Environment.NewLine);
+	}
+	Console.WriteLine(json);
+	return result.ShadowPromotionPassed ? 0 : 6;
+}
+
+static int RunPolicyLeague(string[] args, JsonSerializerOptions options)
+{
+	var samples = args.Length > 0 && int.TryParse(args[0], out var parsedSamples) ? parsedSamples : 1000;
+	var seed = args.Length > 1 && int.TryParse(args[1], out var parsedSeed) ? parsedSeed : 20260809;
+	var result = new SichuanPairedPolicyLeague().Run(samples, seed);
+	var json = JsonSerializer.Serialize(result, options);
+	if (args.Length > 2)
+	{
+		var outputPath = Path.GetFullPath(args[2]);
+		Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+		File.WriteAllText(outputPath, json + Environment.NewLine);
+	}
+	Console.WriteLine(json);
+	return result.PromotionGatePassed ? 0 : 5;
+}
 
 static async Task<int> RunDiscardJsonAsync(string[] args, JsonSerializerOptions options)
 {
@@ -58,6 +95,71 @@ static async Task<int> RunDiscardJsonAsync(string[] args, JsonSerializerOptions 
     var facade = new SichuanAiFacade();
     var output = BuildDiscardOutput(facade, payload, options);
     Console.WriteLine(output);
+    return 0;
+}
+
+static async Task<int> RunHellDiscardJsonAsync(string[] args, JsonSerializerOptions options)
+{
+    if (args.Length < 1)
+    {
+        Console.Error.WriteLine("Usage: AI.Core.Cli hell-discard-json <payload.json>");
+        return 2;
+    }
+
+    var payloadPath = args[0];
+    if (!File.Exists(payloadPath))
+    {
+        Console.Error.WriteLine($"Payload file not found: {payloadPath}");
+        return 3;
+    }
+
+    var payload = JsonSerializer.Deserialize<HellDiscardPayload>(await File.ReadAllTextAsync(payloadPath), options);
+    if (payload is null)
+    {
+        Console.Error.WriteLine("Invalid hell discard payload");
+        return 4;
+    }
+
+    var facade = new SichuanAiFacade();
+    var state = BuildState(payload);
+    state.InformationMode = "oracle";
+    var result = new SichuanHellChallengeEngine(facade).DecideDiscard(
+        state,
+        payload.AllHands18.Select(hand => (IReadOnlyList<int>)hand).ToArray(),
+        payload.ExactWall18,
+        payload.CurrentScores);
+    Console.WriteLine(JsonSerializer.Serialize(new
+    {
+        action = result.Action.ActionType.ToString().ToLowerInvariant(),
+        tileType = result.Action.TileType,
+        score = result.Action.Score,
+        preset = "hell",
+        informationMode = "oracle",
+        mobileSpeedMode = false,
+        compactResult = payload.CompactResult,
+        result.HumanPressureLevel,
+        result.SelectedShanten,
+        result.SelectedLiveUkeire,
+        result.SelectedWaitCount,
+        result.SelectedTier,
+        result.ExactWallRemaining,
+        candidates = result.Candidates.Select(item => new
+        {
+            item.TileType,
+            item.Score,
+            item.Shanten,
+            item.LiveUkeire,
+            item.WaitCount,
+            item.ExactDealIn,
+            item.FeedsHumanHu,
+            item.FeedsHumanPeng,
+            item.FeedsHumanGang,
+            item.ExactWallRemaining,
+            item.Tier,
+            item.OldHandRoute,
+            item.OldHandExpectedNetScore
+        })
+    }, options));
     return 0;
 }
 
@@ -445,23 +547,54 @@ static string BuildDingQueOutput(SichuanAiFacade facade, DingQuePayload payload,
 static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
 {
     var state = BuildState(payload);
-    var result = facade.DecideDiscardCached(state);
+	if (IsFrozenPolicy(payload))
+	{
+		var frozenTile = new SichuanFrozenBaselinePolicy().DecideDiscard(state);
+		return new
+		{
+			action = "discard",
+			tileType = frozenTile,
+			gangSubtype = string.Empty,
+			score = 0.0,
+			shanten = 0,
+			ukeire = 0,
+			liveUkeire = 0,
+			winProbability = 0.0,
+			dealInProbability = 0.0,
+			searchUsed = false,
+			searchSimulations = 0,
+			mobileSpeedMode = payload.MobileSpeedMode,
+			forceLightweight = payload.ForceLightweight,
+			compactResult = payload.CompactResult,
+			reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+			candidateScores = new Dictionary<string, double>(),
+			candidates = Array.Empty<object>()
+		};
+	}
+    var result = facade.DecideDiscardCached(
+        state,
+        forceLightweight: payload.MobileSpeedMode || payload.ForceLightweight);
+	var selectedTile = result.Action.TileType;
+	var selectedDetail = result.Candidates.FirstOrDefault(item => item.TileType == selectedTile);
     var cacheSnapshot = facade.GetTurnCacheSnapshot();
     var strategyProfile = BuildStrategyProfile(state, result);
     var currentRoutes = EstimateRoutesForCli(state);
     return new
     {
-        action = result.Action.ActionType.ToString().ToLowerInvariant(),
-        tileType = result.Action.TileType,
+		action = "discard",
+		tileType = selectedTile,
         gangSubtype = result.GangSubtype,
-        score = result.Action.Score,
-        shanten = result.Shanten,
-        ukeire = result.Ukeire,
-        liveUkeire = result.LiveUkeire,
+		score = selectedDetail?.Score ?? result.Action.Score,
+		shanten = selectedDetail?.Shanten ?? result.Shanten,
+		ukeire = selectedDetail?.Ukeire ?? result.Ukeire,
+		liveUkeire = selectedDetail?.LiveUkeire ?? result.LiveUkeire,
         winProbability = result.WinProbability,
         dealInProbability = result.DealInProbability,
         searchUsed = result.SearchUsed,
         searchSimulations = result.SearchSimulations,
+        mobileSpeedMode = payload.MobileSpeedMode,
+        forceLightweight = payload.ForceLightweight,
+        compactResult = payload.CompactResult,
         currentRoutes = currentRoutes,
         routePlan = new
         {
@@ -552,7 +685,7 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
         explain = result.Explain,
         performance = result.Performance,
         aiContext = BuildAiContextObject(result.AiContext),
-        reasons = result.Reasons,
+		reasons = result.Reasons,
         candidateScores = result.CandidateScores,
         candidates = result.Candidates.Select(item => new
         {
@@ -580,6 +713,8 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
             expectedFan = item.ExpectedFan,
             dealInProbability = item.DealInProbability,
             expectedValue = item.ExpectedValue,
+			unifiedActionValue = item.UnifiedActionValue,
+			strategicResidual = item.StrategicResidual,
             expectedNetScore = item.ExpectedNetScore,
             expectedWinGain = item.ExpectedWinGain,
             expectedDealInLoss = item.ExpectedDealInLoss,
@@ -621,6 +756,30 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
 static object BuildReactionObject(SichuanAiFacade facade, ReactionPayload payload)
 {
     var state = BuildState(payload);
+	if (IsFrozenPolicy(payload))
+	{
+		var action = new SichuanFrozenBaselinePolicy().DecideReaction(
+			state, payload.ReactionTileType, payload.CanHu, payload.CanPeng, payload.CanGang, payload.MandatoryGang);
+		return new
+		{
+			action = action.ToString().ToLowerInvariant(),
+			tileType = payload.ReactionTileType,
+			score = 0,
+			reason = "测试冻结基线",
+			shantenAfter = 0,
+			ukeireAfter = 0,
+			liveUkeireAfter = 0,
+			currentShanten = 0,
+			currentLiveUkeire = 0,
+			threatLevel = 0,
+			roundStage = 0,
+			roundStageLabel = "冻结",
+			maxReadyPosterior = 0.0,
+			reasons = new[] { "测试冻结基线：旧向听/活张硬排序" },
+			actionScores = new Dictionary<string, double> { [action.ToString().ToLowerInvariant()] = 0 },
+			backendMode = "frozen_hard_tier_v1"
+		};
+	}
     var result = facade.DecideReaction(
         state,
         payload.ReactionTileType,
@@ -729,7 +888,8 @@ static SichuanStateView BuildState(DiscardPayload payload)
 
     if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
     if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
-    if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
+	if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
+	state.PolicyVariant = payload.PolicyVariant;
     state.LastDrawTileType = payload.LastDrawTileType;
 	state.LastDrawOrigin = payload.LastDrawOrigin;
 	state.LastGangSeat = payload.LastGangSeat;
@@ -995,6 +1155,9 @@ static IReadOnlyList<string> EstimateRoutesForCli(SichuanStateView state)
     return routes;
 }
 
+static bool IsFrozenPolicy(DiscardPayload payload)
+	=> string.Equals(payload.PolicyVariant, "frozen_hard_tier_v1", StringComparison.OrdinalIgnoreCase);
+
 internal class DiscardPayload
 {
     public int SeatIndex { get; init; }
@@ -1016,6 +1179,7 @@ internal class DiscardPayload
 	public bool[] ActiveSeats { get; init; } = Array.Empty<bool>();
 	public long EventVersion { get; init; }
 	public string InformationMode { get; init; } = "public";
+	public string PolicyVariant { get; init; } = "current";
     public int[] Hand18 { get; init; } = Array.Empty<int>();
     public int[] Visible18 { get; init; } = Array.Empty<int>();
     public int[] Remaining18 { get; init; } = Array.Empty<int>();
@@ -1035,6 +1199,7 @@ internal class DiscardPayload
 	public int LastGangTileType { get; init; } = -1;
 	public string LastGangType { get; init; } = string.Empty;
     public bool MobileSpeedMode { get; init; }
+    public bool ForceLightweight { get; init; }
     public bool CompactResult { get; init; }
 }
 
@@ -1047,6 +1212,13 @@ internal sealed class ReactionPayload : DiscardPayload
     public bool CanPeng { get; init; }
     public bool CanGang { get; init; }
     public bool MandatoryGang { get; init; }
+}
+
+internal sealed class HellDiscardPayload : DiscardPayload
+{
+    public int[][] AllHands18 { get; init; } = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
+    public int[] ExactWall18 { get; init; } = new int[27];
+    public int[] CurrentScores { get; init; } = new int[4];
 }
 
 internal sealed class SelfActionPayload : DiscardPayload

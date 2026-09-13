@@ -1,0 +1,6 @@
+83:08-01 07:22:59.631  2001  2001 D GodotActivity: Project command line parameters: [--rendering-method, gl_compatibility, --xr_mode_regular, --xr-mode, off, --fullscreen, --background_color, #000000]
+96:08-01 07:22:59.680  2001  2001 D Godot   : usesVulkan(): false
+98:08-01 07:22:59.680  2001  2001 D Godot   : 			renderer: gl_compatibility (CommandLine)
+345:08-01 07:23:01.624  2001  2025 I godot   : [SichuanCSharpRuntime] ready
+346:08-01 07:23:01.625  2001  2025 I godot   : [GameState] bound native C# runtime ready=true
+347:08-01 07:23:01.635  2001  2025 V Godot   : OnGodotMainLoopStarted
