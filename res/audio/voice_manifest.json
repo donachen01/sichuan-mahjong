@@ -1,0 +1,54 @@
+{
+  "provider": "Volcengine Speech Console",
+  "audio_format": "PCM WAV, 24000 Hz, mono, 16-bit",
+  "sichuan_male_generation": {
+    "method": "continuous groups split at detected silence",
+    "verified_speaker": "zh_male_wennuanahu_uranus_bigtts",
+    "record_ids": [944235, 944247, 944260, 944267, 944278, 944281]
+  },
+  "seat_voice_rule": {
+    "0": "male",
+    "1": "female",
+    "2": "male",
+    "3": "female"
+  },
+  "tile_texts": {
+    "tong_1": "一筒", "tong_2": "二筒", "tong_3": "三筒", "tong_4": "四筒", "tong_5": "五筒", "tong_6": "六筒", "tong_7": "七筒", "tong_8": "八筒", "tong_9": "九筒",
+    "tiao_1": "一条", "tiao_2": "二条", "tiao_3": "三条", "tiao_4": "四条", "tiao_5": "五条", "tiao_6": "六条", "tiao_7": "七条", "tiao_8": "八条", "tiao_9": "九条",
+    "wan_1": "一万", "wan_2": "二万", "wan_3": "三万", "wan_4": "四万", "wan_5": "五万", "wan_6": "六万", "wan_7": "七万", "wan_8": "八万", "wan_9": "九万"
+  },
+  "profiles": {
+    "mandarin_male": {
+      "directory": "tts/male",
+      "voice": "天才同桌 2.0",
+      "actions": {
+        "peng": "碰", "gang": "杠上", "hu": "承让，你点炮", "zimo": "手气不错，自摸", "qiang_gang_hu": "抢杠胡，截住了", "gang_shang_hua": "杠上开花", "gang_shang_pao": "杠上炮，承让",
+        "pass": "过", "win": "这局拿下", "lose": "下局再来", "bao_jiao": "报叫", "bao_gang": "报杠", "ding_que_wan": "缺万", "ding_que_tiao": "缺条", "ding_que_tong": "缺筒"
+      }
+    },
+    "mandarin_female": {
+      "directory": "tts/female",
+      "voice": "小何 2.0",
+      "actions": {
+        "peng": "碰一个", "gang": "我来杠", "hu": "谢谢，你点炮了", "zimo": "手气不错，自摸啦", "qiang_gang_hu": "抢杠胡，正好", "gang_shang_hua": "杠上开花，运气真好", "gang_shang_pao": "不好意思，杠上炮",
+        "pass": "这次不要，过", "win": "这局我拿下啦", "lose": "没关系，下局再来", "bao_jiao": "我报叫了", "bao_gang": "我报杠了", "ding_que_wan": "我缺万", "ding_que_tiao": "我缺条", "ding_que_tong": "我缺筒"
+      }
+    },
+    "sichuan_male": {
+      "directory": "tts_sichuan/male",
+      "voice": "温暖阿虎 2.0",
+      "actions": {
+        "peng": "碰起", "gang": "杠起", "hu": "承让，你点炮咯", "zimo": "巴适，自摸咯", "qiang_gang_hu": "抢杠胡，遭我逮到咯", "gang_shang_hua": "杠上开花，巴适", "gang_shang_pao": "杠上炮，承让咯",
+        "pass": "算咯，过", "win": "这盘拿下", "lose": "莫得事，下盘来", "bao_jiao": "我报叫咯", "bao_gang": "我报杠咯", "ding_que_wan": "缺万哈", "ding_que_tiao": "缺条哈", "ding_que_tong": "缺筒哈"
+      }
+    },
+    "sichuan_female": {
+      "directory": "tts_sichuan/female",
+      "voice": "Vivi 2.0",
+      "actions": {
+        "peng": "碰咯", "gang": "杠一个", "hu": "不好意思，你点炮咯", "zimo": "手气巴适，自摸咯", "qiang_gang_hu": "抢杠胡，逮到你咯", "gang_shang_hua": "杠上开花，安逸", "gang_shang_pao": "杠上炮，不好意思咯",
+        "pass": "算咯，过", "win": "赢咯，巴适", "lose": "下盘赢回来", "bao_jiao": "我报叫咯", "bao_gang": "这把报杠咯", "ding_que_wan": "我缺万咯", "ding_que_tiao": "我缺条咯", "ding_que_tong": "我缺筒咯"
+      }
+    }
+  }
+}

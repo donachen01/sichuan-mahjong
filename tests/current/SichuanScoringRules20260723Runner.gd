@@ -178,12 +178,12 @@ func _verify_payment_table() -> void:
 
 	var gang: Dictionary = score_resolver.build_score_changes(players, {
 		"gang_events": [
-			{"actor_seat": 0, "gang_type": "melded_gang", "payer_seats": [1]},
+			{"actor_seat": 0, "source_seat": 1, "gang_type": "melded_gang", "payer_seats": [1, 2, 3]},
 			{"actor_seat": 0, "gang_type": "add_gang", "payer_seats": [1, 2, 3]},
 			{"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3]},
 		],
 	}, rules)
-	_check(gang == {0: 11, 1: -5, 2: -3, 3: -3}, "gang unit table must be direct=2, added=1x3, concealed=2x3")
+	_check(gang == {0: 13, 1: -5, 2: -4, 3: -4}, "gang table must be direct source=2 plus other active players=1, added=1 each, concealed=2 each")
 
 	var transfer: Dictionary = score_resolver.build_score_changes(players, {
 		"transfer_events": [{

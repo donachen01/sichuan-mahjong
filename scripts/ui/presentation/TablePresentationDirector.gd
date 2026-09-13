@@ -68,7 +68,7 @@ var layers: Dictionary = {}
 
 func _ready() -> void:
 	_ensure_layers()
-	set_process(true)
+	set_process(false)
 
 
 func _process(delta: float) -> void:
@@ -127,6 +127,7 @@ func complete_active_event() -> void:
 	active_event.clear()
 	active_remaining_seconds = 0.0
 	_start_next_event()
+	set_process(not active_event.is_empty())
 
 
 func reset_for_round(round_index: int) -> void:
@@ -137,6 +138,7 @@ func reset_for_round(round_index: int) -> void:
 	active_remaining_seconds = 0.0
 	sequence_counter = 0
 	event_log.clear()
+	set_process(false)
 	_ensure_layers()
 	for layer in layers.values():
 		(layer as Node).call("clear_presentation_log")
@@ -146,6 +148,7 @@ func clear_queue_stably() -> void:
 	pending_events.clear()
 	active_event.clear()
 	active_remaining_seconds = 0.0
+	set_process(false)
 
 
 func get_dependency_contract() -> Dictionary:
@@ -255,6 +258,7 @@ func _can_interrupt_active(incoming: Dictionary) -> bool:
 func _start_event(event: Dictionary) -> void:
 	active_event = event.duplicate(true)
 	active_remaining_seconds = float(active_event.get("duration_seconds", 0.20))
+	set_process(true)
 	event_log.append({"phase": "started", "signature": active_event.get("signature"), "kind": active_event.get("kind")})
 	_route_to_layers(active_event)
 	event_started.emit(active_event.duplicate(true))

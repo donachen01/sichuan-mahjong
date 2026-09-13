@@ -277,8 +277,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("selected tile must keep only its physical lift without a checkmark graphic")
 	if (contract.get("selected_marker_variants", []) as Array).size() != 1:
 		failures.append("selection-marker contract must expose only the no-icon presentation")
-	if str(contract.get("latest_discard_feedback", "")) != "rotating_solid_golden_diamond_above_latest_discard":
-		failures.append("latest discard does not expose the restored rotating golden-diamond contract")
+	if str(contract.get("latest_discard_feedback", "")) != "static_solid_golden_diamond_above_latest_discard":
+		failures.append("latest discard does not expose the static low-power golden-diamond contract")
 	if absf(float(contract.get("discard_travel_seconds", 0.0)) - 0.20) > 0.001 \
 			or absf(float(contract.get("discard_settle_seconds", 0.0)) - 0.04) > 0.001 \
 			or float(contract.get("discard_reflow_beat_seconds", 0.0)) < 0.05 \

@@ -41,14 +41,14 @@ var score_total_tween: Tween
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	reduced_motion = bool(ProjectSettings.get_setting("accessibility/reduced_motion", false))
-	# The avatar is the only decorative display glyph in the seat card. Player
-	# identity, score and state copy use the embedded body face for fast reading.
+	# Identity is intentionally text-only: name and score occupy the left column,
+	# while the missing suit owns the entire right half of the glass plate.
 	STYLE_CONFIG.apply_label(avatar_glyph, false, true)
+	avatar_medallion.visible = false
+	avatar_glyph.visible = false
 	for label in [name_label, score_label, dealer_badge, won_badge, turn_badge]:
 		STYLE_CONFIG.apply_label(label, false, false)
-	avatar_glyph.text = SEAT_AVATAR_GLYPHS[seat]
-	if avatar_medallion != null and avatar_medallion.has_method("configure"):
-		avatar_medallion.call("configure", seat, false, false)
+	avatar_glyph.text = ""
 	# Static lacquer/copper depth is baked by Blender; dynamic state, text and
 	# hit-independent highlights stay in Godot. Do not paint a second opaque
 	# procedural panel over the orthographic nine-patch shell.
@@ -85,9 +85,7 @@ func configure_seat(seat_value: int) -> void:
 	var viewport_size := get_viewport_rect().size if is_inside_tree() else METRICS.DESIGN_SIZE
 	compact = METRICS.is_compact(viewport_size)
 	if avatar_glyph != null:
-		avatar_glyph.text = SEAT_AVATAR_GLYPHS[seat]
-	if avatar_medallion != null and avatar_medallion.has_method("configure"):
-		avatar_medallion.call("configure", seat, false, false)
+		avatar_glyph.text = ""
 	if background_panel != null:
 		_apply_layout(false)
 
@@ -122,8 +120,6 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	previous_score = next_score
 	has_rendered_score = true
 	turn_badge.text = str(player.get("_interaction_label", "出牌"))
-	if avatar_medallion != null and avatar_medallion.has_method("configure"):
-		avatar_medallion.call("configure", seat, active, has_won)
 	var ding_que := str(player.get("ding_que", ""))
 	ding_que_badge.configure(ding_que, compact)
 	ding_que_badge.set_revealed(reveal_ding_que and not ding_que.is_empty())
@@ -131,7 +127,6 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	# score text stay full-contrast so the seat remains a usable orientation
 	# anchor while the explicit 已胡 seal carries the semantic state.
 	material_shell.modulate = Color(0.72, 0.75, 0.72, 0.88) if has_won else Color.WHITE
-	avatar_medallion.modulate = Color(0.74, 0.76, 0.74, 0.90) if has_won else Color.WHITE
 	modulate = Color.WHITE
 	_animate_state_change(active, has_won)
 	previous_active = active
@@ -165,14 +160,15 @@ func get_ding_que_badge() -> Control:
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"material_family": "unified_smoked_jade_nameplate",
-		"identity_surface": "original_jade_seal_medallion",
-		"identity_encoding": ["seat_glyph", "name", "shape_motif"],
+		"material_family": "translucent_smoked_jade_glass_nameplate",
+		"background_alpha": 0.34,
+		"identity_surface": "text_only_left_column",
+		"identity_encoding": ["name", "score"],
 		"seat_avatar_glyphs": SEAT_AVATAR_GLYPHS,
 		"shape_motif": "shu_courtyard_cut_corner",
 		"nameplate_variants": NAMEPLATE_STYLE_NAMES,
 		"selected_nameplate_variant": nameplate_style_variant,
-		"removed_elements": ["upper_lower_horizontal_bars", "出牌_text_badge"],
+		"removed_elements": ["avatar_medallion", "seat_glyph", "upper_lower_horizontal_bars", "出牌_text_badge"],
 		"default_treatment": "single_low_contrast_bronze_edge_without_glow",
 		"active_treatment": "single_thin_antique_gold_edge",
 		"dealer_badge": "gold_corner_seal",
@@ -220,26 +216,22 @@ func _apply_layout(active: bool) -> void:
 	score_label.add_theme_font_size_override("font_size", TABLE_THEME.font_size("score", compact))
 	name_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 	score_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_SECONDARY)
-	var avatar_size := Vector2(64.0, 64.0) if compact else Vector2(72.0, 72.0)
-	avatar_medallion.size = avatar_size
-	avatar_medallion.position = Vector2(10.0, maxf(8.0, (size.y - avatar_size.y) * 0.5))
-	avatar_glyph.size = avatar_size
-	avatar_glyph.position = avatar_medallion.position
-	avatar_glyph.add_theme_font_size_override("font_size", 30 if compact else 34)
-	avatar_glyph.add_theme_color_override("font_color", Color("FFF1C4"))
-	avatar_glyph.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.04, 0.96))
-	avatar_glyph.add_theme_constant_override("outline_size", 3)
-	content_margin.add_theme_constant_override("margin_left", int(avatar_size.x + 24.0))
-	content_margin.add_theme_constant_override("margin_right", 10)
-	name_safe_margin.add_theme_constant_override("margin_left", 6)
-	name_safe_margin.add_theme_constant_override("margin_right", 48 if dealer_badge.visible else 40)
+	var ui_scale := clampf(size.y / 200.0, 0.92, 1.42)
+	avatar_medallion.visible = false
+	avatar_glyph.visible = false
+	content_margin.add_theme_constant_override("margin_left", 8)
+	content_margin.add_theme_constant_override("margin_right", 8)
+	name_safe_margin.add_theme_constant_override("margin_left", 8)
+	name_safe_margin.add_theme_constant_override("margin_right", 2)
 	for label in [name_label, score_label]:
 		label.add_theme_color_override("font_outline_color", Color(0.02, 0.06, 0.05, 0.94))
 		label.add_theme_constant_override("outline_size", 3)
-	dealer_badge.add_theme_font_size_override("font_size", 30 if compact else 34)
+	name_label.add_theme_font_size_override("font_size", int(round(39.0 * ui_scale)))
+	score_label.add_theme_font_size_override("font_size", int(round(42.0 * ui_scale)))
+	dealer_badge.add_theme_font_size_override("font_size", int(round(34.0 * ui_scale)))
 	dealer_badge.add_theme_color_override("font_color", Color("F6D66B"))
 	dealer_badge.add_theme_stylebox_override("normal", _corner_badge_style(Color("4A1B13"), Color("E5B843")))
-	won_badge.add_theme_font_size_override("font_size", 24 if compact else 28)
+	won_badge.add_theme_font_size_override("font_size", int(round(28.0 * ui_scale)))
 	won_badge.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 	won_badge.add_theme_stylebox_override("normal", _corner_badge_style(Color("9A2D28"), Color("F1C15D")))
 	turn_badge.add_theme_font_size_override("font_size", 19 if compact else 21)
@@ -292,11 +284,11 @@ func _inner_frame_style(active: bool) -> StyleBoxFlat:
 
 func _nameplate_shell_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("0D3029")
-	style.border_color = Color(TABLE_THEME.AGED_COPPER, 0.46)
+	style.bg_color = Color(0.025, 0.13, 0.11, 0.28)
+	style.border_color = Color(TABLE_THEME.AGED_COPPER, 0.62)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(8)
-	style.shadow_color = Color(0.0, 0.02, 0.01, 0.22)
+	style.shadow_color = Color(0.0, 0.02, 0.01, 0.16)
 	style.shadow_size = 4
 	style.shadow_offset = Vector2(2, 3)
 	style.content_margin_left = 6

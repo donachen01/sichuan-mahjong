@@ -19,7 +19,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="四川麻将新版"
-config/version="2.6.49"
+config/version="2.6.61"
 run/main_scene="res://scenes/boot/SplashScreen.tscn"
 config/features=PackedStringArray("4.6", "C#")
 config/icon="res://res/art/app_icon/app_icon_1024.png"
@@ -42,8 +42,22 @@ project/assembly_name="SichuanMahjong.Godot"
 
 [rendering]
 
-renderer/rendering_method.mobile="forward_plus"
+# The Forward+ path is aimed at desktop GPUs.  iOS uses Godot's Mobile renderer;
+# Android keeps its explicit Compatibility override in the release preset for
+# older-device coverage.
+renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_etc2_astc=true
+
+[performance]
+
+mobile_frame_cap=60
+mobile_active_frame_cap=60
+mobile_idle_frame_cap=30
+mobile_idle_delay_msec=1400
+mobile_low_processor_sleep_usec=10000
+mobile_ssao_enabled=false
+mobile_directional_shadows_enabled=false
+mobile_expensive_materials_enabled=false
 
 [ui]
 

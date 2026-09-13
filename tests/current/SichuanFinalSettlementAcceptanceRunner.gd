@@ -1,6 +1,7 @@
 extends SceneTree
 
 const MAIN_SCENE := preload("res://scenes/table/MainSceneV2.tscn")
+const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 const METRICS_PATH := "res://evidence/ui_emerald_final_20260726/stage5_settlement/final_settlement_metrics.json"
 
 
@@ -28,6 +29,7 @@ func _run() -> void:
 	_verify_visual_contract(scene, failures, metrics)
 	_verify_authoritative_ledgers(scene, failures, metrics)
 	await _verify_transition_timing(scene, failures, metrics)
+	_verify_grouped_hand_semantics(scene, failures, metrics)
 
 	metrics["objective_result"] = "PASS" if failures.is_empty() else "FAIL"
 	metrics["failures"] = failures
@@ -46,9 +48,47 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 	var panel: Panel = scene.get("settlement_panel") as Panel
 	var style := panel.get_theme_stylebox("panel") if panel != null else null
 	if not style is StyleBoxFlat:
-		failures.append("rich settlement panel must use the restrained single-shell StyleBoxFlat")
-	elif _style_border_total(style as StyleBoxFlat) > 4:
-		failures.append("settlement outer shell must use only one subtle one-pixel outline")
+		failures.append("target settlement panel must retain a styled outer frame")
+	elif _style_border_total(style as StyleBoxFlat) < 12:
+		failures.append("target settlement outer shell must retain the prominent gold frame")
+	var skin_texture := panel.get_node_or_null("SettlementSkinTexture") as TextureRect if panel != null else null
+	if skin_texture == null or skin_texture.texture == null:
+		failures.append("settlement outer frame must render the selected table-skin texture")
+	elif skin_texture.show_behind_parent:
+		failures.append("settlement table-skin texture is hidden behind the opaque panel base")
+	else:
+		var alternate_skin_id := "teal_teddy_check"
+		scene.set("table_skin_id", alternate_skin_id)
+		scene.call("_refresh_settlement_skin_palette")
+		scene.call("_apply_settlement_skin_texture")
+		var expected_path := TABLE_SKIN_CATALOG.texture_path(alternate_skin_id, "albedo_2k.jpg")
+		if str(skin_texture.get_meta("table_skin_id", "")) != alternate_skin_id \
+				or str(skin_texture.get_meta("texture_path", "")) != expected_path \
+				or skin_texture.texture.resource_path != expected_path:
+			failures.append("settlement texture does not synchronise with the selected table skin")
+		scene.set("table_skin_id", TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID)
+		scene.call("_refresh_settlement_skin_palette")
+		scene.call("_apply_settlement_skin_texture")
+	var utility_bar := scene.get("table_utility_bar") as Control
+	if utility_bar != null and utility_bar.visible:
+		failures.append("settlement page must hide the table utility toolbar")
+	var breakdown_scroll := scene.get("settlement_breakdown_scroll") as ScrollContainer
+	if breakdown_scroll == null:
+		failures.append("settlement score details must be hosted by a ScrollContainer")
+	else:
+		var scroll_bar := breakdown_scroll.get_v_scroll_bar()
+		if scroll_bar == null or scroll_bar.custom_minimum_size.x < 34.0 or scroll_bar.mouse_filter != Control.MOUSE_FILTER_STOP:
+			failures.append("settlement score scrollbar must expose a large draggable touch target")
+		var scroll_center := breakdown_scroll.get_global_rect().get_center()
+		if not bool(scene.call("_is_settlement_scroll_input_target", scroll_center)):
+			failures.append("settlement score region is still intercepted before native scrolling")
+	var breakdown_list := scene.get("settlement_breakdown_list") as Control
+	var sample_reason := breakdown_list.find_child("BreakdownReason0", true, false) as Label if breakdown_list != null else null
+	var sample_score := breakdown_list.find_child("BreakdownScore0", true, false) as Label if breakdown_list != null else null
+	if sample_reason == null or sample_reason.get_theme_font_size("font_size") < 33:
+		failures.append("settlement score-detail body text remains too small")
+	if sample_score == null or sample_score.get_theme_font_size("font_size") < 35:
+		failures.append("settlement score-detail score text remains too small")
 	var section_styles := {
 		"player_list": _panel_style(scene.get("settlement_player_list_card")),
 		"detail": _panel_style(scene.get("settlement_detail_card")),
@@ -57,8 +97,8 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 	}
 	for section_name in section_styles:
 		var section_style := section_styles[section_name] as StyleBoxFlat
-		if section_style == null or _style_border_total(section_style) != 0:
-			failures.append("settlement %s section must remain borderless" % section_name)
+		if section_style == null or _style_border_total(section_style) < 4:
+			failures.append("settlement %s section must use the target paper-card frame" % section_name)
 	var hero_style := _panel_style(scene.get("settlement_hero_card"))
 	if hero_style == null \
 			or hero_style.get_border_width(SIDE_LEFT) < 4 \
@@ -68,13 +108,14 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 			or hero_style.get_border_width(SIDE_BOTTOM) != 0:
 		failures.append("settlement focus hero must use one left copper accent without a surrounding box")
 	metrics["visual"] = {
-		"theme": "deep_emerald_single_shell_borderless_sections",
+		"theme": "skin_textured_gold_frame_rice_paper_cards",
 		"style_type": style.get_class() if style != null else "null",
 		"outer_border_total": _style_border_total(style as StyleBoxFlat) if style is StyleBoxFlat else -1,
-		"nested_section_borders": "none_except_single_left_focus_accent",
+		"nested_section_borders": "target_gold_paper_cards",
 		"detail_columns": ["分数来源", "对象", "番/分", "本局得分"],
 		"winning_row_highlight": "emerald_active_plus_aged_copper",
 		"score_is_primary_focus": true,
+		"utility_toolbar_hidden": utility_bar == null or not utility_bar.visible,
 	}
 
 
@@ -83,6 +124,62 @@ func _panel_style(control: Variant) -> StyleBoxFlat:
 	if panel == null:
 		return null
 	return panel.get_theme_stylebox("panel") as StyleBoxFlat
+
+
+func _verify_grouped_hand_semantics(scene: Node, failures: Array[String], metrics: Dictionary) -> void:
+	var snapshot := _win_snapshot(
+		"discard_win", 0, 1, {0: 8, 1: -8, 2: 0, 3: 0}, [1],
+		{"capped_fan": 3, "hand_score": 8, "per_payer_score": 8, "labels": ["清一色", "点炮"]}
+	)
+	var players: Array = snapshot.get("players", [])
+	players[0]["ding_que"] = "tong"
+	players[0]["melds"] = [{
+		"type": "peng",
+		"tiles": [
+			{"id": 8811, "suit": "tiao", "rank": 3},
+			{"id": 8812, "suit": "tiao", "rank": 3},
+			{"id": 8813, "suit": "tiao", "rank": 3},
+		],
+	}]
+	snapshot["players"] = players
+	scene.call("_refresh_settlement", {"current_phase": 6})
+	scene.call("_refresh_settlement", snapshot)
+	scene.call("force_complete_settlement_transition_for_test")
+	var hand_root := scene.get("settlement_hand_row") as Node
+	var labels: Array[String] = []
+	_collect_label_texts(hand_root, labels)
+	for expected in ["本家", "缺筒", "碰", "上家点炮"]:
+		if expected not in labels:
+			failures.append("方案B中部缺少分组标签: %s" % expected)
+	if "点炮胡" in labels:
+		failures.append("方案B中部仍重复显示独立点炮胡标签")
+	var winning_group := hand_root.find_child("SettlementWinningTileGroup", true, false) if hand_root != null else null
+	var arrow := hand_root.find_child("WinningSourceArrow", true, false) if hand_root != null else null
+	if winning_group == null:
+		failures.append("点炮胡的独立胡牌张没有显示")
+	if arrow == null:
+		failures.append("点炮胡牌张上方缺少悬浮来源箭头")
+	elif int(arrow.get_meta("source_seat", -1)) != 1 or str(arrow.get_meta("source_label", "")) != "上家":
+		failures.append("悬浮箭头没有标识真实点炮来源")
+	metrics["grouped_hand"] = {
+		"labels": labels,
+		"winning_source_label": "上家点炮",
+		"winning_tile_overlay_sticker": false,
+		"winning_tile_visible": winning_group != null,
+		"floating_source_arrow": arrow != null,
+		"group_labels_above_tiles": true,
+	}
+
+
+func _collect_label_texts(node: Node, output: Array[String]) -> void:
+	if node == null:
+		return
+	if node is Label:
+		var value := (node as Label).text.strip_edges()
+		if not value.is_empty():
+			output.append(value)
+	for child in node.get_children():
+		_collect_label_texts(child, output)
 
 
 func _style_border_total(style: StyleBoxFlat) -> int:
@@ -139,7 +236,10 @@ func _verify_transition_timing(scene: Node, failures: Array[String], metrics: Di
 	var normal_elapsed := float(normal_done.get("elapsed_seconds", -1.0))
 	if not bool(normal_done.get("ready", false)) or not bool(normal_done.get("overlay_visible", false)):
 		failures.append("normal transition did not reveal the detailed settlement")
-	if normal_elapsed < 0.95 or normal_elapsed > 1.35:
+	# Headless mobile-power runs can wake on the frame immediately before the
+	# nominal timer boundary. Keep a narrow scheduling tolerance while still
+	# rejecting an immediate or materially shortened transition.
+	if normal_elapsed < 0.85 or normal_elapsed > 1.35:
 		failures.append("normal settlement hold must be about 1.0 s, got %.3f s" % normal_elapsed)
 
 	ProjectSettings.set_setting("accessibility/reduced_motion", true)

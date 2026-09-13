@@ -6,10 +6,13 @@ signal closed
 
 const CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 const BODY_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
-const CARD_SIZE := Vector2(320.0, 138.0)
+const CARD_SIZE := Vector2(420.0, 176.0)
+const AUTHORED_SIZE := Vector2(940.0, 752.0)
+const AVOID_GAP := 24.0
 
 var selected_skin_id := SichuanTableSkinCatalog.DEFAULT_SKIN_ID
 var safe_margins := Vector4(18.0, 14.0, 18.0, 18.0)
+var avoid_rect := Rect2()
 var panel: PanelContainer
 var grid: GridContainer
 var close_button: Button
@@ -27,10 +30,13 @@ func _ready() -> void:
 
 func open(current_skin_id: String) -> void:
 	selected_skin_id = current_skin_id if CATALOG.has_skin(current_skin_id) else CATALOG.DEFAULT_SKIN_ID
-	# Show the modal in the same input turn. Selection styling and focus are deferred
-	# one frame so the first tap is not held up by six StyleBox allocations on iOS.
+	# The user must see the chooser as a direct consequence of the first press.
+	# Six lightweight style updates are cheaper than deferring the entire visible
+	# layout and making iOS appear to have ignored the tap.
 	visible = true
-	call_deferred("_finish_open")
+	_refresh_selection()
+	_apply_safe_layout()
+	call_deferred("_focus_selected")
 
 
 func _finish_open() -> void:
@@ -53,6 +59,11 @@ func set_safe_margins(value: Vector4) -> void:
 	_apply_safe_layout()
 
 
+func set_avoid_rect(value: Rect2) -> void:
+	avoid_rect = value
+	_apply_safe_layout()
+
+
 func get_visual_contract() -> Dictionary:
 	return {
 		"skin_count": skin_buttons.size(),
@@ -62,6 +73,8 @@ func get_visual_contract() -> Dictionary:
 		"touch_target": CARD_SIZE,
 		"modal": true,
 		"blocks_gameplay_input": true,
+		"avoids_toolbar": true,
+		"authored_size": AUTHORED_SIZE,
 	}
 
 
@@ -101,14 +114,14 @@ func _build_ui() -> void:
 	add_child(panel)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 26)
-	margin.add_theme_constant_override("margin_top", 22)
-	margin.add_theme_constant_override("margin_right", 26)
-	margin.add_theme_constant_override("margin_bottom", 24)
+	margin.add_theme_constant_override("margin_left", 30)
+	margin.add_theme_constant_override("margin_top", 26)
+	margin.add_theme_constant_override("margin_right", 30)
+	margin.add_theme_constant_override("margin_bottom", 28)
 	panel.add_child(margin)
 
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
+	column.add_theme_constant_override("separation", 18)
 	margin.add_child(column)
 
 	var header := HBoxContainer.new()
@@ -118,15 +131,15 @@ func _build_ui() -> void:
 	title_label.text = "桌布皮肤"
 	title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_label.add_theme_font_override("font", BODY_FONT)
-	title_label.add_theme_font_size_override("font_size", 28)
+	title_label.add_theme_font_size_override("font_size", 40)
 	title_label.add_theme_color_override("font_color", Color("FFF1CF"))
 	header.add_child(title_label)
 	close_button = Button.new()
 	close_button.text = "关闭"
-	close_button.custom_minimum_size = Vector2(92.0, 52.0)
+	close_button.custom_minimum_size = Vector2(132.0, 68.0)
 	close_button.focus_mode = Control.FOCUS_ALL
 	close_button.add_theme_font_override("font", BODY_FONT)
-	close_button.add_theme_font_size_override("font_size", 19)
+	close_button.add_theme_font_size_override("font_size", 28)
 	close_button.add_theme_stylebox_override("normal", _button_style(Color("173D31"), Color("B88943"), 1))
 	close_button.add_theme_stylebox_override("hover", _button_style(Color("245A42"), Color("E2BC6A"), 2))
 	close_button.add_theme_stylebox_override("pressed", _button_style(Color("102E27"), Color("E2BC6A"), 2))
@@ -137,14 +150,14 @@ func _build_ui() -> void:
 	var description := Label.new()
 	description.text = "六套 Poly Haven 实体布料材质，只改变桌布外观，不改变麻将玩法与操作。"
 	description.add_theme_font_override("font", BODY_FONT)
-	description.add_theme_font_size_override("font_size", 17)
+	description.add_theme_font_size_override("font_size", 24)
 	description.add_theme_color_override("font_color", Color("D8CFB7"))
 	column.add_child(description)
 
 	grid = GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 14)
-	grid.add_theme_constant_override("v_separation", 14)
+	grid.add_theme_constant_override("h_separation", 16)
+	grid.add_theme_constant_override("v_separation", 16)
 	column.add_child(grid)
 	for skin in CATALOG.all_skins():
 		_create_skin_card(skin)
@@ -163,11 +176,11 @@ func _create_skin_card(skin: Dictionary) -> void:
 	button.expand_icon = true
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.add_theme_font_override("font", BODY_FONT)
-	button.add_theme_font_size_override("font_size", 20)
+	button.add_theme_font_size_override("font_size", 29)
 	button.add_theme_color_override("font_color", Color("F4E9D0"))
 	button.add_theme_color_override("font_hover_color", Color("FFF4D8"))
 	button.add_theme_color_override("font_pressed_color", Color("FFF4D8"))
-	button.add_theme_constant_override("icon_separation", 18)
+	button.add_theme_constant_override("icon_separation", 22)
 	button.pressed.connect(_select_skin.bind(skin_id))
 	grid.add_child(button)
 	skin_buttons[skin_id] = button
@@ -231,14 +244,24 @@ func _apply_safe_layout() -> void:
 	if panel == null:
 		return
 	var available := size - Vector2(safe_margins.x + safe_margins.z, safe_margins.y + safe_margins.w)
-	var authored_size := Vector2(700.0, 578.0)
-	var fit_scale := minf(1.0, minf(available.x / authored_size.x, available.y / authored_size.y))
-	panel.size = authored_size
+	var fit_scale := minf(1.0, minf(available.x / AUTHORED_SIZE.x, available.y / AUTHORED_SIZE.y))
+	panel.size = AUTHORED_SIZE
 	panel.scale = Vector2.ONE * maxf(0.58, fit_scale)
-	var visual_size := authored_size * panel.scale
-	panel.position = Vector2(
-		safe_margins.x + maxf(0.0, (available.x - visual_size.x) * 0.5),
-		safe_margins.y + maxf(0.0, (available.y - visual_size.y) * 0.5)
+	var visual_size := AUTHORED_SIZE * panel.scale
+	var safe_rect := Rect2(Vector2(safe_margins.x, safe_margins.y), available)
+	var local_avoid := Rect2(avoid_rect.position - global_position, avoid_rect.size)
+	var target_area := safe_rect
+	if local_avoid.size.x > 1.0 and local_avoid.intersects(safe_rect):
+		var right_start := maxf(safe_rect.position.x, local_avoid.end.x + AVOID_GAP)
+		var right_area := Rect2(
+			Vector2(right_start, safe_rect.position.y),
+			Vector2(maxf(0.0, safe_rect.end.x - right_start), safe_rect.size.y)
+		)
+		if right_area.size.x >= visual_size.x:
+			target_area = right_area
+	panel.position = target_area.position + Vector2(
+		maxf(0.0, (target_area.size.x - visual_size.x) * 0.5),
+		maxf(0.0, (target_area.size.y - visual_size.y) * 0.5)
 	)
 
 

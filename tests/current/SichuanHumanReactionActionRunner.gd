@@ -4,6 +4,29 @@ const GAME_STATE_SCRIPT := preload("res://autoload/GameState.gd")
 const ACTION_BAR_SCENE := preload("res://scenes/ui/table/TableActionBar.tscn")
 
 
+class TrainerAIStub extends RefCounted:
+	var last_candidate: Dictionary = {}
+
+	func analyze_reaction_lightweight(
+		candidate: Dictionary,
+		_player_state: Dictionary,
+		_table_state: Dictionary,
+		_discard_context: Dictionary,
+		_rules_config,
+		_ai_config,
+		_hu_checker,
+		_allow_cheat: bool = false
+	) -> Dictionary:
+		last_candidate = candidate.duplicate(true)
+		if bool(candidate.get("can_hu", false)):
+			return {"action": "hu", "score": 100000, "reasons": ["可胡时直接胡牌"]}
+		if bool(candidate.get("can_gang", false)):
+			return {"action": "gang", "score": 88, "reasons": ["杠后收益更高"]}
+		if bool(candidate.get("can_peng", false)):
+			return {"action": "peng", "score": 66, "reasons": ["碰后更快成叫"]}
+		return {"action": "pass", "score": 0, "reasons": ["当前不宜鸣牌"]}
+
+
 func _init() -> void:
 	call_deferred("_run")
 
@@ -14,6 +37,8 @@ func _run() -> void:
 	_verify_human_peng_blocks_lower_priority_ai(failures)
 	_verify_human_gang_blocks_lower_priority_ai(failures)
 	_verify_higher_priority_ai_still_runs(failures)
+	_verify_ai_hint_covers_hu_gang_peng(failures)
+	_verify_native_csharp_hu_hint(failures)
 	_verify_direct_peng_execution(failures)
 	_verify_direct_gang_execution(failures)
 
@@ -23,6 +48,53 @@ func _run() -> void:
 		return
 	push_error("SICHUAN HUMAN REACTION ACTIONS FAILED:\n- " + "\n- ".join(failures))
 	quit(1)
+
+
+func _verify_ai_hint_covers_hu_gang_peng(failures: Array[String]) -> void:
+	for expected_action in ["hu", "gang", "peng"]:
+		var state = _build_reaction_state(expected_action == "gang")
+		var candidate: Dictionary = state.pending_reactions[0]
+		candidate["can_hu"] = expected_action == "hu"
+		candidate["can_gang"] = expected_action == "gang"
+		candidate["can_peng"] = expected_action == "peng"
+		var pending: Array[Dictionary] = [candidate]
+		state.pending_reactions = pending
+		state.ai_manager = TrainerAIStub.new()
+		state.human_trainer_hint_enabled = true
+		var hint: Dictionary = state._get_human_trainer_hint_snapshot()
+		if str(hint.get("hint_kind", "")) != "reaction":
+			failures.append("%s 响应窗口没有生成 reaction 类型 AI 提示" % expected_action)
+			continue
+		var advice: Dictionary = hint.get("reaction_advice", {})
+		if str(advice.get("action", "")) != expected_action:
+			failures.append("%s 响应没有沿 AI 链路给出对应建议：%s" % [expected_action, advice])
+		if str(advice.get("source_tile_name", "")) != "6筒":
+			failures.append("%s 建议没有保留响应牌上下文" % expected_action)
+		if Array(advice.get("reasons", [])).is_empty():
+			failures.append("%s 建议缺少判断原因" % expected_action)
+
+
+func _verify_native_csharp_hu_hint(failures: Array[String]) -> void:
+	var live_game_state := get_root().get_node_or_null("GameState")
+	var live_ai_manager = live_game_state.get("ai_manager") if live_game_state != null else null
+	if live_ai_manager == null or not bool(live_ai_manager.call("has_native_csharp_runtime")):
+		failures.append("真实 Native C# AI 不可用，无法验证胡牌建议链路")
+		return
+	var state = _build_reaction_state(false)
+	var candidate: Dictionary = state.pending_reactions[0]
+	candidate["can_hu"] = true
+	candidate["can_gang"] = false
+	candidate["can_peng"] = false
+	var pending: Array[Dictionary] = [candidate]
+	state.pending_reactions = pending
+	state.ai_manager = live_ai_manager
+	state.human_trainer_hint_enabled = true
+	var hint: Dictionary = state._get_human_trainer_hint_snapshot()
+	var advice: Dictionary = hint.get("reaction_advice", {})
+	if str(advice.get("action", "")) != "hu":
+		failures.append("真实 Native C# AI 没有把可胡响应传入提示：%s" % [advice])
+	if not str(advice.get("backend_mode", "")).contains("csharp"):
+		failures.append("胡牌提示没有来自真实 C# 后端：%s" % str(advice.get("backend_mode", "")))
 
 
 func _verify_action_bar_dispatch(failures: Array[String]) -> void:

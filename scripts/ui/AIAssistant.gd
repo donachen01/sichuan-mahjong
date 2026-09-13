@@ -37,8 +37,8 @@ var drag_offset := Vector2.ZERO
 const GLASS_OPACITY_MIN := 0.0
 const GLASS_OPACITY_MAX := 1.0
 const GLASS_OPACITY_LEVELS := [0.0, 0.50, 1.0]
-const COLLAPSED_SIZE := Vector2(560.0, 76.0)
-const EXPANDED_SIZE := Vector2(760.0, 264.0)
+const COLLAPSED_SIZE := Vector2(820.0, 108.0)
+const EXPANDED_SIZE := Vector2(1080.0, 430.0)
 const LOW_OPACITY_READABILITY_THRESHOLD := 0.22
 const MEDIUM_OPACITY_READABILITY_THRESHOLD := 0.55
 
@@ -56,19 +56,20 @@ func _ready() -> void:
 	style_config.apply_label(title_label, false, true)
 	style_config.apply_label(opacity_label, true, false)
 	root_panel.add_theme_stylebox_override("panel", _make_drawer_style())
-	title_label.add_theme_font_size_override("font_size", 28)
+	title_label.add_theme_font_size_override("font_size", 40)
 	title_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 	for label in [summary_label, reason_label, danger_label, routes_label]:
-		label.add_theme_font_size_override("font_size", 24)
+		label.add_theme_font_size_override("font_size", 34)
 		label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY if label == summary_label else TABLE_THEME.TEXT_SECONDARY)
 		label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.04, 0.94))
 		label.add_theme_constant_override("outline_size", 3)
-	toggle_button.custom_minimum_size = Vector2(88.0, 52.0)
-	toggle_button.add_theme_font_size_override("font_size", 22)
-	opacity_label.add_theme_font_size_override("font_size", 19)
+	toggle_button.custom_minimum_size = Vector2(132.0, 72.0)
+	toggle_button.add_theme_font_size_override("font_size", 30)
+	opacity_label.add_theme_font_size_override("font_size", 27)
 	opacity_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_SECONDARY)
 	_apply_opacity_slider_style()
-	recommendation_button.add_theme_font_size_override("font_size", 24)
+	recommendation_button.custom_minimum_size.y = 78.0
+	recommendation_button.add_theme_font_size_override("font_size", 32)
 	var recommendation_normal := _make_recommendation_style(false)
 	var recommendation_hover := _make_recommendation_style(false)
 	recommendation_hover.bg_color = recommendation_hover.bg_color.lightened(0.08)
@@ -82,10 +83,10 @@ func _ready() -> void:
 	toggle_button.pressed.connect(_on_toggle_pressed)
 	opacity_slider.value_changed.connect(_on_opacity_value_changed)
 	opacity_slider.drag_ended.connect(_on_opacity_drag_ended)
-	# Only the title is a drag handle.  The old full-header handler also caught
-	# events bubbling from the toggle and slider, leaving both controls in a
-	# half-drag state after moving the drawer.
-	drag_header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The visible title area is the drag handle; controls keep their own input.
+	# MainSceneV2 also performs explicit touch routing for this area because the
+	# 3D table owns raw iOS touches before Godot's GUI phase.
+	drag_header.mouse_filter = Control.MOUSE_FILTER_PASS
 	title_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	title_label.gui_input.connect(_on_drag_header_gui_input)
 	recommendation_button.pressed.connect(_on_recommendation_pressed)
@@ -96,6 +97,15 @@ func _ready() -> void:
 
 func apply_hint(trainer_hint: Dictionary, can_discard: bool, selected_tile_id: int = -1) -> void:
 	last_hint = trainer_hint.duplicate(true)
+	var hint_kind := str(trainer_hint.get("hint_kind", "discard"))
+	if hint_kind == "reaction":
+		_apply_reaction_hint(trainer_hint)
+		_update_header_text()
+		return
+	if hint_kind == "self_action":
+		_apply_self_action_hint(trainer_hint)
+		_update_header_text()
+		return
 	var recommended: Dictionary = trainer_hint.get("recommended", {})
 	if not can_discard or recommended.is_empty():
 		summary_label.text = "等待你的出牌回合"
@@ -161,6 +171,109 @@ func apply_hint(trainer_hint: Dictionary, can_discard: bool, selected_tile_id: i
 	_update_header_text()
 
 
+func _apply_reaction_hint(trainer_hint: Dictionary) -> void:
+	var advice: Dictionary = trainer_hint.get("reaction_advice", {})
+	var action := str(advice.get("action", "unavailable")).strip_edges().to_lower()
+	var source_tile_name := str(advice.get("source_tile_name", "这张牌"))
+	var action_label := _action_label(action)
+	recommendation_button.visible = false
+	summary_label.text = "建议%s：%s" % [action_label, source_tile_name] \
+		if action in ["hu", "gang", "peng"] else "建议：%s" % action_label
+	reason_label.text = "原因：%s" % _advice_reason_text(advice)
+	var available: Dictionary = trainer_hint.get("available_reactions", advice.get("available_actions", {}))
+	danger_label.text = "当前可选：%s" % _available_reaction_labels(available)
+	var source_seat := int(advice.get("source_seat", -1))
+	var source_text := "来自%s的%s" % [_seat_label(source_seat), source_tile_name] if source_seat >= 0 else source_tile_name
+	routes_label.text = "牌局依据：%s · AI 只给建议，操作仍由你确认" % source_text
+
+
+func _apply_self_action_hint(trainer_hint: Dictionary) -> void:
+	var advice: Dictionary = trainer_hint.get("self_action_advice", {})
+	var action := str(advice.get("action", "unavailable")).strip_edges().to_lower()
+	var subtype := str(advice.get("gang_subtype", advice.get("gangSubtype", "")))
+	var tile_name := str(advice.get("tile_name", ""))
+	var action_label := "自摸" if action == "hu" else _action_label(action, subtype)
+	recommendation_button.visible = false
+	if action == "gang" and not tile_name.is_empty():
+		summary_label.text = "建议：%s%s" % [action_label, tile_name]
+	elif action == "pass":
+		var recommended: Dictionary = trainer_hint.get("recommended", {})
+		var discard_name := str(recommended.get("tile_name", ""))
+		summary_label.text = "建议：先不杠%s" % ("，打%s" % discard_name if not discard_name.is_empty() else "")
+	else:
+		summary_label.text = "建议：%s" % action_label
+	reason_label.text = "原因：%s" % _advice_reason_text(advice)
+	var available_labels: Array[String] = []
+	if bool(advice.get("can_self_hu", false)):
+		available_labels.append("自摸")
+	if bool(advice.get("can_an_gang", false)):
+		available_labels.append("暗杠")
+	if bool(advice.get("can_add_gang", false)):
+		available_labels.append("补杠")
+	available_labels.append("正常出牌")
+	danger_label.text = "当前可选：%s" % " / ".join(available_labels)
+	routes_label.text = "操作说明：AI 已比较胡、杠和继续出牌，最终操作由你确认"
+
+
+func _action_label(action: String, gang_subtype: String = "") -> String:
+	match action:
+		"hu":
+			return "自摸" if gang_subtype == "self_hu" else "胡"
+		"gang":
+			if gang_subtype == "an_gang":
+				return "暗杠"
+			if gang_subtype == "add_gang":
+				return "补杠"
+			return "杠"
+		"peng":
+			return "碰"
+		"pass":
+			return "过"
+		_:
+			return "暂无法判断"
+
+
+func _advice_reason_text(advice: Dictionary) -> String:
+	var reasons: Array = advice.get("reasons", [])
+	var result: Array[String] = []
+	for item in reasons.slice(0, 2):
+		var text := _humanize_reason_text(str(item)).strip_edges()
+		if not text.is_empty():
+			result.append(text)
+	if result.is_empty():
+		var single_reason := _humanize_reason_text(str(advice.get("reason", ""))).strip_edges()
+		if not single_reason.is_empty():
+			result.append(single_reason)
+	return "；".join(result) if not result.is_empty() else "AI 已比较当前可执行操作"
+
+
+func _available_reaction_labels(available: Dictionary) -> String:
+	var labels: Array[String] = []
+	for entry in [
+		["can_hu", "胡"],
+		["can_gang", "杠"],
+		["can_peng", "碰"],
+		["can_pass", "过"],
+	]:
+		if bool(available.get(entry[0], false)):
+			labels.append(entry[1])
+	return " / ".join(labels) if not labels.is_empty() else "等待规则确认"
+
+
+func _seat_label(seat: int) -> String:
+	match seat:
+		0:
+			return "本家"
+		1:
+			return "上家"
+		2:
+			return "对家"
+		3:
+			return "下家"
+		_:
+			return "牌桌"
+
+
 func _format_routes(routes: Array) -> String:
 	var labels: Array[String] = []
 	for route in routes:
@@ -186,7 +299,9 @@ func _on_toggle_pressed() -> void:
 func set_expanded(value: bool) -> void:
 	expanded = value
 	var recommended: Dictionary = last_hint.get("recommended", {})
-	recommendation_button.visible = expanded and int(recommended.get("tile", {}).get("id", -1)) != -1
+	recommendation_button.visible = expanded \
+		and str(last_hint.get("hint_kind", "discard")) == "discard" \
+		and int(recommended.get("tile", {}).get("id", -1)) != -1
 	content.visible = expanded
 	opacity_label.visible = expanded
 	opacity_slider.visible = expanded
@@ -209,6 +324,23 @@ func _update_header_text() -> void:
 		return
 	if expanded:
 		title_label.text = "AI 对局提示"
+		return
+	var hint_kind := str(last_hint.get("hint_kind", "discard"))
+	if hint_kind == "reaction":
+		var reaction_advice: Dictionary = last_hint.get("reaction_advice", {})
+		var reaction_label := _action_label(str(reaction_advice.get("action", "unavailable")).to_lower())
+		var source_tile_name := str(reaction_advice.get("source_tile_name", ""))
+		title_label.text = "AI建议：%s%s" % [reaction_label, " · %s" % source_tile_name if not source_tile_name.is_empty() else ""]
+		return
+	if hint_kind == "self_action":
+		var self_advice: Dictionary = last_hint.get("self_action_advice", {})
+		var self_action := str(self_advice.get("action", "unavailable")).to_lower()
+		var self_label := "自摸" if self_action == "hu" else _action_label(
+			self_action,
+			str(self_advice.get("gang_subtype", self_advice.get("gangSubtype", "")))
+		)
+		var self_tile_name := str(self_advice.get("tile_name", ""))
+		title_label.text = "AI建议：%s%s" % [self_label, " · %s" % self_tile_name if not self_tile_name.is_empty() else ""]
 		return
 	var recommended: Dictionary = last_hint.get("recommended", {})
 	var tile_name := str(recommended.get("tile_name", ""))
@@ -330,6 +462,31 @@ func get_user_position_normalized() -> Vector2:
 
 func is_user_positioned() -> bool:
 	return has_user_position
+
+
+func is_dragging() -> bool:
+	return dragging
+
+
+func handle_pointer_press(viewport_position: Vector2) -> bool:
+	if not visible or title_label == null or not title_label.get_global_rect().has_point(viewport_position):
+		return false
+	_begin_drag(_viewport_to_parent(viewport_position))
+	return true
+
+
+func handle_pointer_drag(viewport_position: Vector2) -> bool:
+	if not dragging:
+		return false
+	_drag_to(_viewport_to_parent(viewport_position))
+	return true
+
+
+func handle_pointer_release() -> bool:
+	if not dragging:
+		return false
+	_finish_drag()
+	return true
 
 
 func _on_drag_header_gui_input(event: InputEvent) -> void:

@@ -613,7 +613,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 columns = 2
-theme_override_constants/h_separation = 12
+theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 12
 
 [node name="HuButton" type="Button" parent="UILayer/RootUI/ActionPanel/ActionMargin/ActionVBox/ActionButtons"]
@@ -748,7 +748,7 @@ mouse_filter = 1
 [node name="DingQuePanel" type="Panel" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(812, 292)
+custom_minimum_size = Vector2(1540, 548)
 
 [node name="DingQueMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel"]
 layout_mode = 1
@@ -797,7 +797,7 @@ custom_minimum_size = Vector2(0, 12)
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(0, 252)
+custom_minimum_size = Vector2(0, 508)
 
 [node name="DingQueButtonCardMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard"]
 layout_mode = 1
@@ -819,21 +819,21 @@ theme_override_constants/separation = 34
 [node name="DingQueTiaoButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(230, 230)
+custom_minimum_size = Vector2(460, 460)
 tooltip_text = "定缺条"
 text = "条"
 
 [node name="DingQueTongButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(230, 230)
+custom_minimum_size = Vector2(460, 460)
 tooltip_text = "定缺筒"
 text = "筒"
 
 [node name="DingQueWanButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(230, 230)
+custom_minimum_size = Vector2(460, 460)
 tooltip_text = "定缺万"
 text = "万"
 
@@ -895,20 +895,27 @@ theme_override_constants/separation = 9
 
 [node name="SettlementHeader" type="GridContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
 layout_mode = 2
-columns = 3
+columns = 4
 theme_override_constants/h_separation = 12
 
 [node name="SettlementHeaderLeftSpacer" type="Control" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(92, 40)
+custom_minimum_size = Vector2(0, 0)
 
 [node name="SettlementTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
+horizontal_alignment = 0
+text = "本局结算"
+
+[node name="SettlementRoundLabel" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
+unique_name_in_owner = true
+layout_mode = 2
 size_flags_horizontal = 3
 horizontal_alignment = 1
-text = "本局结算"
+text = "第 1 局 · 庄家本家"
 
 [node name="SettlementCloseButton" type="Button" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
 unique_name_in_owner = true
@@ -916,13 +923,7 @@ layout_mode = 2
 custom_minimum_size = Vector2(92, 40)
 text = "关闭"
 
-[node name="SettlementRoundLabel" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
-unique_name_in_owner = true
-layout_mode = 2
-horizontal_alignment = 1
-text = "第 1 局 · 庄家本家"
-
-[node name="SettlementContent" type="HBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+[node name="SettlementContent" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -931,7 +932,7 @@ theme_override_constants/separation = 18
 [node name="SettlementPlayerListCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(292, 0)
+custom_minimum_size = Vector2(0, 180)
 
 [node name="SettlementPlayerListMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard"]
 layout_mode = 1
@@ -951,10 +952,11 @@ theme_override_constants/separation = 14
 
 [node name="SettlementPlayerListTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin/SettlementPlayerListVBox"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "玩家结算"
 
-[node name="SettlementPlayerList" type="VBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin/SettlementPlayerListVBox"]
+[node name="SettlementPlayerList" type="HBoxContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementPlayerListCard/SettlementPlayerListMargin/SettlementPlayerListVBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -964,6 +966,7 @@ theme_override_constants/separation = 10
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="SettlementDetailMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard"]
 layout_mode = 1
@@ -983,6 +986,7 @@ theme_override_constants/separation = 8
 
 [node name="SettlementHeroCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 custom_minimum_size = Vector2(0, 148)
 
@@ -1051,7 +1055,7 @@ text = "+12"
 [node name="SettlementHandCard" type="Panel" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(0, 190)
+custom_minimum_size = Vector2(0, 280)
 
 [node name="SettlementHandMargin" type="MarginContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementContent/SettlementDetailCard/SettlementDetailMargin/SettlementDetailVBox/SettlementHandCard"]
 layout_mode = 1

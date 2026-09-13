@@ -156,7 +156,7 @@ func render_snapshot(
 	reveal_opponents: bool,
 	selected_tile_id: int,
 	markers: Dictionary = {},
-	reveal_winning_tiles: bool = false
+	reveal_winning_tiles: bool = true
 ) -> void:
 	if tile_root == null:
 		return
@@ -299,9 +299,13 @@ func apply_table_skin(skin_id: String) -> bool:
 		felt_material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 		felt_material.metallic = 0.0
 		felt_material.uv1_scale = skin.get("uv_scale", Vector3(2.8, 2.8, 1.0))
-		felt_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-		felt_material.anisotropy_enabled = true
-		felt_material.anisotropy = float(skin.get("anisotropy", 0.12))
+		felt_material.texture_filter = (
+			BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+			if _uses_mobile_gpu_budget()
+			else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		)
+		felt_material.anisotropy_enabled = not _uses_mobile_gpu_budget()
+		felt_material.anisotropy = 0.0 if _uses_mobile_gpu_budget() else float(skin.get("anisotropy", 0.12))
 		felt_material.rim_enabled = false
 	active_table_skin_id = skin_id
 	return true
@@ -309,6 +313,22 @@ func apply_table_skin(skin_id: String) -> bool:
 
 func get_table_skin_id() -> String:
 	return active_table_skin_id
+
+
+func _uses_mobile_gpu_budget() -> bool:
+	return OS.has_feature("ios") \
+		or OS.has_feature("android") \
+		or str(RenderingServer.get_current_rendering_method()) == "mobile"
+
+
+func get_mobile_render_budget_contract() -> Dictionary:
+	return {
+		"mobile_renderer": str(ProjectSettings.get_setting("rendering/renderer/rendering_method.mobile", "")),
+		"ssao_enabled": bool(ProjectSettings.get_setting("performance/mobile_ssao_enabled", false)),
+		"directional_shadows_enabled": bool(ProjectSettings.get_setting("performance/mobile_directional_shadows_enabled", false)),
+		"expensive_materials_enabled": bool(ProjectSettings.get_setting("performance/mobile_expensive_materials_enabled", false)),
+		"felt_anisotropy": "disabled_on_mobile",
+	}
 
 
 func get_table_skin_contract() -> Dictionary:
@@ -352,17 +372,20 @@ func _setup_world() -> void:
 	environment.ambient_light_energy = 0.22
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	# Small-radius SSAO grounds adjacent tiles without turning the ivory faces
-	# grey. This effect is available in the project's iOS Compatibility renderer;
-	# SSIL/GI remain off to preserve the mobile budget.
-	environment.ssao_enabled = true
-	environment.ssao_radius = 0.58
-	environment.ssao_intensity = 0.84
-	environment.ssao_power = 1.35
-	environment.ssao_detail = 0.45
-	environment.ssao_horizon = 0.06
-	environment.ssao_sharpness = 0.82
-	environment.ssao_light_affect = 0.28
+	# Small-radius SSAO is reserved for desktop Forward+. Godot's Mobile renderer
+	# does not implement SSAO, and assigning its properties there also emits a
+	# runtime warning. Mobile relies on the low-cost fill/ambient lighting instead.
+	var mobile_power_profile := OS.has_feature("ios") or OS.has_feature("android")
+	var mobile_renderer := str(RenderingServer.get_current_rendering_method()) == "mobile"
+	if not mobile_renderer:
+		environment.ssao_enabled = bool(ProjectSettings.get_setting("performance/mobile_ssao_enabled", false)) if mobile_power_profile else true
+		environment.ssao_radius = 0.58
+		environment.ssao_intensity = 0.84
+		environment.ssao_power = 1.35
+		environment.ssao_detail = 0.45
+		environment.ssao_horizon = 0.06
+		environment.ssao_sharpness = 0.82
+		environment.ssao_light_affect = 0.28
 	world_environment.environment = environment
 	add_child(world_environment)
 
@@ -393,11 +416,15 @@ func _setup_world() -> void:
 	# ground component toward the player's right/down screen quadrant, matching
 	# the supplied commercial reference instead of the former right/up shadow.
 	key_light.rotation_degrees = Vector3(-70.0, -170.0, -6.0)
-	key_light.shadow_enabled = true
+	key_light.shadow_enabled = (
+		bool(ProjectSettings.get_setting("performance/mobile_directional_shadows_enabled", false))
+		if mobile_power_profile
+		else true
+	)
 	# The table occupies a compact plane. Restricting the orthogonal shadow map to
 	# the visible play area gives every tile edge more texels; explicit opacity and
 	# blur keep the single contact shadow short and soft across render profiles.
-	key_light.directional_shadow_max_distance = 22.0
+	key_light.directional_shadow_max_distance = 14.0 if mobile_power_profile else 22.0
 	key_light.shadow_opacity = 0.64
 	key_light.shadow_blur = 1.90
 	key_light.shadow_bias = 0.035
@@ -447,8 +474,12 @@ func _configure_imported_table_meshes(node: Node) -> void:
 				if imported_material is StandardMaterial3D:
 					var felt_material := imported_material.duplicate() as StandardMaterial3D
 					felt_material.resource_local_to_scene = true
-					felt_material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-					felt_material.anisotropy_enabled = true
+					felt_material.texture_filter = (
+						BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+						if _uses_mobile_gpu_budget()
+						else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+					)
+					felt_material.anisotropy_enabled = not _uses_mobile_gpu_budget()
 					felt_material.rim_enabled = false
 					table_mesh.set_surface_override_material(surface_index, felt_material)
 					table_felt_materials.append(felt_material)
@@ -599,15 +630,15 @@ func _append_hand_entries(
 	var winning_tile_id := int(winning_tile.get("id", -1))
 	var winning_source_seat := int(player.get("winning_source_seat", seat))
 	# 自摸牌本来就在手牌中：必须与全部手牌一起倒下，不能先抽出再当成点炮牌附加。
-	# AI 自摸和点炮胡后的保留手牌都整手扣在桌面，统一展示图 1 的明亮牌背；
-	# 只有点炮胡会在整手旁附加一张外来明牌。
+	# 默认胡牌演出仍可盖牌；主动明牌和牌局结算是更高优先级的
+	# 公开复盘状态，必须翻开所有暗手。副露继续走独立展示逻辑。
 	var self_draw_win := has_won and not winning_tile.is_empty() and winning_source_seat == seat
 	var discard_win := has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	var ai_discard_win := seat != 0 and has_won and not winning_tile.is_empty() and winning_source_seat != seat
 	# 三家明牌时统一平放正面，避免严格 90° 的侧家牌面与相机视线近乎平行，
 	# 看起来仍像牌背。胡牌展示与主动明牌共用真实 3D 牌，不引入额外 HUD 贴图。
-	var reveal_opponent_hand := show_face and seat != 0 and not has_won
-	var conceal_ai_win_result := has_won and not winning_tile.is_empty() and seat != 0
+	var reveal_opponent_hand := show_face and seat != 0
+	var conceal_ai_win_result := has_won and not winning_tile.is_empty() and seat != 0 and not show_face
 	var lay_down_hand := has_won or reveal_opponent_hand
 	var display_hand: Array = hand.duplicate(true)
 	if seat == 0:
@@ -1454,7 +1485,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
 		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
-		"latest_discard_feedback": "rotating_solid_golden_diamond_above_latest_discard",
+		"latest_discard_feedback": "static_solid_golden_diamond_above_latest_discard",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,

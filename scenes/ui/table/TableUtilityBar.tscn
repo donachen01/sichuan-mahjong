@@ -12,13 +12,19 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_bar")
 
+[node name="DrawerPanel" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+mouse_filter = 2
+
 [node name="ToggleButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 24.0
 offset_top = 18.0
-offset_right = 100.0
-offset_bottom = 94.0
+offset_right = 240.0
+offset_bottom = 234.0
 text = "☰"
 tooltip_text = "展开左上角牌桌工具；难度：骨灰；明牌：关；AI提示：关"
 
@@ -58,6 +64,16 @@ offset_right = 504.0
 offset_bottom = 182.0
 text = "桌布皮肤"
 tooltip_text = "切换六套桌布皮肤"
+
+[node name="VoiceButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 320.0
+offset_top = 194.0
+offset_right = 504.0
+offset_bottom = 270.0
+text = "语音 · 普通话"
+tooltip_text = "切换普通话和四川话语音"
 
 [node name="SettlementButton" type="Button" parent="."]
 unique_name_in_owner = true

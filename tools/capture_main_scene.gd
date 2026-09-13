@@ -142,7 +142,16 @@ func _capture() -> void:
 	_apply_choice_style_preview(root_node)
 	_force_3d_full_table_preview(root_node)
 	_apply_requested_table_skin(root_node)
+	if _capture_mode() == "settlement":
+		# Re-render after the requested table skin is active so the captured
+		# settlement palette proves the same runtime linkage used by real play.
+		_force_settlement_preview(root_node)
+		await process_frame
 	if _capture_mode() == "skin-panel":
+		var utility := root_node.get("table_utility_bar") as Control
+		if utility != null:
+			utility.call("set_collapsed", false)
+			root_node.call("_layout_table_utility_bar")
 		var skin_panel := root_node.get("table_skin_panel") as Control
 		if skin_panel != null:
 			skin_panel.call("open", _requested_table_skin_id())
@@ -837,6 +846,14 @@ func _force_settlement_preview(root_node: Node) -> void:
 		player["score"] = [14, 3, -11, -6][index]
 		player["has_won"] = index == 0
 		players[index] = player
+	# The settlement fixture intentionally exercises the revised grouped-label
+	# contract: one exposed peng and one discard-winning tile from the upper seat.
+	var focus_hand: Array = players[0].get("hand_tiles", [])
+	if focus_hand.size() >= 4:
+		players[0]["melds"] = [{
+			"type": "peng",
+			"tiles": [focus_hand[0], focus_hand[1], focus_hand[2]],
+		}]
 	var winning_tile: Dictionary = players[0].get("hand_tiles", [{}]).back() if not players[0].get("hand_tiles", []).is_empty() else {"id": 9999, "suit": "wan", "rank": 9}
 	snapshot["current_phase"] = 7
 	snapshot["current_dealer_seat"] = 1
@@ -849,11 +866,11 @@ func _force_settlement_preview(root_node: Node) -> void:
 		"score_changes": {0: 10, 1: -2, 2: -2, 3: -6},
 		"win_events": [{
 			"winner_seat": 0,
-			"source_seat": 0,
-			"payer_seats": [2, 3],
-			"win_type": "self_draw",
+			"source_seat": 1,
+			"payer_seats": [1],
+			"win_type": "discard_win",
 			"winning_tile": winning_tile,
-			"fan_detail": {"capped_fan": 0, "hand_score": 1, "per_payer_score": 2, "labels": ["平胡", "自摸"]},
+			"fan_detail": {"capped_fan": 0, "hand_score": 1, "per_payer_score": 1, "labels": ["平胡", "点炮"]},
 		}],
 		"gang_events": [{"actor_seat": 0, "gang_type": "an_gang", "payer_seats": [1, 2, 3]}],
 		"draw_assessment": [

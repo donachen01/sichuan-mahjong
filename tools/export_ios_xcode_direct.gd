@@ -26,8 +26,9 @@ func _wait_for_editor_filesystem() -> void:
 
 func _prune_non_runtime_import_cache() -> void:
 	var removed := 0
-	for import_path in _collect_import_sidecars("res://docs"):
-		removed += _remove_import_artifacts(import_path)
+	for non_runtime_root in ["res://docs", "res://artifacts"]:
+		for import_path in _collect_import_sidecars(non_runtime_root):
+			removed += _remove_import_artifacts(import_path)
 	print("pruned_non_runtime_import_cache=", removed)
 
 
@@ -114,7 +115,7 @@ func _export_ios_xcode_project() -> void:
 	preset.set("custom_features", "")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
+	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,artifacts/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
 	preset.set("custom_template/debug", template_path)
 	preset.set("custom_template/release", template_path)

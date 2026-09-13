@@ -129,9 +129,16 @@ func _verify_production_path(failures: Array[String]) -> void:
 	var state_before: Variant = game_manager.get("game_state") if game_manager != null else null
 	var table := stage.get_node_or_null("ManufacturedClubTable") as Node3D
 	var transform_before: Transform3D = table.transform if table != null else Transform3D.IDENTITY
-	skin_button.pressed.emit()
+	# Exercise the production input priority rather than bypassing it with a
+	# direct signal. The chooser must become visible on the first touch, in the
+	# same input turn, even when other full-screen drawers are present.
+	var entry_touch := InputEventScreenTouch.new()
+	entry_touch.index = 0
+	entry_touch.position = skin_button.get_global_rect().get_center()
+	entry_touch.pressed = true
+	get_root().push_input(entry_touch, true)
 	if not panel.visible:
-		failures.append("桌布皮肤入口没有打开模态选择面板")
+		failures.append("桌布皮肤入口没有在首次触摸的同一输入回合打开面板")
 	if bool(utility_bar.call("is_collapsed")):
 		failures.append("桌布皮肤入口不应强制收回工具栏")
 	var alternate_button := panel.skin_buttons.get(alternate_skin_id) as Button

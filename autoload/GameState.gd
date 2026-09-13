@@ -1908,6 +1908,9 @@ func _get_forced_discard_suit(player: Dictionary) -> String:
 func _build_trainer_hint_for_seat(seat: int) -> Dictionary:
 	if seat < 0 or seat >= players.size():
 		return {}
+	if _has_human_trainer_reaction(seat):
+		latest_trainer_hint = _build_trainer_reaction_hint_for_seat(seat)
+		return latest_trainer_hint.duplicate(true)
 	var player: Dictionary = players[seat]
 	var table_state := _build_table_state()
 	var analysis: Dictionary = mahjong_judge.analyze_discard_options(
@@ -1921,10 +1924,22 @@ func _build_trainer_hint_for_seat(seat: int) -> Dictionary:
 	if analysis.is_empty():
 		return {}
 	analysis = _apply_ding_que_priority_to_discard_analysis(seat, analysis)
+	latest_trainer_hint = _compose_trainer_turn_hint(seat, analysis)
+	return latest_trainer_hint.duplicate(true)
+
+
+func _compose_trainer_turn_hint(seat: int, analysis: Dictionary) -> Dictionary:
+	if seat < 0 or seat >= players.size() or analysis.is_empty():
+		return {}
+	var player: Dictionary = players[seat]
 	var recommended: Dictionary = analysis.get("recommended", {})
 	var can_add_gang_now: bool = seat == 0 and can_human_add_gang(seat)
 	var can_an_gang_now: bool = seat == 0 and can_human_an_gang(seat)
-	latest_trainer_hint = {
+	var can_self_hu_now: bool = seat == 0 and can_human_self_hu(seat)
+	var self_action_advice := _build_trainer_self_action_advice(seat) \
+		if can_self_hu_now or can_add_gang_now or can_an_gang_now else {}
+	return {
+		"hint_kind": "self_action" if not self_action_advice.is_empty() else "discard",
 		"recommended": recommended.duplicate(true),
 		"options": analysis.get("options", []).duplicate(true),
 		"danger_tiles": analysis.get("danger_tiles", []).duplicate(true),
@@ -1936,10 +1951,104 @@ func _build_trainer_hint_for_seat(seat: int) -> Dictionary:
 		"situation_label": _resolve_trainer_situation_label(player, analysis.get("strategy_profile", {})),
 		"can_add_gang": can_add_gang_now,
 		"can_an_gang": can_an_gang_now,
-		"can_self_hu": seat == 0 and can_human_self_hu(seat),
+		"can_self_hu": can_self_hu_now,
+		"self_action_advice": self_action_advice.duplicate(true),
 		"review_count": trainer_history.size(),
 	}
-	return latest_trainer_hint.duplicate(true)
+
+
+func _has_human_trainer_reaction(seat: int) -> bool:
+	if seat < 0 or seat >= players.size() or current_phase != RoundPhase.REACTION:
+		return false
+	return not _get_reaction_candidate_for_seat(seat).is_empty()
+
+
+func _build_trainer_reaction_hint_for_seat(seat: int) -> Dictionary:
+	var candidate: Dictionary = _get_reaction_candidate_for_seat(seat)
+	if candidate.is_empty():
+		return {}
+	var available: Dictionary = get_human_reaction_options(seat)
+	var effective_candidate := candidate.duplicate(true)
+	for key in ["can_hu", "can_gang", "can_peng"]:
+		effective_candidate[key] = bool(available.get(key, false))
+	var advice: Dictionary = {}
+	if ai_manager != null:
+		var allow_cheat := int(players[seat].get("ai_level", int(ai_level))) == int(AILevel.CHEATING)
+		advice = ai_manager.analyze_reaction_lightweight(
+			effective_candidate,
+			_build_player_state(seat),
+			_build_table_state(),
+			current_discard_context,
+			rules,
+			ai_tuning_config,
+			hu_checker,
+			allow_cheat
+		)
+	if advice.is_empty():
+		advice = {
+			"action": "unavailable",
+			"reasons": ["AI 核心暂未返回响应判断，请以当前可操作按钮为准"],
+			"backend_mode": "unavailable",
+		}
+	var source_tile: Dictionary = current_discard_context.get("tile", {})
+	advice["source_tile"] = source_tile.duplicate(true)
+	advice["source_tile_name"] = str(source_tile.get("display_name", "这张牌"))
+	advice["source_seat"] = int(current_discard_context.get("source_seat", -1))
+	advice["available_actions"] = available.duplicate(true)
+	return {
+		"hint_kind": "reaction",
+		"reaction_advice": advice.duplicate(true),
+		"available_reactions": available.duplicate(true),
+		"source_tile": source_tile.duplicate(true),
+		"review_count": trainer_history.size(),
+	}
+
+
+func _build_trainer_self_action_advice(seat: int) -> Dictionary:
+	if seat < 0 or seat >= players.size() or ai_manager == null:
+		return {}
+	var can_self_hu_now := can_human_self_hu(seat)
+	var an_options := _find_all_an_gang_options(seat)
+	var add_options := _find_all_add_gang_options(seat)
+	if not can_self_hu_now and an_options.is_empty() and add_options.is_empty():
+		return {}
+	var advice: Dictionary = ai_manager.analyze_self_action(
+		_build_player_state(seat),
+		_build_table_state(),
+		rules,
+		can_self_hu_now,
+		_tile_types_from_options(an_options, "tiles"),
+		_tile_types_from_options(add_options, "tile"),
+		_add_gang_qiang_counts_by_tile_type(seat, add_options),
+		[]
+	)
+	if advice.is_empty():
+		return {
+			"action": "unavailable",
+			"reasons": ["AI 核心暂未返回自摸或杠牌判断，请以当前可操作按钮为准"],
+			"can_self_hu": can_self_hu_now,
+			"can_an_gang": not an_options.is_empty(),
+			"can_add_gang": not add_options.is_empty(),
+		}
+	advice["can_self_hu"] = can_self_hu_now
+	advice["can_an_gang"] = not an_options.is_empty()
+	advice["can_add_gang"] = not add_options.is_empty()
+	if str(advice.get("action", "")).to_lower() == "gang":
+		var tile_type := int(advice.get("tile_type", -1))
+		var subtype := str(advice.get("gang_subtype", advice.get("gangSubtype", "")))
+		var option := _find_option_by_tile_type(
+			add_options if subtype == "add_gang" else an_options,
+			tile_type,
+			"tile" if subtype == "add_gang" else "tiles"
+		)
+		var tile: Dictionary = option.get("tile", {})
+		if tile.is_empty():
+			var tiles: Array = option.get("tiles", [])
+			if not tiles.is_empty():
+				tile = tiles[0]
+		advice["tile"] = tile.duplicate(true)
+		advice["tile_name"] = str(tile.get("display_name", ""))
+	return advice
 
 
 func _resolve_trainer_situation_label(player: Dictionary, strategy_profile: Dictionary) -> String:
@@ -1962,7 +2071,11 @@ func _get_human_trainer_hint_snapshot() -> Dictionary:
 		latest_trainer_hint_cache_key = ""
 		_clear_pending_trainer_hint_request()
 		return {}
-	var can_show_hint: bool = can_human_discard(seat) or can_human_add_gang(seat) or can_human_an_gang(seat) or can_human_self_hu(seat)
+	var can_show_hint: bool = can_human_discard(seat) \
+		or can_human_add_gang(seat) \
+		or can_human_an_gang(seat) \
+		or can_human_self_hu(seat) \
+		or _has_human_trainer_reaction(seat)
 	if not can_show_hint:
 		latest_trainer_hint.clear()
 		latest_trainer_hint_cache_key = ""
@@ -1980,16 +2093,24 @@ func _get_human_trainer_hint_snapshot() -> Dictionary:
 			"request_pending": true,
 			"request_id": pending_trainer_hint_request_id,
 		}
+	if _has_human_trainer_reaction(seat):
+		_clear_pending_trainer_hint_request()
+		latest_trainer_hint_cache_key = cache_key
+		return _build_trainer_hint_for_seat(seat)
 	latest_trainer_hint_cache_key = cache_key
 	if _start_human_trainer_hint_request(seat, cache_key):
 		if not latest_trainer_hint.is_empty():
 			var pending_snapshot := latest_trainer_hint.duplicate(true)
 			pending_snapshot["request_pending"] = true
 			return pending_snapshot
-		return {
-			"request_pending": true,
-			"request_id": pending_trainer_hint_request_id,
-		}
+		# A background/native analysis may take several frames on a phone. Do not
+		# leave the visible helper with a request-only shell during the human turn:
+		# produce the regular rules-aware recommendation immediately, then let the
+		# background result replace it through _on_ai_turn_analysis_ready().
+		var immediate_hint := _build_trainer_hint_for_seat(seat)
+		immediate_hint["request_pending"] = true
+		immediate_hint["request_id"] = pending_trainer_hint_request_id
+		return immediate_hint
 	return _build_trainer_hint_for_seat(seat)
 
 
@@ -1999,7 +2120,8 @@ func _build_trainer_hint_cache_key(seat: int) -> String:
 	for tile in player.get("hand_tiles", []):
 		hand_ids.append(str(int(tile.get("id", -1))))
 	hand_ids.sort()
-	return "%d|%d|%s|%s|%d|%d|%d|%d" % [
+	var reaction_options := get_human_reaction_options(seat)
+	return "%d|%d|%s|%s|%d|%d|%d|%d|%d|%d|%d|%d|%d|%s" % [
 		int(current_phase),
 		int(current_turn_seat),
 		str(player.get("ding_que", "")),
@@ -2008,6 +2130,12 @@ func _build_trainer_hint_cache_key(seat: int) -> String:
 		int(_get_recent_discard_tile_id()),
 		int(can_human_add_gang(seat)),
 		int(can_human_an_gang(seat)),
+		int(can_human_self_hu(seat)),
+		int(reaction_options.get("can_hu", false)),
+		int(reaction_options.get("can_gang", false)),
+		int(reaction_options.get("can_peng", false)),
+		int(reaction_options.get("can_pass", false)),
+		str(current_discard_context.get("reaction_type", "")),
 	]
 
 
@@ -2049,25 +2177,7 @@ func _apply_trainer_hint_analysis(seat: int, analysis: Dictionary) -> bool:
 	if seat < 0 or seat >= players.size() or analysis.is_empty():
 		return false
 	analysis = _apply_ding_que_priority_to_discard_analysis(seat, analysis)
-	var player: Dictionary = players[seat]
-	var recommended: Dictionary = analysis.get("recommended", {})
-	var can_add_gang_now: bool = seat == 0 and can_human_add_gang(seat)
-	var can_an_gang_now: bool = seat == 0 and can_human_an_gang(seat)
-	latest_trainer_hint = {
-		"recommended": recommended.duplicate(true),
-		"options": analysis.get("options", []).duplicate(true),
-		"danger_tiles": analysis.get("danger_tiles", []).duplicate(true),
-		"recommended_tile_id": int(recommended.get("tile", {}).get("id", -1)),
-		"danger_tile_ids": _extract_trainer_tile_ids(analysis.get("danger_tiles", [])),
-		"current_routes": analysis.get("current_routes", []).duplicate(true),
-		"forced_discard_suit": analysis.get("forced_discard_suit", ""),
-		"strategy_profile": analysis.get("strategy_profile", {}).duplicate(true),
-		"situation_label": _resolve_trainer_situation_label(player, analysis.get("strategy_profile", {})),
-		"can_add_gang": can_add_gang_now,
-		"can_an_gang": can_an_gang_now,
-		"can_self_hu": seat == 0 and can_human_self_hu(seat),
-		"review_count": trainer_history.size(),
-	}
+	latest_trainer_hint = _compose_trainer_turn_hint(seat, analysis)
 	return true
 
 
@@ -2863,6 +2973,10 @@ func _pump_ai_background_requests() -> int:
 
 func pump_ai_background_requests() -> int:
 	return _pump_ai_background_requests()
+
+
+func has_pending_ai_background_requests() -> bool:
+	return ai_manager != null and ai_manager.has_pending_async_requests()
 
 
 func _clear_pending_ai_turn_request() -> void:
@@ -4217,7 +4331,13 @@ func _execute_gang(seat: int) -> bool:
 		"gang_type": "melded_gang",
 		"resolved": false,
 	}
-	_append_settlement_gang_event(seat, source_seat, discarded_tile, "melded_gang", [source_seat])
+	_append_settlement_gang_event(
+		seat,
+		source_seat,
+		discarded_tile,
+		"melded_gang",
+		_get_active_non_winner_seats_excluding(seat)
+	)
 	debug_last_message = "%s 明杠 %s（来自 %s），开始补牌。" % [
 		_seat_display_name(seat),
 		discarded_tile["display_name"],
@@ -4767,7 +4887,8 @@ func _seat_display_name(seat: int) -> String:
 func _resolve_next_dealer_seat() -> int:
 	var win_events: Array = settlement_data.get("win_events", [])
 	if win_events.is_empty():
-		return posmod(current_dealer_seat - 1, players.size())
+		# 流局无人胡牌时庄家留庄；不能沿用早期原型的固定轮转。
+		return current_dealer_seat
 	# 下一局庄家由本局的首个胡牌事件决定，而不是沿用旧庄家或固定轮转。
 	# 一炮多响（也包括抢杠的一次多胡）共享同一个来源座位；此时没有唯一
 	# 的“首胡者”，按产品规则由点炮/被抢杠者坐庄。
@@ -4790,7 +4911,7 @@ func _resolve_next_dealer_seat() -> int:
 	var first_winner_seat := int(first_event.get("winner_seat", -1))
 	if first_winner_seat >= 0 and first_winner_seat < players.size():
 		return first_winner_seat
-	return posmod(current_dealer_seat - 1, players.size())
+	return current_dealer_seat
 
 
 func _consume_next_draw_reason() -> String:
@@ -4948,6 +5069,7 @@ func _append_hu_jiao_zhuan_yi_event(from_seat: int, to_seat: int, tile: Dictiona
 		"transfer_type": "hu_jiao_zhuan_yi",
 		"reason": "杠上炮：该次开杠获得的全部杠钱从开杠者转给胡牌玩家。",
 		"gang_type": str(gang_event.get("gang_type", "")),
+		"source_seat": int(gang_event.get("source_seat", -1)),
 		"payer_seats": Array(gang_event.get("payer_seats", [])).duplicate(),
 		"related_actor_seat": int(gang_event.get("actor_seat", -1)),
 		"transfer_score": score_resolver.resolve_gang_total_score(gang_event),

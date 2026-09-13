@@ -39,7 +39,7 @@ MONO_ANDROID_APK_SHA256="68493b048df30efad322fa565c56c1e88c976fc3e832fe2d3427869
 GRADLE_BUILD_DIR="${GODOT_ANDROID_GRADLE_BUILD_DIR:-/tmp/sichuan_mahjong_android_gradle_build}"
 export GODOT_ANDROID_GRADLE_BUILD_DIR="$GRADLE_BUILD_DIR"
 GRADLE_PROJECT_DIR="$GRADLE_BUILD_DIR/build"
-ANDROID_SOURCE_HASH="8175018790bb188d4962d3350726dffb"
+ANDROID_SOURCE_HASH="2e4953ced35c490cba7c57d55684ee00"
 EXPECTED_BUILD_VERSION="$ANDROID_SOURCE_TEMPLATE [$ANDROID_SOURCE_HASH]"
 
 if [[ -z "$GODOT_BIN" || ! -x "$GODOT_BIN" ]]; then
@@ -143,9 +143,19 @@ BASE_APK_BYTES="$(stat -f '%z' "$FINAL_APK")"
 echo "Base APK bytes: $BASE_APK_BYTES"
 
 cp "$FINAL_APK" "$PRUNED_APK"
-zip -q -d "$PRUNED_APK" 'assets/build/*' 'assets/tests/*' 'assets/tools/*' 'assets/evidence/*' 'assets/research/*' 'assets/dotnet/*' 'assets/backups/*' 'assets/source_assets/*' 'assets/planning/*' 'assets/测试数据统计/*' 'assets/设计文档/*' 'assets/.tmp_tts/*' 'assets/.venv_tts/*' 2>/dev/null || true
+zip -q -d "$PRUNED_APK" 'assets/build/*' 'assets/tests/*' 'assets/tools/*' 'assets/artifacts/*' 'assets/evidence/*' 'assets/research/*' 'assets/dotnet/*' 'assets/backups/*' 'assets/source_assets/*' 'assets/planning/*' 'assets/测试数据统计/*' 'assets/设计文档/*' 'assets/.tmp_tts/*' 'assets/.venv_tts/*' 2>/dev/null || true
 zip -q -d "$PRUNED_APK" 'assets/docs/*' 2>/dev/null || true
 zip -q -d "$PRUNED_APK" 'assets/*/current_ai_*' 'assets/*/hell_training/*' 'assets/*/hell_marked_cases/*' 'assets/*/hell_replay/*' 'assets/*/*seedlive*' 'assets/*/*seed250514*' 2>/dev/null || true
+# Godot's all-resources export can retain imported derivatives after their
+# source artifact folders are excluded. Remove only known visual-QA derivatives;
+# the runtime settlement frame asset is intentionally not matched here.
+zip -q -d "$PRUNED_APK" \
+  'assets/.godot/imported/*target_rework*' \
+  'assets/.godot/imported/*concept_a_*' \
+  'assets/.godot/imported/*concept_b_*' \
+  'assets/.godot/imported/*concept_c_*' \
+  'assets/.godot/imported/*scheme_b_runtime*' \
+  'assets/.godot/imported/*nameplates_narrowed_real*' 2>/dev/null || true
 CURRENT_GODOT_LIB_SHA256="$(unzip -p "$PRUNED_APK" 'lib/arm64-v8a/libgodot_android.so' | shasum -a 256 | awk '{print $1}')"
 if [[ "$CURRENT_GODOT_LIB_SHA256" != "$MONO_ANDROID_LIB_SHA256" ]]; then
   ensure_verified_mono_android_lib

@@ -436,6 +436,37 @@ func _verify_reveal_and_won_states(scene: Node, failures: Array[String]) -> void
 		failures.append("明牌模式没有翻开全部对手手牌，actual=%d" % opponent_face_count)
 	if arrow_count != 1:
 		failures.append("明牌点炮胡来源箭头必须恰好一个，actual=%d" % arrow_count)
+
+	# 胡牌盖牌只属于默认演出；用户打开明牌或结算展示时，公开状态拥有
+	# 更高优先级，已经胡牌的 AI 剩余暗手也必须全部翻开。
+	var ai_won_players: Array = players.duplicate(true)
+	ai_won_players[1]["has_won"] = true
+	ai_won_players[1]["winning_tile"] = all_hands[1].back()
+	ai_won_players[1]["winning_source_seat"] = 0
+	var ai_won_snapshot := snapshot.duplicate(true)
+	ai_won_snapshot["players"] = ai_won_players
+	ai_won_snapshot["human_can_discard"] = false
+	stage.call("render_snapshot", ai_won_snapshot, all_hands, false, -1, {}, false)
+	await process_frame
+	for key in (stage.get("tile_nodes") as Dictionary):
+		if str(key).begins_with("hand_1_") and bool((stage.get("tile_nodes") as Dictionary)[key].showing_face):
+			failures.append("默认 AI 胡牌演出不应提前公开剩余暗手")
+			break
+	stage.call("render_snapshot", ai_won_snapshot, all_hands, true, -1, {}, true)
+	await process_frame
+	var ai_won_face_count := 0
+	for key in (stage.get("tile_nodes") as Dictionary):
+		if not str(key).begins_with("hand_1_"):
+			continue
+		var ai_won_tile = (stage.get("tile_nodes") as Dictionary)[key]
+		if bool(ai_won_tile.showing_face) and not bool(ai_won_tile.flat_concealed_result) \
+				and not bool(ai_won_tile.concealed_surface_flip):
+			ai_won_face_count += 1
+	if ai_won_face_count != all_hands[1].size() - 1:
+		failures.append("明牌或结算展示没有翻开 AI 胡牌后的全部剩余暗手，actual=%d" % ai_won_face_count)
+	# Restore the human-won fixture expected by the remaining HUD integrity checks.
+	stage.call("render_snapshot", won_snapshot, all_hands, true, -1, {}, true)
+	await process_frame
 	var compact_badge: Node = scene.call("_create_winning_source_badge", Vector2(84, 112), 1)
 	if compact_badge == null or compact_badge.get_child_count() != 1:
 		failures.append("2D 胡牌来源必须只保留一个简单箭头图形")

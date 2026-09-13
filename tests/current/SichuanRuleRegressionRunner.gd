@@ -976,6 +976,10 @@ func _test_next_dealer_uses_first_winner_or_shared_discarder():
 	]
 	if int(game_state._resolve_next_dealer_seat()) != 0:
 		return "expected shared discarder seat 0 to become dealer after one-discard three-win"
+	game_state.current_dealer_seat = 3
+	game_state.settlement_data["win_events"] = []
+	if int(game_state._resolve_next_dealer_seat()) != 3:
+		return "expected current dealer seat 3 to remain dealer after a draw"
 	return true
 
 
@@ -998,7 +1002,7 @@ func _test_gang_score_table_applies_sichuan_units():
 			"tile": _make_tile(401, "wan", 1),
 			"gang_type": "melded_gang",
 			"related_outcome": "",
-			"payer_seats": [1],
+			"payer_seats": [1, 2, 3],
 		},
 		{
 			"actor_seat": 0,
@@ -1018,8 +1022,8 @@ func _test_gang_score_table_applies_sichuan_units():
 		},
 	]
 	var changes: Dictionary = game_state.score_resolver.build_score_changes(players, settlement_data, game_state.rules)
-	if int(changes.get(0, 0)) != 11 or int(changes.get(1, 0)) != -5 or int(changes.get(2, 0)) != -3 or int(changes.get(3, 0)) != -3:
-		return "expected melded=2 from discarder, an=2 each, add=1 each, got %s" % [changes]
+	if int(changes.get(0, 0)) != 13 or int(changes.get(1, 0)) != -5 or int(changes.get(2, 0)) != -4 or int(changes.get(3, 0)) != -4:
+		return "expected melded=2 from discarder plus 1 from each other active player, an=2 each, add=1 each, got %s" % [changes]
 	return true
 
 

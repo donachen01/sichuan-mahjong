@@ -49,7 +49,7 @@ func _export_android() -> void:
 	preset.set("custom_features", "C#")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
+	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,artifacts/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
 	preset.set("gradle_build/use_gradle_build", use_gradle)
 	var gradle_build_dir := OS.get_environment("GODOT_ANDROID_GRADLE_BUILD_DIR")

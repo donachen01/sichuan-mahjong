@@ -74,6 +74,22 @@ var flat_concealed_result := false
 var reduced_motion := false
 var flat_surface_mesh: ArrayMesh
 var beveled_back_surface_mesh: ArrayMesh
+var configuration_signature: Array = []
+var full_configure_count := 0
+
+
+static func _uses_mobile_gpu_budget() -> bool:
+	return OS.has_feature("ios") \
+		or OS.has_feature("android") \
+		or str(RenderingServer.get_current_rendering_method()) == "mobile"
+
+
+static func _uses_expensive_mobile_materials() -> bool:
+	return bool(ProjectSettings.get_setting("performance/mobile_expensive_materials_enabled", false))
+
+
+static func _allow_expensive_material_features() -> bool:
+	return not _uses_mobile_gpu_budget() or _uses_expensive_mobile_materials()
 
 
 func _ready() -> void:
@@ -108,19 +124,46 @@ func configure(
 	meld_type: String = "",
 	show_flat_back_layer: bool = false
 ) -> void:
+	_build_visuals()
+	var resolved_winning_source := meld_source if meld_source >= 0 else winning_source
+	var resolved_winner := meld_owner if meld_owner >= 0 else winner
+	var resolved_source_kind := meld_type if not meld_type.is_empty() else ("win" if winning_source >= 0 else "")
+	var requested_signature := [
+		int(tile.get("id", -1)),
+		str(tile.get("suit", "")),
+		int(tile.get("rank", 0)),
+		show_face,
+		selected,
+		new_draw,
+		recommended,
+		danger,
+		latest,
+		can_pick,
+		resolved_winning_source,
+		resolved_winner,
+		face_rotation_degrees,
+		bright_front,
+		flip_concealed_surfaces,
+		use_flat_concealed_result,
+		resolved_source_kind,
+		show_flat_back_layer,
+	]
+	if requested_signature == configuration_signature:
+		return
+	configuration_signature = requested_signature
+	full_configure_count += 1
 	tile_data = tile.duplicate(true)
 	tile_id = int(tile_data.get("id", -1))
 	pickable = can_pick and tile_id >= 0
 	is_selected = selected
 	showing_face = show_face
-	winning_source_seat = meld_source if meld_source >= 0 else winning_source
-	winner_seat = meld_owner if meld_owner >= 0 else winner
-	source_marker_kind = meld_type if not meld_type.is_empty() else ("win" if winning_source >= 0 else "")
+	winning_source_seat = resolved_winning_source
+	winner_seat = resolved_winner
+	source_marker_kind = resolved_source_kind
 	face_content_rotation_degrees = face_rotation_degrees
 	front_brightness_boost = bright_front
 	concealed_surface_flip = flip_concealed_surfaces
 	flat_concealed_result = use_flat_concealed_result
-	_build_visuals()
 	# 只给隐藏牌背使用树脂倒角；亮牌字面继续使用原平面，避免本轮牌背修复
 	# 改变牌面符号、白边或既有排版。
 	face_mesh.mesh = beveled_back_surface_mesh if not show_face else flat_surface_mesh
@@ -175,7 +218,10 @@ func configure(
 	# 即便摸牌与选中同一张，蓝色小菱形仍保持正中，避免制造第二个选择符号。
 	selected_marker.visible = false
 	latest_marker.visible = latest
-	set_process(latest and not reduced_motion)
+	# The gold diamond remains an unambiguous latest-discard marker without a
+	# perpetual per-frame spin. The discard landing tween already supplies motion;
+	# keeping this node static lets mobile low-processor mode actually become idle.
+	set_process(false)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
@@ -206,7 +252,11 @@ func configure(
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	set_process(not reduced_motion and latest_marker != null and latest_marker.visible)
+	set_process(false)
+
+
+func get_full_configure_count() -> int:
+	return full_configure_count
 
 
 func set_draw_marker_style_variant(_value: int) -> void:
@@ -235,7 +285,7 @@ func set_latest_marker_visible(enabled: bool) -> void:
 	if latest_marker == null:
 		return
 	latest_marker.visible = enabled
-	set_process(enabled and not reduced_motion)
+	set_process(false)
 
 
 func get_screen_rect(camera: Camera3D) -> Rect2:
@@ -369,9 +419,10 @@ func _face_material(show_face: bool) -> StandardMaterial3D:
 		# 翡翠牌背在 -Y 的 ConcealedTableJadeBack 上，不能再把两面都染绿。
 		result.albedo_color = Color("E7E2D9")
 		result.roughness = 0.40
-		result.clearcoat_enabled = true
-		result.clearcoat = 0.16
-		result.clearcoat_roughness = 0.34
+		if _allow_expensive_material_features():
+			result.clearcoat_enabled = true
+			result.clearcoat = 0.16
+			result.clearcoat_roughness = 0.34
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[cache_key] = result
 	return result
@@ -386,9 +437,10 @@ func _bright_front_face_material() -> StandardMaterial3D:
 	# 不再用无光照白片制造与其他麻将牌割裂的曝光区间。
 	result.albedo_color = SELF_HAND_FACE_WHITE
 	result.roughness = 0.40
-	result.clearcoat_enabled = true
-	result.clearcoat = 0.14
-	result.clearcoat_roughness = 0.34
+	if _allow_expensive_material_features():
+		result.clearcoat_enabled = true
+		result.clearcoat = 0.14
+		result.clearcoat_roughness = 0.34
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material_cache[CACHE_KEY] = result
 	return result
@@ -418,7 +470,11 @@ func _symbol_material() -> StandardMaterial3D:
 	result.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	result.cull_mode = BaseMaterial3D.CULL_DISABLED
 	result.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	result.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	result.texture_filter = (
+		BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		if _uses_mobile_gpu_budget()
+		else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	)
 	if not texture_path.is_empty() and ResourceLoader.exists(texture_path):
 		result.albedo_texture = load(texture_path) as Texture2D
 	material_cache[cache_key] = result
@@ -460,9 +516,10 @@ func _jade_back_material() -> StandardMaterial3D:
 	result.albedo_color = NORMAL_TILE_BACK_COLOR
 	result.roughness = 0.43
 	result.metallic = 0.02
-	result.clearcoat_enabled = true
-	result.clearcoat = 0.18
-	result.clearcoat_roughness = 0.34
+	if _allow_expensive_material_features():
+		result.clearcoat_enabled = true
+		result.clearcoat = 0.18
+		result.clearcoat_roughness = 0.34
 	material_cache[CACHE_KEY] = result
 	return result
 
@@ -502,14 +559,15 @@ func _ivory_body_material(bright_front: bool = false) -> StandardMaterial3D:
 	result.albedo_color = Color("EBE6DD") if bright_front else Color("E7E2D9")
 	result.roughness = 0.40
 	result.metallic = 0.01
-	result.clearcoat_enabled = true
-	result.clearcoat = 0.16
-	result.clearcoat_roughness = 0.34
-	result.rim_enabled = true
-	result.rim = 0.035
-	result.rim_tint = 0.10
-	result.subsurf_scatter_enabled = true
-	result.subsurf_scatter_strength = 0.06
+	if _allow_expensive_material_features():
+		result.clearcoat_enabled = true
+		result.clearcoat = 0.16
+		result.clearcoat_roughness = 0.34
+		result.rim_enabled = true
+		result.rim = 0.035
+		result.rim_tint = 0.10
+		result.subsurf_scatter_enabled = true
+		result.subsurf_scatter_strength = 0.06
 	result.emission_enabled = false
 	material_cache[cache_key] = result
 	return result

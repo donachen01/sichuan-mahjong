@@ -5,8 +5,8 @@ const DESIGN_SIZE := Vector2(2048.0, 1152.0)
 const COMPACT_HEIGHT := 820.0
 const TOUCH_TARGET := Vector2(76.0, 76.0)
 const BASE_SAFE_MARGIN := Vector4(24.0, 18.0, 24.0, 22.0)
-const SEAT_HUD_STANDARD := Vector2(230.0, 156.0)
-const SEAT_HUD_COMPACT := Vector2(196.0, 146.0)
+const SEAT_HUD_STANDARD := Vector2(230.0, 200.0)
+const SEAT_HUD_COMPACT := Vector2(214.0, 184.0)
 const DING_QUE_STANDARD := Vector2(112.0, 48.0)
 const DING_QUE_COMPACT := Vector2(104.0, 44.0)
 const CENTER_INDICATOR_STANDARD := Vector2(210.0, 210.0)
@@ -19,14 +19,14 @@ const BOARD_REFERENCE_RECT := Rect2(304.0, 160.0, 1440.0, 710.0)
 const SELF_HAND_REFERENCE_RECT := Rect2(20.0, 856.0, 2008.0, 290.0)
 const OPPONENT_TRACK_REFERENCE_RECTS := {
 	1: Rect2(126.0, 110.0, 390.0, 820.0),
-	2: Rect2(250.0, 8.0, 1160.0, 160.0),
+	2: Rect2(250.0, 8.0, 1080.0, 160.0),
 	3: Rect2(1532.0, 110.0, 390.0, 820.0),
 }
 const SEAT_HUD_REFERENCE_RECTS := {
-	0: Rect2(80.0, 714.0, 218.0, 132.0),
-	1: Rect2(80.0, 170.0, 218.0, 132.0),
-	2: Rect2(1450.0, 24.0, 218.0, 132.0),
-	3: Rect2(1750.0, 170.0, 218.0, 132.0),
+	0: Rect2(24.0, 754.0, 218.0, 132.0),
+	1: Rect2(24.0, 260.0, 218.0, 132.0),
+	2: Rect2(1380.0, 24.0, 218.0, 132.0),
+	3: Rect2(1806.0, 170.0, 218.0, 132.0),
 }
 
 
@@ -46,8 +46,14 @@ static func touch_target() -> Vector2:
 	return TOUCH_TARGET
 
 
-static func seat_hud_size(compact: bool) -> Vector2:
-	return SEAT_HUD_COMPACT if compact else SEAT_HUD_STANDARD
+static func seat_hud_size(compact: bool, viewport_size: Vector2 = DESIGN_SIZE) -> Vector2:
+	var reference := SEAT_HUD_COMPACT if compact else SEAT_HUD_STANDARD
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return reference
+	return reference * Vector2(
+		maxf(1.0, viewport_size.x / DESIGN_SIZE.x),
+		maxf(1.0, viewport_size.y / DESIGN_SIZE.y)
+	)
 
 
 static func ding_que_size(compact: bool) -> Vector2:
@@ -86,7 +92,7 @@ static func opponent_track_rect(seat: int, viewport_size: Vector2) -> Rect2:
 		viewport_size,
 		SEAT_HUD_REFERENCE_RECTS.get(seat, Rect2())
 	)
-	var hud_size := seat_hud_size(is_compact(viewport_size))
+	var hud_size := seat_hud_size(is_compact(viewport_size), viewport_size)
 	var horizontal_scale := viewport_size.x / DESIGN_SIZE.x if viewport_size.x > 0.0 else 1.0
 	var clearance := maxf(8.0, 12.0 * horizontal_scale)
 	if seat == 1:
@@ -106,7 +112,7 @@ static func opponent_track_rect(seat: int, viewport_size: Vector2) -> Rect2:
 
 static func seat_hud_rect(seat: int, viewport_size: Vector2) -> Rect2:
 	var reference_rect: Rect2 = SEAT_HUD_REFERENCE_RECTS.get(seat, Rect2())
-	var hud_size := seat_hud_size(is_compact(viewport_size))
+	var hud_size := seat_hud_size(is_compact(viewport_size), viewport_size)
 	var scaled_reference := scale_reference_rect(viewport_size, reference_rect)
 	if seat in [1, 3]:
 		var side_x := scaled_reference.position.x
@@ -115,7 +121,8 @@ static func seat_hud_rect(seat: int, viewport_size: Vector2) -> Rect2:
 		return Rect2(Vector2(side_x, scaled_reference.position.y), hud_size)
 	if seat == 0:
 		var hand_rect := self_hand_rect(viewport_size)
-		return Rect2(Vector2(scaled_reference.position.x, hand_rect.position.y - hud_size.y - 10.0), hud_size)
+		var vertical_scale := viewport_size.y / DESIGN_SIZE.y if viewport_size.y > 0.0 else 1.0
+		return Rect2(Vector2(scaled_reference.position.x, hand_rect.position.y - hud_size.y + 56.0 * vertical_scale), hud_size)
 	if seat == 2:
 		return Rect2(scaled_reference.position, hud_size)
 	return Rect2(scaled_reference.position, hud_size)

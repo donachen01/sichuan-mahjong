@@ -64,6 +64,10 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		failures.append("缩进图标点击区必须至少为 76x76")
 	elif collapsed_toggle.focus_mode != Control.FOCUS_ALL:
 		failures.append("缩进入口必须支持键盘/手柄焦点")
+	var seat_huds: Dictionary = root_node.get("seat_huds")
+	var upper_hud: Control = seat_huds.get(1)
+	if upper_hud != null and collapsed_toggle.get_global_rect().intersects(upper_hud.get_global_rect()):
+		failures.append("收起状态的左上工具按钮不得遮挡上家铭牌")
 	utility_bar.call("set_collapsed", false)
 	utility_bar.call("_layout_buttons")
 	for legacy_name in ["top_ai_helper_button", "top_settlement_info_button", "top_next_round_button", "top_exit_button"]:
@@ -81,6 +85,9 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 		var rect: Rect2 = utility_bar.call("get_touch_rect", action)
 		if rect.size.x < MIN_TOUCH_SIZE.x or rect.size.y < MIN_TOUCH_SIZE.y:
 			failures.append("%s touch target is smaller than 76x76" % action)
+		if root_node.get_viewport().get_visible_rect().size.is_equal_approx(Vector2(2048.0, 1152.0)) \
+				and (rect.size.x < 520.0 or rect.size.y < 164.0 or button.get_theme_font_size("font_size") < 64):
+			failures.append("%s 必须保持上一版工具按钮与文字的至少两倍尺寸" % action)
 		visible_rects.append(rect)
 	var exit_button: Button = utility_bar.call("get_button", "exit")
 	if exit_button == null or exit_button.text != "退出游戏":
@@ -104,12 +111,12 @@ func _verify_normal_round(root_node: Node, utility_bar: Control, failures: Array
 			if visible_rects[first_index].intersects(visible_rects[second_index]):
 				failures.append("utility touch targets overlap")
 
-	var seat_huds: Dictionary = root_node.get("seat_huds")
+	# 展开抽屉是顶层覆盖式界面，按产品合同允许覆盖牌桌和铭牌；但所有
+	# 入口必须保持在可见区内，不能用覆盖许可掩盖裁切或不可点击问题。
+	var root_rect: Rect2 = root_node.get("root_ui").get_global_rect()
 	for rect in visible_rects:
-		for seat in [0, 1, 2, 3]:
-			var seat_hud: Control = seat_huds.get(seat)
-			if seat_hud != null and rect.intersects(seat_hud.get_global_rect()):
-				failures.append("utility control overlaps SeatHUD%d" % seat)
+		if not root_rect.encloses(rect):
+			failures.append("expanded utility control leaves the visible viewport")
 
 	for hidden_action in ["settlement", "next_round"]:
 		var hidden_button: Button = utility_bar.call("get_button", hidden_action)
@@ -319,12 +326,17 @@ func _verify_summer_ding_que_controls(root_node: Node, failures: Array[String]) 
 		utility_bar.call("set_collapsed", true)
 		overlay.visible = true
 		var utility_toggle: Button = utility_bar.call("get_button", "toggle")
-		var blocked_touch := InputEventScreenTouch.new()
-		blocked_touch.position = utility_toggle.get_global_rect().get_center()
-		blocked_touch.pressed = true
-		root_node.call("_input", blocked_touch)
-		if not bool(utility_bar.call("is_collapsed")):
-			failures.append("定缺模态层期间左上工具不得穿透点击")
+		var utility_touch := InputEventScreenTouch.new()
+		utility_touch.position = utility_toggle.get_global_rect().get_center()
+		utility_touch.pressed = true
+		root_node.call("_input", utility_touch)
+		if bool(utility_bar.call("is_collapsed")):
+			failures.append("定缺阶段左上角工具必须仍能展开")
+		else:
+			utility_touch.position = utility_toggle.get_global_rect().get_center()
+			root_node.call("_input", utility_touch)
+			if not bool(utility_bar.call("is_collapsed")):
+				failures.append("定缺阶段左上角工具必须仍能缩进")
 		overlay.visible = false
 
 

@@ -36,10 +36,10 @@ func get_suit() -> String:
 func _refresh() -> void:
 	if text_label == null:
 		return
-	custom_minimum_size = METRICS.ding_que_size(compact)
-	text_label.custom_minimum_size = Vector2(88.0 if compact else 96.0, 34.0 if compact else 38.0)
+	custom_minimum_size = Vector2(104.0 if compact else 112.0, 86.0 if compact else 96.0)
+	text_label.custom_minimum_size = custom_minimum_size
 	text_label.text = TABLE_THEME.ding_que_text(suit)
-	text_label.add_theme_font_size_override("font_size", TABLE_THEME.font_size("ding_que", compact))
+	text_label.add_theme_font_size_override("font_size", 48 if compact else 58)
 	text_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
 	text_label.add_theme_color_override("font_outline_color", Color(0.04, 0.03, 0.02, 0.92))
 	text_label.add_theme_constant_override("outline_size", 3)

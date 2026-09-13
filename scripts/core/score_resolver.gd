@@ -75,16 +75,30 @@ func _resolve_gang_unit_score(gang_type: String) -> int:
 
 
 func resolve_gang_total_score(event: Dictionary) -> int:
-	return _resolve_gang_unit_score(str(event.get("gang_type", ""))) * Array(event.get("payer_seats", [])).size()
+	var total := 0
+	for payer in event.get("payer_seats", []):
+		total += _resolve_gang_payer_score(event, int(payer))
+	return total
 
 
 func build_gang_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
 	var changes := _blank_score_changes(players)
 	var actor_seat := int(event.get("actor_seat", -1))
-	var unit_score := _resolve_gang_unit_score(str(event.get("gang_type", "")))
 	for payer in event.get("payer_seats", []):
-		_apply_payment(changes, actor_seat, int(payer), unit_score)
+		_apply_payment(changes, actor_seat, int(payer), _resolve_gang_payer_score(event, int(payer)))
 	return changes
+
+
+func _resolve_gang_payer_score(event: Dictionary, payer_seat: int) -> int:
+	var gang_type := str(event.get("gang_type", ""))
+	# 点杠采用逐付款人口径：点杠者付 2，其他仍在牌局中的玩家各付 1。
+	# 暗杠和补杠仍分别为每家 2、每家 1。
+	if gang_type == "melded_gang":
+		var source_seat := int(event.get("source_seat", -1))
+		if source_seat < 0 and Array(event.get("payer_seats", [])).size() == 1:
+			source_seat = payer_seat
+		return 2 if payer_seat == source_seat else 1
+	return _resolve_gang_unit_score(gang_type)
 
 
 func build_transfer_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
@@ -95,7 +109,7 @@ func build_transfer_event_score_changes(players: Array, event: Dictionary) -> Di
 	var winner_seat := int(event.get("to_seat", -1))
 	var transfer_score := int(event.get("transfer_score", 0))
 	if transfer_score <= 0:
-		transfer_score = _resolve_gang_unit_score(str(event.get("gang_type", ""))) * Array(event.get("payer_seats", [])).size()
+		transfer_score = resolve_gang_total_score(event)
 	_apply_payment(changes, winner_seat, from_seat, transfer_score)
 	return changes
 
