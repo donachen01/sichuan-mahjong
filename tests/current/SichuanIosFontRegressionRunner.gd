@@ -84,7 +84,13 @@ func _check_control_font_path(control: Control, label: String, expected_path: St
 	if control == null or not control.has_theme_font_override("font"):
 		return
 	var font := control.get_theme_font("font")
-	if font == null or font.resource_path != expected_path:
+	var resolved_path := ""
+	if font is FontVariation:
+		var base_font := (font as FontVariation).base_font
+		resolved_path = base_font.resource_path if base_font != null else ""
+	elif font != null:
+		resolved_path = font.resource_path
+	if font == null or resolved_path != expected_path:
 		failures.append("%s uses wrong font: %s" % [label, "<null>" if font == null else font.resource_path])
 
 

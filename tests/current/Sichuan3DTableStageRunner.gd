@@ -294,9 +294,9 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("right-player meld direction contract is missing")
 	if str(contract.get("far_meld_zone", "")) != "below_far_hand_not_right_player_band":
 		failures.append("far-player meld ownership zone contract is missing")
-	if str(contract.get("meld_source_feedback", "")) != "centered_extruded_golden_direction_arrow_on_second_tile_without_seat_label":
+	if str(contract.get("meld_source_feedback", "")) != "floating_extruded_emerald_direction_arrow_on_second_tile_without_seat_label":
 		failures.append("peng/gang source feedback must use a centered extruded golden direction arrow without a seat label")
-	if str(contract.get("winning_source_feedback", "")) != "centered_extruded_golden_direction_arrow_without_seat_label" \
+	if str(contract.get("winning_source_feedback", "")) != "floating_extruded_emerald_direction_arrow_without_seat_label" \
 			or bool(contract.get("winning_source_text", true)):
 		failures.append("winning-source feedback must be a centered extruded golden direction arrow with no discarder text")
 	if str(contract.get("tile_back_color", "")).to_upper() != SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false).to_upper():
@@ -739,8 +739,8 @@ func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures:
 	for key_value in nodes.keys():
 		if str(key_value).begins_with("meld_0_"):
 			self_meld_z.append((nodes[key_value] as Node3D).position.z)
-	if self_meld_z.is_empty() or self_meld_z.min() < 3.52 or self_meld_z.max() > 3.62:
-		failures.append("human melds are not aligned with the lower-left hand rail")
+	if self_meld_z.is_empty() or self_meld_z.min() < 3.52 or self_meld_z.max() > 3.78:
+		failures.append("human melds are not aligned with the hand rail plus owner-side source offset")
 	var self_hand_left := INF
 	var self_meld_right := -INF
 	for key_value in nodes.keys():
@@ -1062,68 +1062,71 @@ func _verify_human_ding_que_rightmost(stage: SichuanTableStage3D, ding_que_suit:
 func _verify_side_meld_axes(stage: SichuanTableStage3D, failures: Array[String]) -> void:
 	for seat in [1, 3]:
 		var positions: Array[Vector3] = []
+		var normal_positions: Array[Vector3] = []
+		var normal_basis: Basis = stage.call("_flat_basis_for_seat", seat)
 		for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 			if not str(key_value).begins_with("meld_%d_0_" % seat):
 				continue
 			var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
 			positions.append(tile.position)
+			if absf(tile.transform.basis.x.normalized().dot(normal_basis.x.normalized())) > 0.95:
+				normal_positions.append(tile.position)
 			if absf(tile.symbol_mesh.rotation.y - PI) > 0.01:
 				failures.append("seat %d meld glyphs are not oriented toward their owner" % seat)
 		if positions.size() < 3:
 			failures.append("seat %d side meld fixture is incomplete" % seat)
 			continue
-		var fixed_x := positions[0].x
+		var fixed_x := normal_positions[0].x if not normal_positions.is_empty() else positions[0].x
 		var z_values: Array[float] = []
 		for position in positions:
-			if absf(position.x - fixed_x) > 0.03:
-				failures.append("seat %d meld is not parallel to its standing hand rail" % seat)
 			z_values.append(position.z)
+		for position in normal_positions:
+			if absf(position.x - fixed_x) > 0.03:
+				failures.append("seat %d upright meld tiles are not parallel to the standing hand rail" % seat)
 		z_values.sort()
 		for index in range(1, z_values.size()):
-			if absf((z_values[index] - z_values[index - 1]) - 0.50) > 0.02:
-				failures.append("seat %d gang/peng pitch is inconsistent" % seat)
+			var pitch := z_values[index] - z_values[index - 1]
+			if pitch < 0.48 or pitch > 0.72:
+				failures.append("seat %d rotated-source meld pitch is outside its physical-width envelope: %.3f" % [seat, pitch])
 
 
 func _verify_meld_source_arrows(stage: SichuanTableStage3D, failures: Array[String]) -> void:
-	var marker_count := 0
 	var expected_sources := {0: 1, 1: 2, 3: 0}
+	var rotated_owners := {}
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		var key := str(key_value)
 		if not key.begins_with("meld_"):
 			continue
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		if tile.winning_source_marker == null or not tile.winning_source_marker.visible:
-			continue
-		marker_count += 1
 		var owner_seat := int(key.split("_")[1])
+		if tile.winning_source_marker != null and tile.winning_source_marker.visible:
+			failures.append("meld source must be encoded by tile orientation, not an arrow")
 		if not expected_sources.has(owner_seat):
-			failures.append("concealed/self-sourced gang must not show a source arrow")
 			continue
-		if tile.winner_seat != owner_seat or tile.winning_source_seat != int(expected_sources[owner_seat]):
-			failures.append("meld source arrow lost owner/source identity for seat %d" % owner_seat)
-		if tile.source_marker_kind not in ["peng", "gang"]:
-			failures.append("meld source arrow does not identify a peng/gang marker")
-		if tile.winning_source_label == null or tile.winning_source_label.visible:
-			failures.append("meld source marker must not show a seat label beside the peng/gang tiles")
-		var material := tile.winning_source_marker.get_surface_override_material(0) as StandardMaterial3D
-		if material == null or not material.albedo_color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR):
-			failures.append("meld source marker is not the requested bright golden direction arrow")
-		elif not material.emission_enabled or material.metallic < 0.30 or not material.clearcoat_enabled:
-			failures.append("meld source arrow must reuse the same lit golden material as the center discard diamond")
-		if not tile.winning_source_marker.scale.is_equal_approx(Vector3.ONE):
-			failures.append("meld source arrow must retain its compact reference proportions")
-		var arrow_mesh := tile.winning_source_marker.mesh
-		if arrow_mesh == null or arrow_mesh.get_aabb().size.x < 0.12 or arrow_mesh.get_aabb().size.z < 0.19:
-			failures.append("meld source arrow must use the enlarged bright golden directional silhouette")
-		if tile.winning_source_marker.position.y < 0.250 or tile.winning_source_marker.position.y > 0.270:
-			failures.append("meld source arrow is not seated immediately above the marked tile face")
-		if absf(tile.winning_source_marker.position.x) > 0.001 or absf(tile.winning_source_marker.position.z) > 0.001:
-			failures.append("meld source arrow is not centred on the marked tile")
-		var expected_tile_id := 30000 + owner_seat * 100 + 1
-		if tile.tile_id != expected_tile_id:
-			failures.append("seat %d meld arrow must be attached to the second/centre tile" % owner_seat)
-	if marker_count != 3:
-		failures.append("three exposed fixture melds must each show one colored source arrow, got %d" % marker_count)
+		var normal_basis: Basis = stage.call("_flat_basis_for_seat", owner_seat)
+		var is_rotated := absf(tile.transform.basis.x.normalized().dot(normal_basis.x.normalized())) < 0.20
+		if is_rotated:
+			rotated_owners[owner_seat] = tile.tile_id
+	for owner_seat in expected_sources.keys():
+		var expected_index: int = int(stage.call("_claim_tile_index_for_meld", 3, owner_seat, int(expected_sources[owner_seat])))
+		var expected_tile_id: int = 30000 + int(owner_seat) * 100 + expected_index
+		if int(rotated_owners.get(owner_seat, -1)) != expected_tile_id:
+			failures.append("seat %d source tile is not rotated at the expected left/middle/right position" % owner_seat)
+		var source_tile: SichuanTile3D = null
+		var peer_tile: SichuanTile3D = null
+		for key_value in (stage.get("tile_nodes") as Dictionary).keys():
+			var key := str(key_value)
+			if not key.begins_with("meld_%d_0_" % int(owner_seat)):
+				continue
+			var candidate := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
+			if candidate.tile_id == expected_tile_id:
+				source_tile = candidate
+			elif peer_tile == null:
+				peer_tile = candidate
+		if source_tile != null and peer_tile != null:
+			var outward: Vector3 = stage.call("_meld_owner_outward_vector", int(owner_seat))
+			if (source_tile.position - peer_tile.position).dot(outward) <= 0.03:
+				failures.append("seat %d rotated source tile is not shifted toward its owner side" % owner_seat)
 
 
 func _verify_four_source_meld_matrix(
@@ -1145,28 +1148,28 @@ func _verify_four_source_meld_matrix(
 	matrix_snapshot["players"] = matrix_players
 	stage.render_snapshot(matrix_snapshot, all_hands, false, -1, {})
 	await process_frame
-	var source_seats := {}
-	var owner_seats := {}
-	var marker_count := 0
+	var rotated_owners := {}
+	var stacked_add_gang := false
 	for key_value in (stage.get("tile_nodes") as Dictionary).keys():
 		var key := str(key_value)
 		if not key.begins_with("meld_"):
 			continue
 		var tile := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		if tile.winning_source_marker == null or not tile.winning_source_marker.visible:
-			continue
-		marker_count += 1
 		var owner_seat := int(key.split("_")[1])
-		owner_seats[owner_seat] = true
-		source_seats[tile.winning_source_seat] = true
-		var expected_tile_id := 61000 + owner_seat * 100 + 1
-		if tile.tile_id != expected_tile_id:
-			failures.append("four-source matrix owner %d arrow is not attached to tile 2" % owner_seat)
-	if marker_count != 4 or owner_seats.size() != 4 or source_seats.size() != 4:
-		failures.append(
-			"four-source meld matrix incomplete: arrows=%d owners=%s sources=%s"
-			% [marker_count, owner_seats.keys(), source_seats.keys()]
-		)
+		if tile.winning_source_marker != null and tile.winning_source_marker.visible:
+			failures.append("four-source matrix still contains a source arrow")
+		var normal_basis: Basis = stage.call("_flat_basis_for_seat", owner_seat)
+		if absf(tile.transform.basis.x.normalized().dot(normal_basis.x.normalized())) < 0.20:
+			rotated_owners[owner_seat] = tile.tile_id
+		if owner_seat == 2 and tile.tile_id == 61203:
+			var middle := (stage.get("tile_nodes") as Dictionary).get("meld_2_0_61201") as SichuanTile3D
+			stacked_add_gang = middle != null and tile.position.distance_to(middle.position + Vector3.UP * (SichuanTile3D.TILE_SIZE.y * SichuanTableStage3D.MELD_SCALE + 0.035)) < 0.02
+	for owner_seat in [0, 1, 3]:
+		var expected_tile_id: int = 61000 + int(owner_seat) * 100
+		if int(rotated_owners.get(owner_seat, -1)) != expected_tile_id:
+			failures.append("matrix owner %d did not rotate the left source tile" % owner_seat)
+	if rotated_owners.has(2) or not stacked_add_gang:
+		failures.append("add-gang must keep its peng upright and stack the fourth tile above the middle tile")
 	_verify_meld_tile_model_consistency(stage, "peng_ming_gang_and_add_gang_matrix", failures)
 func _verify_right_meld_matches_hand_direction(stage: SichuanTableStage3D, failures: Array[String]) -> void:
 	var hand_tile: SichuanTile3D
@@ -1175,8 +1178,11 @@ func _verify_right_meld_matches_hand_direction(stage: SichuanTableStage3D, failu
 		var key := str(key_value)
 		if hand_tile == null and key.begins_with("hand_3_"):
 			hand_tile = (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
-		elif meld_tile == null and key.begins_with("meld_3_"):
-			meld_tile = (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
+		elif key.begins_with("meld_3_"):
+			var candidate := (stage.get("tile_nodes") as Dictionary)[key_value] as SichuanTile3D
+			var normal_basis: Basis = stage.call("_flat_basis_for_seat", 3)
+			if absf(candidate.transform.basis.x.normalized().dot(normal_basis.x.normalized())) > 0.95:
+				meld_tile = candidate
 	if hand_tile == null or meld_tile == null:
 		failures.append("right-player hand/meld direction fixture is incomplete")
 		return
@@ -1382,27 +1388,10 @@ func _verify_won_hand_and_source_arrow(stage: SichuanTableStage3D, original_coun
 				flat_revealed_count += 1
 			if tile.winning_source_marker != null and tile.winning_source_marker.visible:
 				arrow_count += 1
-				if tile.winning_source_seat != 1 or tile.winner_seat != 0:
-					failures.append("winning-source arrow lost winner/source seat identity")
-				if absf(tile.winning_source_marker.rotation.y - PI * 0.5) > 0.01:
-					failures.append("seat-1 discard arrow does not point toward the upper/left player")
-				if tile.winning_source_label == null or tile.winning_source_label.visible or tile.winning_source_label.text != "":
-					failures.append("winning-source arrow must not include discarder seat text")
-				var arrow_material := tile.winning_source_marker.get_surface_override_material(0) as StandardMaterial3D
-				if arrow_material == null or not arrow_material.albedo_color.is_equal_approx(SichuanTile3D.SOURCE_ARROW_COLOR):
-					failures.append("winning-source arrow must use the same bright golden color as meld arrows")
-				elif not arrow_material.emission_enabled or arrow_material.metallic < 0.30 or not arrow_material.clearcoat_enabled:
-					failures.append("winning-source arrow must reuse the same lit golden material as the center discard diamond")
-				var arrow_mesh := tile.winning_source_marker.mesh
-				if arrow_mesh == null or arrow_mesh.get_aabb().size.x < 0.14 or arrow_mesh.get_aabb().size.z < 0.22:
-					failures.append("winning-source arrow is not the enlarged bright golden directional silhouette")
-				if tile.winning_source_marker.position.y < 0.250 or tile.winning_source_marker.position.y > 0.270 \
-						or absf(tile.winning_source_marker.position.x) > 0.001 or absf(tile.winning_source_marker.position.z) > 0.001:
-					failures.append("winning-source arrow is not centered on the winning tile face")
 	if flat_revealed_count != original_count:
 		failures.append("won human hand must lay down all %d tiles, got %d" % [original_count, flat_revealed_count])
-	if arrow_count != 1:
-		failures.append("discard win must show exactly one source arrow, got %d" % arrow_count)
+	if arrow_count != 0:
+		failures.append("discard win must not add a marker to the winning tile")
 	if not (stage.get("self_hand_keys") as Array).is_empty():
 		failures.append("won human hand must no longer expose discard pick targets")
 
@@ -1612,16 +1601,14 @@ func _verify_ai_discard_win_with_preserved_hand(stage: SichuanTableStage3D, seat
 				failures.append("AI discard-winning tile must be face-up")
 			if tile.winning_source_marker != null and tile.winning_source_marker.visible:
 				source_arrow_count += 1
-				if tile.winner_seat != seat or tile.winning_source_seat != 0:
-					failures.append("AI discard-win source identity mismatch")
 			if seat in [1, 3] and tile.position.z > 1.65:
 				failures.append("AI seat %d winning tile entered the protected local-hand zone (z=%.3f)" % [seat, tile.position.z])
 	if concealed_or_revealed_hand_count != expected_hand_count:
 		failures.append("AI discard win must preserve %d flat concealed hand tiles, got %d" % [expected_hand_count, concealed_or_revealed_hand_count])
 	if winning_tile_count != 1:
 		failures.append("AI discard win must show exactly one claimed tile, got %d" % winning_tile_count)
-	if source_arrow_count != 1:
-		failures.append("AI discard win must show exactly one source arrow, got %d" % source_arrow_count)
+	if source_arrow_count != 0:
+		failures.append("AI discard win must not add a marker to the winning tile")
 	if found_hand and winning_tile_count == 1:
 		if hand_rect.intersects(winning_rect):
 			failures.append("AI seat %d winning tile overlaps the preserved hand" % seat)

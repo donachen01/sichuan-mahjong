@@ -400,18 +400,39 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var ornament := panel.get_node_or_null("SettlementOrnamentOverlay") as TextureRect if panel != null else null
 	if ornament == null or ornament.texture == null:
 		failures.append("结算页必须加载云纹、山水和竹叶装饰层")
-	for card_name in ["settlement_player_list_card", "settlement_detail_card", "settlement_hand_card", "settlement_breakdown_card"]:
+	for card_name in ["settlement_detail_card"]:
 		var section := scene.get(card_name) as Panel
 		var section_style := section.get_theme_stylebox("panel") as StyleBoxFlat if section != null else null
 		if section_style == null:
-			failures.append("结算区域 %s 缺少简洁底色" % card_name)
+			failures.append("结算区域 %s 缺少外边框" % card_name)
 			continue
 		var section_border_total := section_style.get_border_width(SIDE_LEFT) \
 			+ section_style.get_border_width(SIDE_TOP) \
 			+ section_style.get_border_width(SIDE_RIGHT) \
 			+ section_style.get_border_width(SIDE_BOTTOM)
-		if section_border_total < 4:
-			failures.append("结算区域 %s 必须保留目标图的金边米白卡片层级" % card_name)
+		if section_border_total < 8 or section_style.bg_color.a <= 0.01:
+			failures.append("结算区域 %s 必须保留半透明桌布外边框" % card_name)
+	var player_list_card := scene.get("settlement_player_list_card") as Panel
+	var player_list_style := player_list_card.get_theme_stylebox("panel") as StyleBoxFlat if player_list_card != null else null
+	if player_list_style == null or player_list_style.bg_color.a > 0.01 \
+			or player_list_style.get_border_width(SIDE_LEFT) + player_list_style.get_border_width(SIDE_TOP) \
+			+ player_list_style.get_border_width(SIDE_RIGHT) + player_list_style.get_border_width(SIDE_BOTTOM) != 0:
+		failures.append("上方四家玩家模块外不得再包一层整体外框")
+	for card_name in ["settlement_hand_card", "settlement_breakdown_card"]:
+		var inner_section := scene.get(card_name) as Panel
+		var inner_style := inner_section.get_theme_stylebox("panel") as StyleBoxFlat if inner_section != null else null
+		if inner_style == null:
+			failures.append("结算内层 %s 缺少透明样式" % card_name)
+			continue
+		var inner_border_total := inner_style.get_border_width(SIDE_LEFT) \
+			+ inner_style.get_border_width(SIDE_TOP) \
+			+ inner_style.get_border_width(SIDE_RIGHT) \
+			+ inner_style.get_border_width(SIDE_BOTTOM)
+		if inner_border_total != 0 or inner_style.bg_color.a > 0.01:
+			failures.append("结算内层 %s 不得拆分手牌与分数明细的共同外框" % card_name)
+	var connected_frame := panel.get_node_or_null("ConnectedSelectionFrame") as Line2D if panel != null else null
+	if connected_frame != null:
+		failures.append("结算页不得保留连通式选中外框")
 
 	# Exercise the same explicit ScreenTouch path used on iOS. The full-screen
 	# overlay must route a player-row press before it consumes the event.

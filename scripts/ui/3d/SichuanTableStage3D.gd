@@ -123,6 +123,8 @@ var last_contract: Dictionary = {}
 var reduced_motion := false
 var interaction_enabled := false
 var self_meld_tile_count := 0
+var self_meld_layout_slot_count := 0
+var self_meld_extra_span_per_scale := 0.0
 var self_meld_group_count := 0
 var self_layout_hand_count := 0
 var self_layout_scale := SELF_HAND_SCALE
@@ -174,11 +176,29 @@ func render_snapshot(
 	var danger_ids: Array = markers.get("danger_tile_ids", [])
 	var self_player := _player_by_seat(players, 0)
 	self_meld_tile_count = _meld_tile_count(self_player.get("melds", []))
+	self_meld_layout_slot_count = _meld_layout_slot_count(self_player.get("melds", []))
+	self_meld_extra_span_per_scale = _meld_rotated_extra_span_per_scale(self_player.get("melds", []), 0)
+	var self_hand: Array = all_hands[0] if not all_hands.is_empty() else []
+	var self_winning_tile: Dictionary = self_player.get("winning_tile", {})
+	var reserve_external_winning_tile := bool(self_player.get("has_won", false)) \
+		and not self_winning_tile.is_empty() \
+		and int(self_player.get("winning_source_seat", 0)) != 0
+	var winning_tile_already_in_hand := false
+	if reserve_external_winning_tile:
+		var winning_id := int(self_winning_tile.get("id", -1))
+		for tile_value in self_hand:
+			if int((tile_value as Dictionary).get("id", -2)) == winning_id:
+				winning_tile_already_in_hand = true
+				break
 	var has_detached_draw := _has_detached_human_draw(
-		all_hands[0] if not all_hands.is_empty() else [], self_player, new_draw_id
+		self_hand, self_player, new_draw_id
 	)
+	# A discard-win tile is rendered as a separate result token, but it still owns
+	# one physical slot in the self row. Reserving that slot before scale/centering
+	# keeps the whole laid-down hand inside the safe width and guarantees the
+	# external winning tile uses exactly the same uniform scale as its neighbours.
 	_configure_self_row_layout(
-		all_hands[0].size() if not all_hands.is_empty() else 0,
+		self_hand.size() + (1 if reserve_external_winning_tile and not winning_tile_already_in_hand else 0),
 		self_player,
 		has_detached_draw
 	)
@@ -200,7 +220,7 @@ func render_snapshot(
 			danger_ids,
 			reveal_winning_tiles
 		)
-		_append_meld_entries(desired, seat, player.get("melds", []))
+		_append_meld_entries(desired, seat, player.get("melds", []), bool(player.get("has_won", false)))
 		_append_discard_entries(desired, seat, player.get("discards", []), latest_discard_id)
 
 	last_desired_entries = desired.duplicate(true)
@@ -723,7 +743,10 @@ func _append_hand_entries(
 		# tile. Both human and AI point-win results are now flat, so they share the
 		# tighter established spacing while keeping one visible separation gap.
 		if count > 0:
-			var edge_break := 0.85
+			# The human winning tile already occupies the final reserved row slot.
+			# Only add a subtle seam there; the old 0.85-pitch second displacement
+			# pushed a legal 14-tile result beyond the right safe edge.
+			var edge_break := 0.10 if seat == 0 else 0.85
 			match seat:
 				0:
 					winning_position.x += step * edge_break
@@ -750,7 +773,7 @@ func _append_hand_entries(
 			false,
 			false,
 			Vector3.ONE * (_flat_concealed_result_scale_for_seat(seat) if ai_discard_win else scale_value),
-			source_seat if source_seat != seat else -1,
+			-1,
 			seat
 		)
 		desired[winning_key]["motion_kind"] = "win_transfer"
@@ -759,36 +782,56 @@ func _append_hand_entries(
 		desired[winning_key]["motion_duration_seconds"] = WIN_TRANSFER_SECONDS
 
 
-func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
+func _append_meld_entries(desired: Dictionary, seat: int, melds: Array, reveal_concealed_gang: bool = false) -> void:
 	var flat_index := 0
+	var accumulated_sequence_shift := 0.0
 	for meld_index in range(melds.size()):
 		var meld: Dictionary = melds[meld_index]
 		var meld_tiles: Array = meld.get("tiles", [])
 		var source_seat := int(meld.get("from_seat", seat))
-		# 碰的中间张、杠的第二张固定承载来源箭头。来源座位仍由 from_seat
-		# 决定箭头方向和文字，不再因为来源方向把箭头挪到牌组两端。
-		var claim_index := mini(1, meld_tiles.size() - 1)
 		var meld_type := str(meld.get("type", ""))
 		var gang_subtype := str(meld.get("gang_subtype", meld.get("gang_type", "melded_gang")))
+		var concealed_gang := _is_concealed_gang(meld)
+		var add_gang := meld_type == "gang" and gang_subtype in ["add_gang", "bu_gang"]
+		var direct_gang := meld_type == "gang" and not concealed_gang and not add_gang
+		var exposes_source := (meld_type == "peng" or direct_gang) and source_seat != seat
+		var claim_index := _claim_tile_index_for_meld(meld_tiles.size(), seat, source_seat) if exposes_source else -1
+		var meld_scale := self_layout_scale * SELF_MELD_VISUAL_SCALE_FACTOR if seat == 0 else MELD_SCALE
+		var half_rotation_extra := (SichuanTile3D.TILE_SIZE.z - SichuanTile3D.TILE_SIZE.x) * meld_scale * 0.5
+		var stacked_position := Vector3.ZERO
 		for tile_index in range(meld_tiles.size()):
 			var tile_value = meld_tiles[tile_index]
 			var tile: Dictionary = tile_value
 			var tile_id := int(tile.get("id", flat_index))
-			var concealed_gang := _is_concealed_gang(meld)
+			var is_stacked_add_tile := add_gang and tile_index == meld_tiles.size() - 1
 			var position := _meld_position(seat, tile_index, meld_index, flat_index, concealed_gang)
+			position += _meld_sequence_vector(seat) * accumulated_sequence_shift
+			if claim_index >= 0:
+				if claim_index > 0 and tile_index >= claim_index:
+					position += _meld_sequence_vector(seat) * half_rotation_extra
+				if tile_index > claim_index:
+					position += _meld_sequence_vector(seat) * half_rotation_extra
+				# 横牌不能只绕中心旋转后留在整组中线。实体牌长短边交换后，
+				# 再向牌主一侧外移半个长短边差值，使靠牌主的边与两张竖牌
+				# 对齐；左/中/右仍只负责表达上家/对家/下家来源。
+				if tile_index == claim_index:
+					position += _meld_owner_outward_vector(seat) * half_rotation_extra
+			if add_gang and tile_index == 1:
+				stacked_position = position
+			if is_stacked_add_tile:
+				position = stacked_position
+				position.y += SichuanTile3D.TILE_SIZE.y * meld_scale + 0.035
 			var key := "meld_%d_%d_%d" % [seat, meld_index, tile_id]
 			# 本轮暗杠视觉合同：两边明示、中间两张扣背。暗杠没有来源牌，
 			# 因此外侧正面也不会错误出现碰/杠来源箭头。
-			var show_face := not concealed_gang or tile_index == 0 or tile_index == meld_tiles.size() - 1
-			var is_claim_tile := not concealed_gang and source_seat != seat and tile_index == claim_index
+			var show_face := reveal_concealed_gang or not concealed_gang or tile_index == 0 or tile_index == meld_tiles.size() - 1
+			var is_claim_tile := exposes_source and tile_index == claim_index
 			if not show_face:
 				var concealed_scale := self_layout_scale if seat == 0 else MELD_SCALE
 				position.y += CONCEALED_BACK_FLIP_Y_OFFSET * concealed_scale
-			var meld_basis := (
-				_flat_basis_for_seat(seat)
-				if show_face
-				else _concealed_back_up_basis_for_seat(seat)
-			)
+			var meld_basis := _concealed_back_up_basis_for_seat(seat) if not show_face else _flat_basis_for_seat(seat)
+			if is_claim_tile:
+				meld_basis = meld_basis * Basis(Vector3.UP, PI * 0.5)
 			desired[key] = _entry(
 				tile,
 				show_face,
@@ -810,9 +853,9 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				false,
 				false,
 				concealed_gang and not show_face,
-				source_seat if is_claim_tile else -1,
+				-1,
 				seat,
-				meld_type if is_claim_tile else ""
+				""
 			)
 			var motion_kind := "peng" if meld_type == "peng" else "gang"
 			desired[key]["motion_kind"] = motion_kind
@@ -828,7 +871,32 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array) -> void:
 				desired[key]["motion_role"] = "concealed_gang_outer_faces_middle_backs"
 			else:
 				desired[key]["motion_role"] = "group_formation"
-			flat_index += 1
+			if not is_stacked_add_tile:
+				flat_index += 1
+		if claim_index >= 0:
+			accumulated_sequence_shift += half_rotation_extra * 2.0
+
+
+func _meld_sequence_vector(seat: int) -> Vector3:
+	match seat:
+		0, 1, 3:
+			return Vector3.RIGHT if seat == 0 else Vector3.BACK
+		2:
+			return Vector3.LEFT
+	return Vector3.RIGHT
+
+
+func _meld_owner_outward_vector(seat: int) -> Vector3:
+	match seat:
+		0:
+			return Vector3.BACK
+		1:
+			return Vector3.LEFT
+		2:
+			return Vector3.FORWARD
+		3:
+			return Vector3.RIGHT
+	return Vector3.BACK
 
 
 func _claim_tile_index_for_meld(tile_count: int, owner_seat: int, source_seat: int) -> int:
@@ -836,17 +904,15 @@ func _claim_tile_index_for_meld(tile_count: int, owner_seat: int, source_seat: i
 		return 0
 	if source_seat == owner_seat:
 		return tile_count - 1
-	# 沿用旧 2D 牌组的来源牌落位习惯：横向座位按上/下家分左右，
-	# 纵向座位按对/本家分两端；对面来源落在组中，箭头再给出精确方向。
-	if owner_seat in [0, 2]:
-		if source_seat == 1:
+	# 来源相对牌主：上家=左、对家=中、下家=右。四张直杠的“中”
+	# 固定用左中位，确保所有座位采用同一可读合同。
+	var relative_source := posmod(source_seat - owner_seat, 4)
+	match relative_source:
+		1:
 			return 0
-		if source_seat == 3:
-			return tile_count - 1
-	else:
-		if source_seat == 2:
-			return 0
-		if source_seat == 0:
+		2:
+			return mini(1, tile_count - 1)
+		3:
 			return tile_count - 1
 	return mini(1, tile_count - 1)
 
@@ -1181,17 +1247,18 @@ func _configure_self_row_layout(hand_count: int, player: Dictionary, has_detache
 	self_meld_group_count = melds.size()
 	self_layout_is_flat = bool(player.get("has_won", false))
 	var base_scale := SELF_HAND_SCALE * (SELF_FLAT_VISUAL_SCALE_FACTOR if self_layout_is_flat else 1.0)
-	var total_tile_count := self_layout_hand_count + self_meld_tile_count
+	var total_tile_count := self_layout_hand_count + self_meld_layout_slot_count
 	var group_gap_count := maxi(0, self_meld_group_count - 1)
 	var has_meld_hand_gap := self_meld_tile_count > 0 and self_layout_hand_count > 0
 	var span_per_scale := 0.0
 	if total_tile_count > 0:
-		var meld_pitch_count := mini(self_meld_tile_count, maxi(0, total_tile_count - 1))
-		var hand_pitch_count := maxi(0, total_tile_count - self_meld_tile_count - 1)
+		var meld_pitch_count := mini(self_meld_layout_slot_count, maxi(0, total_tile_count - 1))
+		var hand_pitch_count := maxi(0, total_tile_count - self_meld_layout_slot_count - 1)
 		span_per_scale = SichuanTile3D.TILE_SIZE.x \
 			+ float(meld_pitch_count) * SELF_MELD_TILE_PITCH_PER_SCALE \
 			+ float(hand_pitch_count) * SELF_TILE_PITCH_PER_SCALE \
 			+ float(group_gap_count) * SELF_MELD_GROUP_GAP_PER_SCALE \
+			+ self_meld_extra_span_per_scale \
 			+ (SELF_MELD_HAND_GAP_PER_SCALE if has_meld_hand_gap else 0.0) \
 			+ (SELF_NEW_DRAW_GAP_PER_SCALE if self_layout_has_detached_draw else 0.0)
 	var available_width := SELF_LAYOUT_RIGHT_X - SELF_LAYOUT_LEFT_X
@@ -1216,8 +1283,9 @@ func _self_meld_tile_x(flat_index: int, meld_index: int) -> float:
 
 func _self_hand_tile_x(index: int) -> float:
 	var x := self_layout_start_x
-	if self_meld_tile_count > 0:
-		x += float(self_meld_tile_count) * SELF_MELD_TILE_PITCH_PER_SCALE * self_layout_scale
+	if self_meld_layout_slot_count > 0:
+		x += float(self_meld_layout_slot_count) * SELF_MELD_TILE_PITCH_PER_SCALE * self_layout_scale
+		x += self_meld_extra_span_per_scale * self_layout_scale
 		x += float(maxi(0, self_meld_group_count - 1)) * SELF_MELD_GROUP_GAP_PER_SCALE * self_layout_scale
 		if self_layout_hand_count > 0:
 			x += SELF_MELD_HAND_GAP_PER_SCALE * self_layout_scale
@@ -1323,6 +1391,30 @@ func _standing_basis_for_seat(seat: int) -> Basis:
 
 func _is_concealed_gang(meld: Dictionary) -> bool:
 	return str(meld.get("type", "")) == "gang" and str(meld.get("gang_subtype", "")) == "an_gang"
+
+
+func _meld_layout_slot_count(melds: Array) -> int:
+	var count := 0
+	for meld_value in melds:
+		var meld := meld_value as Dictionary
+		var tile_count := (meld.get("tiles", []) as Array).size()
+		var subtype := str(meld.get("gang_subtype", meld.get("gang_type", "")))
+		count += 3 if str(meld.get("type", "")) == "gang" and subtype in ["add_gang", "bu_gang"] else tile_count
+	return count
+
+
+func _meld_rotated_extra_span_per_scale(melds: Array, owner_seat: int) -> float:
+	var exposed_source_groups := 0
+	for meld_value in melds:
+		var meld := meld_value as Dictionary
+		var meld_type := str(meld.get("type", ""))
+		var subtype := str(meld.get("gang_subtype", meld.get("gang_type", "melded_gang")))
+		var direct_gang := meld_type == "gang" and subtype not in ["an_gang", "add_gang", "bu_gang"]
+		if (meld_type == "peng" or direct_gang) and int(meld.get("from_seat", owner_seat)) != owner_seat:
+			exposed_source_groups += 1
+	return float(exposed_source_groups) \
+		* (SichuanTile3D.TILE_SIZE.z - SichuanTile3D.TILE_SIZE.x) \
+		* SELF_MELD_VISUAL_SCALE_FACTOR
 
 
 func _meld_tile_count(melds: Array) -> int:
@@ -1504,8 +1596,8 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"right_meld_axis": "same_yaw_and_z_flow_as_right_hand",
 		"far_meld_zone": "below_far_hand_not_right_player_band",
 		"winning_source_markers": true,
-		"meld_source_feedback": "centered_extruded_golden_direction_arrow_on_second_tile_without_seat_label",
-		"winning_source_feedback": "centered_extruded_golden_direction_arrow_without_seat_label",
+		"meld_source_feedback": "floating_extruded_emerald_direction_arrow_on_second_tile_without_seat_label",
+		"winning_source_feedback": "floating_extruded_emerald_direction_arrow_without_seat_label",
 		"winning_source_text": false,
 		"tile_back_color": SichuanTile3D.NORMAL_TILE_BACK_COLOR.to_html(false),
 		"season_theme": "deep_emerald_refined_table",

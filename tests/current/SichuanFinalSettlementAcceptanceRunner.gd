@@ -61,14 +61,28 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 		scene.set("table_skin_id", alternate_skin_id)
 		scene.call("_refresh_settlement_skin_palette")
 		scene.call("_apply_settlement_skin_texture")
+		scene.call("_apply_settlement_unified_content_surface")
 		var expected_path := TABLE_SKIN_CATALOG.texture_path(alternate_skin_id, "albedo_2k.jpg")
 		if str(skin_texture.get_meta("table_skin_id", "")) != alternate_skin_id \
 				or str(skin_texture.get_meta("texture_path", "")) != expected_path \
 				or skin_texture.texture.resource_path != expected_path:
 			failures.append("settlement texture does not synchronise with the selected table skin")
-		scene.set("table_skin_id", TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID)
-		scene.call("_refresh_settlement_skin_palette")
-		scene.call("_apply_settlement_skin_texture")
+	var unified_surface := panel.get_node_or_null("UnifiedContentSurface") as Panel if panel != null else null
+	var unified_felt := unified_surface.get_node_or_null("UnifiedContentFelt") as TextureRect if unified_surface != null else null
+	if unified_surface == null or unified_felt == null or unified_felt.texture == null:
+		failures.append("selected player, hand and ledger must share one continuous felt surface")
+	else:
+		var unified_style := unified_surface.get_theme_stylebox("panel") as StyleBoxFlat
+		if unified_style == null or _style_border_total(unified_style) != 0:
+			failures.append("continuous settlement felt must not add a second competing border")
+		if unified_felt.modulate.a < 0.80 or unified_felt.modulate.a > 0.92:
+			failures.append("continuous settlement felt must suppress the decorative landscape without becoming opaque")
+		if str(unified_felt.get_meta("table_skin_id", "")) != "teal_teddy_check":
+			failures.append("continuous settlement felt does not synchronise with the selected table skin")
+	scene.set("table_skin_id", TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID)
+	scene.call("_refresh_settlement_skin_palette")
+	scene.call("_apply_settlement_skin_texture")
+	scene.call("_apply_settlement_unified_content_surface")
 	var utility_bar := scene.get("table_utility_bar") as Control
 	if utility_bar != null and utility_bar.visible:
 		failures.append("settlement page must hide the table utility toolbar")
@@ -85,20 +99,33 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 	var breakdown_list := scene.get("settlement_breakdown_list") as Control
 	var sample_reason := breakdown_list.find_child("BreakdownReason0", true, false) as Label if breakdown_list != null else null
 	var sample_score := breakdown_list.find_child("BreakdownScore0", true, false) as Label if breakdown_list != null else null
-	if sample_reason == null or sample_reason.get_theme_font_size("font_size") < 33:
+	if sample_reason == null or sample_reason.get_theme_font_size("font_size") < 38:
 		failures.append("settlement score-detail body text remains too small")
-	if sample_score == null or sample_score.get_theme_font_size("font_size") < 35:
+	if sample_score == null or sample_score.get_theme_font_size("font_size") < 40:
 		failures.append("settlement score-detail score text remains too small")
-	var section_styles := {
-		"player_list": _panel_style(scene.get("settlement_player_list_card")),
-		"detail": _panel_style(scene.get("settlement_detail_card")),
-		"hand": _panel_style(scene.get("settlement_hand_card")),
-		"breakdown": _panel_style(scene.get("settlement_breakdown_card")),
-	}
-	for section_name in section_styles:
-		var section_style := section_styles[section_name] as StyleBoxFlat
-		if section_style == null or _style_border_total(section_style) < 4:
-			failures.append("settlement %s section must use the target paper-card frame" % section_name)
+	for obsolete_texture_name in ["SelectedHandSkinTexture", "SelectedBreakdownSkinTexture", "SelectedPlayerSkinTexture"]:
+		if panel != null and panel.find_child(obsolete_texture_name, true, false) != null:
+			failures.append("selected settlement content must not restart the table-skin texture: %s" % obsolete_texture_name)
+	var player_buttons: Dictionary = scene.get("settlement_player_buttons")
+	var selected_button := player_buttons.get(0) as Button
+	var selected_style := selected_button.get_theme_stylebox("normal") as StyleBoxFlat if selected_button != null else null
+	if selected_style == null \
+			or selected_style.bg_color.a <= 0.01 \
+			or _style_border_total(selected_style) < 8:
+		failures.append("selected player button must restore the subtle framed felt-card treatment")
+	var connected_frame := panel.get_node_or_null("ConnectedSelectionFrame") as Line2D if panel != null else null
+	if connected_frame != null:
+		failures.append("settlement must not draw the experimental connected selection outline")
+	var player_list_style := _panel_style(scene.get("settlement_player_list_card"))
+	var detail_style := _panel_style(scene.get("settlement_detail_card"))
+	if player_list_style == null or _style_border_total(player_list_style) != 0 or player_list_style.bg_color.a > 0.01:
+		failures.append("settlement score-card row must not have a surrounding outer frame")
+	if detail_style == null or _style_border_total(detail_style) < 8:
+		failures.append("settlement hand and ledger must share one combined outer frame")
+	for section_name in ["settlement_hand_card", "settlement_breakdown_card"]:
+		var inner_style := _panel_style(scene.get(section_name))
+		if inner_style == null or _style_border_total(inner_style) != 0 or inner_style.bg_color.a > 0.01:
+			failures.append("settlement inner section %s must not split the combined frame" % section_name)
 	var hero_style := _panel_style(scene.get("settlement_hero_card"))
 	if hero_style == null \
 			or hero_style.get_border_width(SIDE_LEFT) < 4 \
@@ -108,10 +135,10 @@ func _verify_visual_contract(scene: Node, failures: Array[String], metrics: Dict
 			or hero_style.get_border_width(SIDE_BOTTOM) != 0:
 		failures.append("settlement focus hero must use one left copper accent without a surrounding box")
 	metrics["visual"] = {
-		"theme": "skin_textured_gold_frame_rice_paper_cards",
+		"theme": "skin_textured_gold_frame_combined_hand_and_ledger",
 		"style_type": style.get_class() if style != null else "null",
 		"outer_border_total": _style_border_total(style as StyleBoxFlat) if style is StyleBoxFlat else -1,
-		"nested_section_borders": "target_gold_paper_cards",
+		"nested_section_borders": "none_except_subtle_ledger_separators",
 		"detail_columns": ["分数来源", "对象", "番/分", "本局得分"],
 		"winning_row_highlight": "emerald_active_plus_aged_copper",
 		"score_is_primary_focus": true,
@@ -142,13 +169,18 @@ func _verify_grouped_hand_semantics(scene: Node, failures: Array[String], metric
 		],
 	}]
 	snapshot["players"] = players
+	scene.set("settlement_selected_seat", 0)
 	scene.call("_refresh_settlement", {"current_phase": 6})
 	scene.call("_refresh_settlement", snapshot)
 	scene.call("force_complete_settlement_transition_for_test")
 	var hand_root := scene.get("settlement_hand_row") as Node
 	var labels: Array[String] = []
 	_collect_label_texts(hand_root, labels)
-	for expected in ["本家", "缺筒", "碰", "上家点炮"]:
+	var focus_name := str(players[0].get("nickname", "本家"))
+	for unexpected in [focus_name, "缺筒"]:
+		if unexpected in labels:
+			failures.append("方案B中部仍重复显示玩家或缺门标签: %s" % unexpected)
+	for expected in ["碰", "上家点炮"]:
 		if expected not in labels:
 			failures.append("方案B中部缺少分组标签: %s" % expected)
 	if "点炮胡" in labels:
@@ -157,16 +189,14 @@ func _verify_grouped_hand_semantics(scene: Node, failures: Array[String], metric
 	var arrow := hand_root.find_child("WinningSourceArrow", true, false) if hand_root != null else null
 	if winning_group == null:
 		failures.append("点炮胡的独立胡牌张没有显示")
-	if arrow == null:
-		failures.append("点炮胡牌张上方缺少悬浮来源箭头")
-	elif int(arrow.get_meta("source_seat", -1)) != 1 or str(arrow.get_meta("source_label", "")) != "上家":
-		failures.append("悬浮箭头没有标识真实点炮来源")
+	if arrow != null:
+		failures.append("结算页胡牌张仍显示多余的黄色来源箭头")
 	metrics["grouped_hand"] = {
 		"labels": labels,
 		"winning_source_label": "上家点炮",
 		"winning_tile_overlay_sticker": false,
 		"winning_tile_visible": winning_group != null,
-		"floating_source_arrow": arrow != null,
+		"winning_tile_has_no_redundant_arrow": arrow == null,
 		"group_labels_above_tiles": true,
 	}
 

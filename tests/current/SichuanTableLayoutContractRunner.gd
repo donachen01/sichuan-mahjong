@@ -137,6 +137,15 @@ func _verify_live_scene(failures: Array[String]) -> void:
 			if seat_hud.get_script().resource_path != SEAT_HUD_PATH:
 				failures.append("SeatHUD%d does not use the shared component" % seat)
 			var badge: Control = seat_hud.call("get_ding_que_badge")
+			var name_label := seat_hud.get_node_or_null("%NameLabel") as Label
+			var score_label := seat_hud.get_node_or_null("%ScoreLabel") as Label
+			if name_label == null or score_label == null \
+					or name_label.horizontal_alignment != HORIZONTAL_ALIGNMENT_CENTER \
+					or score_label.horizontal_alignment != HORIZONTAL_ALIGNMENT_CENTER:
+				failures.append("SeatHUD%d name and score must be centered within the identity column" % seat)
+			var name_font := name_label.get_theme_font("font") as FontVariation if name_label != null else null
+			if name_font == null or name_font.variation_embolden < 0.60:
+				failures.append("SeatHUD%d player name must use a genuine emboldened font variation" % seat)
 			if badge == null:
 				failures.append("SeatHUD%d missing DingQueBadge" % seat)
 			elif badge.visible:

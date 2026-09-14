@@ -4,6 +4,7 @@ extends Control
 const METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
+const NAMEPLATE_BASE_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 const NAMEPLATE_STYLE_NAMES := ["统一墨玉座位牌"]
 const SEAT_AVATAR_GLYPHS := ["旭", "燕", "东", "玲"]
 
@@ -36,6 +37,7 @@ var has_rendered_score := false
 var active_transition_started_msec := -1
 var score_delta_tween: Tween
 var score_total_tween: Tween
+var emphasized_name_font: FontVariation
 
 
 func _ready() -> void:
@@ -48,6 +50,10 @@ func _ready() -> void:
 	avatar_glyph.visible = false
 	for label in [name_label, score_label, dealer_badge, won_badge, turn_badge]:
 		STYLE_CONFIG.apply_label(label, false, false)
+	emphasized_name_font = FontVariation.new()
+	emphasized_name_font.base_font = NAMEPLATE_BASE_FONT
+	emphasized_name_font.variation_embolden = 0.72
+	name_label.add_theme_font_override("font", emphasized_name_font)
 	avatar_glyph.text = ""
 	# Static lacquer/copper depth is baked by Blender; dynamic state, text and
 	# hit-independent highlights stay in Godot. Do not paint a second opaque
@@ -164,6 +170,8 @@ func get_visual_contract() -> Dictionary:
 		"background_alpha": 0.34,
 		"identity_surface": "text_only_left_column",
 		"identity_encoding": ["name", "score"],
+		"identity_alignment": "centered_within_left_column",
+		"name_emphasis": "font_variation_embolden",
 		"seat_avatar_glyphs": SEAT_AVATAR_GLYPHS,
 		"shape_motif": "shu_courtyard_cut_corner",
 		"nameplate_variants": NAMEPLATE_STYLE_NAMES,
@@ -221,9 +229,12 @@ func _apply_layout(active: bool) -> void:
 	avatar_glyph.visible = false
 	content_margin.add_theme_constant_override("margin_left", 8)
 	content_margin.add_theme_constant_override("margin_right", 8)
-	name_safe_margin.add_theme_constant_override("margin_left", 8)
-	name_safe_margin.add_theme_constant_override("margin_right", 2)
+	name_safe_margin.add_theme_constant_override("margin_left", 5)
+	name_safe_margin.add_theme_constant_override("margin_right", 5)
 	for label in [name_label, score_label]:
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.add_theme_color_override("font_outline_color", Color(0.02, 0.06, 0.05, 0.94))
 		label.add_theme_constant_override("outline_size", 3)
 	name_label.add_theme_font_size_override("font_size", int(round(39.0 * ui_scale)))
@@ -402,7 +413,8 @@ func _won_badge_text(player: Dictionary) -> String:
 	if win_type in ["self_draw", "gang_self_draw"]:
 		return "自摸"
 	if win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
-		return "点炮"
+		var discard_source := int(player.get("winning_source_seat", int(player.get("seat", seat))))
+		return "%s点炮" % _seat_name(discard_source)
 	var seat_value := int(player.get("seat", seat))
 	var source_seat := int(player.get("winning_source_seat", seat_value))
-	return "自摸" if source_seat == seat_value else "点炮"
+	return "自摸" if source_seat == seat_value else "%s点炮" % _seat_name(source_seat)

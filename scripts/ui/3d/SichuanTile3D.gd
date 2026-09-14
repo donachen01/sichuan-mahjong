@@ -36,13 +36,13 @@ const FLAT_RESULT_JADE_BACK := Color("0C5729")
 # PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
 # 直接读成两副不同颜色的牌。
 const FAR_RACK_IVORY_COLOR := Color("EBE7DF")
-# 碰、杠和胡牌来源复用中心弃牌黄色菱形的金色高光材质；几何仍是带尖端和杆的
-# 箭头，因此醒目但不会丢失“来源方向”信息，也不增加任何座位文字。
-const SOURCE_ARROW_COLOR := Color("FFD45A")
-# 来源箭头必须落在牌面中心，而不是悬在牌外。箭头自身有实体厚度，底面略高于
-# 玉白牌面，顶部由灯光和金色清漆高光读出立体感。
-const SOURCE_ARROW_FACE_OFFSET := 0.018
-const SOURCE_ARROW_THICKNESS := 0.026
+# 碰、杠和胡牌来源统一使用高饱和翡翠绿实体箭头，与黄色摸牌/弃牌提示彻底区分。
+# 它保留明确的方向尖端，不附加座位文字。
+const SOURCE_ARROW_COLOR := Color("25C95A")
+# 箭头悬浮在牌面正上方，留出能被阴影读出的空气层；加厚实体侧壁和清漆高光
+# 共同形成参考图中的玩具式 3D 质感，而不是贴在牌面上的扁平色块。
+const SOURCE_ARROW_FACE_OFFSET := 0.068
+const SOURCE_ARROW_THICKNESS := 0.034
 
 static var material_cache: Dictionary = {}
 
@@ -229,8 +229,7 @@ func configure(
 	)
 	var is_meld_source := source_marker_kind in ["peng", "gang"]
 	if winning_source_marker.visible:
-		# 副露和胡牌共用同一套金色实体方向语言；方向 yaw 继承来源座位，箭头
-		# 本身压在牌面中心，不再使用悬在牌外的平面标记。
+		# 副露和胡牌共用同一套绿色悬浮实体方向语言；方向 yaw 继承来源座位。
 		if is_meld_source != using_meld_source_arrow_mesh:
 			winning_source_marker.mesh = (
 				_build_meld_source_arrow_mesh()
@@ -245,6 +244,7 @@ func configure(
 			0,
 			_source_arrow_material()
 		)
+		winning_source_marker.set_surface_override_material(1, _source_arrow_side_material())
 	# 来源只以箭头表达，碰、杠和胡牌都不得显示“上家/下家/对家”等文字。
 	winning_source_label.visible = false
 	winning_source_label.text = ""
@@ -381,8 +381,9 @@ func _build_visuals() -> void:
 	# is set from the winner/source seats in configure(), so the 3D arrow points
 	# toward the discarder while the beveled side walls catch the table lights.
 	winning_source_marker.position = Vector3(0.0, FACE_Y + SOURCE_ARROW_FACE_OFFSET, 0.0)
-	winning_source_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	winning_source_marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	winning_source_marker.set_surface_override_material(0, _source_arrow_material())
+	winning_source_marker.set_surface_override_material(1, _source_arrow_side_material())
 	winning_source_marker.visible = false
 	add_child(winning_source_marker)
 
@@ -743,17 +744,57 @@ func _flat_material(key: String, color: Color) -> StandardMaterial3D:
 
 
 func _source_arrow_material() -> StandardMaterial3D:
-	# Keep one exact material contract with the centre latest-discard diamond:
-	# warm yellow albedo, restrained metallic/clearcoat and a small emission lift.
-	return _latest_discard_marker_material()
+	const CACHE_KEY := "marker:source_floating_emerald_enamel_top_v3"
+	if material_cache.has(CACHE_KEY):
+		return material_cache[CACHE_KEY]
+	var result := StandardMaterial3D.new()
+	result.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	result.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
+	result.albedo_color = Color(SOURCE_ARROW_COLOR, 0.92)
+	result.metallic = 0.18
+	result.roughness = 0.14
+	result.cull_mode = BaseMaterial3D.CULL_DISABLED
+	result.emission_enabled = true
+	result.emission = Color("0A8C38")
+	result.emission_energy_multiplier = 0.14
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.82
+	result.clearcoat_roughness = 0.07
+	# A narrow ivory grown pass stays readable against both the ivory tile and
+	# green felt. It is deliberately thin so it frames rather than dominates.
+	var outline := StandardMaterial3D.new()
+	outline.albedo_color = Color("F4E8C2")
+	outline.metallic = 0.06
+	outline.roughness = 0.30
+	outline.cull_mode = BaseMaterial3D.CULL_FRONT
+	outline.set_grow_enabled(true)
+	outline.grow_amount = 0.006
+	result.next_pass = outline
+	material_cache[CACHE_KEY] = result
+	return result
+
+
+func _source_arrow_side_material() -> StandardMaterial3D:
+	const CACHE_KEY := "marker:source_floating_emerald_enamel_side_v3"
+	if material_cache.has(CACHE_KEY):
+		return material_cache[CACHE_KEY]
+	var result := StandardMaterial3D.new()
+	result.albedo_color = Color("075B2A")
+	result.metallic = 0.12
+	result.roughness = 0.22
+	result.clearcoat_enabled = true
+	result.clearcoat = 0.48
+	result.clearcoat_roughness = 0.16
+	material_cache[CACHE_KEY] = result
+	return result
 
 
 func _build_winning_arrow_mesh() -> ArrayMesh:
-	return _build_extruded_arrow_mesh(0.120, 0.078, 0.026, SOURCE_ARROW_THICKNESS)
+	return _build_extruded_arrow_mesh(0.158, 0.102, 0.030, SOURCE_ARROW_THICKNESS)
 
 
 func _build_meld_source_arrow_mesh() -> ArrayMesh:
-	return _build_extruded_arrow_mesh(0.100, 0.066, 0.024, SOURCE_ARROW_THICKNESS)
+	return _build_extruded_arrow_mesh(0.136, 0.088, 0.027, SOURCE_ARROW_THICKNESS)
 
 
 func _build_extruded_arrow_mesh(length: float, head_width: float, stem_half_width: float, thickness: float) -> ArrayMesh:
@@ -763,8 +804,8 @@ func _build_extruded_arrow_mesh(length: float, head_width: float, stem_half_widt
 		Vector2(0.0, -length),
 		Vector2(head_width, -0.010),
 		Vector2(stem_half_width, -0.010),
-		Vector2(stem_half_width, length * 0.96),
-		Vector2(-stem_half_width, length * 0.96),
+		Vector2(stem_half_width, length * 0.72),
+		Vector2(-stem_half_width, length * 0.72),
 		Vector2(-stem_half_width, -0.010),
 		Vector2(-head_width, -0.010),
 	])
@@ -773,21 +814,27 @@ func _build_extruded_arrow_mesh(length: float, head_width: float, stem_half_widt
 		vertices.append(Vector3(point.x, thickness * 0.5, point.y))
 	for point in outline:
 		vertices.append(Vector3(point.x, -thickness * 0.5, point.y))
-	var indices := PackedInt32Array()
+	var cap_indices := PackedInt32Array()
 	# Top and bottom caps (winding is opposite).
 	for index in range(1, outline.size() - 1):
-		indices.append(0); indices.append(index); indices.append(index + 1)
-		indices.append(outline.size()); indices.append(outline.size() + index + 1); indices.append(outline.size() + index)
+		cap_indices.append(0); cap_indices.append(index); cap_indices.append(index + 1)
+		cap_indices.append(outline.size()); cap_indices.append(outline.size() + index + 1); cap_indices.append(outline.size() + index)
+	var side_indices := PackedInt32Array()
 	for index in range(outline.size()):
 		var next := (index + 1) % outline.size()
-		indices.append(index); indices.append(outline.size() + index); indices.append(outline.size() + next)
-		indices.append(index); indices.append(outline.size() + next); indices.append(next)
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_INDEX] = indices
+		side_indices.append(index); side_indices.append(outline.size() + index); side_indices.append(outline.size() + next)
+		side_indices.append(index); side_indices.append(outline.size() + next); side_indices.append(next)
+	var cap_arrays := []
+	cap_arrays.resize(Mesh.ARRAY_MAX)
+	cap_arrays[Mesh.ARRAY_VERTEX] = vertices
+	cap_arrays[Mesh.ARRAY_INDEX] = cap_indices
+	var side_arrays := []
+	side_arrays.resize(Mesh.ARRAY_MAX)
+	side_arrays[Mesh.ARRAY_VERTEX] = vertices
+	side_arrays[Mesh.ARRAY_INDEX] = side_indices
 	var mesh := ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, cap_arrays)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, side_arrays)
 	return mesh
 
 
