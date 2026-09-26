@@ -6,6 +6,7 @@ signal next_round_requested
 
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
+const BODY_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 
 @onready var shade: ColorRect = %Shade
 @onready var panel: Panel = %Panel
@@ -24,6 +25,10 @@ var snapshot_view: Dictionary = {}
 var selected_seat := -1
 var display_contract: Dictionary = {}
 var settlement_signature := ""
+var detail_tabs: TabContainer
+var ranking_text: RichTextLabel
+var ledger_text: RichTextLabel
+var rules_text: RichTextLabel
 
 
 func _ready() -> void:
@@ -31,10 +36,83 @@ func _ready() -> void:
 	shade.mouse_filter = Control.MOUSE_FILTER_STOP
 	shade.gui_input.connect(_on_shade_gui_input)
 	close_button.pressed.connect(func() -> void: close_requested.emit())
-	next_round_button.pressed.connect(func() -> void: next_round_requested.emit())
+	next_round_button.pressed.connect(func() -> void: close_requested.emit())
+	_build_detail_tabs()
 	_apply_styles()
 	resized.connect(_layout_panel)
 	call_deferred("_layout_panel")
+
+func _build_detail_tabs() -> void:
+	var root_box := panel.get_node("Margin/RootVBox") as VBoxContainer
+	var current_content := root_box.get_node("Content") as Control
+	root_box.remove_child(current_content)
+	detail_tabs = TabContainer.new()
+	detail_tabs.name = "DetailTabs"
+	detail_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_tabs.add_theme_font_override("font", BODY_FONT)
+	detail_tabs.add_theme_font_size_override("font_size", 30)
+	root_box.add_child(detail_tabs)
+	root_box.move_child(detail_tabs, 1)
+	var current_tab := MarginContainer.new()
+	current_tab.name = "本局结算"
+	current_tab.add_child(current_content)
+	detail_tabs.add_child(current_tab)
+	ranking_text = _add_text_tab("对局排行")
+	ledger_text = _add_text_tab("对局流水")
+	rules_text = _add_text_tab("玩法规则")
+	close_button.hide()
+	next_round_button.text = "关闭"
+	next_round_button.custom_minimum_size = Vector2(220, 76)
+	_style_detail_tabs()
+
+func _add_text_tab(title: String) -> RichTextLabel:
+	var scroll := ScrollContainer.new()
+	scroll.name = title
+	detail_tabs.add_child(scroll)
+	var text := RichTextLabel.new()
+	text.name = "Content"
+	text.bbcode_enabled = true
+	text.fit_content = true
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	text.add_theme_font_override("normal_font", BODY_FONT)
+	text.add_theme_font_override("bold_font", BODY_FONT)
+	text.add_theme_font_size_override("normal_font_size", 29)
+	text.add_theme_font_size_override("bold_font_size", 32)
+	text.add_theme_color_override("default_color", TABLE_THEME.TEXT_PRIMARY)
+	scroll.add_child(text)
+	return text
+
+func update_match_details(history: Array, controllers: Array) -> void:
+	var names := {}
+	for controller in controllers:
+		names[int(controller.get("seat", -1))] = str(controller.get("nickname", "玩家"))
+	var totals := {}; var wins := {}; var discards := {}; var gangs := {}
+	for record in history:
+		for key in record.get("score_changes", {}): totals[int(str(key))] = int(totals.get(int(str(key)), 0)) + int(record.score_changes[key])
+		for event in record.get("win_events", []):
+			wins[int(event.get("winner_seat", -1))] = int(wins.get(int(event.get("winner_seat", -1)), 0)) + 1
+			if not bool(event.get("is_self_draw", false)): discards[int(event.get("discarder_seat", -1))] = int(discards.get(int(event.get("discarder_seat", -1)), 0)) + 1
+		for event in record.get("gang_events", []): gangs[int(event.get("seat", -1))] = int(gangs.get(int(event.get("seat", -1)), 0)) + 1
+	var ranking := "[color=#E8C66D][b]排名　玩家　　　　　　　　积分　胡牌　点炮　杠[/b][/color]\n[color=#527B6E]━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/color]\n"
+	for seat in range(4): ranking += "%d　%s　　　　　　　　[color=#FFE27A]%+d[/color]　　%d　　%d　　%d\n[color=#355F53]────────────────────────────[/color]\n" % [seat + 1, names.get(seat, "电脑%d" % (seat + 1)), totals.get(seat, 0), wins.get(seat, 0), discards.get(seat, 0), gangs.get(seat, 0)]
+	ranking_text.text = ranking
+	var ledger := ""
+	for record in history:
+		ledger += "[color=#E8C66D][b]第 %d 局[/b][/color]\n" % int(record.get("round_index", 0))
+		for seat in range(4): ledger += "%s　%+d　" % [names.get(seat, "座位%d" % (seat + 1)), int(record.get("score_changes", {}).get(seat, record.get("score_changes", {}).get(str(seat), 0)))]
+		ledger += "\n[color=#355F53]━━━━━━━━━━━━━━━━━━━━━━━━━━━━[/color]\n"
+	ledger_text.text = ledger if not ledger.is_empty() else "本局尚未结束，暂无已完成的对局流水。"
+	rules_text.text = "[color=#E8C66D][font_size=34][b]四川血战到底[/b][/font_size][/color]\n\n[b]核心玩法[/b]\n定缺 · 查叫 · 花猪 · 杠分 · 呼叫转移\n\n[b]补充规则[/b]\n最后一张牌没有后续补牌时不可杠。\n本局未结束的数据不计入排行和流水。"
+
+func _style_detail_tabs() -> void:
+	var selected := StyleBoxFlat.new(); selected.bg_color = Color("0D5A46"); selected.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.96); selected.set_border_width_all(3); selected.set_corner_radius_all(10); selected.content_margin_left = 24; selected.content_margin_right = 24; selected.content_margin_top = 12; selected.content_margin_bottom = 12
+	var idle := selected.duplicate() as StyleBoxFlat; idle.bg_color = Color("092F28"); idle.border_color = Color(TABLE_THEME.BRASS, 0.35); idle.set_border_width_all(1)
+	detail_tabs.add_theme_stylebox_override("tab_selected", selected)
+	detail_tabs.add_theme_stylebox_override("tab_unselected", idle)
+	detail_tabs.add_theme_stylebox_override("tab_hovered", selected)
+	detail_tabs.add_theme_color_override("font_selected_color", Color("FFF1C7"))
+	detail_tabs.add_theme_color_override("font_unselected_color", Color("BFB79F"))
 
 
 func render(snapshot: Dictionary) -> void:

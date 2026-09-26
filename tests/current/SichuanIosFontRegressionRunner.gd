@@ -197,21 +197,22 @@ func _check_required_typography_roles(root_node: Node, failures: Array[String]) 
 	if wall_count_size < 30:
 		failures.append("static wall count font size below standard minimum: %d" % wall_count_size)
 
-	var settlement: Control = root_node.get("settlement_overlay_v2")
-	var round_label := settlement.get_node_or_null("%RoundLabel") as Label
-	var result_badge := settlement.get_node_or_null("%ResultBadge") as Label
-	var settlement_score := settlement.get_node_or_null("%ScoreLabel") as Label
-	var hand_label := settlement.get_node_or_null("%HandLabel") as Label
-	var breakdown_label := settlement.get_node_or_null("%BreakdownLabel") as Label
-	_check_control_font_path(round_label, "结算标题", DISPLAY_FONT_PATH, failures)
+	var settlement: Control = root_node.get("settlement_overlay")
+	var round_label := root_node.get("settlement_round_label") as Label
+	var result_badge := root_node.get("settlement_hero_badge") as Label
+	var settlement_score := root_node.get("settlement_hero_score") as Label
+	var hand_label := root_node.get("settlement_hero_fan") as Label
+	var breakdown_label := root_node.get("settlement_breakdown_title") as Label
+	_check_control_font_path(round_label, "结算标题", BODY_FONT_PATH, failures)
 	_check_control_font_path(result_badge, "结算结果短标题", DISPLAY_FONT_PATH, failures)
 	for entry in [
 		{"control": settlement_score, "label": "结算焦点分数", "minimum": 72},
 		{"control": hand_label, "label": "结算手牌正文", "minimum": 24},
-		{"control": breakdown_label, "label": "结算明细", "minimum": 24},
+		{"control": breakdown_label, "label": "结算明细", "minimum": 32},
 	]:
 		var control := entry.get("control") as Control
-		_check_control_font_path(control, str(entry.get("label")), BODY_FONT_PATH, failures)
+		var expected_font := DISPLAY_FONT_PATH if control == breakdown_label else BODY_FONT_PATH
+		_check_control_font_path(control, str(entry.get("label")), expected_font, failures)
 		var size := control.get_theme_font_size("font_size") if control != null else 0
 		sizes[str(entry.get("label"))] = size
 		if size < int(entry.get("minimum", 0)):

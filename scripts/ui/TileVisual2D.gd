@@ -103,11 +103,15 @@ func _draw() -> void:
 	var shadow_rect: Rect2 = contract["shadow_rect"]
 	_draw_contact_shadow(shadow_rect)
 	_draw_tile_body_depth(front_rect)
-	var surface_texture := _load_tile_surface(show_back)
+	# Settlement uses a cool ivory glass-compatible face instead of the warm
+	# tabletop texture. Symbols stay unchanged so suit/rank recognition is intact.
+	var surface_texture := null if settlement_display else _load_tile_surface(show_back)
 	if surface_texture != null:
 		var surface_rect := front_rect.grow_individual(0.8 * tile_scale, 0.4 * tile_scale, 0.8 * tile_scale, 1.4 * tile_scale)
 		draw_texture_rect(surface_texture, surface_rect, false)
 		_draw_inset_face_rim(front_rect)
+	elif settlement_display and not show_back:
+		_draw_settlement_face(front_rect)
 	else:
 		draw_style_box(back_stylebox if show_back else face_stylebox, front_rect)
 	_draw_face_material(front_rect)
@@ -194,8 +198,10 @@ func _draw_tile_body_depth(front_rect: Rect2) -> void:
 		Vector2(front_rect.end.x + depth.x, front_rect.end.y + depth.y),
 		Vector2(front_rect.position.x + depth.x, front_rect.end.y + depth.y),
 	])
-	draw_colored_polygon(right_points, TILE_STYLE.side_color(show_back))
-	draw_colored_polygon(bottom_points, TILE_STYLE.bottom_color(show_back))
+	var side_color := Color(0.68, 0.80, 0.88, 0.82) if settlement_display and not show_back else TILE_STYLE.side_color(show_back)
+	var bottom_color := Color(0.50, 0.66, 0.77, 0.78) if settlement_display and not show_back else TILE_STYLE.bottom_color(show_back)
+	draw_colored_polygon(right_points, side_color)
+	draw_colored_polygon(bottom_points, bottom_color)
 	var right_inner := PackedVector2Array([
 		right_points[0] + Vector2(1.3, 3.0) * tile_scale,
 		right_points[1] + Vector2(-1.0, 1.0) * tile_scale,
@@ -208,8 +214,8 @@ func _draw_tile_body_depth(front_rect: Rect2) -> void:
 		bottom_points[2] + Vector2(-2.0, -1.2) * tile_scale,
 		bottom_points[3] + Vector2(2.0, -1.2) * tile_scale,
 	])
-	draw_colored_polygon(right_inner, Color(TILE_STYLE.SIDE_LIGHT, 0.42) if not show_back else Color(0.40, 0.72, 0.36, 0.28))
-	draw_colored_polygon(bottom_inner, Color(TILE_STYLE.SIDE_DARK, 0.36) if not show_back else Color(0.02, 0.30, 0.12, 0.34))
+	draw_colored_polygon(right_inner, Color(0.90, 0.96, 1.0, 0.38) if settlement_display and not show_back else (Color(TILE_STYLE.SIDE_LIGHT, 0.42) if not show_back else Color(0.40, 0.72, 0.36, 0.28)))
+	draw_colored_polygon(bottom_inner, Color(0.28, 0.48, 0.62, 0.26) if settlement_display and not show_back else (Color(TILE_STYLE.SIDE_DARK, 0.36) if not show_back else Color(0.02, 0.30, 0.12, 0.34)))
 	draw_line(right_points[0], right_points[1], TILE_STYLE.INNER_HIGHLIGHT, maxf(1.0, 1.2 * tile_scale))
 	draw_line(bottom_points[0], bottom_points[1], Color(0.94, 1.0, 0.91, 0.18), maxf(1.0, tile_scale))
 
@@ -220,11 +226,11 @@ func _body_depth() -> Vector2:
 
 func _draw_contact_shadow(shadow_rect: Rect2) -> void:
 	var ambient := StyleBoxFlat.new()
-	ambient.bg_color = TILE_STYLE.AMBIENT_SHADOW
+	ambient.bg_color = Color(0.22, 0.43, 0.58, 0.10) if settlement_display else TILE_STYLE.AMBIENT_SHADOW
 	ambient.set_corner_radius_all(maxi(4, int(round(TILE_CORNER_RADIUS * tile_scale))))
-	ambient.shadow_color = Color(0.0, 0.02, 0.01, 0.32)
-	ambient.shadow_size = maxi(3, int(round(7.0 * tile_scale)))
-	ambient.shadow_offset = Vector2(4.0, 5.5) * tile_scale
+	ambient.shadow_color = Color(0.10, 0.30, 0.46, 0.22) if settlement_display else Color(0.0, 0.02, 0.01, 0.32)
+	ambient.shadow_size = maxi(2, int(round((4.0 if settlement_display else 7.0) * tile_scale)))
+	ambient.shadow_offset = Vector2(2.5, 4.0) * tile_scale if settlement_display else Vector2(4.0, 5.5) * tile_scale
 	draw_style_box(ambient, shadow_rect.grow(2.2 * tile_scale))
 	if settlement_display:
 		return
@@ -233,6 +239,17 @@ func _draw_contact_shadow(shadow_rect: Rect2) -> void:
 		Vector2(maxf(2.0, shadow_rect.size.x - 10.0 * tile_scale), maxf(2.0, 7.0 * tile_scale))
 	)
 	draw_rect(contact_rect, BACK_SHADOW_COLOR if show_back else SHADOW_COLOR, true)
+
+
+func _draw_settlement_face(front_rect: Rect2) -> void:
+	var glass_face := StyleBoxFlat.new()
+	glass_face.bg_color = Color(0.965, 0.985, 1.0, 0.97)
+	glass_face.border_color = Color(0.58, 0.72, 0.82, 0.88)
+	glass_face.set_border_width_all(maxi(1, int(round(1.2 * tile_scale))))
+	glass_face.set_corner_radius_all(maxi(5, int(round(8.0 * tile_scale))))
+	draw_style_box(glass_face, front_rect)
+	var highlight := front_rect.grow(-3.0 * tile_scale)
+	draw_rect(Rect2(highlight.position, Vector2(highlight.size.x, highlight.size.y * 0.22)), Color(1.0, 1.0, 1.0, 0.38), true)
 
 
 func _draw_face_material(front_rect: Rect2) -> void:

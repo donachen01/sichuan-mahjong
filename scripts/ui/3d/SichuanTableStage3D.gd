@@ -9,6 +9,7 @@ const CENTER_COMPASS_SCENE := preload("res://res/art/3d/sichuan_center_compass_v
 const CENTER_NUMBER_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
 const FALLBACK_TABLE_SCENE := preload("res://res/art/3d/sichuan_table.glb")
 const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
+const CLASSIC_WALNUT_ALBEDO := preload("res://res/art/materials/table_v2/walnut_basecolor.png")
 
 # Keep the original compact self-hand rhythm while preserving a real physical
 # seam. At the normal 1.94 scale each tile is 0.8148 world units wide, so 0.80
@@ -139,7 +140,10 @@ var active_motion_tweens: Array[Tween] = []
 var last_desired_entries: Dictionary = {}
 var active_table_skin_id := SichuanTableSkinCatalog.DEFAULT_SKIN_ID
 var table_felt_materials: Array[StandardMaterial3D] = []
+var table_frame_surfaces: Array[Dictionary] = []
 var table_skin_texture_cache: Dictionary = {}
+var world_environment_resource: Environment
+var table_key_light: DirectionalLight3D
 
 
 func _ready() -> void:
@@ -300,7 +304,8 @@ func apply_table_skin(skin_id: String) -> bool:
 	if not TABLE_SKIN_CATALOG.has_skin(skin_id):
 		return false
 	var skin: Dictionary = TABLE_SKIN_CATALOG.get_skin(skin_id)
-	var albedo := _load_table_skin_texture(skin_id, "albedo_2k.jpg")
+	var albedo_filename := str(skin.get("albedo_filename", "albedo_2k.jpg"))
+	var albedo := _load_table_skin_texture(skin_id, albedo_filename)
 	var normal := _load_table_skin_texture(skin_id, "normal_2k.png")
 	var roughness_map := _load_table_skin_texture(skin_id, "roughness_2k.png")
 	if albedo == null or normal == null or roughness_map == null:
@@ -311,24 +316,130 @@ func apply_table_skin(skin_id: String) -> bool:
 			continue
 		felt_material.albedo_color = skin.get("albedo_tint", Color.WHITE)
 		felt_material.albedo_texture = albedo
-		felt_material.normal_enabled = true
-		felt_material.normal_texture = normal
+		var smooth_glass_tabletop := bool(skin.get("smooth_glass_tabletop", false))
+		var use_detail_maps := bool(skin.get("use_detail_maps", not smooth_glass_tabletop))
+		felt_material.normal_enabled = use_detail_maps
+		felt_material.normal_texture = normal if use_detail_maps else null
 		felt_material.normal_scale = float(skin.get("normal_scale", 0.30))
 		felt_material.roughness = float(skin.get("roughness", 0.92))
-		felt_material.roughness_texture = roughness_map
+		felt_material.roughness_texture = roughness_map if use_detail_maps else null
 		felt_material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 		felt_material.metallic = 0.0
+		felt_material.clearcoat_enabled = false
 		felt_material.uv1_scale = skin.get("uv_scale", Vector3(2.8, 2.8, 1.0))
 		felt_material.texture_filter = (
-			BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-			if _uses_mobile_gpu_budget()
-			else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+			BaseMaterial3D.TEXTURE_FILTER_LINEAR
+			if bool(skin.get("preserve_microtexture", false))
+			else (
+				BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+				if _uses_mobile_gpu_budget()
+				else BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+			)
 		)
 		felt_material.anisotropy_enabled = not _uses_mobile_gpu_budget()
 		felt_material.anisotropy = 0.0 if _uses_mobile_gpu_budget() else float(skin.get("anisotropy", 0.12))
 		felt_material.rim_enabled = false
+	_apply_table_frame_theme(skin)
+	_apply_world_theme(skin)
 	active_table_skin_id = skin_id
 	return true
+
+
+func _apply_table_frame_theme(skin: Dictionary) -> void:
+	var use_glass := bool(skin.get("glass_theme", false))
+	for surface in table_frame_surfaces:
+		var table_mesh := surface.get("mesh") as MeshInstance3D
+		var surface_index := int(surface.get("surface_index", 0))
+		var base_material := surface.get("base_material") as StandardMaterial3D
+		if table_mesh == null or base_material == null:
+			continue
+		var glass_detail := table_mesh.name in ["SingleClearGlassCap", "InnerGlassEdge", "RaisedTransparentGlassLip"]
+		table_mesh.visible = use_glass or not glass_detail
+		if not use_glass:
+			var restored := base_material.duplicate() as StandardMaterial3D
+			restored.resource_local_to_scene = true
+			if table_mesh.name in ["TableWalnutBase", "WalnutApronRing"]:
+				restored.albedo_color = Color.WHITE
+				restored.albedo_texture = CLASSIC_WALNUT_ALBEDO
+				restored.metallic = 0.0
+				restored.roughness = 0.58
+				restored.clearcoat_enabled = false
+			table_mesh.set_surface_override_material(surface_index, restored)
+			continue
+		var finish := StandardMaterial3D.new()
+		finish.resource_local_to_scene = true
+		finish.cull_mode = BaseMaterial3D.CULL_BACK
+		finish.metallic_specular = 0.96
+		finish.clearcoat_enabled = true
+		finish.clearcoat = 0.88
+		finish.clearcoat_roughness = 0.04
+		match table_mesh.name:
+			"TableWalnutBase":
+				finish.albedo_color = Color("02091E")
+				finish.metallic = 0.32
+				finish.roughness = 0.19
+			"WalnutApronRing":
+				finish.albedo_color = Color(skin.get("frame_color", Color("155AA8")))
+				finish.metallic = 0.10
+				finish.roughness = 0.085
+			"InnerGlassEdge":
+				finish.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				finish.albedo_color = Color(0.59, 0.84, 0.93, 0.38)
+				finish.roughness = 0.055
+			"RaisedTransparentGlassLip":
+				finish.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				finish.albedo_color = Color(0.76, 0.91, 1.0, 0.12)
+				finish.roughness = 0.045
+			"SingleClearGlassCap":
+				finish.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+				finish.albedo_color = Color(0.86, 0.97, 1.0, float(skin.get("frame_glass_opacity", 0.16)))
+				finish.roughness = 0.055
+			_:
+				finish.albedo_color = Color("122E58")
+				finish.roughness = 0.12
+		table_mesh.set_surface_override_material(surface_index, finish)
+	var table_root := get_node_or_null("ManufacturedClubTable") as Node3D
+	if table_root != null:
+		for mesh_node in table_root.find_children("*", "MeshInstance3D", true, false):
+			var detail := mesh_node as MeshInstance3D
+			if detail.name.begins_with("PlayfieldGroove") or detail.name.begins_with("CenterCorner"):
+				detail.visible = not use_glass
+
+
+func _apply_world_theme(skin: Dictionary) -> void:
+	if world_environment_resource == null:
+		return
+	if bool(skin.get("glass_theme", false)):
+		var sky_material := ProceduralSkyMaterial.new()
+		sky_material.sky_top_color = Color(skin.get("background_top", Color("F4F7FA")))
+		sky_material.sky_horizon_color = Color(skin.get("background_horizon", Color("CFE8FF")))
+		sky_material.ground_horizon_color = Color("8ABEFF")
+		sky_material.ground_bottom_color = Color(skin.get("background_bottom", Color("1762CF")))
+		sky_material.sky_curve = 0.34
+		sky_material.ground_curve = 0.42
+		var sky := Sky.new()
+		sky.sky_material = sky_material
+		world_environment_resource.background_mode = Environment.BG_SKY
+		world_environment_resource.sky = sky
+		# A glossy lacquer ring needs its sky reflection to reveal its curved
+		# bevels. The old disabled reflection source made a physical PBR frame
+		# read as flat blue paint, even though the Blender model had clearcoat.
+		world_environment_resource.reflected_light_source = Environment.REFLECTION_SOURCE_BG
+		world_environment_resource.ambient_light_color = Color(skin.get("ambient_light_color", Color("BFD7DE")))
+		world_environment_resource.ambient_light_energy = float(skin.get("ambient_light_energy", 0.28))
+		if table_key_light != null:
+			table_key_light.light_color = Color("EEF8FF")
+			table_key_light.light_energy = float(skin.get("key_light_energy", 0.82))
+		return
+	world_environment_resource.background_mode = Environment.BG_COLOR
+	world_environment_resource.background_color = Color("202A43")
+	world_environment_resource.sky = null
+	world_environment_resource.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
+	world_environment_resource.ambient_light_color = Color("A9B79C")
+	world_environment_resource.ambient_light_energy = 0.22
+	if table_key_light != null:
+		table_key_light.light_color = Color("FFF1E1")
+		table_key_light.light_energy = 0.79
 
 
 func get_table_skin_id() -> String:
@@ -360,7 +471,17 @@ func get_table_skin_contract() -> Dictionary:
 		"skin_ids": ids,
 		"skin_count": ids.size(),
 		"felt_material_count": table_felt_materials.size(),
+		"frame_material_count": table_frame_surfaces.size(),
 		"material_target": "TableFelt",
+		"frame_material_target": "TableWalnutBase+WalnutApronRing+SingleClearGlassCap+InnerGlassEdge+RaisedTransparentGlassLip",
+		"scene_theme": "glass_background_frame_and_felt" if active_table_skin_id == "blue_glass" else "felt_only",
+		"background_mode": world_environment_resource.background_mode if world_environment_resource != null else -1,
+		"glass_uses_screen_refraction": false,
+		"glass_uses_fullscreen_blur": false,
+		"frame_glass_transparent": bool(TABLE_SKIN_CATALOG.get_skin(active_table_skin_id).get("glass_theme", false)),
+		"frame_glass_opacity": float(TABLE_SKIN_CATALOG.get_skin(active_table_skin_id).get("frame_glass_opacity", 1.0)),
+		"smooth_glass_tabletop": bool(TABLE_SKIN_CATALOG.get_skin(active_table_skin_id).get("smooth_glass_tabletop", false)),
+		"glass_tabletop_normal_map_enabled": bool(TABLE_SKIN_CATALOG.get_skin(active_table_skin_id).get("use_detail_maps", not bool(TABLE_SKIN_CATALOG.get_skin(active_table_skin_id).get("smooth_glass_tabletop", false)))),
 		"uses_displacement": false,
 		"gameplay_geometry_unchanged": true,
 		"table_transform_unchanged": true,
@@ -382,6 +503,7 @@ func _setup_world() -> void:
 	var world_environment := WorldEnvironment.new()
 	world_environment.name = "ClubWorldEnvironment"
 	var environment := Environment.new()
+	world_environment_resource = environment
 	environment.background_mode = Environment.BG_COLOR
 	environment.background_color = Color("202A43")
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
@@ -425,6 +547,7 @@ func _setup_world() -> void:
 	add_child(camera)
 
 	var key_light := DirectionalLight3D.new()
+	table_key_light = key_light
 	key_light.name = "UpperLeftWarmKey"
 	# A warm-neutral furniture key preserves the reddish walnut grain and keeps
 	# the forest-green felt from drifting toward cyan. Tile faces still receive
@@ -503,6 +626,17 @@ func _configure_imported_table_meshes(node: Node) -> void:
 					felt_material.rim_enabled = false
 					table_mesh.set_surface_override_material(surface_index, felt_material)
 					table_felt_materials.append(felt_material)
+		elif table_mesh.name in ["TableWalnutBase", "WalnutApronRing", "LeatherGasketRing", "SingleClearGlassCap", "InnerGlassEdge", "RaisedTransparentGlassLip"]:
+			for surface_index in range(table_mesh.get_surface_override_material_count()):
+				var imported_frame_material := table_mesh.get_active_material(surface_index)
+				if imported_frame_material is StandardMaterial3D:
+					var base_frame := imported_frame_material.duplicate() as StandardMaterial3D
+					base_frame.resource_local_to_scene = true
+					table_frame_surfaces.append({
+						"mesh": table_mesh,
+						"surface_index": surface_index,
+						"base_material": base_frame,
+					})
 	for child in node.get_children():
 		_configure_imported_table_meshes(child)
 
@@ -792,7 +926,9 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array, reveal_c
 		var meld_type := str(meld.get("type", ""))
 		var gang_subtype := str(meld.get("gang_subtype", meld.get("gang_type", "melded_gang")))
 		var concealed_gang := _is_concealed_gang(meld)
-		var add_gang := meld_type == "gang" and gang_subtype in ["add_gang", "bu_gang"]
+		var add_gang := meld_type == "gang" and (bool(meld.get("gang_upgrade", false)) or gang_subtype in ["add_gang", "bu_gang"])
+		if add_gang:
+			gang_subtype = "add_gang"
 		var direct_gang := meld_type == "gang" and not concealed_gang and not add_gang
 		var exposes_source := (meld_type == "peng" or direct_gang) and source_seat != seat
 		var claim_index := _claim_tile_index_for_meld(meld_tiles.size(), seat, source_seat) if exposes_source else -1
@@ -907,11 +1043,14 @@ func _claim_tile_index_for_meld(tile_count: int, owner_seat: int, source_seat: i
 	# 来源相对牌主：上家=左、对家=中、下家=右。四张直杠的“中”
 	# 固定用左中位，确保所有座位采用同一可读合同。
 	var relative_source := posmod(source_seat - owner_seat, 4)
+	# 右侧玩家的导轨沿 +Z 排列，和其自身从左到右的 -Z 相反。
+	if owner_seat == 3 and relative_source != 2:
+		relative_source = 4 - relative_source
 	match relative_source:
 		1:
 			return 0
 		2:
-			return mini(1, tile_count - 1)
+			return maxi(0, tile_count - 2) if owner_seat == 3 else mini(1, tile_count - 1)
 		3:
 			return tile_count - 1
 	return mini(1, tile_count - 1)
@@ -1399,7 +1538,7 @@ func _meld_layout_slot_count(melds: Array) -> int:
 		var meld := meld_value as Dictionary
 		var tile_count := (meld.get("tiles", []) as Array).size()
 		var subtype := str(meld.get("gang_subtype", meld.get("gang_type", "")))
-		count += 3 if str(meld.get("type", "")) == "gang" and subtype in ["add_gang", "bu_gang"] else tile_count
+		count += 3 if str(meld.get("type", "")) == "gang" and (bool(meld.get("gang_upgrade", false)) or subtype in ["add_gang", "bu_gang"]) else tile_count
 	return count
 
 
@@ -1409,7 +1548,7 @@ func _meld_rotated_extra_span_per_scale(melds: Array, owner_seat: int) -> float:
 		var meld := meld_value as Dictionary
 		var meld_type := str(meld.get("type", ""))
 		var subtype := str(meld.get("gang_subtype", meld.get("gang_type", "melded_gang")))
-		var direct_gang := meld_type == "gang" and subtype not in ["an_gang", "add_gang", "bu_gang"]
+		var direct_gang := meld_type == "gang" and not bool(meld.get("gang_upgrade", false)) and subtype not in ["an_gang", "add_gang", "bu_gang"]
 		if (meld_type == "peng" or direct_gang) and int(meld.get("from_seat", owner_seat)) != owner_seat:
 			exposed_source_groups += 1
 	return float(exposed_source_groups) \
@@ -1577,7 +1716,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"selected_marker_variants": SELECTED_MARKER_STYLE_NAMES,
 		"selected_selection_marker_variant": selected_marker_style_variant,
 		"marker_variant_selection": "fixed_blue_draw_diamond_and_no_selection_overlay",
-		"latest_discard_feedback": "static_solid_golden_diamond_above_latest_discard",
+		"latest_discard_feedback": "rotating_solid_golden_diamond_above_latest_discard",
 		"discard_travel_seconds": DISCARD_TRAVEL_SECONDS,
 		"discard_settle_seconds": DISCARD_SETTLE_SECONDS,
 		"discard_reflow_beat_seconds": DISCARD_REFLOW_BEAT_SECONDS,

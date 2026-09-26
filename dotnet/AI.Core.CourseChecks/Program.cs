@@ -1,12 +1,18 @@
 using SichuanMahjong.AI.Core.Codec;
 using SichuanMahjong.AI.Core.CourseChecks;
 using SichuanMahjong.AI.Core.Domain;
+using SichuanMahjong.AI.Core.Decision;
 using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Rules;
 
 var engine = new SichuanFanProjectionEngine();
+var splitRoot = engine.Project(
+    SichuanTileCodec.BuildCount18(new[] { 0, 1, 2, 3, 4, 5, 9, 10, 11, 17, 17 }),
+    new[] { new SichuanMeldView(SichuanMeldType.Peng, 0, 1, 1) }, SichuanWinType.Discard);
+Require(splitRoot.GenCount == 1 && splitRoot.CappedFan == 1 && splitRoot.PerPayerScore == 2,
+    "peng plus concealed fourth copy must count one root across the full hand");
 var concealedPair = SichuanTileCodec.BuildCount18(new[] { 8, 8 });
 var melds = new[]
 {
@@ -21,6 +27,15 @@ Require(projected.GenCount == 1, $"exposed gang must count as one root, got {pro
 Require(projected.UncappedFan == 3, $"jin-gou-diao plus root must be 3 fan, got {projected.UncappedFan}");
 Require(projected.CappedFan == 3 && projected.PerPayerScore == 9,
     $"self draw must charge each payer 2^3+1=9, got fan={projected.CappedFan} score={projected.PerPayerScore}");
+var dianGangHua = engine.Project(concealedPair, melds, SichuanWinType.DianGangHua);
+Require(dianGangHua.Labels.Contains("点杠花") && !dianGangHua.Labels.Contains("自摸"),
+    "dian-gang-hua must retain the gang flower fan without the self-draw label");
+Require(dianGangHua.PerPayerScore == dianGangHua.HandScore,
+    $"dian-gang-hua must not add the self-draw +1, got hand={dianGangHua.HandScore} payer={dianGangHua.PerPayerScore}");
+var dianGangSettlement = new SichuanSettlementProjectionEngine().ProjectWin(
+    0, 1, new[] { 0, 1, 2, 3 }, dianGangHua, SichuanWinType.DianGangHua);
+Require(dianGangSettlement.ScoreChanges.SequenceEqual(new[] { dianGangHua.HandScore, -dianGangHua.HandScore, 0, 0 }),
+    $"dian-gang-hua must charge only the gang source: {string.Join(',', dianGangSettlement.ScoreChanges)}");
 
 var neutralHand = SichuanTileCodec.BuildCount18(new[] { 0, 0, 1, 2, 3, 4, 5, 6, 9, 10, 11, 18, 19, 22 });
 var neutralState = SichuanStateCodec.FromRaw(
@@ -45,6 +60,24 @@ Require(chosen.Shanten == minimumShanten,
 Require(chosen.LiveUkeire == maximumLiveAtMinimum,
     $"equal-shanten discard must maximize strict live ukeire, chose {chosen.LiveUkeire} while best is {maximumLiveAtMinimum}");
 Console.WriteLine($"SICHUAN_COURSE_TEMPO_PASS tile={chosen.TileType} shanten={chosen.Shanten} live={chosen.LiveUkeire}");
+
+var exclusiveSuitState = SichuanStateCodec.FromRaw(
+    seatIndex: 0,
+    dealerSeat: 0,
+    currentSeat: 0,
+    wallCount: 43,
+    hand18: SichuanTileCodec.BuildCount18(new[] { 0, 1, 2, 3, 4, 5, 9, 9, 9, 10, 10, 11, 12, 13 }),
+    visible18: new int[27],
+    dingQueSuits: new[] { 2, 1, 1, 1 },
+    handCounts: new[] { 14, 13, 13, 13 });
+var exclusiveSuitCandidates = new SichuanUnifiedDecisionEngine().RankDiscards(exclusiveSuitState).Candidates;
+var discardOffLane = exclusiveSuitCandidates.Single(candidate => candidate.Action.TileType == 0);
+var discardLane = exclusiveSuitCandidates.Single(candidate => candidate.Action.TileType == 9);
+Require(discardOffLane.ReasonCodes.Any(reason => reason.Contains("THREE_OPPONENTS_MISSING_SUIT_1_ROUTE_")),
+    "three opponents missing one suit must create an explicit long-term one-way-lane reason");
+Require(discardOffLane.RouteContinuationValue > discardLane.RouteContinuationValue + 2.0,
+    $"one-way-lane planning must prefer retaining the exclusive suit, off={discardOffLane.RouteContinuationValue:F2} lane={discardLane.RouteContinuationValue:F2}");
+Console.WriteLine($"SICHUAN_THREE_MISSING_SUIT_ROUTE_PASS off={discardOffLane.RouteContinuationValue:F2} lane={discardLane.RouteContinuationValue:F2}");
 
 var classic = new SichuanClassicPatternEngine();
 var classicFixtures = new[]

@@ -392,7 +392,9 @@ def build_table() -> list[bpy.types.Object]:
 
     objects = [
         rounded_box("TableWalnutBase", (14.8, 9.6, 0.56), (0.0, 0.0, -0.31), 0.30, 10, walnut),
-        rounded_box("TableFelt", (13.38, 8.18, 0.31), (0.0, 0.0, 0.00), 0.22, 10, felt),
+        # Tuck the felt's flat top under the inner edge of the one visible
+        # glass apron. The old 13.38 x 8.18 slab left a sky-coloured moat.
+        rounded_box("TableFelt", (14.25, 9.05, 0.31), (0.0, 0.0, 0.00), 0.22, 10, felt),
         # One continuous raised walnut tray replaces the four overlapping
         # bands. Its rounded outer and inner contours produce furniture-like
         # corners and a clean uninterrupted silhouette in the oblique camera.

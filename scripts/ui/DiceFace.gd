@@ -2,6 +2,11 @@ extends Control
 
 class_name DiceFace
 
+@export var glass_texture: Texture2D:
+	set(new_texture):
+		glass_texture = new_texture
+		queue_redraw()
+
 @export_range(1, 6) var value: int = 1:
 	set(new_value):
 		value = clampi(new_value, 1, 6)
@@ -20,13 +25,15 @@ func _ready() -> void:
 
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
-	var shadow_rect := rect.grow(-4)
-	draw_rect(shadow_rect, Color(0.0, 0.0, 0.0, 0.18), true)
-
-	var main_rect := rect.grow(-6)
-	draw_style_box(_build_face_style(Color(0.95, 0.88, 0.63, 1.0), Color(0.55, 0.38, 0.14, 0.82)), main_rect)
-	var inner_rect := Rect2(main_rect.position + Vector2(2, 2), main_rect.size - Vector2(4, 4))
-	draw_style_box(_build_face_style(Color(1.0, 0.95, 0.78, 0.94), Color(1.0, 0.98, 0.90, 0.55)), inner_rect)
+	var inner_rect := rect.grow(-6)
+	if glass_texture != null:
+		draw_texture_rect(glass_texture, rect, false)
+	else:
+		var shadow_rect := rect.grow(-4)
+		draw_rect(shadow_rect, Color(0.0, 0.0, 0.0, 0.18), true)
+		var main_rect := rect.grow(-6)
+		draw_style_box(_build_face_style(Color(0.95, 0.88, 0.63, 1.0), Color(0.55, 0.38, 0.14, 0.82)), main_rect)
+		inner_rect = Rect2(main_rect.position + Vector2(2, 2), main_rect.size - Vector2(4, 4))
 
 	for pip_position in _pip_positions_for_value(value):
 		draw_circle(_map_pip_point(inner_rect, pip_position), inner_rect.size.x * 0.08, pip_color)

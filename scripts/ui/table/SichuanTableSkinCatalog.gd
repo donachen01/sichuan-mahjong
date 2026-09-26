@@ -1,10 +1,44 @@
 class_name SichuanTableSkinCatalog
 extends RefCounted
 
-const DEFAULT_SKIN_ID := "deep_emerald_crepe"
+const DEFAULT_SKIN_ID := "blue_glass"
 const TEXTURE_ROOT := "res://res/art/materials/table_skins"
 
 const SKINS: Array[Dictionary] = [
+	{
+		"id": "blue_glass",
+		"name": "玻璃特效",
+		"subtitle": "深青桌布·蓝漆玻璃桌框",
+		"chooser_subtitle": "深青桌布 · 玻璃桌框",
+		"source": "blender_authored_launch_lacquer_and_glass_table",
+		"albedo_filename": "albedo_2k.png",
+		"albedo_tint": Color("D8FFE8"),
+		"uv_scale": Vector3(1.0, 1.0, 1.0),
+		"normal_scale": 0.24,
+		"roughness": 0.82,
+		"anisotropy": 0.04,
+		"smooth_glass_tabletop": false,
+		"use_detail_maps": true,
+		"tabletop_material": "deep_teal_glass_microfelt",
+		"preserve_microtexture": true,
+		"light_color": Color("EEF9FF"),
+		"ambient_light_color": Color("D7E8EC"),
+		"ambient_light_energy": 0.40,
+		"key_light_energy": 0.50,
+		"rake_energy": 0.50,
+		"overhead_energy": 0.42,
+		"bounce_energy": 0.48,
+		"glass_theme": true,
+		"background_top": Color("248BD2"),
+		"background_horizon": Color("72BBE7"),
+		"background_bottom": Color("1254AE"),
+		"frame_color": Color("051D4F"),
+		"frame_edge_color": Color("B7F8FF"),
+		"frame_glass_opacity": 0.08,
+		"frame_gasket_opacity": 0.30,
+		"frame_glass_roughness": 0.10,
+		"frame_glass_rim": 0.78,
+	},
 	{
 		"id": "deep_emerald_crepe",
 		"name": "深翡翠绉绒",

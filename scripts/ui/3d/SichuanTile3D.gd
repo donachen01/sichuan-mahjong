@@ -94,7 +94,7 @@ static func _allow_expensive_material_features() -> bool:
 
 func _ready() -> void:
 	_build_visuals()
-	set_process(false)
+	set_process(latest_marker != null and latest_marker.visible and not reduced_motion)
 
 
 func _process(delta: float) -> void:
@@ -217,11 +217,7 @@ func configure(
 	# 选中牌只保留 Stage 的实体抬升，不再叠加勾号、光环或任何平面图案。
 	# 即便摸牌与选中同一张，蓝色小菱形仍保持正中，避免制造第二个选择符号。
 	selected_marker.visible = false
-	latest_marker.visible = latest
-	# The gold diamond remains an unambiguous latest-discard marker without a
-	# perpetual per-frame spin. The discard landing tween already supplies motion;
-	# keeping this node static lets mobile low-processor mode actually become idle.
-	set_process(false)
+	set_latest_marker_visible(latest)
 	winning_source_marker.visible = (
 		winning_source_seat >= 0
 		and winner_seat >= 0
@@ -252,7 +248,7 @@ func configure(
 
 func set_reduced_motion(enabled: bool) -> void:
 	reduced_motion = enabled
-	set_process(false)
+	set_process(latest_marker != null and latest_marker.visible and not reduced_motion)
 
 
 func get_full_configure_count() -> int:
@@ -285,7 +281,7 @@ func set_latest_marker_visible(enabled: bool) -> void:
 	if latest_marker == null:
 		return
 	latest_marker.visible = enabled
-	set_process(false)
+	set_process(enabled and not reduced_motion)
 
 
 func get_screen_rect(camera: Camera3D) -> Rect2:
@@ -670,24 +666,10 @@ func _build_rounded_beveled_back_mesh(size: Vector2, radius: float, corner_segme
 	return mesh
 
 
-func _apply_state_marker(selected: bool, new_draw: bool, recommended: bool, danger: bool) -> void:
-	var marker_color := Color(0.0, 0.0, 0.0, 0.0)
-	var marker_key := "none"
-	# 选中的牌永远不再使用整牌底色，即使它同时带建议或风险状态；由 Stage
-	# 的实体抬升负责表达选择，避免勾选图案或“大块背板”重新出现。
-	if selected:
-		pass
-	elif danger:
-		marker_color = Color(0.72, 0.12, 0.10, 0.62)
-		marker_key = "danger"
-	elif recommended:
-		marker_color = Color(0.28, 0.68, 0.43, 0.62)
-		marker_key = "recommended"
-	# New draws use physical right-edge separation in the table stage and do
-	# not add another color plane or icon to the tile itself.
-	state_marker.visible = marker_color.a > 0.0
-	if state_marker.visible:
-		state_marker.set_surface_override_material(0, _flat_material(marker_key, marker_color))
+func _apply_state_marker(_selected: bool, _new_draw: bool, _recommended: bool, _danger: bool) -> void:
+	# Keep AI risk/recommendation in the text drawer. Coloured planes behind the
+	# physical hand obscured the felt and made the tile row look striped.
+	state_marker.visible = false
 
 
 func _build_latest_discard_marker_mesh() -> ImmediateMesh:

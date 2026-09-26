@@ -75,6 +75,26 @@ offset_bottom = 270.0
 text = "语音 · 普通话"
 tooltip_text = "切换普通话和四川话语音"
 
+[node name="ChooseVoiceButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 320.0
+offset_top = 282.0
+offset_right = 504.0
+offset_bottom = 358.0
+text = "选择声音"
+tooltip_text = "选择和试听自己的声音"
+
+[node name="DetailsButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 320.0
+offset_top = 282.0
+offset_right = 504.0
+offset_bottom = 358.0
+text = "对局详情"
+tooltip_text = "查看对局排行、对局流水和房间玩法"
+
 [node name="SettlementButton" type="Button" parent="."]
 unique_name_in_owner = true
 visible = false

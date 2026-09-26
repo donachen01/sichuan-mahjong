@@ -24,8 +24,13 @@ func _run() -> void:
 
 func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 	var skins: Array[Dictionary] = CATALOG.all_skins()
-	if skins.size() != 6:
-		failures.append("桌布目录必须精确包含六套皮肤")
+	if skins.size() != 7:
+		failures.append("桌面主题目录必须精确包含七套皮肤")
+	if CATALOG.DEFAULT_SKIN_ID != "blue_glass":
+		failures.append("玻璃特效必须是新用户默认皮肤")
+	var glass_skin: Dictionary = CATALOG.get_skin("blue_glass")
+	if not bool(glass_skin.get("glass_theme", false)):
+		failures.append("玻璃特效缺少完整场景主题标记")
 	var ids: Dictionary = {}
 	for skin in skins:
 		var skin_id := str(skin.get("id", ""))
@@ -33,7 +38,8 @@ func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 			failures.append("桌布皮肤 ID 为空或重复: %s" % skin_id)
 			continue
 		ids[skin_id] = true
-		for filename in ["albedo_2k.jpg", "normal_2k.png", "roughness_2k.png", "preview.jpg"]:
+		var albedo_filename := str(skin.get("albedo_filename", "albedo_2k.jpg"))
+		for filename in [albedo_filename, "normal_2k.png", "roughness_2k.png", "preview.jpg"]:
 			var path := CATALOG.texture_path(skin_id, filename)
 			if not ResourceLoader.exists(path):
 				failures.append("缺少桌布发布资源: %s" % path)
@@ -48,8 +54,8 @@ func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 	panel.open(CATALOG.DEFAULT_SKIN_ID)
 	await process_frame
 	var panel_contract := panel.get_visual_contract()
-	if int(panel_contract.get("skin_count", 0)) != 6:
-		failures.append("换肤面板没有显示六套预览卡")
+	if int(panel_contract.get("skin_count", 0)) != 7:
+		failures.append("换肤面板没有显示七套预览卡")
 	if not bool(panel_contract.get("safe_area_aware", false)) \
 			or not bool(panel_contract.get("modal", false)) \
 			or not bool(panel_contract.get("blocks_gameplay_input", false)):
@@ -69,7 +75,7 @@ func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 	for skin in skins:
 		expected_ids.append(str(skin.get("id", "")))
 	if emitted_ids != expected_ids:
-		failures.append("换肤面板选择事件与六套目录不一致")
+		failures.append("换肤面板选择事件与七套目录不一致")
 	panel.queue_free()
 	await process_frame
 
@@ -86,6 +92,28 @@ func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 	var skin_contract := stage.get_table_skin_contract()
 	if int(skin_contract.get("felt_material_count", 0)) < 1:
 		failures.append("运行时没有绑定 TableFelt PBR 材质")
+	if int(skin_contract.get("frame_material_count", 0)) < 1:
+		failures.append("运行时没有绑定玻璃桌框材质目标")
+	if str(skin_contract.get("scene_theme", "")) != "glass_background_frame_and_felt":
+		failures.append("默认玻璃特效没有同时接管背景、桌框与桌布")
+	if int(skin_contract.get("background_mode", -1)) != Environment.BG_SKY:
+		failures.append("默认玻璃特效没有启用冰蓝天空背景")
+	if bool(skin_contract.get("glass_uses_screen_refraction", true)) \
+			or bool(skin_contract.get("glass_uses_fullscreen_blur", true)):
+		failures.append("玻璃特效不得启用移动端高成本折射或全屏模糊")
+	if not bool(skin_contract.get("frame_glass_transparent", false)) \
+			or float(skin_contract.get("frame_glass_opacity", 1.0)) > 0.75:
+		failures.append("玻璃特效桌框必须保持半透明玻璃状态")
+	for part_name in ["TableWalnutBase", "WalnutApronRing", "SingleClearGlassCap", "InnerGlassEdge", "RaisedTransparentGlassLip"]:
+		var part := table.find_child(part_name, true, false) as MeshInstance3D
+		if part == null or not part.visible:
+			failures.append("默认玻璃桌框缺少连续实体部件: %s" % part_name)
+	var legacy_gasket := table.find_child("LeatherGasketRing", true, false) as MeshInstance3D
+	if legacy_gasket != null and legacy_gasket.visible:
+		failures.append("玻璃桌框不能再显示旧版密封圈")
+	if bool(skin_contract.get("smooth_glass_tabletop", true)) \
+			or not bool(skin_contract.get("glass_tabletop_normal_map_enabled", false)):
+		failures.append("玻璃特效桌布必须使用 Blender 烘焙的轻量微法线")
 	if bool(skin_contract.get("uses_displacement", true)):
 		failures.append("桌布皮肤不得使用位移并改变接触面")
 	for skin in skins:
@@ -97,6 +125,11 @@ func _verify_assets_panel_and_stage(failures: Array[String]) -> void:
 			failures.append("3D 牌桌没有保留当前皮肤 ID: %s" % skin_id)
 		if table.transform != original_transform:
 			failures.append("应用皮肤改变了牌桌几何或 Transform: %s" % skin_id)
+		if skin_id != "blue_glass":
+			var walnut_ring := table.find_child("WalnutApronRing", true, false) as MeshInstance3D
+			var finish := walnut_ring.get_surface_override_material(0) as StandardMaterial3D if walnut_ring != null else null
+			if finish == null or finish.albedo_texture == null:
+				failures.append("其他桌布主题没有恢复木质桌框: %s" % skin_id)
 	stage.queue_free()
 	await process_frame
 
@@ -110,10 +143,27 @@ func _verify_production_path(failures: Array[String]) -> void:
 	var utility_bar := main_scene.get("table_utility_bar") as Control
 	var panel := main_scene.get("table_skin_panel") as SichuanTableSkinPanel
 	var stage := main_scene.get("table_stage_3d") as SichuanTableStage3D
-	if utility_bar == null or panel == null or stage == null:
-		failures.append("生产主场景缺少工具栏、换肤面板或 3D 牌桌")
+	var action_bar := main_scene.get("table_action_bar") as Control
+	if utility_bar == null or panel == null or stage == null or action_bar == null:
+		failures.append("生产主场景缺少工具栏、换肤面板、操作栏或 3D 牌桌")
 		main_scene.queue_free()
 		return
+	var peng_button := action_bar.call("get_button", "peng") as Button
+	var touch_size_before := peng_button.custom_minimum_size if peng_button != null else Vector2.ZERO
+	action_bar.call("set_table_skin", "blue_glass")
+	var action_contract := action_bar.call("get_visual_contract") as Dictionary
+	if str(action_contract.get("material_family", "")) != "blue_glass_action_badges":
+		failures.append("玻璃特效没有贯通碰杠胡取消操作按钮")
+	if action_contract.get("glass_states", []) != ["normal", "hover", "focus", "pressed", "disabled"]:
+		failures.append("玻璃操作按钮没有覆盖完整交互状态")
+	if str(action_contract.get("glass_highlight_direction", "")) != "upper_left_arc_and_diagonal_band" \
+			or int(action_contract.get("glass_ring_layers", 0)) != 3 \
+			or str(action_contract.get("glass_table_reflection", "")) != "soft_blue_ellipse_below_button":
+		failures.append("玻璃操作按钮缺少统一光向、三层光环或底部软倒影")
+	if peng_button == null or not (peng_button.get_theme_stylebox("normal") is StyleBoxTexture):
+		failures.append("玻璃操作按钮没有使用精确正圆的矢量玻璃贴图")
+	elif peng_button.custom_minimum_size != touch_size_before:
+		failures.append("玻璃操作按钮改变了既有触控尺寸")
 	utility_bar.call("set_collapsed", false)
 	utility_bar.call("_layout_buttons")
 	var skin_button := utility_bar.call("get_button", "skin") as Button
@@ -141,6 +191,9 @@ func _verify_production_path(failures: Array[String]) -> void:
 		failures.append("桌布皮肤入口没有在首次触摸的同一输入回合打开面板")
 	if bool(utility_bar.call("is_collapsed")):
 		failures.append("桌布皮肤入口不应强制收回工具栏")
+	# The modal becomes visible immediately; its scaled GridContainer finishes
+	# arranging card rectangles on the next frame before a second user tap.
+	await process_frame
 	var alternate_button := panel.skin_buttons.get(alternate_skin_id) as Button
 	if alternate_button == null:
 		failures.append("生产换肤路径缺少备用皮肤卡片")

@@ -375,43 +375,66 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var breakdown_list: VBoxContainer = scene.get("settlement_breakdown_list")
 	if player_list == null or player_list.get_child_count() != 4:
 		failures.append("结算必须展示四家总分与本局增减")
+	elif _contains_exact_label_text(player_list, ["本", "对", "上", "下"]):
+		failures.append("四家信息不应再显示本、对、上、下方位徽章，直接使用玩家名字")
 	if hand_row == null or _count_nodes_with_script_path(hand_row, "res://scripts/ui/MahjongTile.gd") < 4:
 		failures.append("结算必须使用麻将牌图展示手牌/副露，不能只显示文字列表")
 	if breakdown_list == null or breakdown_list.get_child_count() < 4:
 		failures.append("结算必须显示分数来源、对象、番/分与本局得分明细")
 	var round_label: Label = scene.get("settlement_round_label")
-	if round_label == null or not round_label.text.contains("庄家"):
-		failures.append("结算必须保留局数、庄家和结束原因")
+	var page_header := scene.get_node_or_null("%SettlementPageHeaderBand") as Control
+	var breakdown_title: Label = scene.get("settlement_breakdown_title")
+	if round_label == null or page_header == null or page_header.visible:
+		failures.append("精简结算页必须去掉重复的本局标题、局数和庄家标题带")
+	if breakdown_title == null or breakdown_title.visible:
+		failures.append("手牌下方应直接进入分数表格，不应再显示分数明细标签")
 	var panel: Control = scene.get("settlement_panel")
 	var root_ui: Control = scene.get("root_ui")
+	var shade: ColorRect = scene.get("settlement_shade")
+	if shade == null or shade.material == null or not shade.has_meta("settlement_blue_gradient"):
+		failures.append("结算页必须使用全屏蓝白渐变背景，不得透出实时牌桌")
 	if panel != null and root_ui != null and (panel.size.x > root_ui.size.x + 1.0 or panel.size.y > root_ui.size.y + 1.0):
 		failures.append("结算面板不得超出屏幕")
 	var panel_style := panel.get_theme_stylebox("panel") if panel != null else null
 	if not panel_style is StyleBoxFlat:
-		failures.append("结算主面板必须保留目标图的描金外框")
+		failures.append("结算主面板必须使用蓝白玻璃卡片样式")
 	else:
 		var flat_style := panel_style as StyleBoxFlat
 		var border_total := flat_style.get_border_width(SIDE_LEFT) \
 			+ flat_style.get_border_width(SIDE_TOP) \
 			+ flat_style.get_border_width(SIDE_RIGHT) \
 			+ flat_style.get_border_width(SIDE_BOTTOM)
-		if border_total < 12:
-			failures.append("结算主面板必须保留目标图的多层描金视觉重量")
+		if border_total < 4 or border_total > 12 or flat_style.bg_color.get_luminance() < 0.72:
+			failures.append("结算主面板必须保持细描边、高明度的蓝白玻璃观感")
 	var ornament := panel.get_node_or_null("SettlementOrnamentOverlay") as TextureRect if panel != null else null
-	if ornament == null or ornament.texture == null:
-		failures.append("结算页必须加载云纹、山水和竹叶装饰层")
+	if ornament != null and ornament.visible and ornament.modulate.a > 0.01:
+		failures.append("蓝白结算页不得显示旧云纹、山水和竹叶装饰层")
 	for card_name in ["settlement_detail_card"]:
 		var section := scene.get(card_name) as Panel
 		var section_style := section.get_theme_stylebox("panel") as StyleBoxFlat if section != null else null
 		if section_style == null:
-			failures.append("结算区域 %s 缺少外边框" % card_name)
+			failures.append("结算区域 %s 缺少透明样式" % card_name)
 			continue
 		var section_border_total := section_style.get_border_width(SIDE_LEFT) \
 			+ section_style.get_border_width(SIDE_TOP) \
 			+ section_style.get_border_width(SIDE_RIGHT) \
 			+ section_style.get_border_width(SIDE_BOTTOM)
-		if section_border_total < 8 or section_style.bg_color.a <= 0.01:
-			failures.append("结算区域 %s 必须保留半透明桌布外边框" % card_name)
+		if section_border_total != 0 or section_style.bg_color.a > 0.01:
+			failures.append("上下结算区不得再添加独立外框，只保留主透明外框")
+	var unified_surface := panel.get_node_or_null("UnifiedContentSurface") as Panel if panel != null else null
+	var unified_style := unified_surface.get_theme_stylebox("panel") as StyleBoxFlat if unified_surface != null else null
+	if unified_style == null or unified_style.bg_color.a > 0.01 \
+			or unified_style.get_border_width(SIDE_LEFT) + unified_style.get_border_width(SIDE_TOP) \
+			+ unified_style.get_border_width(SIDE_RIGHT) + unified_style.get_border_width(SIDE_BOTTOM) != 0:
+		failures.append("统一内容层必须透明无边框，避免与主外框重叠")
+	var detail_tabs: HBoxContainer = scene.get("settlement_details_tabs")
+	if detail_tabs == null or detail_tabs.get_child_count() != 4:
+		failures.append("结算页必须保留四个等宽页签")
+	else:
+		var active_tab := detail_tabs.get_child(0) as Button
+		var active_style := active_tab.get_theme_stylebox("normal") as StyleBoxFlat
+		if active_style == null or active_style.bg_color.b <= active_style.bg_color.r:
+			failures.append("当前结算页签必须使用鲜明蓝色选中态")
 	var player_list_card := scene.get("settlement_player_list_card") as Panel
 	var player_list_style := player_list_card.get_theme_stylebox("panel") as StyleBoxFlat if player_list_card != null else null
 	if player_list_style == null or player_list_style.bg_color.a > 0.01 \
@@ -433,6 +456,29 @@ func _verify_rich_settlement(scene: Node, failures: Array[String]) -> void:
 	var connected_frame := panel.get_node_or_null("ConnectedSelectionFrame") as Line2D if panel != null else null
 	if connected_frame != null:
 		failures.append("结算页不得保留连通式选中外框")
+	# A completed local round must be available immediately in both detail tabs.
+	scene.call("_remember_completed_round", snapshot)
+	scene.call("_update_rich_settlement_match_details")
+	if (scene.get("settlement_details_history") as Array).is_empty():
+		failures.append("结算后对局排行和流水没有即时记录本局数据")
+	for tab_index in [1, 2]:
+		scene.call("_select_rich_settlement_tab", tab_index)
+		await process_frame
+		var page := (scene.get("settlement_details_page_nodes") as Array)[tab_index - 1] as ScrollContainer
+		var cards := page.get_node("Cards") as VBoxContainer
+		var expected_text := "第1名" if tab_index == 1 else "第3局"
+		if cards.get_child_count() == 0 or not _contains_label_fragment(cards, expected_text):
+			failures.append("对局详情第%d页未显示已完成局的排行或流水" % tab_index)
+		if cards.find_child("DetailsTable", true, false) == null:
+			failures.append("对局详情第%d页缺少可读的多列表格" % tab_index)
+		if panel.size.x < root_ui.size.x * 0.88:
+			failures.append("对局详情内容框没有充分利用横屏宽度")
+		if page.get_v_scroll_bar().custom_minimum_size.x < 30.0:
+			failures.append("对局详情滚动条触控宽度不足")
+	var blank_press := Vector2(8, 8)
+	if not scene.call("_handle_settlement_overlay_click", blank_press) or not rich_overlay.visible:
+		failures.append("对局详情空白处点击不得退出")
+	scene.call("_select_rich_settlement_tab", 0)
 
 	# Exercise the same explicit ScreenTouch path used on iOS. The full-screen
 	# overlay must route a player-row press before it consumes the event.
@@ -512,9 +558,10 @@ func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) 
 		var panel: Control = scene.get("settlement_panel")
 		var content: Control = scene.get("settlement_content")
 		var next_button: Control = scene.get("next_round_button")
+		var tabs: Control = scene.get("settlement_details_tabs")
 		var player_list: HBoxContainer = scene.get("settlement_player_list")
 		var breakdown_list: VBoxContainer = scene.get("settlement_breakdown_list")
-		if root_ui == null or panel == null or content == null or next_button == null:
+		if root_ui == null or panel == null or content == null or next_button == null or tabs == null:
 			failures.append("结算四档布局验证缺少必要控件")
 			break
 		var root_rect := root_ui.get_global_rect()
@@ -523,12 +570,19 @@ func _verify_settlement_responsive_bounds(scene: Node, failures: Array[String]) 
 			failures.append("结算面板在 %dx%d 超出界面：%s / %s" % [viewport_size.x, viewport_size.y, panel_rect, root_rect])
 		for entry in [
 			{"name": "主体内容", "rect": content.get_global_rect()},
-			{"name": "下一局", "rect": next_button.get_global_rect()},
 		]:
 			if not _rect_contains_with_tolerance(panel_rect, entry.get("rect"), 1.0):
 				failures.append("结算%s在 %dx%d 超出主面板" % [entry.get("name"), viewport_size.x, viewport_size.y])
-		if panel.size.x < root_ui.size.x * 0.94 - 2.0 or panel.size.y < root_ui.size.y * 0.91 - 2.0:
-			failures.append("结算面板在 %dx%d 未按方案B充满安全屏幕" % [viewport_size.x, viewport_size.y])
+		if not _rect_contains_with_tolerance(root_rect, next_button.get_global_rect(), 1.0):
+			failures.append("结算关闭按钮在 %dx%d 超出全屏背景" % [viewport_size.x, viewport_size.y])
+		if tabs.get_global_rect().end.y >= panel_rect.position.y:
+			failures.append("结算页签在 %dx%d 未独立位于中央内容框外上方" % [viewport_size.x, viewport_size.y])
+		if next_button.get_global_rect().position.y <= panel_rect.end.y:
+			failures.append("结算关闭按钮在 %dx%d 未独立位于中央内容框外下方" % [viewport_size.x, viewport_size.y])
+		var width_ratio := panel.size.x / root_ui.size.x
+		var height_ratio := panel.size.y / root_ui.size.y
+		if width_ratio < 0.55 or width_ratio > 0.82 or height_ratio < 0.62 or height_ratio > 0.94:
+			failures.append("结算面板在 %dx%d 未保持非全屏悬浮卡片比例（%.3f x %.3f）" % [viewport_size.x, viewport_size.y, width_ratio, height_ratio])
 		if player_list != null and _children_width_ratio(player_list) < 0.88:
 			failures.append("结算四家横排卡在 %dx%d 未充分利用横向空间" % [viewport_size.x, viewport_size.y])
 		if breakdown_list != null and _children_height_ratio(breakdown_list) < 0.72:
@@ -706,6 +760,24 @@ func _count_nodes_named(root: Node, node_name: String) -> int:
 	for child in root.get_children():
 		count += _count_nodes_named(child, node_name)
 	return count
+
+
+func _contains_exact_label_text(root: Node, values: Array[String]) -> bool:
+	if root is Label and values.has((root as Label).text):
+		return true
+	for child in root.get_children():
+		if _contains_exact_label_text(child, values):
+			return true
+	return false
+
+
+func _contains_label_fragment(root: Node, fragment: String) -> bool:
+	if root is Label and (root as Label).text.contains(fragment):
+		return true
+	for child in root.get_children():
+		if _contains_label_fragment(child, fragment):
+			return true
+	return false
 
 
 func _count_nodes_with_script_path(root: Node, script_path: String) -> int:

@@ -75,7 +75,7 @@ func _export_android() -> void:
 	preset.set("launcher_icons/main_192x192", "res://res/art/app_icon/app_icon_192.png")
 	preset.set("launcher_icons/adaptive_foreground_432x432", "res://res/art/app_icon/app_icon_foreground_432.png")
 	preset.set("launcher_icons/adaptive_background_432x432", "res://res/art/app_icon/app_icon_background_432.png")
-	preset.set("launcher_icons/adaptive_monochrome_432x432", "res://res/art/app_icon/app_icon_monochrome_432.png")
+	preset.set("launcher_icons/adaptive_monochrome_432x432", "")
 	preset.set("screen/immersive_mode", true)
 	preset.set("screen/edge_to_edge", false)
 	preset.set("screen/support_small", true)
@@ -89,7 +89,9 @@ func _export_android() -> void:
 	preset.set("user_data_backup/allow", false)
 	preset.set("shader_baker/enabled", false)
 	preset.set("xr_features/xr_mode", 0)
-	preset.set("permissions/internet", false)
+	# Android requires INTERNET even for private-LAN UDP discovery and ENet room
+	# traffic. This is a normal install-time permission and does not prompt users.
+	preset.set("permissions/internet", true)
 	preset.set("permissions/read_external_storage", is_debug)
 	preset.set("permissions/write_external_storage", is_debug)
 	preset.set("permissions/manage_external_storage", is_debug)

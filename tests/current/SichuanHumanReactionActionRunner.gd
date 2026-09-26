@@ -243,6 +243,11 @@ func _verify_direct_gang_execution(failures: Array[String]) -> void:
 
 func _build_reaction_state(human_can_gang: bool):
 	var state = _build_state()
+	# This fixture models a normal response with a replacement tile available.
+	# Empty-wall rejection is a separate rule, not the scenario under test here.
+	var remaining_wall: Array[Dictionary] = [_tile(930, "wan", 9)]
+	state.wall = remaining_wall
+	state.wall_count = remaining_wall.size()
 	var discarded := _tile(910, "tong", 6)
 	var players: Array[Dictionary] = [
 		_player(0, false, "tiao", [_tile(11, "tong", 6), _tile(12, "tong", 6), _tile(13, "tong", 6)]),

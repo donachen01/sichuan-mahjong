@@ -25,6 +25,8 @@ var use_ding_que_phase: bool = true
 var enable_cha_jiao: bool = true
 var enable_tui_shui: bool = false
 var enable_hua_zhu: bool = true
+var enable_hu_jiao_zhuan_yi: bool = true
+var dian_gang_hua_as_discard_win: bool = true
 var self_draw_extra_base_score: int = 1
 
 
@@ -63,6 +65,8 @@ func _apply_sichuan_defaults() -> void:
 	enable_cha_jiao = true
 	enable_tui_shui = false
 	enable_hua_zhu = true
+	enable_hu_jiao_zhuan_yi = true
+	dian_gang_hua_as_discard_win = true
 	self_draw_extra_base_score = 1
 
 
@@ -86,5 +90,7 @@ func to_debug_dict() -> Dictionary:
 		"enable_cha_jiao": enable_cha_jiao,
 		"enable_tui_shui": enable_tui_shui,
 		"enable_hua_zhu": enable_hua_zhu,
+		"enable_hu_jiao_zhuan_yi": enable_hu_jiao_zhuan_yi,
+		"dian_gang_hua_as_discard_win": dian_gang_hua_as_discard_win,
 		"self_draw_extra_base_score": self_draw_extra_base_score,
 	}

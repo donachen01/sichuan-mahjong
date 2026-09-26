@@ -12,18 +12,21 @@ func resolve_win_fans(player: Dictionary, winning_tile: Dictionary, win_type: St
 
 func _resolve_sichuan_win_fans(player: Dictionary, winning_tile: Dictionary, win_type: String, rules_config) -> Dictionary:
 	var concealed_tiles: Array = player.get("hand_tiles", []).duplicate(true)
-	if win_type != "self_draw" and win_type != "gang_self_draw":
+	if win_type != "self_draw" and win_type != "gang_self_draw" and win_type != "dian_gang_hua":
 		concealed_tiles.append(winning_tile.duplicate(true))
 
 	var melds: Array = player.get("melds", [])
 	var concealed_quad_count := _count_concealed_quads(concealed_tiles)
-	var exposed_quad_count := _count_gang_melds(melds)
+	var all_tiles := concealed_tiles.duplicate()
+	for meld in melds:
+		all_tiles.append_array(meld.get("tiles", []))
+	var total_quad_count := _count_concealed_quads(all_tiles)
 	var is_qi_dui := _is_qi_dui_hand(concealed_tiles, melds)
 	var is_long_qi_dui := is_qi_dui and concealed_quad_count > 0
 	# 龙七对本身内置的一组四张不重复计根；如果七对里还有第二组四张，
 	# 额外的那一组仍按“多根可累加”计入。已经副露的明杠、暗杠、补杠
 	# 同样是四张相同牌，必须计根，不能因移出手牌而漏算。
-	var gen_count := exposed_quad_count + maxi(0, concealed_quad_count - (1 if is_long_qi_dui else 0))
+	var gen_count := maxi(0, total_quad_count - (1 if is_long_qi_dui else 0))
 	var is_qing_yi_se := _is_qing_yi_se(concealed_tiles, melds)
 	var is_da_dui_zi := _is_da_dui_zi(concealed_tiles, melds)
 	var is_jin_gou_diao := _is_jin_gou_diao(concealed_tiles, melds)
@@ -39,7 +42,8 @@ func _resolve_sichuan_win_fans(player: Dictionary, winning_tile: Dictionary, win
 		"jiang_dui": is_jiang_dui,
 		"shi_ba_luo_han": is_shi_ba_luo_han,
 		"dai_gen": gen_count > 0,
-		"gang_shang_hua": win_type == "gang_self_draw",
+		"gang_shang_hua": win_type == "gang_self_draw" or win_type == "dian_gang_hua",
+		"dian_gang_hua": win_type == "dian_gang_hua",
 		"gang_shang_pao": win_type == "gang_discard_win",
 		"qiang_gang_hu": win_type == "qiang_gang_hu",
 		"zi_mo": win_type == "self_draw" or win_type == "gang_self_draw",
@@ -65,7 +69,7 @@ func _resolve_sichuan_win_fans(player: Dictionary, winning_tile: Dictionary, win
 	for _i in range(gen_count):
 		labels.append("带根")
 	if flags["gang_shang_hua"]:
-		labels.append("杠上花")
+		labels.append("点杠花" if flags["dian_gang_hua"] else "杠上花")
 	if flags["gang_shang_pao"]:
 		labels.append("杠上炮")
 	if flags["qiang_gang_hu"]:

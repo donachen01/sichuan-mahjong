@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2048" viewBox="0 0 2048 2048">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="0.92" y2="1">
+      <stop offset="0" stop-color="#a9e2ff"/>
+      <stop offset="0.42" stop-color="#68bdec"/>
+      <stop offset="0.74" stop-color="#489fe1"/>
+      <stop offset="1" stop-color="#2e84d5"/>
+    </linearGradient>
+    <linearGradient id="reflection" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="0.32" stop-color="#ecfbff" stop-opacity="0.07"/>
+      <stop offset="0.62" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="ambient" cx="22%" cy="15%" r="80%">
+      <stop offset="0" stop-color="#eefaff" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#4ca4e4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="2048" height="2048" fill="url(#base)"/>
+  <rect width="2048" height="2048" fill="url(#ambient)"/>
+  <path d="M-240 0 H520 L1760 2048 H1010 Z" fill="url(#reflection)"/>
+  <path d="M250 0 H540 L1770 2048 H1500 Z" fill="#ffffff" fill-opacity="0.035"/>
+</svg>

@@ -2,6 +2,11 @@ extends Control
 
 class_name WallCountDisc
 
+@export var glass_texture: Texture2D:
+	set(value):
+		glass_texture = value
+		queue_redraw()
+
 @export var outer_ring_color: Color = Color(0.67, 0.55, 0.31, 0.96):
 	set(value):
 		outer_ring_color = value
@@ -39,6 +44,9 @@ func _ready() -> void:
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
 	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	if glass_texture != null:
+		draw_texture_rect(glass_texture, rect, false)
 		return
 
 	var center := rect.size * 0.5

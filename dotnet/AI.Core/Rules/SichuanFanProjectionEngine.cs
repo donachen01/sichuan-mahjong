@@ -2,7 +2,7 @@ using SichuanMahjong.AI.Core.Domain;
 
 namespace SichuanMahjong.AI.Core.Rules;
 
-public enum SichuanWinType { Discard, SelfDraw, GangSelfDraw, GangDiscard, RobAddedGang }
+public enum SichuanWinType { Discard, SelfDraw, GangSelfDraw, DianGangHua, GangDiscard, RobAddedGang }
 
 public sealed record SichuanFanProjection(
     string HandType,
@@ -42,13 +42,13 @@ public sealed class SichuanFanProjectionEngine
         var isDaDuiZi = decompositions.Any(item => !item.IsSevenPairs && item.Groups.All(group => group.Type != SichuanGroupType.Sequence));
         var isJinGouDiao = melds.Count == 4 && hand.Sum() == 2;
         var concealedQuadCount = hand.Sum(count => count / 4);
-        var exposedQuadCount = melds.Count(item => item.Type != SichuanMeldType.Peng);
+        var totalQuadCount = allTiles.Sum(count => count / 4);
         var isDragonSevenPairs = isSevenPairs && concealedQuadCount > 0;
         // A root is any four identical tiles owned by the hand. Gang melds have
         // left the concealed array but must still contribute one root each.
         // Dragon seven pairs consumes its first concealed quad as the built-in
         // dragon upgrade; only additional concealed quads add separate roots.
-        var genCount = exposedQuadCount + Math.Max(0, concealedQuadCount - (isDragonSevenPairs ? 1 : 0));
+        var genCount = Math.Max(0, totalQuadCount - (isDragonSevenPairs ? 1 : 0));
         var isJiangDui = isDaDuiZi && Enumerable.Range(0, 27)
             .Where(tile => allTiles[tile] > 0)
             .All(tile => tile % 9 is 1 or 4 or 7);
@@ -63,7 +63,7 @@ public sealed class SichuanFanProjectionEngine
             isJiangDui,
             isShiBaLuoHan);
         var bonusFan = genCount;
-        if (winType is SichuanWinType.GangSelfDraw or SichuanWinType.GangDiscard or SichuanWinType.RobAddedGang)
+        if (winType is SichuanWinType.GangSelfDraw or SichuanWinType.DianGangHua or SichuanWinType.GangDiscard or SichuanWinType.RobAddedGang)
             bonusFan++;
         var uncapped = baseFan + bonusFan;
         var capped = rules.FanCap <= 0 ? uncapped : Math.Min(uncapped, rules.FanCap);
@@ -72,6 +72,7 @@ public sealed class SichuanFanProjectionEngine
         var labels = new List<string> { HandTypeLabel(handType) };
         for (var i = 0; i < genCount; i++) labels.Add("带根");
         if (winType == SichuanWinType.GangSelfDraw) labels.Add("杠上花");
+        if (winType == SichuanWinType.DianGangHua) labels.Add("点杠花");
         if (winType == SichuanWinType.GangDiscard) labels.Add("杠上炮");
         if (winType == SichuanWinType.RobAddedGang) labels.Add("抢杠胡");
         if (selfDraw) labels.Add("自摸");

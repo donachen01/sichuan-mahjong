@@ -797,7 +797,7 @@ custom_minimum_size = Vector2(0, 12)
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(0, 508)
+custom_minimum_size = Vector2(0, 408)
 
 [node name="DingQueButtonCardMargin" type="MarginContainer" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard"]
 layout_mode = 1
@@ -819,21 +819,21 @@ theme_override_constants/separation = 34
 [node name="DingQueTiaoButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(460, 460)
+custom_minimum_size = Vector2(360, 360)
 tooltip_text = "定缺条"
 text = "条"
 
 [node name="DingQueTongButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(460, 460)
+custom_minimum_size = Vector2(360, 360)
 tooltip_text = "定缺筒"
 text = "筒"
 
 [node name="DingQueWanButton" type="Button" parent="UILayer/RootUI/DingQueOverlay/DingQueCenter/DingQuePanel/DingQueMargin/DingQueVBox/DingQueButtonCard/DingQueButtonCardMargin/DingQueButtons"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(460, 460)
+custom_minimum_size = Vector2(360, 360)
 tooltip_text = "定缺万"
 text = "万"
 
@@ -893,33 +893,44 @@ theme_override_constants/margin_bottom = 18
 layout_mode = 2
 theme_override_constants/separation = 9
 
-[node name="SettlementHeader" type="GridContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+[node name="SettlementPageHeaderBand" type="PanelContainer" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox"]
+unique_name_in_owner = true
 layout_mode = 2
-columns = 4
-theme_override_constants/h_separation = 12
+size_flags_horizontal = 3
 
-[node name="SettlementHeaderLeftSpacer" type="Control" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
+[node name="SettlementHeader" type="Control" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementPageHeaderBand"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 104)
+
+[node name="SettlementHeaderLeftSpacer" type="Control" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementPageHeaderBand/SettlementHeader"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 0)
+visible = false
 
-[node name="SettlementTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
+[node name="SettlementTitle" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementPageHeaderBand/SettlementHeader"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
 size_flags_horizontal = 0
 horizontal_alignment = 0
 text = "本局结算"
 
-[node name="SettlementRoundLabel" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
+[node name="SettlementRoundLabel" type="Label" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementPageHeaderBand/SettlementHeader"]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 horizontal_alignment = 1
+vertical_alignment = 1
 text = "第 1 局 · 庄家本家"
 
-[node name="SettlementCloseButton" type="Button" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementHeader"]
+[node name="SettlementCloseButton" type="Button" parent="UILayer/RootUI/SettlementOverlay/SettlementCenter/SettlementPanel/SettlementMargin/SettlementVBox/SettlementPageHeaderBand/SettlementHeader"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 0
 custom_minimum_size = Vector2(92, 40)
 text = "关闭"
 

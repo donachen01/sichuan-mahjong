@@ -73,6 +73,10 @@ var current_phase: RoundPhase = RoundPhase.BOOT
 var current_dealer_seat: int = 0
 var current_turn_seat: int = 0
 var players: Array[Dictionary] = []
+# Empty keeps the historical single-player layout. LAN lobby controllers are
+# applied only at a round boundary so a disconnect cannot change ownership
+# halfway through an action or settlement.
+var seat_controllers: Array[Dictionary] = []
 var wall: Array[Dictionary] = []
 var wall_count: int = 0
 var discard_pile: Array[Dictionary] = []
@@ -185,6 +189,25 @@ func _ready() -> void:
 		_ensure_ai_analysis_session()
 		if _is_hell_training_mode():
 			_ensure_hell_training_session()
+	# Test/editor runners historically instantiate GameState directly. Exported
+	# builds stay idle until the player selects single-player or the LAN host
+	# locks the room controllers; this prevents a hidden local round from being
+	# dealt behind the independent mode-selection scene.
+	if OS.has_feature("editor"):
+		start_new_round()
+
+func ensure_local_round_started() -> void:
+	if players.is_empty():
+		start_new_round()
+
+
+func start_local_game() -> void:
+	# A previous LAN waiting table still has four player records. Entering
+	# single-player must reset its controllers and begin a fresh dealt round.
+	seat_controllers.clear()
+	players.clear()
+	round_index = 1
+	previous_dealer_seat = -1
 	start_new_round()
 
 
@@ -197,6 +220,63 @@ func set_test_seed(seed_value: int) -> void:
 func clear_test_seed() -> void:
 	deterministic_seed_enabled = false
 	_rng.randomize()
+
+
+func configure_seat_controllers(controllers: Array, restart_round: bool = false) -> bool:
+	var normalized: Array[Dictionary] = []
+	var occupied := {}
+	for raw_controller in controllers:
+		if not raw_controller is Dictionary:
+			return false
+		var controller: Dictionary = raw_controller
+		var seat := int(controller.get("seat", -1))
+		if seat < 0 or seat >= 4 or occupied.has(seat):
+			return false
+		occupied[seat] = true
+		normalized.append({
+			"seat": seat,
+			"nickname": str(controller.get("nickname", "玩家%d" % (seat + 1))).strip_edges().left(24),
+			"is_ai": bool(controller.get("is_ai", false)),
+			"player_id": str(controller.get("player_id", "")),
+		})
+	normalized.sort_custom(func(a: Dictionary, b: Dictionary): return int(a.seat) < int(b.seat))
+	seat_controllers = normalized
+	if restart_round:
+		start_new_round()
+	return true
+
+func prepare_lan_table(controllers: Array) -> bool:
+	if not configure_seat_controllers(controllers, false):
+		return false
+	players = _create_initial_players(players)
+	wall.clear()
+	wall_count = 0
+	discard_pile.clear()
+	round_winners.clear()
+	current_phase = RoundPhase.TABLE_SETUP
+	debug_last_message = "联机房间等待玩家准备"
+	_emit_state_changed()
+	return true
+
+
+func configure_lan_members(members: Array, restart_round: bool = false) -> bool:
+	var controllers: Array = []
+	var human_by_seat := {}
+	for raw_member in members:
+		if not raw_member is Dictionary:
+			return false
+		var member: Dictionary = raw_member
+		var seat := int(member.get("seat", -1))
+		if seat < 0 or seat >= 4 or human_by_seat.has(seat):
+			return false
+		human_by_seat[seat] = member
+	for seat in range(4):
+		if human_by_seat.has(seat):
+			var human: Dictionary = human_by_seat[seat]
+			controllers.append({"seat": seat, "nickname": human.get("nickname", "玩家%d" % (seat + 1)), "is_ai": false, "player_id": human.get("player_id", "")})
+		else:
+			controllers.append({"seat": seat, "nickname": "电脑%d" % (seat + 1), "is_ai": true, "player_id": ""})
+	return configure_seat_controllers(controllers, restart_round)
 
 
 func start_new_round(preserve_dealer: bool = false) -> void:
@@ -254,7 +334,9 @@ func start_new_round(preserve_dealer: bool = false) -> void:
 	opening_roll_started.emit(opening_roll_data.duplicate(true))
 
 
-func get_debug_snapshot() -> Dictionary:
+func get_debug_snapshot(viewer_seat: int = 0) -> Dictionary:
+	if viewer_seat < 0 or viewer_seat >= players.size():
+		viewer_seat = 0
 	var rules_debug: Dictionary = {} if rules == null else rules.to_debug_dict()
 	var reaction_summary := ""
 	if mahjong_judge != null:
@@ -275,19 +357,20 @@ func get_debug_snapshot() -> Dictionary:
 		"pending_qiang_gang_context": pending_qiang_gang_context.duplicate(true),
 		"debug_last_message": debug_last_message,
 		"rules": rules_debug,
-		"human_can_discard": can_human_discard(0),
-		"human_can_self_hu": can_human_self_hu(0),
-		"human_can_add_gang": can_human_add_gang(0),
-		"human_can_an_gang": can_human_an_gang(0),
-		"human_last_draw_tile_id": _get_last_draw_tile_id_for_seat(0),
-		"human_ding_que_pending": is_human_ding_que_pending(0),
+		"human_can_discard": can_human_discard(viewer_seat),
+		"human_can_self_hu": can_human_self_hu(viewer_seat),
+		"human_can_add_gang": can_human_add_gang(viewer_seat),
+		"human_can_an_gang": can_human_an_gang(viewer_seat),
+		"human_last_draw_tile_id": _get_last_draw_tile_id_for_seat(viewer_seat),
+		"human_ding_que_pending": is_human_ding_que_pending(viewer_seat),
+		"human_ding_que_options": get_human_ding_que_options(viewer_seat),
 		"dealer_ding_que_deferred": _is_dealer_ding_que_deferred(),
 		"recent_discard_display": _get_recent_discard_display(),
 		"recent_discard_tile_id": _get_recent_discard_tile_id(),
 		"recent_draw_display": _get_recent_draw_display(),
 		"recent_draw_seat": _get_recent_draw_seat(),
 		"reaction_summary": reaction_summary,
-		"human_reaction_options": get_human_reaction_options(0),
+		"human_reaction_options": get_human_reaction_options(viewer_seat),
 		"discard_context": current_discard_context.duplicate(true),
 		"ai_level_index": int(ai_level),
 		"ai_level_name": AI_LEVEL_LABELS[int(ai_level)],
@@ -777,6 +860,8 @@ func can_human_self_hu(seat: int) -> bool:
 
 
 func can_human_add_gang(seat: int) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	if current_phase != RoundPhase.DISCARD:
 		return false
 	if seat < 0 or seat >= players.size():
@@ -787,6 +872,8 @@ func can_human_add_gang(seat: int) -> bool:
 
 
 func can_human_an_gang(seat: int) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	if current_phase != RoundPhase.DISCARD:
 		return false
 	if seat < 0 or seat >= players.size():
@@ -834,6 +921,10 @@ func get_human_reaction_options(seat: int) -> Dictionary:
 	var ding_que_claim_blocked := not reaction_tile.is_empty() and _is_ding_que_tile_for_seat(seat, reaction_tile)
 	var can_peng := bool(candidate["can_peng"])
 	var can_gang := bool(candidate["can_gang"])
+	# Sichuan Gang always needs a replacement draw.  Once the live wall is
+	# empty, the last discard may still be Hu/Peng eligible but cannot be Gang.
+	if wall_count <= 0:
+		can_gang = false
 	if ding_que_claim_blocked:
 		can_peng = false
 		can_gang = false
@@ -870,6 +961,8 @@ func execute_human_peng(seat: int) -> bool:
 
 
 func execute_human_gang(seat: int) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	if current_phase != RoundPhase.REACTION:
 		return false
 	var candidate: Dictionary = _get_reaction_candidate_for_seat(seat)
@@ -2364,11 +2457,19 @@ func _select_initial_dealer() -> int:
 
 
 func _create_initial_players(previous_players: Array = []) -> Array[Dictionary]:
+	if not seat_controllers.is_empty():
+		var configured: Array[Dictionary] = []
+		for controller in seat_controllers:
+			var seat := int(controller.seat)
+			var player := _create_player_state(seat, str(controller.nickname), bool(controller.is_ai), _seed_score_for_seat(previous_players, seat))
+			player["player_id"] = str(controller.get("player_id", ""))
+			configured.append(player)
+		return configured
 	return [
-		_create_player_state(0, "陈旭", false, _seed_score_for_seat(previous_players, 0)),
-		_create_player_state(1, "舒燕", true, _seed_score_for_seat(previous_players, 1)),
-		_create_player_state(2, "陈东", true, _seed_score_for_seat(previous_players, 2)),
-		_create_player_state(3, "舒玲", true, _seed_score_for_seat(previous_players, 3)),
+		_create_player_state(0, "玩家", false, _seed_score_for_seat(previous_players, 0)),
+		_create_player_state(1, "电脑一", true, _seed_score_for_seat(previous_players, 1)),
+		_create_player_state(2, "电脑二", true, _seed_score_for_seat(previous_players, 2)),
+		_create_player_state(3, "电脑三", true, _seed_score_for_seat(previous_players, 3)),
 	]
 
 
@@ -3250,6 +3351,12 @@ func _prepare_reaction_context(source_seat: int, discarded_tile: Dictionary) -> 
 		"winner_seats": [],
 	}
 	pending_reactions = mahjong_judge.build_reaction_candidates(_build_table_state(), current_discard_context, rules)
+	if wall_count <= 0:
+		for candidate in pending_reactions:
+			candidate["can_gang"] = false
+		pending_reactions = pending_reactions.filter(func(candidate: Dictionary) -> bool:
+			return bool(candidate.get("can_hu", false)) or bool(candidate.get("can_peng", false))
+		)
 	_apply_shun_he_lock_filter()
 
 
@@ -3339,6 +3446,8 @@ func _apply_shun_he_lock_filter() -> void:
 
 
 func _find_add_gang_option(seat: int) -> Dictionary:
+	if wall_count <= 0 or wall.is_empty():
+		return {}
 	if seat < 0 or seat >= players.size():
 		return {}
 	var hand_tiles: Array = players[seat]["hand_tiles"]
@@ -3367,6 +3476,8 @@ func _find_add_gang_option(seat: int) -> Dictionary:
 
 
 func _find_an_gang_option(seat: int) -> Dictionary:
+	if wall_count <= 0 or wall.is_empty():
+		return {}
 	if seat < 0 or seat >= players.size():
 		return {}
 	var hand_tiles: Array = players[seat]["hand_tiles"]
@@ -3444,6 +3555,8 @@ func _should_ai_an_gang(seat: int) -> bool:
 
 
 func _start_add_gang(seat: int, selected_option: Dictionary = {}) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	var option: Dictionary = selected_option.duplicate(true) if not selected_option.is_empty() else ({} if bool(players[seat].get("is_ai", false)) else _find_add_gang_option(seat))
 	if option.is_empty():
 		return false
@@ -3482,6 +3595,8 @@ func _start_add_gang(seat: int, selected_option: Dictionary = {}) -> bool:
 
 
 func _execute_an_gang(seat: int, selected_option: Dictionary = {}) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	var option: Dictionary = selected_option.duplicate(true) if not selected_option.is_empty() else ({} if bool(players[seat].get("is_ai", false)) else _find_an_gang_option(seat))
 	if option.is_empty():
 		return false
@@ -4114,6 +4229,8 @@ func _phase_debug_name(phase_value: int) -> String:
 
 func _find_all_add_gang_options(seat: int) -> Array:
 	var results: Array = []
+	if wall_count <= 0 or wall.is_empty():
+		return results
 	if seat < 0 or seat >= players.size():
 		return results
 	var hand_tiles: Array = players[seat]["hand_tiles"]
@@ -4144,6 +4261,8 @@ func _find_all_add_gang_options(seat: int) -> Array:
 
 func _find_all_an_gang_options(seat: int) -> Array:
 	var results: Array = []
+	if wall_count <= 0 or wall.is_empty():
+		return results
 	if seat < 0 or seat >= players.size():
 		return results
 	var hand_tiles: Array = players[seat]["hand_tiles"]
@@ -4244,6 +4363,7 @@ func _upgrade_peng_to_gang(seat: int, meld_index: int, extra_tile: Dictionary) -
 	meld["type"] = "gang"
 	meld["tiles"] = tiles
 	meld["gang_upgrade"] = true
+	meld["gang_subtype"] = "add_gang"
 	melds[meld_index] = meld
 	players[seat]["melds"] = melds
 	return true
@@ -4298,6 +4418,8 @@ func _execute_peng(seat: int) -> bool:
 
 
 func _execute_gang(seat: int) -> bool:
+	if wall_count <= 0 or wall.is_empty():
+		return false
 	if current_discard_context.is_empty():
 		return false
 
@@ -4430,16 +4552,19 @@ func _execute_self_draw_hu(seat: int) -> bool:
 
 	players[seat]["has_won"] = true
 	players[seat]["winning_tile"] = winning_tile.duplicate(true)
-	_append_ai_public_event("hu", seat, winning_tile, seat)
-	players[seat]["winning_source_seat"] = seat
 	var win_type := _resolve_self_draw_win_type(seat)
+	var win_source_seat := seat
+	if win_type == "dian_gang_hua":
+		win_source_seat = int(last_gang_context.get("source_seat", seat))
+	_append_ai_public_event("hu", seat, winning_tile, win_source_seat)
+	players[seat]["winning_source_seat"] = win_source_seat
 	players[seat]["win_type"] = win_type
 	_apply_special_rule_marks_for_win(seat, win_type)
 	if not round_winners.has(seat):
 		round_winners.append(seat)
-		_append_settlement_win_event(seat, seat, winning_tile, win_type, _get_payer_seats_for_win(win_type, seat))
-	if win_type == "gang_self_draw":
-		_mark_latest_gang_outcome("gang_self_draw")
+		_append_settlement_win_event(seat, win_source_seat, winning_tile, win_type, _get_payer_seats_for_win(win_type, win_source_seat))
+	if win_type == "gang_self_draw" or win_type == "dian_gang_hua":
+		_mark_latest_gang_outcome(win_type)
 
 	debug_last_message = "%s 自摸成功。当前胡牌：%s" % [
 		_seat_display_name(seat),
@@ -4737,7 +4862,7 @@ func _get_payer_seats_for_win(win_type: String, source_seat: int) -> Array:
 	match win_type:
 		"self_draw", "gang_self_draw":
 			return _get_active_non_winner_seats_excluding(int(current_turn_seat))
-		"discard_win", "gang_discard_win", "qiang_gang_hu":
+		"discard_win", "gang_discard_win", "qiang_gang_hu", "dian_gang_hua":
 			return [source_seat]
 		_:
 			return [source_seat]
@@ -4923,6 +5048,10 @@ func _consume_next_draw_reason() -> String:
 
 func _resolve_self_draw_win_type(seat: int) -> String:
 	if last_turn_context.get("seat", -1) == seat and last_turn_context.get("draw_reason", "") == "gang_draw":
+		if str(last_gang_context.get("gang_type", "")) == "melded_gang" \
+			and int(last_gang_context.get("seat", -1)) == seat \
+			and int(last_gang_context.get("source_seat", seat)) != seat:
+			return "dian_gang_hua"
 		return "gang_self_draw"
 	return "self_draw"
 
@@ -5037,6 +5166,8 @@ func _mark_latest_kong_resolution_outcome(outcome: String) -> void:
 		event["resolution_state"] = "needs_tui_gang_and_transfer_review"
 	elif outcome == "gang_self_draw":
 		event["resolution_state"] = "gang_shang_hua_pending_score"
+	elif outcome == "dian_gang_hua":
+		event["resolution_state"] = "dian_gang_hua_as_discard_win"
 	events[last_index] = event
 	settlement_data["kong_resolution_events"] = events
 

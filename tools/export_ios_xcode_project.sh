@@ -67,7 +67,7 @@ if ! zipinfo -1 "$IOS_TEMPLATE" >/dev/null 2>&1; then
 fi
 
 IOS_BUILD_ROOT="$PROJECT_DIR/build/ios"
-EXPORT_DIR="$IOS_BUILD_ROOT/SichuanMahjong-${APP_VERSION}-ios-xcode"
+EXPORT_DIR="$IOS_BUILD_ROOT/SichuanMahjong-${APP_VERSION}${GODOT_IOS_BUILD_SUFFIX:-}-ios-xcode"
 # Keep generated Xcode/DerivedData files out of the next Godot resource scan.
 # Rebuild only the current version target. Older signed apps are retained as a
 # rollback boundary instead of being erased whenever a new iOS version exports.

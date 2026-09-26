@@ -61,10 +61,11 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		var isPass = action == "pass";
 		var isContinue = action == "continue";
 		var isGang = action.Contains("gang", StringComparison.OrdinalIgnoreCase);
+		var isMeldedGang = action.Contains("melded_gang", StringComparison.OrdinalIgnoreCase);
         var followUp = isPass
 			? EvaluateWaitingHand(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement)
             : isGang
-				? EvaluateGangReplacement(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement)
+				? EvaluateGangReplacement(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement, isMeldedGang)
 				: EvaluatePostClaimDiscards(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement);
 
         var activePlayers = Math.Clamp(state.ActiveSeats.Count(value => value), 2, 4);
@@ -204,7 +205,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
         int meldCount,
         IReadOnlyList<SichuanMeldView> melds,
         IReadOnlyList<int> activeSeats,
-        SichuanSettlementProjectionEngine settlement)
+        SichuanSettlementProjectionEngine settlement,
+        bool dianGangHua)
     {
 		var totalRemaining = wallAvailability.ExpectedCounts18.Sum(value => Math.Max(0, value));
         if (totalRemaining <= 0)
@@ -227,8 +229,10 @@ public sealed class SichuanMeldCounterfactualEvaluator
             drawn[draw]++;
             if (_hands.IsWinning(drawn, meldCount, meldCount == 0))
             {
-                var fan = _fans.Project(drawn, melds, SichuanWinType.GangSelfDraw);
-                var gain = settlement.ProjectWin(state.SeatIndex, -1, activeSeats, fan, SichuanWinType.GangSelfDraw).WinnerGain;
+				var winType = dianGangHua ? SichuanWinType.DianGangHua : SichuanWinType.GangSelfDraw;
+				var sourceSeat = dianGangHua ? state.CurrentSeat : -1;
+                var fan = _fans.Project(drawn, melds, winType);
+                var gain = settlement.ProjectWin(state.SeatIndex, sourceSeat, activeSeats, fan, winType).WinnerGain;
                 expectedFan += fan.CappedFan * weight;
                 expectedGain += gain * weight;
                 gangBonus += gain * weight;

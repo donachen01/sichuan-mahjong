@@ -1,7 +1,7 @@
 extends SceneTree
 
-const EXPECTED_VERSION := "2.6.63"
-const EXPECTED_ANDROID_CODE := 323
+const EXPECTED_VERSION := "2.6.80"
+const EXPECTED_ANDROID_CODE := 340
 
 var failures: Array[String] = []
 
@@ -25,6 +25,7 @@ func _run() -> void:
 		_check(str(presets.get_value(section, "application/version", "")) == EXPECTED_VERSION, "%s build version matches" % section)
 	_check(str(presets.get_value("preset.1.options", "version/name", "")) == EXPECTED_VERSION, "Android version name matches")
 	_check(int(presets.get_value("preset.1.options", "version/code", 0)) == EXPECTED_ANDROID_CODE, "Android version code matches")
+	_check(bool(presets.get_value("preset.1.options", "permissions/internet", false)), "Android LAN networking permission enabled")
 
 	var version_doc := FileAccess.get_file_as_string("res://VERSION.md")
 	var readme := FileAccess.get_file_as_string("res://README.md")

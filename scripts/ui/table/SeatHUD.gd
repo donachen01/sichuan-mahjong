@@ -1,6 +1,10 @@
 class_name SeatHUD
 extends Control
 
+signal room_ready_toggled
+
+const ROOM_READY_GLASS := preload("res://res/art/ui/network/lan_lobby_ready_glass.png")
+
 const METRICS := preload("res://scripts/ui/table/SichuanTableMetrics.gd")
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
@@ -38,6 +42,7 @@ var active_transition_started_msec := -1
 var score_delta_tween: Tween
 var score_total_tween: Tween
 var emphasized_name_font: FontVariation
+var room_ready_button: Button
 
 
 func _ready() -> void:
@@ -64,6 +69,7 @@ func _ready() -> void:
 	# resolution while every seat shares one physical material language.
 	material_shell.visible = false
 	_apply_layout(false)
+	_ensure_room_ready_button()
 	set_process(false)
 
 
@@ -115,10 +121,15 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	# Turn ownership is communicated by a 180 ms edge arrival followed by a stable
 	# antique-gold frame, never by text over the player's name or continuous pulse.
 	turn_badge.visible = false
+	if room_ready_button != null:
+		room_ready_button.visible = false
 	_apply_layout(active)
 	if craft_panel != null and craft_panel.has_method("set_active"):
 		craft_panel.call("set_active", active)
 	name_label.text = str(player.get("nickname", _seat_name(seat)))
+	name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	if name_label.text.length() > 8:
+		name_label.add_theme_font_size_override("font_size", 31)
 	var next_score := int(player.get("score", 0))
 	score_label.text = "%d分" % next_score
 	if has_rendered_score and next_score != previous_score:
@@ -137,6 +148,63 @@ func render(player: Dictionary, current_turn_seat: int, reveal_ding_que: bool) -
 	_animate_state_change(active, has_won)
 	previous_active = active
 	previous_won = has_won
+
+func render_room_state(nickname: String, status: String, ready: bool, is_local: bool = false) -> void:
+	_ensure_room_ready_button()
+	name_label.text = nickname
+	# Never ellipsize short AI names such as 电脑一/电脑二. Shrink only long
+	# device names so the complete identity remains visible on compact phones.
+	name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	name_label.add_theme_font_size_override("font_size", 31 if nickname.length() > 8 else 38)
+	turn_badge.text = status
+	turn_badge.custom_minimum_size = Vector2(126, 40)
+	turn_badge.size = Vector2(126, 40)
+	# Lobby readiness belongs below the identity plate; placing it in the upper
+	# corner made it look like an in-round action badge.
+	turn_badge.position = Vector2((size.x - 126.0) * 0.5, size.y + 4.0)
+	turn_badge.add_theme_color_override("font_color", Color("FFF1C4") if ready else Color("FFD0A8"))
+	turn_badge.visible = not is_local
+	room_ready_button.visible = is_local
+	if is_local:
+		room_ready_button.text = "取消准备" if ready else "我已准备"
+		room_ready_button.position = Vector2((size.x - 156.0) * 0.5, size.y + 4.0)
+		room_ready_button.add_theme_color_override("font_color", Color.WHITE)
+		room_ready_button.add_theme_color_override("font_hover_color", Color.WHITE)
+
+func _ensure_room_ready_button() -> void:
+	if room_ready_button != null:
+		return
+	room_ready_button = Button.new()
+	room_ready_button.name = "RoomReadyButton"
+	room_ready_button.visible = false
+	room_ready_button.focus_mode = Control.FOCUS_NONE
+	room_ready_button.custom_minimum_size = Vector2(156, 48)
+	room_ready_button.size = Vector2(156, 48)
+	room_ready_button.add_theme_font_override("font", NAMEPLATE_BASE_FONT)
+	room_ready_button.add_theme_font_size_override("font_size", 24)
+	var normal := _room_ready_glass_style()
+	var hover := _room_ready_glass_style()
+	hover.modulate_color = Color(1.12, 1.12, 1.12, 1.0)
+	var pressed := _room_ready_glass_style()
+	pressed.modulate_color = Color(0.82, 0.87, 0.94, 1.0)
+	room_ready_button.add_theme_color_override("font_color", Color.WHITE)
+	room_ready_button.add_theme_color_override("font_hover_color", Color.WHITE)
+	room_ready_button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	room_ready_button.add_theme_stylebox_override("normal", normal)
+	room_ready_button.add_theme_stylebox_override("hover", hover)
+	room_ready_button.add_theme_stylebox_override("pressed", pressed)
+	room_ready_button.pressed.connect(func(): room_ready_toggled.emit())
+	add_child(room_ready_button)
+
+func _room_ready_glass_style() -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = ROOM_READY_GLASS
+	style.draw_center = true
+	style.texture_margin_left = 14.0
+	style.texture_margin_right = 14.0
+	style.texture_margin_top = 14.0
+	style.texture_margin_bottom = 14.0
+	return style
 
 
 func set_reduced_motion(enabled: bool) -> void:
@@ -167,7 +235,7 @@ func get_ding_que_badge() -> Control:
 func get_visual_contract() -> Dictionary:
 	return {
 		"material_family": "translucent_smoked_jade_glass_nameplate",
-		"background_alpha": 0.34,
+		"background_alpha": 0.14,
 		"identity_surface": "text_only_left_column",
 		"identity_encoding": ["name", "score"],
 		"identity_alignment": "centered_within_left_column",
@@ -295,11 +363,11 @@ func _inner_frame_style(active: bool) -> StyleBoxFlat:
 
 func _nameplate_shell_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.13, 0.11, 0.28)
-	style.border_color = Color(TABLE_THEME.AGED_COPPER, 0.62)
+	style.bg_color = Color(0.035, 0.15, 0.20, 0.14)
+	style.border_color = Color(TABLE_THEME.AGED_COPPER, 0.42)
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(8)
-	style.shadow_color = Color(0.0, 0.02, 0.01, 0.16)
+	style.shadow_color = Color(0.0, 0.02, 0.03, 0.08)
 	style.shadow_size = 4
 	style.shadow_offset = Vector2(2, 3)
 	style.content_margin_left = 6

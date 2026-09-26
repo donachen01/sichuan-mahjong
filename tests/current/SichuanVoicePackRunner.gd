@@ -1,6 +1,9 @@
 extends SceneTree
 
 const MAIN_SCRIPT := preload("res://scripts/game/MainSceneV2.gd")
+const VOICE_CATALOG := preload("res://scripts/ui/table/SichuanVoiceCatalog.gd")
+const VOICE_PANEL_SCRIPT := preload("res://scripts/ui/table/SichuanVoiceSelectPanel.gd")
+const UTILITY_BAR_SCENE := preload("res://scenes/ui/table/TableUtilityBar.tscn")
 const MANIFEST_PATH := "res://res/audio/voice_manifest.json"
 const TILE_SUFFIXES := {"tong": "筒", "tiao": "条", "wan": "万"}
 const NUMBER_TEXT := ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
@@ -24,6 +27,8 @@ func _run() -> void:
 	_check_tile_contract(manifest)
 	_check_profile_resources(manifest)
 	_check_runtime_mapping()
+	_check_self_voice_choice()
+	await process_frame
 	_finish()
 
 
@@ -92,6 +97,88 @@ func _check_runtime_mapping() -> void:
 	for label in expected:
 		_check(main.call("_action_audio_key", label) == expected[label], "%s maps to %s" % [label, expected[label]])
 	main.free()
+
+
+func _check_self_voice_choice() -> void:
+	var options := VOICE_CATALOG.all_options()
+	_check(options.size() == 14, "four original and ten new named voices are selectable")
+	for option in options:
+		_check(not str(option.get("name", "")).is_empty(), "voice has a visible name")
+		var directory := str(option.get("directory", ""))
+		for suit in TILE_SUFFIXES:
+			for rank in range(1, 10):
+				_check_audio("res://res/audio/%s/%s_%d.wav" % [directory, suit, rank], true)
+		for action_key in ACTION_KEYS:
+			var path := "res://res/audio/%s/%s.wav" % [directory, action_key]
+			_check(ResourceLoader.exists(path), "%s exists" % path)
+			if ResourceLoader.exists(path):
+				var stream := load(path) as AudioStream
+				_check(stream != null and stream.get_length() > 0.0 and stream.get_length() <= 4.2, "%s is a playable action clip" % path)
+	var main = MAIN_SCRIPT.new()
+	main.set("voice_language", "mandarin")
+	main.set("my_voice_id", "sichuan_vivi_2")
+	for language in ["mandarin", "sichuan"]:
+		main.set("voice_language", language)
+		main.call("_randomize_automatic_voices")
+		var random_ids: Dictionary = main.get("automatic_voice_ids")
+		for seat in range(4):
+			var expected_gender := "male" if seat in [0, 2] else "female"
+			var matching: Array[Dictionary] = VOICE_CATALOG.options_for(language, expected_gender)
+			var random_id := str(random_ids.get(seat, ""))
+			_check(matching.any(func(option): return str(option.get("id", "")) == random_id), "seat %d random voice matches %s %s" % [seat, language, expected_gender])
+	main.set("voice_language", "mandarin")
+	var self_stream := main.call("_load_voice_stream_for_seat", 0, "tong_5") as AudioStream
+	var other_stream := main.call("_load_voice_stream_for_seat", 1, "tong_5") as AudioStream
+	_check(self_stream != null and self_stream.resource_path == "res://res/audio/tts_sichuan/female/tong_5.wav", "chosen self voice overrides language and gender")
+	_check(other_stream != null and other_stream.resource_path == "res://res/audio/tts/female/tong_5.wav", "other seat still follows language")
+	main.set("my_voice_id", "")
+	var default_stream := main.call("_load_voice_stream_for_seat", 0, "tong_5") as AudioStream
+	_check(default_stream != null and default_stream.resource_path == "res://res/audio/tts/male/tong_5.wav", "follow language restores the original self voice")
+	main.free()
+	var bar := UTILITY_BAR_SCENE.instantiate()
+	root.add_child(bar)
+	bar.call("set_collapsed", false)
+	var language_button := bar.call("get_button", "voice") as Button
+	var choose_button := bar.call("get_button", "choose_voice") as Button
+	_check(language_button != null and language_button.visible, "language switch remains available")
+	_check(choose_button != null and choose_button.visible, "separate choose voice button exists")
+	bar.free()
+	var panel := VOICE_PANEL_SCRIPT.new()
+	root.add_child(panel)
+	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	panel.size = Vector2(2556, 1179)
+	panel.call("open", "", "mandarin")
+	_check((panel.get("panel") as Control).scale.x >= 1.49, "voice panel enlarges by at least half on large screens")
+	_check((panel.get("options_scroll") as ScrollContainer).get_v_scroll_bar().custom_minimum_size.x >= 74.0, "voice scrollbar has a broad touch target")
+	_check(panel.get("choice_buttons").size() == 14, "glass panel lists all loaded voices")
+	_check(panel.get("preview_buttons").size() == 14, "each listed voice has a preview button")
+	_check((panel.get("options_scroll") as ScrollContainer).get_child(0).custom_minimum_size.y > (panel.get("options_scroll") as ScrollContainer).size.y, "all voice rows fit in a scrollable list")
+	var filter_buttons: Dictionary = panel.get("filter_buttons")
+	_check(filter_buttons.size() == 3, "voice list offers all, Mandarin, and Sichuan filters")
+	for language in ["mandarin", "sichuan"]:
+		panel.call("_set_filter", language)
+		var visible_count := 0
+		for option in options:
+			var voice_id := str(option.get("id", ""))
+			var choice := (panel.get("choice_buttons") as Dictionary).get(voice_id) as Button
+			var expected: bool = str(option.get("language", "")) == str(language)
+			_check(choice.visible == expected, "%s filter handles %s" % [language, voice_id])
+			if choice.visible:
+				visible_count += 1
+		_check(visible_count > 0, "%s filter has voices" % language)
+		_check((panel.get("options_content") as Control).custom_minimum_size.y == visible_count * 88.0, "%s filter compacts the list" % language)
+	panel.call("_set_filter", "all")
+	for option in options:
+		panel.call("_preview_voice", str(option.get("id", "")))
+		var selected_stream := (panel.get("preview_player") as AudioStreamPlayer).stream
+		_check(selected_stream != null and selected_stream.resource_path == "res://res/audio/%s/tong_5.wav" % str(option.get("directory", "")), "preview loads %s" % str(option.get("id", "")))
+	panel.call("_preview_voice", "sichuan_vivi_2")
+	var preview_stream := (panel.get("preview_player") as AudioStreamPlayer).stream
+	_check(preview_stream != null and preview_stream.resource_path == "res://res/audio/tts_sichuan/female/tong_5.wav", "preview plays the selected voice resource")
+	panel.call("_select_voice", "sichuan_vivi_2")
+	_check(str(panel.get("selected_voice_id")) == "sichuan_vivi_2", "selecting a voice updates the panel")
+	panel.call("close")
+	panel.free()
 
 
 func _finish() -> void:

@@ -10,6 +10,8 @@ signal position_changed(normalized_position: Vector2)
 signal position_change_finished(normalized_position: Vector2)
 
 const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
+const GLASS_PRIMARY := preload("res://res/art/ui/network/lan_lobby_ready_glass.png")
+const GLASS_SECONDARY := preload("res://res/art/ui/network/lan_lobby_leave_glass.png")
 
 @export var style_config: Resource
 
@@ -57,27 +59,21 @@ func _ready() -> void:
 	style_config.apply_label(opacity_label, true, false)
 	root_panel.add_theme_stylebox_override("panel", _make_drawer_style())
 	title_label.add_theme_font_size_override("font_size", 40)
-	title_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
+	title_label.add_theme_color_override("font_color", Color("F8FCFF"))
 	for label in [summary_label, reason_label, danger_label, routes_label]:
 		label.add_theme_font_size_override("font_size", 34)
-		label.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY if label == summary_label else TABLE_THEME.TEXT_SECONDARY)
-		label.add_theme_color_override("font_outline_color", Color(0.02, 0.05, 0.04, 0.94))
+		label.add_theme_color_override("font_color", Color("FFFFFF") if label == summary_label else Color("E2F2FF"))
+		label.add_theme_color_override("font_outline_color", Color(0.02, 0.16, 0.31, 0.94))
 		label.add_theme_constant_override("outline_size", 3)
 	toggle_button.custom_minimum_size = Vector2(132.0, 72.0)
 	toggle_button.add_theme_font_size_override("font_size", 30)
+	_apply_glass_button(toggle_button, GLASS_SECONDARY, Color("0752A0"))
 	opacity_label.add_theme_font_size_override("font_size", 27)
-	opacity_label.add_theme_color_override("font_color", TABLE_THEME.TEXT_SECONDARY)
+	opacity_label.add_theme_color_override("font_color", Color("E2F2FF"))
 	_apply_opacity_slider_style()
 	recommendation_button.custom_minimum_size.y = 78.0
 	recommendation_button.add_theme_font_size_override("font_size", 32)
-	var recommendation_normal := _make_recommendation_style(false)
-	var recommendation_hover := _make_recommendation_style(false)
-	recommendation_hover.bg_color = recommendation_hover.bg_color.lightened(0.08)
-	recommendation_button.add_theme_stylebox_override("normal", recommendation_normal)
-	recommendation_button.add_theme_stylebox_override("hover", recommendation_hover)
-	recommendation_button.add_theme_stylebox_override("focus", recommendation_hover)
-	recommendation_button.add_theme_stylebox_override("pressed", _make_recommendation_style(true))
-	recommendation_button.add_theme_color_override("font_color", TABLE_THEME.TEXT_PRIMARY)
+	_apply_glass_button(recommendation_button, GLASS_PRIMARY, Color.WHITE)
 	for focus_control in [toggle_button, opacity_slider, recommendation_button]:
 		focus_control.focus_mode = Control.FOCUS_ALL
 	toggle_button.pressed.connect(_on_toggle_pressed)
@@ -413,15 +409,15 @@ func _apply_readability_styles() -> void:
 	# A 50% drawer is frequently positioned above a busy discard river. Keep a
 	# local dark reading strip behind text through the medium setting; this does
 	# not alter the user-controlled panel opacity or fade any text/control.
-	var scrim_alpha := 0.60 if low_opacity else (0.34 if medium_opacity else 0.0)
+	var scrim_alpha := 0.24 if low_opacity else (0.16 if medium_opacity else 0.10)
 	for label in [title_label, summary_label, reason_label, danger_label, routes_label, opacity_label]:
 		if label == null:
 			continue
 		label.self_modulate = Color.WHITE
-		label.add_theme_color_override("font_outline_color", Color(0.008, 0.025, 0.020, 0.99))
+		label.add_theme_color_override("font_outline_color", Color(0.018, 0.105, 0.24, 0.99))
 		label.add_theme_constant_override("outline_size", 4 if low_opacity else (3 if label != opacity_label else 2))
 		var scrim := StyleBoxFlat.new()
-		scrim.bg_color = Color(0.008, 0.055, 0.046, scrim_alpha)
+		scrim.bg_color = Color(0.09, 0.35, 0.68, scrim_alpha)
 		scrim.set_corner_radius_all(5)
 		scrim.content_margin_left = 5.0 if medium_opacity else 0.0
 		scrim.content_margin_right = 5.0 if medium_opacity else 0.0
@@ -599,15 +595,15 @@ func _apply_normalized_position() -> void:
 
 func _apply_opacity_slider_style() -> void:
 	var rail := StyleBoxFlat.new()
-	rail.bg_color = Color(0.015, 0.08, 0.068, 0.86)
-	rail.border_color = Color(TABLE_THEME.AGED_COPPER, 0.72)
+	rail.bg_color = Color(0.82, 0.94, 1.0, 0.18)
+	rail.border_color = Color(1.0, 1.0, 1.0, 0.76)
 	rail.set_border_width_all(1)
 	rail.set_corner_radius_all(6)
 	rail.content_margin_top = 7
 	rail.content_margin_bottom = 7
 	var fill := rail.duplicate() as StyleBoxFlat
-	fill.bg_color = Color(0.05, 0.35, 0.25, 0.94)
-	fill.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.88)
+	fill.bg_color = Color(0.18, 0.64, 1.0, 0.67)
+	fill.border_color = Color(1.0, 1.0, 1.0, 0.94)
 	opacity_slider.add_theme_stylebox_override("slider", rail)
 	opacity_slider.add_theme_stylebox_override("grabber_area", fill)
 	opacity_slider.add_theme_stylebox_override("grabber_area_highlight", fill)
@@ -695,18 +691,13 @@ func _humanize_reason_text(text: String) -> String:
 func _make_drawer_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	var alpha := glass_opacity
-	# Match the navy lacquer used by SeatHUD and the utility rail so the helper
-	# feels like part of the table system, not a separate green debug overlay.
-	style.bg_color = Color(TABLE_THEME.PANEL_JADE_BLACK, alpha)
-	style.border_color = Color(TABLE_THEME.BRASS, minf(0.92, 0.12 + alpha * 0.80))
+	style.bg_color = Color(0.56, 0.79, 1.0, 0.08 + alpha * 0.33)
+	style.border_color = Color(1.0, 1.0, 1.0, 0.90)
 	style.set_border_width_all(2)
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 16
-	style.corner_radius_bottom_left = 16
-	style.corner_radius_bottom_right = 5
-	style.shadow_color = Color(0.0, 0.0, 0.0, alpha * 0.42)
-	style.shadow_size = int(round(18.0 * alpha))
-	style.shadow_offset = Vector2(7.0, 9.0)
+	style.set_corner_radius_all(20)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
+	style.shadow_size = 0
+	style.shadow_offset = Vector2.ZERO
 	style.content_margin_left = 2
 	style.content_margin_top = 2
 	style.content_margin_right = 2
@@ -714,16 +705,22 @@ func _make_drawer_style() -> StyleBoxFlat:
 	return style
 
 
-func _make_recommendation_style(pressed: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.025, 0.31, 0.23, 0.98) if not pressed else Color(0.02, 0.22, 0.17, 0.98)
-	style.border_color = Color(TABLE_THEME.BRASS, 0.94)
-	style.set_border_width_all(2)
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 11
-	style.corner_radius_bottom_left = 11
-	style.corner_radius_bottom_right = 4
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.28)
-	style.shadow_size = 6 if not pressed else 2
-	style.shadow_offset = Vector2(0.0, 3.0 if not pressed else 1.0)
-	return style
+func _apply_glass_button(button: Button, texture: Texture2D, font_color: Color) -> void:
+	for state in ["normal", "hover", "focus", "pressed", "disabled"]:
+		var style := StyleBoxTexture.new()
+		style.texture = texture
+		style.draw_center = true
+		style.texture_margin_left = 16.0
+		style.texture_margin_right = 16.0
+		style.texture_margin_top = 16.0
+		style.texture_margin_bottom = 16.0
+		if state == "hover" or state == "focus":
+			style.modulate_color = Color(1.12, 1.12, 1.12, 1.0)
+		elif state == "pressed":
+			style.modulate_color = Color(0.80, 0.88, 0.98, 1.0)
+		elif state == "disabled":
+			style.modulate_color = Color(1.0, 1.0, 1.0, 0.54)
+		button.add_theme_stylebox_override(state, style)
+	for state in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		button.add_theme_color_override(state, font_color)
+	button.add_theme_color_override("font_disabled_color", Color(font_color, 0.56))

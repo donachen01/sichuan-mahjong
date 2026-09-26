@@ -244,8 +244,12 @@ func _verify_hud_and_action_materials(failures: Array[String]) -> void:
 		failures.append("SeatHUD must expose premium nameplate visual contract")
 	else:
 		var hud_contract: Dictionary = hud.call("get_visual_contract")
-		if str(hud_contract.get("material_family", "")) != "unified_smoked_jade_nameplate":
-			failures.append("all SeatHUD cards must share one smoked-jade material family")
+		if str(hud_contract.get("material_family", "")) != "translucent_smoked_jade_glass_nameplate":
+			failures.append("all SeatHUD cards must share the translucent glass material family")
+		var nameplate_panel := hud.get_node_or_null("BackgroundPanel") as Panel
+		var shell_style := nameplate_panel.get_theme_stylebox("panel") as StyleBoxFlat if nameplate_panel != null else null
+		if shell_style == null or shell_style.bg_color.a > 0.20:
+			failures.append("SeatHUD glass background must remain visibly transparent")
 		if str(hud_contract.get("active_treatment", "")) != "single_thin_antique_gold_edge":
 			failures.append("SeatHUD current-turn state must use one restrained antique-gold edge")
 		if str(hud_contract.get("default_treatment", "")) != "single_low_contrast_bronze_edge_without_glow":

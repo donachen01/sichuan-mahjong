@@ -7,6 +7,8 @@ const TABLE_THEME := preload("res://scripts/ui/table/SichuanTableTheme.gd")
 const TABLE_SKIN_CATALOG := preload("res://scripts/ui/table/SichuanTableSkinCatalog.gd")
 const STYLE_CONFIG := preload("res://res/ui/default_ui_style.tres")
 const ACTION_FONT := preload("res://res/fonts/NotoSansCJKsc-Regular.otf")
+const GLASS_ACTION_TEXTURE := preload("res://res/ui/glass_action_badge.png")
+const GLASS_ACTION_REFLECTION_TEXTURE := preload("res://res/ui/glass_action_reflection.png")
 const ENTRANCE_DURATION := 0.16
 const ENTRANCE_STAGGER := 0.025
 const HOVER_DURATION := 0.10
@@ -36,6 +38,7 @@ var action_buttons: Dictionary = {}
 var reduced_motion := false
 var button_tweens: Dictionary = {}
 var button_overlays: Dictionary = {}
+var button_reflections: Dictionary = {}
 var active_skin_id := TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID
 var active_skin: Dictionary = TABLE_SKIN_CATALOG.get_skin(TABLE_SKIN_CATALOG.DEFAULT_SKIN_ID)
 
@@ -88,6 +91,8 @@ func _ready() -> void:
 		button.add_theme_stylebox_override("hover", _make_hover_style(action))
 		button.add_theme_stylebox_override("focus", _make_focus_style(action))
 		button.add_theme_stylebox_override("pressed", _make_action_seal_style(action, true))
+		button.add_theme_stylebox_override("disabled", _make_disabled_style(action))
+		button_reflections[button] = _create_glass_reflection(button)
 		button_overlays[button] = _create_motion_overlay(button)
 		button.pressed.connect(_on_button_pressed.bind(str(action)))
 		button.mouse_entered.connect(_on_button_attention_entered.bind(button))
@@ -171,7 +176,7 @@ func get_visible_actions() -> Array[String]:
 
 func get_visual_contract() -> Dictionary:
 	return {
-		"material_family": "skin_matched_single_ring_action_badges",
+		"material_family": "blue_glass_action_badges" if _uses_glass_actions() else "skin_matched_single_ring_action_badges",
 		"primary_shape": "single_ring_table_badge",
 		"shape_motif": "simple_round_copper_ring",
 		"skin_binding": "active_table_skin_palette_and_material",
@@ -181,7 +186,12 @@ func get_visual_contract() -> Dictionary:
 		"auxiliary_text": "hidden",
 		"pressed_feedback": "depth_compression",
 		"motion_language": "short_scale_and_light_response",
-}
+		"glass_states": ["normal", "hover", "focus", "pressed", "disabled"],
+		"glass_highlight_direction": "upper_left_arc_and_diagonal_band",
+		"glass_ring_layers": 3,
+		"glass_table_reflection": "soft_blue_ellipse_below_button",
+		"touch_geometry_unchanged": true,
+	}
 
 
 func set_table_skin(skin_id: String) -> void:
@@ -197,6 +207,13 @@ func set_table_skin(skin_id: String) -> void:
 		button.add_theme_stylebox_override("hover", _make_hover_style(str(action)))
 		button.add_theme_stylebox_override("focus", _make_focus_style(str(action)))
 		button.add_theme_stylebox_override("pressed", _make_action_seal_style(str(action), true))
+		button.add_theme_stylebox_override("disabled", _make_disabled_style(str(action)))
+		var overlay := button_overlays.get(button) as Panel
+		if overlay != null:
+			overlay.add_theme_stylebox_override("panel", _make_motion_overlay_style())
+		var reflection := button_reflections.get(button) as TextureRect
+		if reflection != null:
+			reflection.visible = _uses_glass_actions()
 	_apply_skin_typography()
 
 
@@ -208,14 +225,27 @@ func _apply_skin_typography() -> void:
 		if button == null:
 			continue
 		var copy_color := skin_light.lerp(TABLE_THEME.IVORY_TEXT, 0.45)
-		if action == "hu":
-			copy_color = copy_color.lerp(Color("FFE2A0"), 0.46)
-		elif action == "pass":
-			copy_color = copy_color.darkened(0.22)
+		if _uses_glass_actions():
+			copy_color = Color("F6FCFF")
+		if not _uses_glass_actions():
+			if action == "hu":
+				copy_color = copy_color.lerp(Color("FFE2A0"), 0.46)
+			elif action == "pass":
+				copy_color = copy_color.darkened(0.22)
 		button.add_theme_color_override("font_color", copy_color)
 		button.add_theme_color_override("font_hover_color", copy_color.lightened(0.12))
 		button.add_theme_color_override("font_pressed_color", copy_color.darkened(0.08))
-		button.add_theme_color_override("font_outline_color", Color(skin_dark, 0.98))
+		button.add_theme_color_override(
+			"font_outline_color",
+			Color("FFFFFF", 0.90) if _uses_glass_actions() else Color(skin_dark, 0.98)
+		)
+		# A same-colour two-pixel outline gives the bundled regular CJK font the
+		# bold, solid white weight of the supplied glass-button reference.
+		button.add_theme_constant_override("outline_size", 2 if _uses_glass_actions() else 6)
+		button.add_theme_color_override(
+			"font_shadow_color",
+			Color("A7F5FF", 0.26) if _uses_glass_actions() else Color(0.0, 0.02, 0.015, 0.62)
+		)
 
 
 func get_motion_contract() -> Dictionary:
@@ -329,20 +359,28 @@ func _create_motion_overlay(button: Button) -> Panel:
 	overlay.name = "MotionHighlight"
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.show_behind_parent = true
 	overlay.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
-	style.border_color = Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.92)
-	style.set_border_width_all(4)
-	# Buttons are square touch targets with a circular visual badge. The overlay
-	# follows that badge silhouette so focus never turns it back into a box.
-	style.set_corner_radius_all(220)
-	style.shadow_color = Color(0.88, 0.42, 0.12, 0.42)
-	style.shadow_size = 10
-	style.shadow_offset = Vector2.ZERO
-	overlay.add_theme_stylebox_override("panel", style)
+	overlay.add_theme_stylebox_override("panel", _make_motion_overlay_style())
 	button.add_child(overlay)
 	return overlay
+
+
+func _create_glass_reflection(button: Button) -> TextureRect:
+	var reflection := TextureRect.new()
+	reflection.name = "GlassTableReflection"
+	reflection.texture = GLASS_ACTION_REFLECTION_TEXTURE
+	reflection.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	reflection.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	reflection.anchor_left = 0.08
+	reflection.anchor_top = 0.82
+	reflection.anchor_right = 0.92
+	reflection.anchor_bottom = 1.22
+	reflection.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	reflection.show_behind_parent = true
+	reflection.visible = _uses_glass_actions()
+	button.add_child(reflection)
+	return reflection
 
 
 func _reset_motion_overlay(button: Button) -> void:
@@ -399,13 +437,15 @@ func _make_background_style() -> StyleBoxFlat:
 	return style
 
 
-func _make_hover_style(action: String) -> StyleBoxTexture:
+func _make_hover_style(action: String) -> StyleBox:
+	if _uses_glass_actions():
+		return _make_glass_texture_style(Color(1.10, 1.12, 1.14, 1.0), false)
 	var style := _make_action_seal_style(action, false)
 	style.modulate_color = Color(1.10, 1.07, 0.92, 1.0)
 	return style
 
 
-func _make_focus_style(action: String) -> StyleBoxTexture:
+func _make_focus_style(action: String) -> StyleBox:
 	var style := _make_hover_style(action)
 	style.expand_margin_left = 4.0
 	style.expand_margin_top = 4.0
@@ -414,7 +454,9 @@ func _make_focus_style(action: String) -> StyleBoxTexture:
 	return style
 
 
-func _make_action_seal_style(_action: String, pressed: bool) -> StyleBoxTexture:
+func _make_action_seal_style(_action: String, pressed: bool) -> StyleBox:
+	if _uses_glass_actions():
+		return _make_glass_texture_style(Color(0.78, 0.88, 0.96, 0.96) if pressed else Color.WHITE, pressed)
 	var style := StyleBoxTexture.new()
 	style.texture = ResourceLoader.load(TABLE_SKIN_CATALOG.texture_path(active_skin_id, "action_badge.png")) as Texture2D
 	style.draw_center = true
@@ -428,3 +470,46 @@ func _make_action_seal_style(_action: String, pressed: bool) -> StyleBoxTexture:
 	style.content_margin_top = 4.0 if not pressed else 8.0
 	style.content_margin_bottom = 8.0
 	return style
+
+
+func _make_disabled_style(action: String) -> StyleBox:
+	if _uses_glass_actions():
+		return _make_glass_texture_style(Color(0.55, 0.62, 0.68, 0.52), false)
+	var style := _make_action_seal_style(action, false)
+	if style is StyleBoxTexture:
+		(style as StyleBoxTexture).modulate_color = Color(0.52, 0.54, 0.53, 0.72)
+	return style
+
+
+func _make_glass_texture_style(modulate: Color, pressed: bool) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = GLASS_ACTION_TEXTURE
+	style.draw_center = true
+	style.modulate_color = modulate
+	style.expand_margin_left = 3.0
+	style.expand_margin_top = 3.0
+	style.expand_margin_right = 3.0
+	style.expand_margin_bottom = 3.0
+	style.content_margin_left = 18.0
+	style.content_margin_right = 18.0
+	style.content_margin_top = 8.0 if pressed else 4.0
+	style.content_margin_bottom = 8.0
+	return style
+
+
+func _make_motion_overlay_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	style.border_color = Color("E8FAFF", 0.96) if _uses_glass_actions() else Color(TABLE_THEME.COPPER_HIGHLIGHT, 0.92)
+	style.set_border_width_all(4)
+	# Buttons are square touch targets with a circular visual badge. The overlay
+	# follows that badge silhouette so focus never turns it back into a box.
+	style.set_corner_radius_all(220)
+	style.shadow_color = Color("4CC7FF", 0.44) if _uses_glass_actions() else Color(0.88, 0.42, 0.12, 0.42)
+	style.shadow_size = 10
+	style.shadow_offset = Vector2.ZERO
+	return style
+
+
+func _uses_glass_actions() -> bool:
+	return bool(active_skin.get("glass_theme", false))

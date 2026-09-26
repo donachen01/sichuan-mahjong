@@ -58,6 +58,27 @@ func _verify_deal_state(game_state: Node, failures: Array[String]) -> void:
 
 
 func _verify_scene_render(scene: Node, game_state: Node, failures: Array[String]) -> void:
+	var roll_contract: Dictionary = scene.get_opening_roll_visual_contract()
+	if absf(float(roll_contract.get("audio_seconds", 0.0)) - 1.5) > 0.001 \
+		or absf(float(roll_contract.get("total_visual_seconds", 0.0)) - 1.525) > 0.001:
+		failures.append("投骰等待时间不是原来的约一半")
+	var glass_panel: Texture2D = scene.dice_panel.get("glass_texture")
+	var glass_face: Texture2D = scene.die_a_face.get("glass_texture")
+	if glass_panel == null or not glass_panel.resource_path.ends_with("lan_dice_panel_glass.png") \
+		or glass_face == null or not glass_face.resource_path.ends_with("lan_dice_face_glass.png"):
+		failures.append("开局骰子没有使用玻璃面板与玻璃骰面素材")
+	if scene.dice_panel.custom_minimum_size != Vector2(240, 150):
+		failures.append("骰子区域没有呈现俯视透视下的椭圆比例")
+	if glass_panel != null:
+		var panel_image := glass_panel.get_image()
+		if panel_image.get_pixel(0, 0).a > 0.02 \
+			or panel_image.get_pixel(panel_image.get_width() / 2, 10).a < 0.7 \
+			or panel_image.get_pixel(panel_image.get_width() / 2, panel_image.get_height() / 2).a < 0.7:
+			failures.append("骰子嵌入盘需要透明四角、可见椭圆边缘与实体内底")
+	var dice_audio := load("res://res/audio/sfx/mahjong_dice_roll_short.wav") as AudioStream
+	if dice_audio == null or absf(dice_audio.get_length() - 1.5) > 0.001 \
+		or absf(scene.system_sfx_player.pitch_scale - 1.0) > 0.001:
+		failures.append("投骰音效必须截为1.5秒并保持原音高")
 	var stage = scene.get("table_stage_3d")
 	if stage == null:
 		failures.append("3D 牌桌舞台不存在")

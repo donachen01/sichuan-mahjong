@@ -1,0 +1,19 @@
+config_version=5
+
+[application]
+config/name="麻将联机测试"
+config/version="0.1.0"
+run/main_scene="res://scenes/network/LanProbe.tscn"
+config/features=PackedStringArray("4.6", "Mobile")
+
+[display]
+window/size/viewport_width=1000
+window/size/viewport_height=700
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=6
+
+[rendering]
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+environment/defaults/default_clear_color=Color(0.05, 0.1, 0.12, 1)

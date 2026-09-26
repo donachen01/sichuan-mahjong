@@ -17,6 +17,7 @@ import zlib
 from pathlib import Path
 
 import bpy
+import numpy as np
 from mathutils import Vector
 
 
@@ -41,10 +42,12 @@ SKIN_BADGES = {
     "teal_teddy_check": ("385D64", "E7E2D1", 0.98),
 }
 DING_QUE = {
-    "tiao": ("176F58", "32B485"),
-    "tong": ("8A6325", "D2A33E"),
-    "wan": ("82332D", "C55145"),
+    # Centre pixels sampled from the original opaque round buttons.
+    "tiao": "54AA80",
+    "tong": "BC9A48",
+    "wan": "B95540",
 }
+GLASS_ACTION_BADGE = ROOT / "res" / "ui" / "glass_action_badge.png"
 
 
 def srgb_channel_to_linear(value: float) -> float:
@@ -310,25 +313,47 @@ def render_skin_action_badge(skin_id: str, palette: tuple[str, str, float]) -> N
     strip_png_text_chunks(output)
 
 
-def render_ding_que_seal(suit: str, palette: tuple[str, str]) -> None:
-    """Render a text-free jade seal while Godot retains the live label/touch."""
-    reset_scene()
-    deep_hex, light_hex = palette
-    shadow = material(f"{suit}QueShadow", "020806", 0.0, 0.94)
-    copper = material(f"{suit}QueCopper", AGED_COPPER, 0.54, 0.44)
-    rim = material(f"{suit}QueIvoryRim", "E9DEC1", 0.08, 0.42)
-    body = material(f"{suit}QueBody", deep_hex, 0.08, 0.54)
-    inset = material(f"{suit}QueInset", light_hex, 0.05, 0.60)
-    cylinder("Shadow", 2.17, 0.14, -0.15, shadow, 0.09).location += Vector((0.12, -0.15, 0.0))
-    cylinder("CopperFoot", 2.07, 0.18, -0.01, copper, 0.08)
-    cylinder("IvoryOuterRim", 1.98, 0.16, 0.10, rim, 0.065)
-    cylinder("JadeBody", 1.89, 0.22, 0.23, body, 0.075)
-    cylinder("CopperKeyline", 1.61, 0.08, 0.36, copper, 0.04)
-    cylinder("InsetSeal", 1.53, 0.11, 0.41, inset, 0.045)
-    add_camera_and_lights(ortho_scale=4.95)
+def render_ding_que_seal(suit: str, face_hex: str) -> None:
+    """Tint the existing 碰/取消 glass badge's face, preserving its exact art.
+
+    The action badge already owns the user's chosen circular rim, gradient,
+    partial alpha and diagonal reflection. Only its blue face is recoloured;
+    Godot supplies the live 条/筒/万 character and keeps the same touch size.
+    """
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    source = bpy.data.images.load(str(GLASS_ACTION_BADGE), check_existing=False)
+    width, height = source.size
+    pixels = np.empty(width * height * 4, dtype=np.float32)
+    source.pixels.foreach_get(pixels)
+    rgba = pixels.reshape(height, width, 4)[::-1].copy()
+    cy, cx = height // 2, width // 2
+    source_face = rgba[cy, cx, :3].copy()
+    base = np.array(tuple(int(face_hex[index:index + 2], 16) / 255.0 for index in (0, 2, 4)), dtype=np.float32)
+    source_luma = np.dot(rgba[:, :, :3], np.array((0.2126, 0.7152, 0.0722), dtype=np.float32))
+    centre_luma = float(np.dot(source_face, np.array((0.2126, 0.7152, 0.0722), dtype=np.float32)))
+    brightness = source_luma / max(centre_luma, 0.01)
+    darkening = np.clip((1.0 - brightness) * 0.65, 0.0, 0.55)
+    lightening = np.clip((brightness - 1.0) * 0.68, 0.0, 0.82)
+    recoloured = base[None, None, :] * (1.0 - darkening[:, :, None])
+    recoloured = recoloured * (1.0 - lightening[:, :, None]) + lightening[:, :, None]
+    rgb_max = rgba[:, :, :3].max(axis=2)
+    rgb_min = rgba[:, :, :3].min(axis=2)
+    saturation = (rgb_max - rgb_min) / np.maximum(rgb_max, 0.001)
+    yy, xx = np.mgrid[:height, :width]
+    radius = np.hypot(xx + 0.5 - cx, yy + 0.5 - cy)
+    face_edge = np.clip((207.0 - radius) / 3.0, 0.0, 1.0)
+    coloured = np.clip((saturation - 0.08) / 0.18, 0.0, 1.0)
+    mix = face_edge * coloured
+    rgba[:, :, :3] = rgba[:, :, :3] * (1.0 - mix[:, :, None]) + recoloured * mix[:, :, None]
+    bpy.data.images.remove(source)
+    image = bpy.data.images.new(f"DingQue{suit}ActionGlass", width=width, height=height, alpha=True)
+    image.colorspace_settings.name = "sRGB"
+    image.pixels.foreach_set(np.clip(rgba[::-1], 0.0, 1.0).ravel())
     output = OUTPUT_DIR / f"ding_que_{suit}.png"
-    configure_render(384, 384, output)
-    bpy.ops.render.render(write_still=True)
+    image.filepath_raw = str(output)
+    image.file_format = "PNG"
+    image.save()
+    bpy.data.images.remove(image)
     strip_png_text_chunks(output)
 
 
@@ -339,8 +364,8 @@ def main() -> None:
         print(f"Generated settlement nine-slice in {OUTPUT_DIR}")
         return
     if "--ding-que-only" in sys.argv:
-        for suit, palette in DING_QUE.items():
-            render_ding_que_seal(suit, palette)
+        for suit, face_hex in DING_QUE.items():
+            render_ding_que_seal(suit, face_hex)
         print(f"Generated dot-free ding-que seals in {OUTPUT_DIR}")
         return
     render_hud_shell()
@@ -348,8 +373,8 @@ def main() -> None:
         render_action_seal(action, hex_value)
     for skin_id, palette in SKIN_BADGES.items():
         render_skin_action_badge(skin_id, palette)
-    for suit, palette in DING_QUE.items():
-        render_ding_que_seal(suit, palette)
+    for suit, face_hex in DING_QUE.items():
+        render_ding_que_seal(suit, face_hex)
     render_settlement_panel()
     print(f"Generated Deep Emerald UI shells in {OUTPUT_DIR}")
 

@@ -1,6 +1,6 @@
 extends Control
 
-const MAIN_SCENE_PATH := "res://scenes/table/MainSceneV2.tscn"
+const MAIN_SCENE_PATH := "res://scenes/network/GameModeSelect.tscn"
 const SPLASH_SECONDS := 3.0
 
 @onready var splash_image: TextureRect = %SplashImage
@@ -12,10 +12,15 @@ const SPLASH_SECONDS := 3.0
 @onready var credit_label: Label = %CreditLabel
 
 var _elapsed := 0.0
+var _probe_selected := false
 var _dice_faces := ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
 
 
 func _ready() -> void:
+	if OS.get_cmdline_user_args().has("--lan-probe"):
+		_probe_selected = true
+		get_tree().change_scene_to_file.call_deferred("res://scenes/network/LanProbe.tscn")
+		return
 	if OS.get_cmdline_user_args().has("--stage6-release-performance"):
 		var probe_script := load("res://tools/Stage6ReleasePerformanceProbe.gd") as Script
 		if probe_script == null:
@@ -39,7 +44,8 @@ func _ready() -> void:
 	_start_dice_bounce(dice_left, 0.0, 0.0)
 	_start_dice_bounce(dice_right, 0.16, 1.0)
 	await get_tree().create_timer(SPLASH_SECONDS).timeout
-	get_tree().change_scene_to_file(MAIN_SCENE_PATH)
+	if not _probe_selected:
+		get_tree().change_scene_to_file(MAIN_SCENE_PATH)
 
 
 func _process(delta: float) -> void:

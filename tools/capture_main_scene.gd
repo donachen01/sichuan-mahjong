@@ -83,7 +83,7 @@ func _capture() -> void:
 	elif _capture_mode() == "utility-expanded":
 		_force_clean_table_preview(root_node)
 		_force_utility_expanded_preview(root_node)
-	elif _capture_mode() in ["clean", "camera"]:
+	elif _capture_mode() in ["clean", "camera", "next-round-ready"]:
 		_force_clean_table_preview(root_node)
 		if _capture_mode() == "clean":
 			_force_action_bar_preview(root_node)
@@ -142,10 +142,17 @@ func _capture() -> void:
 	_apply_choice_style_preview(root_node)
 	_force_3d_full_table_preview(root_node)
 	_apply_requested_table_skin(root_node)
+	if _capture_mode() == "next-round-ready":
+		root_node.call("_refresh_opening_roll_ui", {"current_phase": 7, "players": [], "opening_roll_pending": false})
+		var ready_bar := root_node.get("lan_round_action_bar") as Control
+		if ready_bar != null:
+			ready_bar.visible = true
 	if _capture_mode() == "settlement":
 		# Re-render after the requested table skin is active so the captured
 		# settlement palette proves the same runtime linkage used by real play.
 		_force_settlement_preview(root_node)
+		await process_frame
+		_apply_requested_settlement_tab(root_node)
 		await process_frame
 	if _capture_mode() == "skin-panel":
 		var utility := root_node.get("table_utility_bar") as Control
@@ -351,6 +358,25 @@ func _capture_mode() -> String:
 		if argument.begins_with("--capture-mode="):
 			return argument.trim_prefix("--capture-mode=")
 	return "table"
+
+
+func _apply_requested_settlement_tab(root_node: Node) -> void:
+	var requested_tab := 0
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--settlement-tab="):
+			requested_tab = clampi(int(argument.trim_prefix("--settlement-tab=")), 0, 3)
+	if requested_tab == 0:
+		return
+	root_node.set("settlement_details_controllers", [
+		{"seat": 0, "nickname": "玩家"}, {"seat": 1, "nickname": "电脑一"},
+		{"seat": 2, "nickname": "电脑二"}, {"seat": 3, "nickname": "电脑三"},
+	])
+	root_node.set("settlement_details_history", [
+		{"round_index": 1, "score_changes": {0: 3, 1: -1, 2: -1, 3: -1}},
+		{"round_index": 2, "score_changes": {0: -2, 1: 4, 2: -1, 3: -1}},
+		{"round_index": 3, "score_changes": {0: 6, 1: -2, 2: -2, 3: -2}},
+	])
+	root_node.call("_select_rich_settlement_tab", requested_tab)
 
 
 func _capture_turn_seat() -> int:

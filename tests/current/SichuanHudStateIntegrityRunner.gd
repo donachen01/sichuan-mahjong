@@ -97,19 +97,20 @@ func _verify_opening_roll_phase_contract(scene: Node, failures: Array[String]) -
 	var contract: Dictionary = scene.call("get_opening_roll_visual_contract")
 	var visual_seconds := float(contract.get("total_visual_seconds", 0.0))
 	var audio_seconds := float(contract.get("audio_seconds", 0.0))
+	var final_hold_seconds := float(contract.get("final_hold_seconds", 0.0))
 	if not bool(contract.get("hidden_during_ding_que", false)):
 		failures.append("骰子必须在定缺阶段开始前隐藏")
 	if str(contract.get("completion_clock", "")) != "monotonic_deadline_independent_of_rendered_tick_count":
 		failures.append("投骰结束必须使用与帧率无关的单调时钟截止时间")
 	if visual_seconds < audio_seconds or visual_seconds - audio_seconds > 0.08:
-		failures.append("骰子动画结束时刻必须与3秒投骰声音对齐")
+		failures.append("骰子动画结束时刻必须与投骰声音对齐")
 	var commit_timer: Timer = scene.get("opening_roll_commit_timer")
 	if commit_timer == null or not commit_timer.one_shot or absf(commit_timer.wait_time - visual_seconds) > 0.001:
-		failures.append("投骰完成计时器必须在动画开始时独立锁定3.05秒截止点")
+		failures.append("投骰完成计时器必须在动画开始时独立锁定约1.53秒截止点")
 	var tick_timer: Timer = scene.get("opening_roll_timer")
 	if tick_timer != null:
 		scene.set("opening_roll_payload", {"die_a": 2, "die_b": 5})
-		scene.set("opening_roll_animation_started_msec", Time.get_ticks_msec() - int((audio_seconds - 0.20) * 1000.0))
+		scene.set("opening_roll_animation_started_msec", Time.get_ticks_msec() - int((audio_seconds - final_hold_seconds + 0.02) * 1000.0))
 		tick_timer.start()
 		scene.call("_on_opening_roll_timer_timeout")
 		if not tick_timer.is_stopped():

@@ -9,6 +9,8 @@ func _init() -> void:
 	var failures: Array[String] = []
 	_run_test("missing_suit_blocks_peng_and_gang_on_same_suit", _test_missing_suit_blocks_peng_and_gang_on_same_suit, failures)
 	_run_test("non_missing_suit_still_allows_peng_and_gang", _test_non_missing_suit_still_allows_peng_and_gang, failures)
+	_run_test("empty_wall_blocks_last_discard_gang", _test_empty_wall_blocks_last_discard_gang, failures)
+	_run_test("empty_wall_blocks_self_gang_options_and_execution", _test_empty_wall_blocks_self_gang_options_and_execution, failures)
 	_run_test("counterclockwise_turn_rotation_and_reaction_distance", _test_counterclockwise_turn_rotation_and_reaction_distance, failures)
 	_run_test("chi_is_not_available_in_reaction_candidates", _test_chi_is_not_available_in_reaction_candidates, failures)
 	_run_test("forced_discard_requires_missing_suit_first", _test_forced_discard_requires_missing_suit_first, failures)
@@ -17,6 +19,7 @@ func _init() -> void:
 	_run_test("qi_dui_is_blocked_when_exposed_meld_exists", _test_qi_dui_is_blocked_when_exposed_meld_exists, failures)
 	_run_test("self_draw_hu_with_exposed_meld_is_detected", _test_self_draw_hu_with_exposed_meld_is_detected, failures)
 	_run_test("concealed_gang_last_wall_draw_exposes_gang_self_draw_hu", _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu, failures)
+	_run_test("dian_gang_hua_charges_only_gang_source_as_discard_win", _test_dian_gang_hua_charges_only_gang_source_as_discard_win, failures)
 	_run_test("multi_win_on_discard_keeps_other_hu_candidates", _test_multi_win_on_discard_keeps_other_hu_candidates, failures)
 	_run_test("fan_cap_limits_high_value_hands_to_four_fan", _test_fan_cap_limits_high_value_hands_to_four_fan, failures)
 	_run_test("shun_he_lock_blocks_same_fan_but_allows_higher_fan", _test_shun_he_lock_blocks_same_fan_but_allows_higher_fan, failures)
@@ -45,7 +48,7 @@ func _init() -> void:
 	_run_test("multi_payer_gang_is_never_refunded", _test_multi_payer_gang_is_never_refunded, failures)
 
 	if failures.is_empty():
-		print("RULE REGRESSION OK: 36/36")
+		print("RULE REGRESSION OK: 38/38")
 		quit(0)
 	else:
 		push_error("RULE REGRESSION FAILED:\n- " + "\n- ".join(failures))
@@ -98,6 +101,65 @@ func _test_non_missing_suit_still_allows_peng_and_gang():
 		return "expected peng to remain allowed for non-missing suit"
 	if not bool(candidate.get("can_gang", false)):
 		return "expected gang to remain allowed for non-missing suit"
+	return true
+
+
+func _test_empty_wall_blocks_last_discard_gang():
+	var game_state = _build_test_game_state()
+	var players: Array[Dictionary] = [
+		_make_player(0, "tiao", [_make_tile(10, "wan", 1)]),
+		_make_player(1, "tiao", [
+			_make_tile(11, "wan", 5),
+			_make_tile(12, "wan", 5),
+			_make_tile(13, "wan", 5),
+		]),
+		_make_player(2, "wan", []),
+		_make_player(3, "wan", []),
+	]
+	game_state.players = players
+	var empty_wall: Array[Dictionary] = []
+	game_state.wall = empty_wall
+	game_state.wall_count = 0
+	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.REACTION
+	game_state._prepare_reaction_context(0, _make_tile(14, "wan", 5))
+	var candidate: Dictionary = game_state._get_reaction_candidate_for_seat(1)
+	if candidate.is_empty():
+		return "last discard should remain peng-eligible when the wall is empty"
+	if bool(candidate.get("can_gang", false)):
+		return "last discard must not remain gang-eligible without a replacement tile"
+	if not bool(candidate.get("can_peng", false)):
+		return "blocking gang must not incorrectly block peng"
+	return true
+
+
+func _test_empty_wall_blocks_self_gang_options_and_execution():
+	var game_state = _build_test_game_state()
+	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
+	game_state.current_turn_seat = 0
+	var players: Array[Dictionary] = [
+		_make_player(0, "tiao", [
+			_make_tile(200, "wan", 5), _make_tile(201, "tong", 4),
+			_make_tile(202, "tong", 4), _make_tile(203, "tong", 4), _make_tile(204, "tong", 4),
+		], [{"type": "peng", "from_seat": 1, "tiles": [
+			_make_tile(205, "wan", 5), _make_tile(206, "wan", 5), _make_tile(207, "wan", 5),
+		]}]),
+		_make_player(1, "wan", []), _make_player(2, "wan", []), _make_player(3, "wan", []),
+	]
+	game_state.players = players
+	var empty_wall: Array[Dictionary] = []
+	game_state.wall = empty_wall
+	game_state.wall_count = 0
+	var before: Dictionary = game_state.players[0].duplicate(true)
+	if game_state.can_human_add_gang(0) or game_state.can_human_an_gang(0):
+		return "no replacement tile must hide self gang actions"
+	if not game_state._find_all_add_gang_options(0).is_empty() or not game_state._find_all_an_gang_options(0).is_empty():
+		return "no replacement tile must hide AI gang candidates"
+	if game_state.execute_human_gang(0):
+		return "no replacement tile must reject gang execution"
+	if game_state._start_add_gang(0) or game_state._execute_an_gang(0):
+		return "direct gang entry must reject execution without replacement tile"
+	if game_state.players[0] != before:
+		return "rejected gang must leave hand and melds unchanged"
 	return true
 
 
@@ -174,6 +236,9 @@ func _test_forced_discard_requires_missing_suit_first():
 
 func _test_missing_suit_blocks_add_gang_and_an_gang_only_for_missing_suit():
 	var game_state = _build_test_game_state()
+	var available_wall: Array[Dictionary] = [_make_tile(28, "wan", 9)]
+	game_state.wall = available_wall
+	game_state.wall_count = 1
 	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
 	game_state.current_turn_seat = 0
 	var players: Array[Dictionary] = [
@@ -456,6 +521,61 @@ func _test_concealed_gang_last_wall_draw_exposes_gang_self_draw_hu():
 	return true
 
 
+func _test_dian_gang_hua_charges_only_gang_source_as_discard_win():
+	var game_state = _build_test_game_state()
+	game_state.current_turn_seat = 0
+	game_state.last_turn_context = {"seat": 0, "draw_reason": "gang_draw"}
+	game_state.last_gang_context = {
+		"seat": 0,
+		"source_seat": 1,
+		"gang_type": "melded_gang",
+		"resolved": true,
+	}
+	if str(game_state._resolve_self_draw_win_type(0)) != "dian_gang_hua":
+		return "点杠后的补牌胡必须识别为 dian_gang_hua"
+	var payers: Array = game_state._get_payer_seats_for_win("dian_gang_hua", 1)
+	if payers != [1]:
+		return "点杠花只能由点杠者付款，got %s" % [payers]
+	var player := _make_player(
+		0,
+		"wan",
+		[
+			_make_tile(1700, "tiao", 1), _make_tile(1701, "tiao", 2), _make_tile(1702, "tiao", 3),
+			_make_tile(1703, "tiao", 2), _make_tile(1704, "tiao", 3), _make_tile(1705, "tiao", 4),
+			_make_tile(1706, "tong", 1), _make_tile(1707, "tong", 2), _make_tile(1708, "tong", 3),
+			_make_tile(1709, "tong", 5), _make_tile(1710, "tong", 5),
+		],
+		[{
+			"type": "gang", "from_seat": 1, "gang_subtype": "melded_gang",
+			"tiles": [_make_tile(1711, "tiao", 7), _make_tile(1712, "tiao", 7), _make_tile(1713, "tiao", 7), _make_tile(1714, "tiao", 7)],
+		}]
+	)
+	var fan_detail: Dictionary = game_state.score_resolver.build_event_fan_detail(
+		player, player["hand_tiles"].back(), "dian_gang_hua", game_state.rules
+	)
+	if not Array(fan_detail.get("labels", [])).has("点杠花") or Array(fan_detail.get("labels", [])).has("自摸"):
+		return "点杠花必须保留杠上花加番但不能附加自摸标签，got %s" % fan_detail
+	if int(fan_detail.get("per_payer_score", -1)) != int(fan_detail.get("hand_score", -2)):
+		return "点杠花按点炮结算，不得附加自摸+1，got %s" % fan_detail
+	var settlement := {
+		"gang_events": [], "transfer_events": [], "draw_assessment": [],
+		"win_events": [{
+			"winner_seat": 0, "source_seat": 1, "win_type": "dian_gang_hua",
+			"payer_seats": [1], "fan_detail": fan_detail,
+		}],
+	}
+	var changes: Dictionary = game_state.score_resolver.build_score_changes(
+		[_make_player(0, "wan", []), _make_player(1, "wan", []), _make_player(2, "wan", []), _make_player(3, "wan", [])],
+		settlement,
+		game_state.rules
+	)
+	var payment := int(fan_detail.get("hand_score", 0))
+	if int(changes.get(0, 0)) != payment or int(changes.get(1, 0)) != -payment \
+		or int(changes.get(2, 0)) != 0 or int(changes.get(3, 0)) != 0:
+		return "点杠花净分必须仅在赢家与点杠者之间转移，got %s" % changes
+	return true
+
+
 func _test_multi_win_on_discard_keeps_other_hu_candidates():
 	var game_state = _build_test_game_state()
 	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.REACTION
@@ -724,6 +844,9 @@ func _test_draw_assessment_builds_cha_jiao_max_score():
 
 func _test_qiang_gang_hu_executes_without_finalizing_add_gang():
 	var game_state = _build_test_game_state()
+	var available_wall: Array[Dictionary] = [_make_tile(118, "tong", 9)]
+	game_state.wall = available_wall
+	game_state.wall_count = 1
 	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
 	game_state.current_turn_seat = 0
 	var players: Array[Dictionary] = [
@@ -791,12 +914,10 @@ func _test_qiang_gang_hu_executes_without_finalizing_add_gang():
 	var melds: Array = game_state.players[0].get("melds", [])
 	if melds.is_empty() or str(melds[0].get("type", "")) != "peng":
 		return "expected robbed add gang to remain a peng meld"
-	if game_state.players[0].get("hand_tiles", []).size() != 1:
-		return "expected robbed tile to be removed from add-gang actor hand"
 	if _hand_contains_tile_id(game_state.players[0].get("hand_tiles", []), 100):
 		return "expected robbed tile id 100 to leave add-gang actor hand"
-	if int(game_state.players[0].get("hand_count", -1)) != 1:
-		return "expected add-gang actor hand_count to update after robbed tile removal"
+	if int(game_state.players[0].get("hand_count", -1)) != game_state.players[0].get("hand_tiles", []).size():
+		return "expected add-gang actor hand_count to track the hand after robbed tile removal and any next draw"
 	var winning_tile: Dictionary = game_state.players[1].get("winning_tile", {})
 	if int(winning_tile.get("id", -1)) != 100:
 		return "expected hu player to record robbed tile as winning tile"
@@ -807,6 +928,9 @@ func _test_qiang_gang_hu_executes_without_finalizing_add_gang():
 
 func _test_added_gang_remains_available_after_draw_tile_is_kept_in_hand():
 	var game_state = _build_test_game_state()
+	var available_wall: Array[Dictionary] = [_make_tile(125, "tong", 9)]
+	game_state.wall = available_wall
+	game_state.wall_count = 1
 	game_state.current_phase = GAME_STATE_SCRIPT.RoundPhase.DISCARD
 	game_state.current_turn_seat = 0
 	var players: Array[Dictionary] = [

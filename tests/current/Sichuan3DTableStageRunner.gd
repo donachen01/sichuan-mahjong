@@ -277,8 +277,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("selected tile must keep only its physical lift without a checkmark graphic")
 	if (contract.get("selected_marker_variants", []) as Array).size() != 1:
 		failures.append("selection-marker contract must expose only the no-icon presentation")
-	if str(contract.get("latest_discard_feedback", "")) != "static_solid_golden_diamond_above_latest_discard":
-		failures.append("latest discard does not expose the static low-power golden-diamond contract")
+	if str(contract.get("latest_discard_feedback", "")) != "rotating_solid_golden_diamond_above_latest_discard":
+		failures.append("latest discard must expose the rotating golden-diamond contract")
 	if absf(float(contract.get("discard_travel_seconds", 0.0)) - 0.20) > 0.001 \
 			or absf(float(contract.get("discard_settle_seconds", 0.0)) - 0.04) > 0.001 \
 			or float(contract.get("discard_reflow_beat_seconds", 0.0)) < 0.05 \
@@ -1165,9 +1165,11 @@ func _verify_four_source_meld_matrix(
 			var middle := (stage.get("tile_nodes") as Dictionary).get("meld_2_0_61201") as SichuanTile3D
 			stacked_add_gang = middle != null and tile.position.distance_to(middle.position + Vector3.UP * (SichuanTile3D.TILE_SIZE.y * SichuanTableStage3D.MELD_SCALE + 0.035)) < 0.02
 	for owner_seat in [0, 1, 3]:
-		var expected_tile_id: int = 61000 + int(owner_seat) * 100
+		var source_seat := (int(owner_seat) + 1) % 4
+		var expected_index := int(stage.call("_claim_tile_index_for_meld", 3 if owner_seat != 1 else 4, int(owner_seat), source_seat))
+		var expected_tile_id: int = 61000 + int(owner_seat) * 100 + expected_index
 		if int(rotated_owners.get(owner_seat, -1)) != expected_tile_id:
-			failures.append("matrix owner %d did not rotate the left source tile" % owner_seat)
+			failures.append("matrix owner %d did not rotate the source tile at its seat-relative position" % owner_seat)
 	if rotated_owners.has(2) or not stacked_add_gang:
 		failures.append("add-gang must keep its peng upright and stack the fourth tile above the middle tile")
 	_verify_meld_tile_model_consistency(stage, "peng_ming_gang_and_add_gang_matrix", failures)

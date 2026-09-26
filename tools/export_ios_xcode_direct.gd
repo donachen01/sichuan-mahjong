@@ -124,6 +124,7 @@ func _export_ios_xcode_project() -> void:
 	preset.set("application/export_project_only", true)
 	preset.set("application/delete_old_export_files_unconditionally", true)
 	preset.set("application/min_ios_version", "14.0")
+	preset.set("application/additional_plist_content", "<key>NSLocalNetworkUsageDescription</key><string>用于同一 Wi-Fi 内创建和加入麻将局域网连接测试。</string>")
 	preset.set("application/short_version", app_version)
 	preset.set("application/version", app_version)
 	preset.set("application/targeted_device_family", 2)
