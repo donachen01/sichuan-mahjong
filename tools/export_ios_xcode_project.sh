@@ -2,7 +2,7 @@
 set -euo pipefail
 setopt NULL_GLOB
 
-PROJECT_DIR="/Volumes/AI/Codex/四川麻将工程_20260701_v2"
+PROJECT_DIR="${0:A:h:h}"
 APP_VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' "$PROJECT_DIR/project.godot" | head -n 1)"
 if [[ -z "$APP_VERSION" ]]; then
   echo "Could not read application/config/version from project.godot"

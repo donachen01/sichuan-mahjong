@@ -11,6 +11,8 @@ interaction remain in Godot.  Textures are capped at 2048 for mobile runtime.
 from __future__ import annotations
 
 import math
+import argparse
+import sys
 import subprocess
 from pathlib import Path
 
@@ -470,6 +472,15 @@ def export_glb(objects: list[bpy.types.Object]) -> None:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate the legacy base table for review only.")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else [])
+    OUTPUT_GLB = args.output.expanduser().resolve()
+    if OUTPUT_GLB == (ART_ROOT / "3d" / "sichuan_table_v2.glb").resolve():
+        raise ValueError("Use generate_current_table.py for the approved glass table; export legacy geometry to review only.")
+    if OUTPUT_GLB.suffix != ".glb":
+        raise ValueError("Output must be a .glb file.")
+    TEXTURE_DIR = OUTPUT_GLB.parent / "legacy_table_textures"
     clear_scene()
     table_objects = build_table()
     export_glb(table_objects)

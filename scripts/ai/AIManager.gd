@@ -1,6 +1,8 @@
 extends RefCounted
-
 class_name AIManager
+
+const PipelineProfiler := preload("res://scripts/diagnostics/pipeline_profiler.gd")
+
 
 signal ai_turn_analysis_ready(request_id: int, seat_index: int, analysis: Dictionary)
 signal ai_reaction_analysis_ready(request_id: int, seat_index: int, analysis: Dictionary)
@@ -388,6 +390,13 @@ func _is_mobile_aot_runtime() -> bool:
 
 
 func _call_native_discard_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
+	var started := PipelineProfiler.begin()
+	var result: Dictionary = _profiled_call_native_discard_result(payload, hell_challenge)
+	PipelineProfiler.record("ai_decision", started)
+	return result
+
+
+func _profiled_call_native_discard_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
 	if _is_mobile_aot_runtime() and native_csharp_runtime.has_method("AnalyzeDiscardAotCompact"):
 		var compact_raw := str(native_csharp_runtime.call("AnalyzeDiscardAotCompact", JSON.stringify(payload), hell_challenge))
 		last_native_turn_raw_summary = "%s aot=%s" % [last_native_turn_raw_summary, compact_raw.left(700)]
@@ -400,6 +409,13 @@ func _call_native_discard_result(payload: Dictionary, hell_challenge: bool) -> D
 
 
 func _call_native_reaction_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
+	var started := PipelineProfiler.begin()
+	var result: Dictionary = _profiled_call_native_reaction_result(payload, hell_challenge)
+	PipelineProfiler.record("ai_decision", started)
+	return result
+
+
+func _profiled_call_native_reaction_result(payload: Dictionary, hell_challenge: bool) -> Dictionary:
 	if _is_mobile_aot_runtime() and native_csharp_runtime.has_method("AnalyzeReactionAotCompact"):
 		var compact_raw := str(native_csharp_runtime.call("AnalyzeReactionAotCompact", JSON.stringify(payload), hell_challenge))
 		last_native_reaction_raw_summary = "%s aot=%s" % [last_native_reaction_raw_summary, compact_raw.left(700)]

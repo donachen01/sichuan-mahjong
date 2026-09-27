@@ -1,0 +1,13 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+STRUCTURE_BASELINE {"phase":2,"refresh_us":2554.86666666667,"snapshot_bytes":6791,"snapshot_us":75.45}
+WARNING: 3 RIDs of type "CanvasItem" were leaked.
+     at: _free_rids (servers/rendering/renderer_canvas_cull.cpp:2692)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

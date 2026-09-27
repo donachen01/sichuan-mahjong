@@ -3,6 +3,9 @@ extends Node
 signal state_changed(snapshot: Dictionary)
 signal opening_roll_started(data: Dictionary)
 
+const DiagnosticFiles := preload("res://scripts/diagnostics/diagnostic_files.gd")
+const SnapshotBuilder := preload("res://scripts/game/game_snapshot_builder.gd")
+
 const RuleConfigScript := preload("res://scripts/core/rule_config.gd")
 const MahjongStateScript := preload("res://scripts/core/mahjong_state.gd")
 const MahjongJudgeScript := preload("res://scripts/core/mahjong_judge.gd")
@@ -62,11 +65,6 @@ const AI_ANALYSIS_DIR := "user://ai_analysis"
 const DEBUG_DECISION_TRACE_DIR := "user://ai_decision_trace"
 const DIAGNOSTIC_EXPORT_DIR := "user://diagnostic_exports"
 const DIAGNOSTIC_DOWNLOAD_SUBDIR := "SichuanMahjongLogs"
-const DIAGNOSTIC_MAX_DEPTH := 5
-const DIAGNOSTIC_MAX_ARRAY_ITEMS := 80
-const DIAGNOSTIC_MAX_DICT_KEYS := 120
-const DIAGNOSTIC_MAX_STRING_LENGTH := 4000
-const DIAGNOSTIC_MAX_TEXT_FILE_CHARS := 120000
 const DIAGNOSTIC_MAX_DIR_TEXT_FILES := 160
 
 var current_phase: RoundPhase = RoundPhase.BOOT
@@ -335,66 +333,11 @@ func start_new_round(preserve_dealer: bool = false) -> void:
 
 
 func get_debug_snapshot(viewer_seat: int = 0) -> Dictionary:
-	if viewer_seat < 0 or viewer_seat >= players.size():
-		viewer_seat = 0
-	var rules_debug: Dictionary = {} if rules == null else rules.to_debug_dict()
-	var reaction_summary := ""
-	if mahjong_judge != null:
-		reaction_summary = mahjong_judge.summarize_candidates(pending_reactions)
-	var ai_tuning_debug: Dictionary = {} if ai_tuning_config == null else ai_tuning_config.to_debug_dict()
-	return {
-		"round_index": round_index,
-		"current_phase": current_phase,
-		"current_dealer_seat": current_dealer_seat,
-		"current_turn_seat": current_turn_seat,
-		"wall_count": wall_count,
-		"discard_count": discard_pile.size(),
-		"winner_count": round_winners.size(),
-		"round_winners": round_winners.duplicate(),
-		"shun_he_locks": shun_he_locks.duplicate(true),
-		"settlement_data": settlement_data.duplicate(true),
-		"last_gang_context": last_gang_context.duplicate(true),
-		"pending_qiang_gang_context": pending_qiang_gang_context.duplicate(true),
-		"debug_last_message": debug_last_message,
-		"rules": rules_debug,
-		"human_can_discard": can_human_discard(viewer_seat),
-		"human_can_self_hu": can_human_self_hu(viewer_seat),
-		"human_can_add_gang": can_human_add_gang(viewer_seat),
-		"human_can_an_gang": can_human_an_gang(viewer_seat),
-		"human_last_draw_tile_id": _get_last_draw_tile_id_for_seat(viewer_seat),
-		"human_ding_que_pending": is_human_ding_que_pending(viewer_seat),
-		"human_ding_que_options": get_human_ding_que_options(viewer_seat),
-		"dealer_ding_que_deferred": _is_dealer_ding_que_deferred(),
-		"recent_discard_display": _get_recent_discard_display(),
-		"recent_discard_tile_id": _get_recent_discard_tile_id(),
-		"recent_draw_display": _get_recent_draw_display(),
-		"recent_draw_seat": _get_recent_draw_seat(),
-		"reaction_summary": reaction_summary,
-		"human_reaction_options": get_human_reaction_options(viewer_seat),
-		"discard_context": current_discard_context.duplicate(true),
-		"ai_level_index": int(ai_level),
-		"ai_level_name": AI_LEVEL_LABELS[int(ai_level)],
-		"ai_tuning_config": ai_tuning_debug,
-		"ai_learning_profile": {} if ai_learning_engine == null else ai_learning_engine.get_runtime_summary(),
-		"ai_decision_metrics": ai_decision_metrics.duplicate(true),
-		"latest_ai_reaction_review": latest_ai_reaction_review.duplicate(true),
-		"ai_reaction_review_history": ai_reaction_review_history.duplicate(true),
-		"pending_ai_reaction_request_id": pending_ai_reaction_request_id,
-		"pending_ai_reaction_request_meta": pending_ai_reaction_request_meta.duplicate(true),
-		"pending_ai_reaction_decision": pending_ai_reaction_decision.duplicate(true),
-		"pending_ai_turn_request_id": pending_ai_turn_request_id,
-		"pending_ai_turn_request_meta": pending_ai_turn_request_meta.duplicate(true),
-		"pending_ai_turn_decision": pending_ai_turn_decision.duplicate(true),
-		"ai_core_debug": _build_ai_core_debug_snapshot(),
-		"ai_chain_debug": ai_chain_debug_history.duplicate(),
-		"trainer_hint": _get_human_trainer_hint_snapshot() if human_trainer_hint_enabled else {},
-		"opening_roll": opening_roll_data.duplicate(true),
-		"opening_roll_pending": opening_roll_pending_completion,
-		"hell_training": _build_hell_training_debug_snapshot(),
-		"ai_analysis_recording": _build_ai_analysis_recording_debug_snapshot(),
-		"debug_decision_trace": _build_debug_decision_trace_snapshot(),
-		"players": players.duplicate(true),
-	}
+	return SnapshotBuilder.build(self, viewer_seat, true)
+
+
+func get_gameplay_snapshot(viewer_seat: int = 0) -> Dictionary:
+	return SnapshotBuilder.build(self, viewer_seat)
 
 
 func get_ai_level_index() -> int:
@@ -2802,7 +2745,7 @@ func _lock_dealer_ding_que_from_first_discard(tile_id: int) -> bool:
 
 func _emit_state_changed() -> void:
 	_pump_ai_background_requests()
-	state_changed.emit(get_debug_snapshot())
+	state_changed.emit(get_gameplay_snapshot())
 
 
 func _record_ai_chain_debug(message: String) -> void:
@@ -2913,156 +2856,31 @@ func _build_diagnostic_export_package(internal_path: String, file_name: String) 
 
 
 func _copy_diagnostic_package_to_downloads(internal_path: String, file_name: String) -> Dictionary:
-	var downloads_dir := OS.get_system_dir(OS.SYSTEM_DIR_DOWNLOADS, true)
-	if downloads_dir.is_empty():
-		return {"ok": false, "error": "downloads_dir_unavailable"}
-	var export_dir := downloads_dir.path_join(DIAGNOSTIC_DOWNLOAD_SUBDIR)
-	var dir_err := DirAccess.make_dir_recursive_absolute(export_dir)
-	if dir_err != OK:
-		return {
-			"ok": false,
-			"error": "downloads_dir_create_failed",
-			"error_code": dir_err,
-			"path": export_dir,
-		}
-	var text := FileAccess.get_file_as_string(internal_path)
-	if text.is_empty():
-		return {"ok": false, "error": "internal_package_empty", "path": internal_path}
-	var external_path := export_dir.path_join(file_name)
-	var file := FileAccess.open(external_path, FileAccess.WRITE)
-	if file == null:
-		return {
-			"ok": false,
-			"error": "downloads_write_failed",
-			"error_code": FileAccess.get_open_error(),
-			"path": external_path,
-		}
-	file.store_string(text)
-	file.close()
-	return {
-		"ok": true,
-		"path": external_path,
-		"downloads_dir": export_dir,
-	}
+	return DiagnosticFiles._copy_diagnostic_package_to_downloads(internal_path, file_name)
 
 
 func _collect_diagnostic_text_files(paths: Array) -> Dictionary:
-	var result := {}
-	for item in paths:
-		var path := str(item)
-		result[path] = _read_diagnostic_text_file(path)
-	return result
+	return DiagnosticFiles._collect_diagnostic_text_files(paths)
 
 
 func _collect_diagnostic_dir_text_files(root_path: String, max_files: int) -> Dictionary:
-	var result := {
-		"root": root_path,
-		"root_absolute": ProjectSettings.globalize_path(root_path),
-		"files": {},
-		"truncated": false,
-	}
-	var paths: Array[String] = []
-	_collect_diagnostic_dir_paths(root_path, paths, max_files)
-	if paths.size() > max_files:
-		result["truncated"] = true
-		paths = paths.slice(0, max_files)
-	for path in paths:
-		result["files"][path] = _read_diagnostic_text_file(path)
-	return result
+	return DiagnosticFiles._collect_diagnostic_dir_text_files(root_path, max_files)
 
 
 func _collect_diagnostic_dir_paths(path: String, paths: Array[String], max_files: int) -> void:
-	if paths.size() > max_files:
-		return
-	var dir := DirAccess.open(path)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	while true:
-		var entry := dir.get_next()
-		if entry.is_empty():
-			break
-		if entry.begins_with("."):
-			continue
-		var child_path := path.path_join(entry)
-		if dir.current_is_dir():
-			_collect_diagnostic_dir_paths(child_path, paths, max_files)
-		elif entry.ends_with(".json") or entry.ends_with(".jsonl") or entry.ends_with(".csv") or entry.ends_with(".md") or entry.ends_with(".log"):
-			paths.append(child_path)
-			if paths.size() > max_files:
-				break
-	dir.list_dir_end()
+	DiagnosticFiles._collect_diagnostic_dir_paths(path, paths, max_files)
 
 
 func _read_diagnostic_text_file(path: String) -> Dictionary:
-	if path.is_empty() or not FileAccess.file_exists(path):
-		return {
-			"exists": false,
-			"path": path,
-			"path_absolute": ProjectSettings.globalize_path(path),
-		}
-	var text := FileAccess.get_file_as_string(path)
-	var truncated := text.length() > DIAGNOSTIC_MAX_TEXT_FILE_CHARS
-	if truncated:
-		text = text.right(DIAGNOSTIC_MAX_TEXT_FILE_CHARS)
-	return {
-		"exists": true,
-		"path": path,
-		"path_absolute": ProjectSettings.globalize_path(path),
-		"char_count": text.length(),
-		"truncated_from_start": truncated,
-		"content": text,
-	}
+	return DiagnosticFiles._read_diagnostic_text_file(path)
 
 
 func _compact_diagnostic_value(value, depth: int = 0):
-	if depth >= DIAGNOSTIC_MAX_DEPTH:
-		return _compact_diagnostic_leaf(value)
-	match typeof(value):
-		TYPE_DICTIONARY:
-			var source: Dictionary = value
-			var output := {}
-			var count := 0
-			for key in source.keys():
-				if count >= DIAGNOSTIC_MAX_DICT_KEYS:
-					output["_truncated_keys"] = maxi(0, source.size() - count)
-					break
-				output[str(key)] = _compact_diagnostic_value(source[key], depth + 1)
-				count += 1
-			return output
-		TYPE_ARRAY:
-			var source_array: Array = value
-			var output_array := []
-			var limit := mini(source_array.size(), DIAGNOSTIC_MAX_ARRAY_ITEMS)
-			for index in range(limit):
-				output_array.append(_compact_diagnostic_value(source_array[index], depth + 1))
-			if source_array.size() > limit:
-				output_array.append({"_truncated_items": source_array.size() - limit})
-			return output_array
-		TYPE_STRING:
-			var text := str(value)
-			if text.length() > DIAGNOSTIC_MAX_STRING_LENGTH:
-				return text.left(DIAGNOSTIC_MAX_STRING_LENGTH) + "...<truncated>"
-			return text
-		_:
-			return value
+	return DiagnosticFiles._compact_diagnostic_value(value, depth)
 
 
 func _compact_diagnostic_leaf(value):
-	match typeof(value):
-		TYPE_DICTIONARY:
-			var dictionary: Dictionary = value
-			return {"_truncated_dictionary_keys": dictionary.size()}
-		TYPE_ARRAY:
-			var array: Array = value
-			return {"_truncated_array_items": array.size()}
-		TYPE_STRING:
-			var text := str(value)
-			if text.length() > DIAGNOSTIC_MAX_STRING_LENGTH:
-				return text.left(DIAGNOSTIC_MAX_STRING_LENGTH) + "...<truncated>"
-			return text
-		_:
-			return value
+	return DiagnosticFiles._compact_diagnostic_leaf(value)
 
 
 func _pump_ai_background_requests() -> int:

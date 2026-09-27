@@ -1,6 +1,8 @@
 class_name SichuanTableStage3D
 extends Node3D
 
+const PipelineProfiler := preload("res://scripts/diagnostics/pipeline_profiler.gd")
+
 signal tile_pressed(tile_id: int)
 
 const TILE_SCRIPT := preload("res://scripts/ui/3d/SichuanTile3D.gd")
@@ -157,6 +159,19 @@ func _ready() -> void:
 
 
 func render_snapshot(
+	snapshot: Dictionary,
+	all_hands: Array,
+	reveal_opponents: bool,
+	selected_tile_id: int,
+	markers: Dictionary = {},
+	reveal_winning_tiles: bool = true
+) -> void:
+	var started := PipelineProfiler.begin()
+	_profiled_render_snapshot(snapshot, all_hands, reveal_opponents, selected_tile_id, markers, reveal_winning_tiles)
+	PipelineProfiler.record("3d_update", started)
+
+
+func _profiled_render_snapshot(
 	snapshot: Dictionary,
 	all_hands: Array,
 	reveal_opponents: bool,

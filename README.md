@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.6.80`
+- 版本：`2.6.81`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -39,9 +39,17 @@
 
 说明：少量兼容函数、历史证据和旧命名还保留在非主路径、历史文档或打包 workaround 中，便于追溯迁移来源；当前规则入口、测试和打包产物均按四川新版执行。
 
+## 当前设计与整理结果
+
+现行说明见 [当前工程架构与设计](设计文档/当前工程架构与设计.md) 与 [文档导航](文档导航.md)。2.6.81 之上的本次源码整理没有升级应用版本或重新安装；验证及清理记录见 [整理报告](evidence/structure_cleanup_20260927/REPORT.md)。下方历代版本段落保留历史事实，不代表当前视觉和交付状态。
+
 ## 主要结构
 
 - `autoload/GameState.gd`：主状态机、规则流程、结算、AI 调用入口
+- `scripts/game/game_snapshot_builder.gd`：分离显示快照与显式诊断快照
+- `scripts/game/presentation/`：声音路由、兼容偏好存储与结算账本展示
+- `scripts/diagnostics/`：有界诊断文件操作与默认关闭的性能分段计时
+- `archive/`：排除运行扫描的旧牌桌与历史文档原文
 - `scripts/core/`：四川规则判定、番型、查叫/花猪/退杠等核心逻辑
 - `scripts/ai/`：Godot AI 桥接、四川 GDScript AI 辅助、C# runtime 绑定
 - `dotnet/AI.Core/`：C# AI Core
@@ -53,9 +61,9 @@
 - `build/ios/`：iOS Xcode 工程输出
 - `evidence/`：迁移和打包证据、AI 压测输出
 
-## 常用验证命令
+## 单项验证与构建入口
 
-所有命令都显式使用绝对路径。
+以下是现有工具用法示例，每次只按改动风险选择，不是固定回归清单。命令显式使用当前本机绝对路径。
 
 ```bash
 '/Applications/Godot.NET.app/Contents/MacOS/Godot' --headless --path '/Volumes/AI/Codex/四川麻将工程_20260701_v2' --script 'res://tests/current/SichuanRuleRegressionRunner.gd'
@@ -81,7 +89,11 @@
 /opt/homebrew/opt/dotnet/libexec/dotnet build '/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj' -c Debug
 ```
 
-## 透视地狱老手算法恢复
+## 历史版本记录
+
+以下保留历次实现和验证事实；当前代码结构与资源来源以本文件上方的现行设计入口为准。
+
+### 透视地狱老手算法恢复
 
 `2.2.1` 修复了透视地狱模式此前使用独立简化评分、绕开正式教程老手决策栈的问题。现在透视信息只作为老手决策之上的精确攻防增益：合法候选、定缺强制、成叫/净分期望、清一色路线、刻子保护和路线连续性均来自正式老手引擎；三家 AI 仍共享人类手牌、其他 AI 手牌和精确牌墙，用于避免玩家胡牌、降低点炮并进行协同压制。出牌与碰/杠/胡/过反应共享连续牌脑，不再出现“刚拆刻又碰回”的独立通路冲突。
 

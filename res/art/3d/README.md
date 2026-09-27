@@ -1,21 +1,30 @@
-# 3D 资产说明
+# 当前 3D 资产与生成入口
 
-本目录中的核心 GLB 由 Blender 5.2 LTS 脚本确定性生成。
+现用牌桌是已批准的玻璃桌体。Blender 提供几何和源材质，Godot 提供最终皮肤、玻璃参数、灯光、动态文字和触控。
 
-| 资产 | 来源 | 外部生成费用 | 用途 |
-|---|---|---:|---|
-| `mahjong_tile_body.glb` | Blender 5.2 脚本 | 0 | 共享倒角暖象牙麻将牌体 |
-| `sichuan_table.glb` | Blender 5.2 脚本 | 0 | 墨玉绒面桌、黑木桌沿、旧铜嵌线 |
-| `sichuan_table_v2.glb` | `tools/3d/generate_sichuan_table_v2.py` | 0 | 以启动图质感为视觉校准的自然暖森林绿均衡短绒 PBR、连续圆角温暖胡桃木托盘边框、内嵌深绿皮革 gasket、低对比分区凹槽与纵向木纹浮雕 |
-| `sichuan_center_compass_v2.glb` | `tools/3d/generate_sichuan_center_compass_v2.py` | 0 | 1,044 三角面、9 对象、4 材质的齐平亮面玻璃四向嵌件；Blender 提供连续烟熏翡翠玻璃、石墨方向发丝线、无黄色/旧铜描边的干净外缘、低高光古铜计数环、玻璃镜片，以及使用半径 0.460 分段圆弧切口避让 0.455 古铜计数环、经 Filmic 显示补偿后输出 `#A13D2D` 的真实 3D 状态片；状态片严格复用分隔线角度，东/西跨度为 124.48292°、南/北为 55.51708°；Godot 仅叠加动态余牌数字与方向字 |
+| 资产 | 现行来源与用途 |
+|---|---|
+| `sichuan_table_v2.glb` | `source_assets/table/launch_glass_v1/launch_glass_table_review.blend`；正式审核导出入口 `tools/3d/generate_current_table.py` |
+| `mahjong_tile_body.glb` | 共享 Blender 倒角象牙／翡翠麻将牌体；由牌桌组件复用 |
+| `sichuan_center_compass_v2.glb` | `tools/3d/generate_sichuan_center_compass_v2.py`；动态数字与方位由 Godot 叠加 |
+| `sichuan_table.glb` | 旧 3D 桌体，仍有非默认显示路径引用，保留 |
 
-V2 桌体的 BaseColor、Normal、ORM 贴图位于 `res/art/materials/table_v2/`；桌布为 2048，皮革和温暖胡桃木为 1024，适合移动端。桌布 Normal 由多方向高频短绒场合成，roughness 为 0.86–0.90，避免旧版单向织带和塑料反光。启动图只提供视觉校准目标，未被采样或复制；实际 GLB 和贴图仍由项目 Blender 脚本以固定种子原创生成。Godot 主路径保留 GLB 的 PBR surface material，不得再用运行时单色材质覆盖。
+现用桌体必须保留 `TableWalnutBase`、`TableFelt`、`WalnutApronRing`、`SingleClearGlassCap`、`InnerGlassEdge`、`RaisedTransparentGlassLip` 六个节点。节点名称中的 Walnut 来自历史沿用名称，不代表最终表面仍是木纹材质。
 
-重新生成：
+从批准源重新导出到审核文件：
 
 ```bash
-/Applications/Blender.app/Contents/MacOS/Blender --background --python tools/3d/generate_sichuan_table_v2.py
-/Applications/Blender.app/Contents/MacOS/Blender --background --python tools/3d/generate_sichuan_center_compass_v2.py
+/Applications/Blender.app/Contents/MacOS/Blender --background \
+  --python tools/3d/generate_current_table.py -- \
+  --output /tmp/sichuan_table_review.glb
 ```
 
-V1/V2 核心牌局没有调用 Tripo3D 或其他付费生成服务。所有 V2 网格和纹理由仓库脚本原创生成；API Key 只保存在 macOS 钥匙串，不属于工程资产。当前 V2 桌框不再使用四段拼接、亮铜嵌线或缝线装饰，避免接缝和高亮抢占牌局主体。
+生成器要求指定审核输出，禁止直接写现用 GLB。检查节点、素材依赖和效果后再安装审核结果。2026-09-27 的导出与现用 GLB 字节一致；记录见 `evidence/structure_cleanup_20260927`。
+
+`preview_launch_table_frame.py` 用于新视觉实验，只写 `source_assets/table/launch_glass_experiments`。它不覆盖批准源或游戏模型。
+
+`generate_sichuan_table_v2.py` 保留旧基础桌生成能力，必须通过 `-- --output /tmp/legacy_table_review.glb` 指定审核位置；贴图也写在审核位置，不能再用无参数旧命令覆盖游戏玻璃桌。
+
+现用皮肤由 `SichuanTableSkinCatalog` 与 `SichuanTableStage3D` 解析，`materials/table_v2` 保存通用 PBR 素材。四张内容相同且无现行引用的旧 `sichuan_table_v2_*normal/orm.png` importer 副本已移除；不将源图／运行图或平台资源槽位的相同内容直接视为冗余。
+
+本次没有重新绘制模型、贴图或改变游戏材质效果。

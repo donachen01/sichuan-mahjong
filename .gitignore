@@ -39,3 +39,17 @@ research/xiaolaoshi_deep_learning/**/artifacts/
 *.mobileprovision
 .env
 .env.*
+
+# Local agent/browser tooling and regenerable language build caches
+.runtime/
+.playwright-cli/
+__pycache__/
+*.py[cod]
+.build/
+*.ipa
+*.xcarchive/
+*.dSYM/
+
+# Local retained research/export working material (not runtime source)
+/artifacts/
+/backups/

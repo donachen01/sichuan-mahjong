@@ -1,0 +1,42 @@
+{
+  "gameplay_bytes": 4224,
+  "gameplay_us": 34.2266666666667,
+  "hand_count": 0,
+  "instrumentation": {
+    "3d_update": {
+      "max_us": 117,
+      "mean_us": 117.0,
+      "p50_us": 117,
+      "p95_us": 117,
+      "samples": 1
+    },
+    "input_dispatch": {
+      "max_us": 41,
+      "mean_us": 41.0,
+      "p50_us": 41,
+      "p95_us": 41,
+      "samples": 1
+    },
+    "snapshot_build": {
+      "max_us": 39,
+      "mean_us": 39.0,
+      "p50_us": 39,
+      "p95_us": 39,
+      "samples": 1
+    },
+    "ui_refresh": {
+      "max_us": 2976,
+      "mean_us": 2976.0,
+      "p50_us": 2976,
+      "p95_us": 2976,
+      "samples": 1
+    }
+  },
+  "original_bytes": 6793,
+  "original_debug_us": 84.4133333333333,
+  "phase": 2,
+  "synthetic_history_debug_us": 101.025,
+  "synthetic_history_entries": 24,
+  "synthetic_history_gameplay_us": 34.175,
+  "ui_refresh_us": 2699.93333333333
+}

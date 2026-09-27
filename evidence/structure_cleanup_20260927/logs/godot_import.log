@@ -1,0 +1,43 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 项目初始化 (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | 正在扫描文件结构……[39m[0m
+WARNING: Detected another project.godot at res://tools/lan_probe. The folder will be ignored.
+     at: _should_skip_directory (editor/file_system/editor_file_system.cpp:3458)
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 正在加载全局类名……[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | 正在校验 GDExtension……[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 正在创建自动加载脚本……[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 正在初始化插件……[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started 正在扫描动作…… (16 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | test_back.png[39m[0m
+[   5% ] [90m[1m_update_scan_actions[22m | test_back_b.png[39m[0m
+[  11% ] [90m[1m_update_scan_actions[22m | test_back_c.png[39m[0m
+[  17% ] [90m[1m_update_scan_actions[22m | test_back_d.png[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | test_back_e.png[39m[0m
+[  29% ] [90m[1m_update_scan_actions[22m | test_back_f.png[39m[0m
+[  35% ] [90m[1m_update_scan_actions[22m | test_back_inner.png[39m[0m
+[  41% ] [90m[1m_update_scan_actions[22m | test_tiao_1.png[39m[0m
+[  47% ] [90m[1m_update_scan_actions[22m | test_tiao_1b.png[39m[0m
+[  52% ] [90m[1m_update_scan_actions[22m | test_tiao_2.png[39m[0m
+[  58% ] [90m[1m_update_scan_actions[22m | test_tong_1.png[39m[0m
+[  64% ] [90m[1m_update_scan_actions[22m | test_tong_1b.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | test_wan_1.png[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | test_wan_1c.png[39m[0m
+[  82% ] [90m[1m_update_scan_actions[22m | test_wan_2.png[39m[0m
+[  88% ] [90m[1m_update_scan_actions[22m | test_wan_2b.png[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 正在加载编辑器 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 正在加载编辑器布局……[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 正在加载停靠面板……[39m[0m
+[  33% ] [90m[1mloading_editor_layout[22m | 正在重新打开场景……[39m[0m
+[  50% ] [90m[1mloading_editor_layout[22m | 正在加载中央编辑器布局……[39m[0m
+[  66% ] [90m[1mloading_editor_layout[22m | 正在加载插件窗口布局……[39m[0m
+[  83% ] [90m[1mloading_editor_layout[22m | 编辑器布局就绪。[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+ERROR: EditorSettings not instantiated yet when getting setting "export/android/shutdown_adb_on_exit".
+   at: _EDITOR_GET (editor/settings/editor_settings.cpp:1531)

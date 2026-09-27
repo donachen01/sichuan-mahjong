@@ -1,0 +1,34 @@
+{
+  "removed_unreferenced_old_importer_copies": [
+    {
+      "removed": "res/art/3d/sichuan_table_v2_felt_normal.png",
+      "canonical": "res/art/materials/table_v2/felt_normal.png",
+      "bytes": 10365735,
+      "sha256": "51f2fa7317ec2e1c4745c374dea808aa6c831c948a377c18199ca4df809d4db6"
+    },
+    {
+      "removed": "res/art/3d/sichuan_table_v2_felt_orm.png",
+      "canonical": "res/art/materials/table_v2/felt_orm.png",
+      "bytes": 2605884,
+      "sha256": "181bab168cc25140244636ee9e5e7a435a605a8dec0a4fe0d0227b08d5555147"
+    },
+    {
+      "removed": "res/art/3d/sichuan_table_v2_leather_normal.png",
+      "canonical": "res/art/materials/table_v2/leather_normal.png",
+      "bytes": 336687,
+      "sha256": "a83674d5d637ee669e1718bf2f223c3b1598a735b3aece7dfc3f0c71e3ea22a2"
+    },
+    {
+      "removed": "res/art/3d/sichuan_table_v2_leather_orm.png",
+      "canonical": "res/art/materials/table_v2/leather_orm.png",
+      "bytes": 316505,
+      "sha256": "e13d3ed90979f0df151352a37a140cbe8427dcced0fe3272c06d2dfb87602ce7"
+    }
+  ],
+  "bytes_removed": 13624811,
+  "preserved_equal_content_roles": [
+    "Blender source and runtime splash",
+    "platform icon slots",
+    "per-skin action badges"
+  ]
+}

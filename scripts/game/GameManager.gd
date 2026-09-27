@@ -1,6 +1,8 @@
 extends Node
-
 class_name GameManager
+
+const PipelineProfiler := preload("res://scripts/diagnostics/pipeline_profiler.gd")
+
 
 const SessionAdapterScript := preload("res://scripts/game/session_adapter.gd")
 const SeatViewMapperScript := preload("res://scripts/game/seat_view_mapper.gd")
@@ -182,12 +184,26 @@ func complete_opening_roll() -> bool:
 
 
 func discard_tile(tile_id: int) -> bool:
+	var started := PipelineProfiler.begin()
+	var result: bool = _profiled_discard_tile(tile_id)
+	PipelineProfiler.record("action_submit", started)
+	return result
+
+
+func _profiled_discard_tile(tile_id: int) -> bool:
 	if session_adapter.role == SessionAdapterScript.Role.CLIENT:
 		return _send_client_action("discard", {"tile_id": tile_id}, "discard")
 	return false if not _can_call_authority() else bool(game_state.call("discard_tile_by_id", get_local_seat(), tile_id))
 
 
 func choose_ding_que(suit: String) -> bool:
+	var started := PipelineProfiler.begin()
+	var result: bool = _profiled_choose_ding_que(suit)
+	PipelineProfiler.record("action_submit", started)
+	return result
+
+
+func _profiled_choose_ding_que(suit: String) -> bool:
 	if session_adapter.role == SessionAdapterScript.Role.CLIENT:
 		return _send_client_action("ding_que", {"suit": suit}, "ding_que")
 	return false if not _can_call_authority() else bool(game_state.call("choose_ding_que", get_local_seat(), suit))
@@ -212,6 +228,13 @@ func can_human_an_gang() -> bool:
 
 
 func execute_action(action: String) -> bool:
+	var started := PipelineProfiler.begin()
+	var result: bool = _profiled_execute_action(action)
+	PipelineProfiler.record("action_submit", started)
+	return result
+
+
+func _profiled_execute_action(action: String) -> bool:
 	if session_adapter.role == SessionAdapterScript.Role.CLIENT:
 		return _send_client_action("action", {"action": action}, "reaction")
 	if not _can_call_authority():
@@ -303,10 +326,10 @@ func has_pending_ai_background_requests() -> bool:
 	return false if not _can_call_authority() else bool(game_state.call("has_pending_ai_background_requests"))
 
 
-func _on_state_changed(_snapshot: Dictionary) -> void:
+func _on_state_changed(snapshot: Dictionary) -> void:
 	if session_adapter.role == SessionAdapterScript.Role.CLIENT:
 		return
-	latest_snapshot = _build_local_snapshot()
+	latest_snapshot = snapshot.duplicate(true) if get_local_seat() == 0 else _build_local_snapshot()
 	snapshot_changed.emit(latest_snapshot.duplicate(true))
 
 
@@ -323,10 +346,11 @@ func _emit_snapshot() -> void:
 	snapshot_changed.emit(latest_snapshot.duplicate(true))
 
 
-func _build_local_snapshot() -> Dictionary:
+func _build_local_snapshot(include_diagnostics: bool = false) -> Dictionary:
 	if game_state == null:
 		return {}
-	var snapshot: Dictionary = game_state.call("get_debug_snapshot", get_local_seat())
+	var method := "get_debug_snapshot" if include_diagnostics or not game_state.has_method("get_gameplay_snapshot") else "get_gameplay_snapshot"
+	var snapshot: Dictionary = game_state.call(method, get_local_seat())
 	if get_local_seat() == 0:
 		return snapshot
 	for key in ["current_dealer_seat", "current_turn_seat", "recent_draw_seat"]:
@@ -344,3 +368,8 @@ func _build_local_snapshot() -> Dictionary:
 		context["source_seat"] = session_adapter.authority_to_view(int(context.source_seat))
 	snapshot["discard_context"] = context
 	return snapshot
+
+
+func get_diagnostic_snapshot() -> Dictionary:
+	# Network clients never gain access to the authority's private diagnostics.
+	return get_snapshot() if session_adapter.role == SessionAdapterScript.Role.CLIENT else _build_local_snapshot(true)

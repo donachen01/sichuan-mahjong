@@ -115,7 +115,7 @@ func _export_ios_xcode_project() -> void:
 	preset.set("custom_features", "")
 	preset.set("export_filter", "all_resources")
 	preset.set("include_filter", "")
-	preset.set("exclude_filter", "docs/*,tests/*,tools/*,build/*,artifacts/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
+	preset.set("exclude_filter", "archive/*,.runtime/*,.playwright-cli/*,.codex_runtime/*,docs/*,tests/*,tools/*,build/*,artifacts/*,evidence/*,research/*,dotnet/*,backups/*,source_assets/*,planning/*,测试数据统计/*,设计文档/*,.tmp_tts/*,.venv_tts/*,.git/*,.godot/*")
 	preset.set("script_export_mode", 2)
 	preset.set("custom_template/debug", template_path)
 	preset.set("custom_template/release", template_path)

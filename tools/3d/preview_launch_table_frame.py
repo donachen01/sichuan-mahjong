@@ -1,7 +1,8 @@
 """Author the launch-art-inspired table as an isolated Blender review asset.
 
 Run with Blender 5.2 in background mode. This saves a native .blend file and a
-render; it deliberately does not replace the live Godot table before visual QA.
+render; it does not replace the live Godot table. The approved native source is exported
+through generate_current_table.py; this script is for new visual experiments.
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ from mathutils import Vector
 
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "source_assets" / "table" / "launch_glass_v1"
+OUT = ROOT / "source_assets" / "table" / "launch_glass_experiments"
 SOURCE = Path(__file__).with_name("generate_sichuan_table_v2.py")
 SPEC = importlib.util.spec_from_file_location("sichuan_table_geometry", SOURCE)
 geometry = importlib.util.module_from_spec(SPEC)
@@ -141,7 +142,7 @@ def main() -> None:
     scene.render.film_transparent = False
     bpy.ops.wm.save_as_mainfile(filepath=str(OUT / "launch_glass_table_review.blend"))
     bpy.ops.render.render(write_still=True)
-    geometry.OUTPUT_GLB = ROOT / "res" / "art" / "3d" / "sichuan_table_v2.glb"
+    geometry.OUTPUT_GLB = OUT / "launch_glass_table_review.glb"
     geometry.export_glb([support, playing_surface, lacquer, glass_cap, glass_edge, glass_lip])
     print(f"BLENDER_TABLE_REVIEW_READY {OUT}")
 

@@ -1,0 +1,928 @@
+{
+  "scope": "literal references only; includes test and tool dependencies",
+  "references": {
+    "res://CHANGELOG.md": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:32"
+    ],
+    "res://README.md": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:31"
+    ],
+    "res://VERSION": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:14"
+    ],
+    "res://VERSION.md": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:30"
+    ],
+    "res://artifacts": [
+      "tools/export_ios_xcode_direct.gd:29"
+    ],
+    "res://autoload/GameState.gd": [
+      "tests/current/SichuanHumanReactionActionRunner.gd:3",
+      "tests/current/SichuanLanSeatControllerRunner.gd:3",
+      "tests/current/SichuanOpeningRollRenderRunner.gd:4",
+      "tests/current/SichuanRuleRegressionRunner.gd:3",
+      "tests/current/SichuanSingleModeStartRunner.gd:4",
+      "tests/current/SichuanUiSixIssuesRunner.gd:4",
+      "tests/current/sichuan_ai_pressure_benchmark.gd:3",
+      "tests/current/sichuan_ding_que_regression.gd:3"
+    ],
+    "res://docs": [
+      "tools/export_ios_xcode_direct.gd:29"
+    ],
+    "res://docs/ui_rework/四川牌桌事件字原创与参考差异声明_V1.md": [
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:311"
+    ],
+    "res://dotnet/AI.Core.Cli/bin/Release/net10.0/AI.Core.Cli.dll": [
+      "scripts/ai/csharp_ai_bridge.gd:6",
+      "scripts/core/ai_learning_engine.gd:9"
+    ],
+    "res://dotnet/AI.Core.Smoke/AI.Core.Smoke.csproj": [
+      "scripts/ai/AIManager.gd:13"
+    ],
+    "res://dotnet/AI.Core/bin/Release/net10.0/SichuanMahjong.AI.Core.dll": [
+      "scripts/ai/AIManager.gd:12"
+    ],
+    "res://evidence/ui_emerald_final_20260726/stage2_dq_center/hud_rects_four_resolutions.json": [
+      "tools/capture_hud_layout_metrics.gd:4"
+    ],
+    "res://evidence/ui_emerald_final_20260726/stage5_settlement/final_settlement_metrics.json": [
+      "tests/current/SichuanFinalSettlementAcceptanceRunner.gd:5"
+    ],
+    "res://export_presets.cfg": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:22",
+      "tools/lan_probe/export_ios.gd:15"
+    ],
+    "res://project.godot": [
+      "tests/current/SichuanVersionConsistencyRunner.gd:18"
+    ],
+    "res://res/art/3d/mahjong_tile_body.glb": [
+      "scripts/ui/3d/SichuanTile3D.gd:4",
+      "tests/current/Sichuan3DTableStageRunner.gd:1660"
+    ],
+    "res://res/art/3d/sichuan_center_compass_v2.glb": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:10",
+      "scripts/ui/3d/SichuanTableStage3D.gd:1623",
+      "tests/current/Sichuan3DTableStageRunner.gd:352",
+      "tests/current/Sichuan3DTableStageRunner.gd:1662",
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:67"
+    ],
+    "res://res/art/3d/sichuan_table.glb": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:12",
+      "tests/current/Sichuan3DTableStageRunner.gd:1663"
+    ],
+    "res://res/art/3d/sichuan_table_v2.glb": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:9",
+      "tests/current/Sichuan3DTableStageRunner.gd:1661"
+    ],
+    "res://res/art/app_icon/app_icon_1024.png": [
+      "export_presets.cfg:703",
+      "export_presets.cfg:751",
+      "project.godot:25",
+      "tools/export_ios_xcode_direct.gd:132",
+      "tools/export_ios_xcode_direct.gd:133"
+    ],
+    "res://res/art/app_icon/app_icon_192.png": [
+      "export_presets.cfg:315",
+      "tools/export_android_direct.gd:75"
+    ],
+    "res://res/art/app_icon/app_icon_background_432.png": [
+      "export_presets.cfg:317",
+      "tools/export_android_direct.gd:77"
+    ],
+    "res://res/art/app_icon/app_icon_foreground_432.png": [
+      "export_presets.cfg:316",
+      "tools/export_android_direct.gd:76"
+    ],
+    "res://res/art/materials/table_skins": [
+      "scripts/ui/table/SichuanTableSkinCatalog.gd:5"
+    ],
+    "res://res/art/materials/table_v2/walnut_basecolor.png": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:14"
+    ],
+    "res://res/art/splash/sichuan_mahjong_splash.png": [
+      "scenes/boot/SplashScreen.tscn:4"
+    ],
+    "res://res/art/tiles": [
+      "scripts/ui/TileButton.gd:20",
+      "tests/current/SichuanTileAssetRegressionRunner.gd:5",
+      "tools/generate_tile_overlays.gd:4"
+    ],
+    "res://res/art/ui/event_callouts/gang.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:9"
+    ],
+    "res://res/art/ui/event_callouts/gang_self_draw.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:12"
+    ],
+    "res://res/art/ui/event_callouts/hu.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:10"
+    ],
+    "res://res/art/ui/event_callouts/peng.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:8"
+    ],
+    "res://res/art/ui/event_callouts/qiang_gang_hu.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:13"
+    ],
+    "res://res/art/ui/event_callouts/self_draw.png": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:11"
+    ],
+    "res://res/art/ui/network/lan_dice_face_glass.png": [
+      "scripts/game/MainSceneV2.gd:43"
+    ],
+    "res://res/art/ui/network/lan_dice_panel_glass.png": [
+      "scripts/game/MainSceneV2.gd:40"
+    ],
+    "res://res/art/ui/network/lan_lobby_leave_glass.png": [
+      "scripts/ui/AIAssistant.gd:14",
+      "scripts/ui/network/lan_room_ui.gd:9"
+    ],
+    "res://res/art/ui/network/lan_lobby_panel_glass.png": [
+      "scripts/ui/network/lan_room_ui.gd:7"
+    ],
+    "res://res/art/ui/network/lan_lobby_ready_glass.png": [
+      "scripts/game/MainSceneV2.gd:42",
+      "scripts/ui/AIAssistant.gd:13",
+      "scripts/ui/network/lan_room_ui.gd:8",
+      "scripts/ui/table/SeatHUD.gd:6"
+    ],
+    "res://res/art/ui/network/lan_round_ready_panel_glass.png": [
+      "scripts/game/MainSceneV2.gd:41"
+    ],
+    "res://res/art/ui/settlement_target/shu_cloud_mountain_frame_v1.png": [
+      "scripts/game/MainSceneV2.gd:106"
+    ],
+    "res://res/art/ui/table_v2/ding_que_tiao.png": [
+      "scripts/game/MainSceneV2.gd:32"
+    ],
+    "res://res/art/ui/table_v2/ding_que_tong.png": [
+      "scripts/game/MainSceneV2.gd:33"
+    ],
+    "res://res/art/ui/table_v2/ding_que_wan.png": [
+      "scripts/game/MainSceneV2.gd:34"
+    ],
+    "res://res/art/ui/table_v2/hud_shell.png": [
+      "scenes/ui/table/SeatHUD.tscn:7"
+    ],
+    "res://res/art/ui_3d_cartoon/tile_back_table.png": [
+      "scripts/ui/TileVisual2D.gd:29"
+    ],
+    "res://res/art/ui_3d_cartoon/tile_face_table.png": [
+      "scripts/ui/HandCanvas2D.gd:51",
+      "scripts/ui/TileVisual2D.gd:28"
+    ],
+    "res://res/art/ui_3d_cartoon/tile_symbols": [
+      "scripts/ui/HandCanvas2D.gd:52",
+      "scripts/ui/TileVisual2D.gd:30",
+      "tests/current/SichuanTileAssetRegressionRunner.gd:4"
+    ],
+    "res://res/audio/sfx": [
+      "scripts/game/MainSceneV2.gd:35"
+    ],
+    "res://res/audio/sfx/mahjong_dice_roll_short.wav": [
+      "scripts/game/MainSceneV2.gd:39",
+      "tests/current/SichuanOpeningRollRenderRunner.gd:78"
+    ],
+    "res://res/audio/sfx/system_draw.mp3": [
+      "scripts/game/MainSceneV2.gd:44"
+    ],
+    "res://res/audio/tts": [
+      "scripts/game/MainSceneV2.gd:36"
+    ],
+    "res://res/audio/tts/female/tong_5.wav": [
+      "tests/current/SichuanVoicePackRunner.gd:133"
+    ],
+    "res://res/audio/tts/male/tong_5.wav": [
+      "tests/current/SichuanVoicePackRunner.gd:136"
+    ],
+    "res://res/audio/tts_sichuan/female/tong_5.wav": [
+      "tests/current/SichuanVoicePackRunner.gd:92",
+      "tests/current/SichuanVoicePackRunner.gd:132",
+      "tests/current/SichuanVoicePackRunner.gd:177"
+    ],
+    "res://res/audio/tts_sichuan/male/tong_5.wav": [
+      "tests/current/SichuanVoicePackRunner.gd:91"
+    ],
+    "res://res/audio/voice_manifest.json": [
+      "scripts/ui/table/SichuanVoiceCatalog.gd:4",
+      "tests/current/SichuanVoicePackRunner.gd:7"
+    ],
+    "res://res/fonts/NotoSansCJKsc-Regular.otf": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:11",
+      "scripts/ui/UIStyleConfig.gd:6",
+      "scripts/ui/network/game_mode_select.gd:4",
+      "scripts/ui/network/lan_probe.gd:32",
+      "scripts/ui/network/lan_room_ui.gd:5",
+      "scripts/ui/presentation/CalloutFxLayer.gd:6",
+      "scripts/ui/table/SeatHUD.gd:11",
+      "scripts/ui/table/SettlementOverlay.gd:9",
+      "scripts/ui/table/SichuanTableSkinPanel.gd:8",
+      "scripts/ui/table/SichuanVoiceSelectPanel.gd:8",
+      "scripts/ui/table/TableActionBar.gd:9",
+      "tests/current/SichuanIosFontRegressionRunner.gd:5"
+    ],
+    "res://res/fonts/nameplate_calligraphy.ttf": [
+      "scripts/ui/CircularActionButtonOverlay.gd:5",
+      "scripts/ui/UIStyleConfig.gd:5",
+      "tests/current/SichuanIosFontRegressionRunner.gd:6"
+    ],
+    "res://res/source/tiles/矢量全套麻将_爱给网_aigei_com.png": [
+      "tools/generate_tile_overlays.gd:3"
+    ],
+    "res://res/source/ui/event_callouts/sichuan_event_callouts.blend": [
+      "scripts/ui/presentation/CalloutFxLayer.gd:75",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:309",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:316"
+    ],
+    "res://res/ui/default_ui_style.tres": [
+      "scenes/table/MainSceneV2.tscn:5",
+      "scenes/ui/AIAssistant.tscn:4",
+      "scenes/ui/PlayerUI.tscn:4",
+      "scripts/game/MainSceneV2.gd:6",
+      "scripts/ui/AIAssistant.gd:50",
+      "scripts/ui/PlayerUI.gd:66",
+      "scripts/ui/table/CenterTurnIndicator.gd:5",
+      "scripts/ui/table/DingQueBadge.gd:6",
+      "scripts/ui/table/SeatHUD.gd:10",
+      "scripts/ui/table/SettlementOverlay.gd:8",
+      "scripts/ui/table/TableActionBar.gd:8",
+      "scripts/ui/table/TableUtilityBar.gd:56",
+      "tests/current/SichuanIosFontRegressionRunner.gd:3"
+    ],
+    "res://res/ui/glass_action_badge.png": [
+      "scripts/ui/table/TableActionBar.gd:10"
+    ],
+    "res://res/ui/glass_action_reflection.png": [
+      "scripts/ui/table/TableActionBar.gd:11"
+    ],
+    "res://scenes/boot/SplashScreen.tscn": [
+      "project.godot:23",
+      "tests/current/SplashScreenRegressionRunner.gd:3"
+    ],
+    "res://scenes/network/GameModeSelect.tscn": [
+      "scripts/boot/SplashScreen.gd:3",
+      "scripts/game/MainSceneV2.gd:450",
+      "scripts/ui/network/lan_room_ui.gd:4",
+      "tests/current/SichuanGameModeSelectRunner.gd:7",
+      "tests/current/SichuanGameModeSelectRunner.gd:11",
+      "tests/current/SichuanLanRoomUiRunner.gd:131",
+      "tests/current/SichuanSingleModeStartRunner.gd:3",
+      "tests/current/SichuanTableTouchTargetRunner.gd:126",
+      "tools/capture_game_mode_select.gd:4"
+    ],
+    "res://scenes/network/LanProbe.tscn": [
+      "scripts/boot/SplashScreen.gd:22",
+      "tests/current/SichuanLanEntryRunner.gd:7"
+    ],
+    "res://scenes/table/MainSceneV2.tscn": [
+      "autoload/LanRuntime.gd:118",
+      "autoload/LanRuntime.gd:119",
+      "autoload/LanRuntime.gd:131",
+      "autoload/LanRuntime.gd:133",
+      "scripts/ui/network/game_mode_select.gd:3",
+      "scripts/ui/network/lan_probe.gd:101",
+      "tests/current/Sichuan3DFallbackRunner.gd:3",
+      "tests/current/SichuanActionBarLayoutRunner.gd:3",
+      "tests/current/SichuanAiExplanationUiRunner.gd:3",
+      "tests/current/SichuanFinalSettlementAcceptanceRunner.gd:3",
+      "tests/current/SichuanGangSelfHuSequenceRunner.gd:3",
+      "tests/current/SichuanHudStateIntegrityRunner.gd:3",
+      "tests/current/SichuanIosFontRegressionRunner.gd:4",
+      "tests/current/SichuanLanEntryRunner.gd:22",
+      "tests/current/SichuanLanRoomUiRunner.gd:7",
+      "tests/current/SichuanLiveReactionClickRunner.gd:3",
+      "tests/current/SichuanOpeningRollRenderRunner.gd:3",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:11",
+      "tests/current/SichuanPresentationDirectorRunner.gd:4",
+      "tests/current/SichuanRestoredUiRegressionRunner.gd:3",
+      "tests/current/SichuanSingleModeStartRunner.gd:34",
+      "tests/current/SichuanTableLayoutContractRunner.gd:9",
+      "tests/current/SichuanTableSkinRunner.gd:3",
+      "tests/current/SichuanTableSkinTouchRunner.gd:3",
+      "tests/current/SichuanTableTouchTargetRunner.gd:3",
+      "tests/current/SichuanUiSixIssuesRunner.gd:3",
+      "tests/current/SichuanUtilityModalTouchRunner.gd:3",
+      "tools/Stage6ReleasePerformanceProbe.gd:3",
+      "tools/capture_bao_gang_dialog.gd:4",
+      "tools/capture_ding_que_overlay.gd:4",
+      "tools/capture_main_scene.gd:4",
+      "tools/capture_reaction_scene.gd:4",
+      "tools/debug_ding_que_button_style.gd:3",
+      "tools/diagnose_ui_input_latency.gd:3"
+    ],
+    "res://scenes/ui/AIAssistant.tscn": [
+      "scripts/game/MainSceneV2.gd:19"
+    ],
+    "res://scenes/ui/MahjongTile.tscn": [
+      "scripts/game/MainSceneV2.gd:7",
+      "scripts/ui/PlayerUI.gd:15",
+      "scripts/ui/table/TableDiscardLayer.gd:4",
+      "tests/current/SichuanDenseTableLayoutRunner.gd:6",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:6",
+      "tools/capture_tile_redesign_scene.gd:4"
+    ],
+    "res://scenes/ui/MahjongTile3D.tscn": [
+      "scripts/ui/HandStage3D.gd:5"
+    ],
+    "res://scenes/ui/PlayerHandViewport.tscn": [
+      "scenes/table/MainSceneV2.tscn:6",
+      "tests/current/SichuanTableTouchTargetRunner.gd:6",
+      "tools/capture_self_embedded_meld_preview.gd:4"
+    ],
+    "res://scenes/ui/PlayerUI.tscn": [
+      "scripts/game/MainSceneV2.gd:5",
+      "tests/current/SichuanDenseTableLayoutRunner.gd:3",
+      "tests/current/SichuanSourceArrowFallbackRunner.gd:3",
+      "tools/capture_player_ui_claims.gd:4",
+      "tools/capture_self_embedded_meld_preview.gd:5"
+    ],
+    "res://scenes/ui/table/CenterTurnIndicator.tscn": [
+      "scripts/game/MainSceneV2.gd:15",
+      "tests/current/SichuanCommercialMaturityVisualRunner.gd:5",
+      "tests/current/SichuanTableMotionContractRunner.gd:5"
+    ],
+    "res://scenes/ui/table/DingQueBadge.tscn": [
+      "scenes/ui/table/SeatHUD.tscn:4"
+    ],
+    "res://scenes/ui/table/SeatHUD.tscn": [
+      "scripts/game/MainSceneV2.gd:12",
+      "tests/current/SichuanCommercialMaturityVisualRunner.gd:4",
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:3",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:5",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:10",
+      "tests/current/SichuanTableMotionContractRunner.gd:3",
+      "tests/current/SichuanTypographyContrastRunner.gd:3"
+    ],
+    "res://scenes/ui/table/SettlementOverlay.tscn": [
+      "scripts/game/MainSceneV2.gd:31",
+      "tests/current/SichuanSettlementUiRunner.gd:3"
+    ],
+    "res://scenes/ui/table/TableActionBar.tscn": [
+      "scripts/game/MainSceneV2.gd:17",
+      "tests/current/SichuanCommercialMaturityVisualRunner.gd:6",
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:4",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:6",
+      "tests/current/SichuanHumanReactionActionRunner.gd:4",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:9",
+      "tests/current/SichuanTableMotionContractRunner.gd:4"
+    ],
+    "res://scenes/ui/table/TableUtilityBar.tscn": [
+      "scripts/game/MainSceneV2.gd:13",
+      "tests/current/SichuanVoicePackRunner.gd:6"
+    ],
+    "res://scripts/ai/AICoreBridge.gd": [
+      "scripts/ai/AIManager.gd:10"
+    ],
+    "res://scripts/ai/AIManager.gd": [
+      "autoload/GameState.gd:24"
+    ],
+    "res://scripts/ai/csharp_ai_bridge.gd": [
+      "scripts/ai/AIManager.gd:11",
+      "tests/current/SichuanCSharpContractRunner.gd:3"
+    ],
+    "res://scripts/ai/sichuan_belief_engine.gd": [
+      "scripts/ai/sichuan_danger_engine.gd:5",
+      "scripts/ai/sichuan_decision_engine.gd:7",
+      "scripts/core/gang_advisor.gd:5"
+    ],
+    "res://scripts/ai/sichuan_call_quality_engine.gd": [
+      "scripts/ai/sichuan_decision_engine.gd:8"
+    ],
+    "res://scripts/ai/sichuan_danger_engine.gd": [
+      "scripts/ai/sichuan_decision_engine.gd:6"
+    ],
+    "res://scripts/ai/sichuan_decision_engine.gd": [
+      "scripts/ai/AICoreBridge.gd:5"
+    ],
+    "res://scripts/ai/sichuan_old_hand_discard_scorer.gd": [
+      "tests/current/SichuanIndependentJudgeRegressionRunner.gd:3",
+      "tests/current/sichuan_ai_pressure_benchmark.gd:4"
+    ],
+    "res://scripts/ai/sichuan_shanten_engine.gd": [
+      "scripts/ai/sichuan_decision_engine.gd:5"
+    ],
+    "res://scripts/ai/sichuan_tile_codec.gd": [
+      "scripts/ai/csharp_ai_bridge.gd:12",
+      "scripts/ai/sichuan_decision_engine.gd:9"
+    ],
+    "res://scripts/boot/SplashScreen.gd": [
+      "scenes/boot/SplashScreen.tscn:3"
+    ],
+    "res://scripts/core/ai_learning_engine.gd": [
+      "autoload/GameState.gd:22",
+      "tests/current/SichuanRuleRegressionRunner.gd:1550",
+      "tests/current/sichuan_ding_que_regression.gd:289"
+    ],
+    "res://scripts/core/ai_tuning_config.gd": [
+      "autoload/GameState.gd:21",
+      "tests/current/SichuanRuleRegressionRunner.gd:1548",
+      "tests/current/sichuan_ding_que_regression.gd:287"
+    ],
+    "res://scripts/core/ding_que_resolver.gd": [
+      "autoload/GameState.gd:12",
+      "tests/current/SichuanHumanReactionActionRunner.gd:275",
+      "tests/current/SichuanRuleRegressionRunner.gd:1539",
+      "tests/current/sichuan_ding_que_regression.gd:280"
+    ],
+    "res://scripts/core/discard_advisor.gd": [
+      "autoload/GameState.gd:17",
+      "scripts/core/mahjong_judge.gd:8",
+      "tests/current/SichuanRuleRegressionRunner.gd:1544",
+      "tests/current/sichuan_ding_que_regression.gd:285"
+    ],
+    "res://scripts/core/fan_resolver.gd": [
+      "scripts/core/score_resolver.gd:5",
+      "tests/current/SichuanMeldRootFixRunner.gd:33",
+      "tests/current/SichuanScoringRules20260723Runner.gd:4"
+    ],
+    "res://scripts/core/gang_advisor.gd": [
+      "autoload/GameState.gd:20",
+      "tests/current/SichuanRuleRegressionRunner.gd:1547"
+    ],
+    "res://scripts/core/hu_checker.gd": [
+      "autoload/GameState.gd:14",
+      "scripts/core/mahjong_judge.gd:5",
+      "scripts/core/reaction_resolver.gd:5",
+      "tests/current/SichuanHumanReactionActionRunner.gd:277",
+      "tests/current/SichuanRuleRegressionRunner.gd:1541",
+      "tests/current/sichuan_ding_que_regression.gd:282"
+    ],
+    "res://scripts/core/lookahead_evaluator.gd": [
+      "scripts/core/discard_advisor.gd:6"
+    ],
+    "res://scripts/core/mahjong_judge.gd": [
+      "autoload/GameState.gd:11",
+      "tests/current/SichuanHumanReactionActionRunner.gd:274",
+      "tests/current/SichuanRuleRegressionRunner.gd:1538",
+      "tests/current/sichuan_ding_que_regression.gd:279"
+    ],
+    "res://scripts/core/mahjong_state.gd": [
+      "autoload/GameState.gd:10",
+      "tests/current/SichuanHumanReactionActionRunner.gd:273",
+      "tests/current/SichuanRuleRegressionRunner.gd:1537",
+      "tests/current/sichuan_ding_que_regression.gd:278"
+    ],
+    "res://scripts/core/opening_roll_resolver.gd": [
+      "autoload/GameState.gd:23",
+      "tests/current/SichuanRuleRegressionRunner.gd:1551",
+      "tests/current/sichuan_ding_que_regression.gd:290"
+    ],
+    "res://scripts/core/opponent_model.gd": [
+      "scripts/core/risk_analyzer.gd:5",
+      "scripts/core/strategy_engine.gd:5"
+    ],
+    "res://scripts/core/reaction_advisor.gd": [
+      "autoload/GameState.gd:19",
+      "tests/current/SichuanRuleRegressionRunner.gd:1546"
+    ],
+    "res://scripts/core/reaction_resolver.gd": [
+      "autoload/GameState.gd:13",
+      "scripts/core/mahjong_judge.gd:6",
+      "tests/current/SichuanHumanReactionActionRunner.gd:276",
+      "tests/current/SichuanRuleRegressionRunner.gd:4",
+      "tests/current/sichuan_ding_que_regression.gd:4"
+    ],
+    "res://scripts/core/risk_analyzer.gd": [
+      "autoload/GameState.gd:18",
+      "scripts/core/mahjong_judge.gd:9",
+      "tests/current/SichuanHumanReactionActionRunner.gd:280",
+      "tests/current/SichuanRuleRegressionRunner.gd:1545",
+      "tests/current/sichuan_ding_que_regression.gd:286"
+    ],
+    "res://scripts/core/rule_config.gd": [
+      "autoload/GameState.gd:9",
+      "tests/current/SichuanCSharpContractRunner.gd:4",
+      "tests/current/SichuanHumanReactionActionRunner.gd:272",
+      "tests/current/SichuanRuleRegressionRunner.gd:1536",
+      "tests/current/SichuanScoringRules20260723Runner.gd:3",
+      "tests/current/sichuan_ding_que_regression.gd:277"
+    ],
+    "res://scripts/core/score_resolver.gd": [
+      "autoload/GameState.gd:15",
+      "tests/current/SichuanHumanReactionActionRunner.gd:278",
+      "tests/current/SichuanRuleRegressionRunner.gd:1542",
+      "tests/current/SichuanScoringRules20260723Runner.gd:5",
+      "tests/current/sichuan_ding_que_regression.gd:283"
+    ],
+    "res://scripts/core/shanten_analyzer.gd": [
+      "autoload/GameState.gd:16",
+      "scripts/ai/sichuan_shanten_engine.gd:5",
+      "scripts/core/mahjong_judge.gd:7",
+      "tests/current/SichuanHumanReactionActionRunner.gd:279",
+      "tests/current/SichuanRuleRegressionRunner.gd:1543",
+      "tests/current/sichuan_ding_que_regression.gd:284"
+    ],
+    "res://scripts/core/strategy_engine.gd": [
+      "scripts/core/discard_advisor.gd:5"
+    ],
+    "res://scripts/diagnostics/diagnostic_files.gd": [
+      "autoload/GameState.gd:6"
+    ],
+    "res://scripts/diagnostics/pipeline_profiler.gd": [
+      "scripts/ai/AIManager.gd:4",
+      "scripts/game/GameManager.gd:4",
+      "scripts/game/MainSceneV2.gd:3",
+      "scripts/game/game_snapshot_builder.gd:3",
+      "scripts/ui/3d/SichuanTableStage3D.gd:4"
+    ],
+    "res://scripts/game/GameManager.gd": [
+      "scenes/table/MainSceneV2.tscn:4",
+      "tests/current/SichuanClientGameManagerRunner.gd:3",
+      "tests/current/SichuanLanSettlementParityRunner.gd:5",
+      "tests/current/SichuanSnapshotBoundaryRunner.gd:3"
+    ],
+    "res://scripts/game/MainSceneV2.gd": [
+      "scenes/table/MainSceneV2.tscn:3",
+      "tests/current/SichuanMobilePowerProfileRunner.gd:5",
+      "tests/current/SichuanRuleRegressionRunner.gd:5",
+      "tests/current/SichuanVoicePackRunner.gd:3",
+      "tests/current/sichuan_ding_que_regression.gd:5"
+    ],
+    "res://scripts/game/game_snapshot_builder.gd": [
+      "autoload/GameState.gd:7"
+    ],
+    "res://scripts/game/presentation/settlement_ledger.gd": [
+      "scripts/game/MainSceneV2.gd:26"
+    ],
+    "res://scripts/game/presentation/table_preferences.gd": [
+      "scripts/game/MainSceneV2.gd:24"
+    ],
+    "res://scripts/game/presentation/table_voice_router.gd": [
+      "scripts/game/MainSceneV2.gd:25"
+    ],
+    "res://scripts/game/seat_view_mapper.gd": [
+      "scripts/game/GameManager.gd:8",
+      "scripts/game/MainSceneV2.gd:449",
+      "scripts/game/session_adapter.gd:4",
+      "scripts/network/snapshot_projector.gd:4",
+      "tests/current/SichuanSeatSessionRunner.gd:3",
+      "tests/current/SichuanWinningSourceViewRunner.gd:3"
+    ],
+    "res://scripts/game/session_adapter.gd": [
+      "scripts/game/GameManager.gd:7",
+      "tests/current/SichuanSeatSessionRunner.gd:4"
+    ],
+    "res://scripts/network/lan_probe_session.gd": [
+      "tests/current/SichuanLanTransportRunner.gd:2"
+    ],
+    "res://scripts/network/lan_room_discovery.gd": [
+      "autoload/LanRuntime.gd:14",
+      "scripts/ui/network/lan_probe.gd:3",
+      "tests/current/SichuanLanDiscoveryRunner.gd:2"
+    ],
+    "res://scripts/network/lan_room_session.gd": [
+      "autoload/LanRuntime.gd:13",
+      "scripts/ui/network/lan_probe.gd:2",
+      "tests/current/SichuanLanDisconnectRunner.gd:3",
+      "tests/current/SichuanLanRoomSessionRunner.gd:2"
+    ],
+    "res://scripts/network/lan_transport.gd": [
+      "scripts/network/lan_probe_session.gd:6",
+      "scripts/network/lan_room_session.gd:12"
+    ],
+    "res://scripts/network/match_authority.gd": [
+      "scripts/network/lan_room_session.gd:15",
+      "tests/current/SichuanMatchAuthorityRunner.gd:3"
+    ],
+    "res://scripts/network/protocol_codec.gd": [
+      "scripts/network/lan_room_session.gd:13",
+      "tests/current/SichuanLanRoomSessionRunner.gd:3",
+      "tests/current/SichuanLanSettlementParityRunner.gd:4",
+      "tests/current/SichuanRoomProtocolPrivacyRunner.gd:3"
+    ],
+    "res://scripts/network/room_registry.gd": [
+      "scripts/network/lan_room_session.gd:14",
+      "tests/current/SichuanRoomProtocolPrivacyRunner.gd:2"
+    ],
+    "res://scripts/network/snapshot_projector.gd": [
+      "scripts/network/lan_room_session.gd:16",
+      "tests/current/SichuanLanRoomSessionRunner.gd:4",
+      "tests/current/SichuanLanSettlementParityRunner.gd:3",
+      "tests/current/SichuanRoomProtocolPrivacyRunner.gd:4",
+      "tests/current/SichuanSnapshotBoundaryRunner.gd:4"
+    ],
+    "res://scripts/ui/3d/SichuanTableStage3D.gd": [
+      "scripts/game/MainSceneV2.gd:20",
+      "tests/current/Sichuan3DTableStageRunner.gd:3",
+      "tests/current/SichuanCameraCompositionRunner.gd:3",
+      "tests/current/SichuanDiscardLandingSequenceRunner.gd:3",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:4",
+      "tests/current/SichuanLightingQualityRunner.gd:3",
+      "tests/current/SichuanMeldRootFixRunner.gd:7",
+      "tests/current/SichuanMobilePowerProfileRunner.gd:6",
+      "tests/current/SichuanSpatialLayoutRunner.gd:3",
+      "tests/current/SichuanTableMaterialQualityRunner.gd:3",
+      "tests/current/SichuanTableSkinRunner.gd:4",
+      "tests/current/SichuanTableTouchTargetRunner.gd:7",
+      "tests/current/SichuanWinningSourceViewRunner.gd:4",
+      "tools/capture_hand_layout_metrics.gd:4"
+    ],
+    "res://scripts/ui/3d/SichuanTile3D.gd": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:8",
+      "tests/current/SichuanLatestDiscardRotationRunner.gd:3",
+      "tests/current/SichuanMobilePowerProfileRunner.gd:7",
+      "tests/current/SichuanTileVisualQualityRunner.gd:3",
+      "tools/capture_hand_layout_metrics.gd:5"
+    ],
+    "res://scripts/ui/AIAssistant.gd": [
+      "scenes/ui/AIAssistant.tscn:3"
+    ],
+    "res://scripts/ui/CircularActionButtonOverlay.gd": [
+      "scripts/game/MainSceneV2.gd:11",
+      "tests/current/SichuanMobilePowerProfileRunner.gd:3"
+    ],
+    "res://scripts/ui/DiceFace.gd": [
+      "scripts/game/MainSceneV2.gd:8"
+    ],
+    "res://scripts/ui/HandCanvas2D.gd": [
+      "scenes/ui/PlayerHandViewport.tscn:4",
+      "tests/current/SichuanDenseTableLayoutRunner.gd:5",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:7",
+      "tests/current/SichuanTableMotionContractRunner.gd:7",
+      "tools/capture_hand_layout_metrics.gd:3"
+    ],
+    "res://scripts/ui/MahjongTile.gd": [
+      "scenes/ui/MahjongTile.tscn:3",
+      "tests/current/SichuanRestoredUiRegressionRunner.gd:380"
+    ],
+    "res://scripts/ui/MahjongTile3D.gd": [
+      "scenes/ui/MahjongTile3D.tscn:3"
+    ],
+    "res://scripts/ui/PlayerHandViewport.gd": [
+      "scenes/ui/PlayerHandViewport.tscn:3"
+    ],
+    "res://scripts/ui/PlayerUI.gd": [
+      "scenes/ui/PlayerUI.tscn:3"
+    ],
+    "res://scripts/ui/TableMaterialOverlay.gd": [
+      "scripts/game/MainSceneV2.gd:10",
+      "scripts/ui/PlayerHandViewport.gd:6",
+      "tests/current/SichuanCommercialMaturityVisualRunner.gd:3",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:5"
+    ],
+    "res://scripts/ui/TileButton.gd": [
+      "scenes/ui/TileButton.tscn:3"
+    ],
+    "res://scripts/ui/TileVisual2D.gd": [
+      "scenes/ui/TileVisual2D.tscn:3",
+      "scripts/ui/MahjongTile.gd:1"
+    ],
+    "res://scripts/ui/UIStyleConfig.gd": [
+      "scripts/ui/network/game_mode_select.gd:5"
+    ],
+    "res://scripts/ui/WallCountDisc.gd": [
+      "scripts/game/MainSceneV2.gd:9"
+    ],
+    "res://scripts/ui/network/game_mode_select.gd": [
+      "scenes/network/GameModeSelect.tscn:3"
+    ],
+    "res://scripts/ui/network/lan_probe.gd": [
+      "scenes/network/LanProbe.tscn:3"
+    ],
+    "res://scripts/ui/network/lan_room_ui.gd": [
+      "scripts/game/MainSceneV2.gd:448"
+    ],
+    "res://scripts/ui/presentation/CalloutFxLayer.gd": [
+      "scripts/ui/presentation/TablePresentationDirector.gd:10",
+      "tools/capture_main_scene.gd:5"
+    ],
+    "res://scripts/ui/presentation/PresentationEventLayer.gd": [
+      "scripts/ui/presentation/TablePresentationDirector.gd:9"
+    ],
+    "res://scripts/ui/presentation/TablePresentationDirector.gd": [
+      "scripts/game/MainSceneV2.gd:18",
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:3",
+      "tests/current/SichuanMobilePowerProfileRunner.gd:4",
+      "tests/current/SichuanPresentationDirectorRunner.gd:3",
+      "tests/current/SichuanPresentationDirectorRunner.gd:60",
+      "tests/current/SichuanPresentationDirectorRunner.gd:78"
+    ],
+    "res://scripts/ui/table/CenterCompassVisual.gd": [
+      "scenes/ui/table/CenterTurnIndicator.tscn:5"
+    ],
+    "res://scripts/ui/table/CenterTurnIndicator.gd": [
+      "scenes/ui/table/CenterTurnIndicator.tscn:3",
+      "tests/current/SichuanTableLayoutContractRunner.gd:7"
+    ],
+    "res://scripts/ui/table/DingQueBadge.gd": [
+      "scenes/ui/table/DingQueBadge.tscn:3"
+    ],
+    "res://scripts/ui/table/SafeAreaLayout.gd": [
+      "scenes/table/MainSceneV2.tscn:7",
+      "tests/current/SichuanTableLayoutContractRunner.gd:5"
+    ],
+    "res://scripts/ui/table/SeatAvatarMedallion.gd": [
+      "scenes/ui/table/SeatHUD.tscn:6"
+    ],
+    "res://scripts/ui/table/SeatHUD.gd": [
+      "scenes/ui/table/SeatHUD.tscn:3",
+      "tests/current/SichuanTableLayoutContractRunner.gd:6"
+    ],
+    "res://scripts/ui/table/SettlementCloudFrame.gd": [
+      "scripts/game/MainSceneV2.gd:14"
+    ],
+    "res://scripts/ui/table/SettlementOverlay.gd": [
+      "scenes/ui/table/SettlementOverlay.tscn:3"
+    ],
+    "res://scripts/ui/table/SichuanCraftPanel.gd": [
+      "scenes/ui/table/CenterTurnIndicator.tscn:4",
+      "scenes/ui/table/SeatHUD.tscn:5",
+      "scenes/ui/table/TableActionBar.tscn:4"
+    ],
+    "res://scripts/ui/table/SichuanTableMetrics.gd": [
+      "scripts/game/MainSceneV2.gd:30",
+      "scripts/ui/table/CenterTurnIndicator.gd:4",
+      "scripts/ui/table/DingQueBadge.gd:4",
+      "scripts/ui/table/SafeAreaLayout.gd:4",
+      "scripts/ui/table/SeatHUD.gd:8",
+      "scripts/ui/table/TableUtilityBar.gd:54",
+      "tests/current/SichuanSpatialLayoutRunner.gd:4",
+      "tests/current/SichuanTableLayoutContractRunner.gd:3",
+      "tools/capture_hud_layout_metrics.gd:3"
+    ],
+    "res://scripts/ui/table/SichuanTableSkinCatalog.gd": [
+      "scripts/game/MainSceneV2.gd:22",
+      "scripts/game/presentation/table_preferences.gd:4",
+      "scripts/ui/3d/SichuanTableStage3D.gd:13",
+      "scripts/ui/table/SichuanTableSkinPanel.gd:7",
+      "scripts/ui/table/TableActionBar.gd:7",
+      "tests/current/SichuanFinalSettlementAcceptanceRunner.gd:4",
+      "tests/current/SichuanTableSkinRunner.gd:5"
+    ],
+    "res://scripts/ui/table/SichuanTableSkinPanel.gd": [
+      "scripts/game/MainSceneV2.gd:21",
+      "tests/current/SichuanTableSkinRunner.gd:6"
+    ],
+    "res://scripts/ui/table/SichuanTableTheme.gd": [
+      "scripts/game/MainSceneV2.gd:29",
+      "scripts/ui/AIAssistant.gd:12",
+      "scripts/ui/PlayerHandViewport.gd:7",
+      "scripts/ui/PlayerUI.gd:16",
+      "scripts/ui/TableMaterialOverlay.gd:5",
+      "scripts/ui/network/lan_room_ui.gd:6",
+      "scripts/ui/table/CenterCompassVisual.gd:4",
+      "scripts/ui/table/DingQueBadge.gd:5",
+      "scripts/ui/table/SeatAvatarMedallion.gd:4",
+      "scripts/ui/table/SeatHUD.gd:9",
+      "scripts/ui/table/SettlementOverlay.gd:7",
+      "scripts/ui/table/SichuanCraftPanel.gd:4",
+      "scripts/ui/table/TableActionBar.gd:6",
+      "scripts/ui/table/TableUtilityBar.gd:55",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:4",
+      "tests/current/SichuanTableLayoutContractRunner.gd:4",
+      "tests/current/SichuanTypographyContrastRunner.gd:4"
+    ],
+    "res://scripts/ui/table/SichuanTileStyle.gd": [
+      "scripts/ui/HandCanvas2D.gd:5",
+      "scripts/ui/TileVisual2D.gd:5",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:3"
+    ],
+    "res://scripts/ui/table/SichuanVoiceCatalog.gd": [
+      "scripts/game/MainSceneV2.gd:28",
+      "scripts/game/presentation/table_preferences.gd:3",
+      "scripts/game/presentation/table_voice_router.gd:3",
+      "scripts/ui/table/SichuanVoiceSelectPanel.gd:7",
+      "tests/current/SichuanVoicePackRunner.gd:4"
+    ],
+    "res://scripts/ui/table/SichuanVoiceSelectPanel.gd": [
+      "scripts/game/MainSceneV2.gd:23",
+      "tests/current/SichuanVoicePackRunner.gd:5"
+    ],
+    "res://scripts/ui/table/TableActionBar.gd": [
+      "scenes/ui/table/TableActionBar.tscn:3",
+      "tests/current/SichuanTableTouchTargetRunner.gd:5"
+    ],
+    "res://scripts/ui/table/TableDiscardLayer.gd": [
+      "scripts/game/MainSceneV2.gd:16",
+      "tests/current/SichuanDenseTableLayoutRunner.gd:4",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:8",
+      "tests/current/SichuanTableLayoutContractRunner.gd:8",
+      "tests/current/SichuanTableMotionContractRunner.gd:6"
+    ],
+    "res://scripts/ui/table/TableUtilityBar.gd": [
+      "scenes/ui/table/TableUtilityBar.tscn:3",
+      "tests/current/SichuanTableTouchTargetRunner.gd:4"
+    ],
+    "res://shaders/table_club_felt.gdshader": [
+      "scripts/ui/TableMaterialOverlay.gd:6",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:98",
+      "tests/current/SichuanPremiumTableVisualContractRunner.gd:112"
+    ],
+    "res://shaders/table_plush_felt_3d.gdshader": [
+      "tests/current/Sichuan3DTableStageRunner.gd:1664"
+    ],
+    "res://tools/3d/generate_neijiang_center_compass_v2.py": [
+      "scripts/ui/3d/SichuanTableStage3D.gd:1637",
+      "tests/current/Sichuan3DTableStageRunner.gd:320"
+    ],
+    "res://tools/3d/generate_sichuan_center_compass_v2.py": [
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:60",
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:61"
+    ],
+    "res://tools/3d/generate_sichuan_event_callouts.py": [
+      "tests/current/SichuanFinalMotionAcceptanceRunner.gd:310"
+    ],
+    "res://tools/3d/generate_sichuan_ui_shells_v2.py": [
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:56",
+      "tests/current/SichuanEmeraldUIShellAssetRunner.gd:57"
+    ],
+    "res://tools/Stage6ReleasePerformanceProbe.gd": [
+      "scripts/boot/SplashScreen.gd:25"
+    ],
+    "res://tools/capture_main_scene.gd": [
+      "tools/capture_ui_matrix.gd:1"
+    ],
+    "res://tools/export_android_direct.gd": [
+      "tools/export_android_debug.sh:44",
+      "tools/export_android_release.sh:130"
+    ],
+    "res://测试数据统计/hell_marked_cases": [
+      "autoload/GameState.gd:54"
+    ],
+    "res://测试数据统计/hell_replay": [
+      "autoload/GameState.gd:55"
+    ],
+    "res://测试数据统计/hell_training": [
+      "autoload/GameState.gd:53"
+    ]
+  },
+  "missing_literal_paths": {},
+  "large_duplicate_groups": [
+    {
+      "bytes_per_file": 334114,
+      "sha256": "4f5be8ceba5b1d5be3bfdadd1631355b21b53fca58d24dae9e0b884b706418dd",
+      "paths": [
+        "res/art/app_icon/app_icon_background_432.png",
+        "res/art/app_icon/app_icon_432.png",
+        "res/art/app_icon/app_icon_foreground_432.png"
+      ]
+    },
+    {
+      "bytes_per_file": 2212879,
+      "sha256": "30cfd2fe3e62d4622c017dbfa66d020a977747a20f178d2faa70a0014c76bfe0",
+      "paths": [
+        "res/art/splash/sichuan_mahjong_splash.png",
+        "source_assets/ui/20260925_logo_splash/splash_glass.png"
+      ]
+    },
+    {
+      "bytes_per_file": 237150,
+      "sha256": "8a22acfc094a5d2ed6d75dbeaf2ae99ffdbe2c7e7b345bb10533710d1881f717",
+      "paths": [
+        "res/art/materials/table_skins/emerald_linen/action_badge.png",
+        "res/art/materials/table_skins/blue_glass/action_badge.png"
+      ]
+    }
+  ],
+  "models": {
+    "res/art/3d/mahjong_tile_body.glb": {
+      "nodes": [
+        "MahjongTileBack",
+        "MahjongTileBody"
+      ],
+      "external_images": [],
+      "embedded_images": 0
+    },
+    "res/art/3d/sichuan_center_compass_v2.glb": {
+      "nodes": [
+        "CenterLowerGoldTrim",
+        "CenterRecessBed",
+        "CounterNumberPlate",
+        "CounterSingleGoldRing",
+        "DirectionActive0",
+        "DirectionActive1",
+        "DirectionActive2",
+        "DirectionActive3",
+        "DirectionBase0",
+        "DirectionSeparator0",
+        "DirectionSeparator1",
+        "DirectionSeparator2",
+        "DirectionSeparator3"
+      ],
+      "external_images": [],
+      "embedded_images": 0
+    },
+    "res/art/3d/sichuan_table.glb": {
+      "nodes": [
+        "CopperBottom",
+        "CopperLeft",
+        "CopperRight",
+        "CopperTop",
+        "TableFelt",
+        "TableFrame"
+      ],
+      "external_images": [],
+      "embedded_images": 0
+    },
+    "res/art/3d/sichuan_table_v2.glb": {
+      "nodes": [
+        "InnerGlassEdge",
+        "RaisedTransparentGlassLip",
+        "SingleClearGlassCap",
+        "TableFelt",
+        "TableWalnutBase",
+        "WalnutApronRing"
+      ],
+      "external_images": [],
+      "embedded_images": 1
+    }
+  }
+}

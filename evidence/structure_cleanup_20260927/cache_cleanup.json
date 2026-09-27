@@ -1,0 +1,165 @@
+{
+  "removed_regenerable_caches": [
+    {
+      "path": "tools/XiaoLaoshiVideoDownloader/.build",
+      "bytes": 219696933
+    },
+    {
+      "path": "tools/3d/__pycache__",
+      "bytes": 31124
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-device/Build/Intermediates.noindex",
+      "bytes": 8713103
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-device/ModuleCache.noindex",
+      "bytes": 54238725
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.74-device/Build/Intermediates.noindex",
+      "bytes": 8700401
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.74-device/ModuleCache.noindex",
+      "bytes": 54238699
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.74-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.76-device/Build/Intermediates.noindex",
+      "bytes": 8774213
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.76-device/ModuleCache.noindex",
+      "bytes": 54245489
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.76-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.81-device/Build/Intermediates.noindex",
+      "bytes": 9665169
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.81-device/ModuleCache.noindex",
+      "bytes": 54239308
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.81-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final/Build/Intermediates.noindex",
+      "bytes": 9650849
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final/ModuleCache.noindex",
+      "bytes": 54238063
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-device/Build/Intermediates.noindex",
+      "bytes": 8709016
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-device/ModuleCache.noindex",
+      "bytes": 54238700
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.75-device/Build/Intermediates.noindex",
+      "bytes": 8708436
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.75-device/ModuleCache.noindex",
+      "bytes": 54245504
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.75-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-glass-final/Build/Intermediates.noindex",
+      "bytes": 9689891
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-glass-final/ModuleCache.noindex",
+      "bytes": 54243457
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.79-glass-final/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.73-device/Build/Intermediates.noindex",
+      "bytes": 5970310
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.73-device/ModuleCache.noindex",
+      "bytes": 54239348
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.73-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-device/Build/Intermediates.noindex",
+      "bytes": 9669566
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-device/ModuleCache.noindex",
+      "bytes": 54238732
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final2/Build/Intermediates.noindex",
+      "bytes": 9673664
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final2/ModuleCache.noindex",
+      "bytes": 54239324
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.80-final2/SDKStatCaches.noindex",
+      "bytes": 1489912
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-renewed-device/Build/Intermediates.noindex",
+      "bytes": 8740571
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-renewed-device/ModuleCache.noindex",
+      "bytes": 54245948
+    },
+    {
+      "path": "build/ios/DerivedData-2.6.78-renewed-device/SDKStatCaches.noindex",
+      "bytes": 1489912
+    }
+  ],
+  "bytes_removed": 995163487,
+  "preserved": [
+    "signed apps and installation packages",
+    "Android signing files",
+    "Xcode project exports",
+    "Godot import and managed runtime outputs",
+    "local .runtime source material",
+    "historical evidence and design references"
+  ]
+}

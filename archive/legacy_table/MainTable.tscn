@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://scripts/game/MainTable.gd" id="1"]
+[ext_resource type="Script" path="res://archive/legacy_table/MainTable.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/PlayerHandViewport.tscn" id="2"]
 
 [node name="MainTable" type="Control"]

@@ -269,7 +269,8 @@ func _broadcast_private_snapshots() -> void:
 		return
 	for member in registry.public_members():
 		var seat := int(member.seat)
-		var authority_snapshot: Dictionary = _game_state.call("get_debug_snapshot", seat)
+		var snapshot_method := "get_gameplay_snapshot" if _game_state.has_method("get_gameplay_snapshot") else "get_debug_snapshot"
+		var authority_snapshot: Dictionary = _game_state.call(snapshot_method, seat)
 		var private_snapshot: Dictionary = _snapshot_projector.project(authority_snapshot, seat)
 		if str(member.player_id) == local_player_id:
 			private_snapshot_received.emit(private_snapshot)
