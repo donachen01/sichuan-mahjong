@@ -6031,6 +6031,17 @@ func _render_settlement_player_list(players: Array, score_changes: Dictionary, f
 			name_label.add_theme_color_override("font_outline_color", Color.TRANSPARENT)
 		name_row.add_child(name_label)
 
+		var seat_label := Label.new()
+		seat_label.name = "SettlementSeatLabel"
+		seat_label.text = ["本家", "上家", "对家", "下家"][seat] if seat >= 0 and seat < 4 else ""
+		seat_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_apply_settlement_label_style(seat_label)
+		seat_label.add_theme_color_override("font_outline_color", Color.TRANSPARENT)
+		seat_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		seat_label.add_theme_font_size_override("font_size", clampi(int(round(24 * scale)), 19, 24))
+		seat_label.add_theme_color_override("font_color", Color("176EA9") if seat == focus_seat else Color("465A69"))
+		name_row.add_child(seat_label)
+
 		if seat == dealer_seat:
 			var dealer_badge := Label.new()
 			dealer_badge.text = "庄"
@@ -6749,6 +6760,23 @@ func _resolve_gang_unit_score(gang_type: String) -> int:
 	return SettlementLedger._resolve_gang_unit_score(gang_type)
 
 
+func _apply_settlement_footer_button_texture(button: Button) -> void:
+	var normal := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
+	var hover := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
+	hover.modulate_color = Color(1.10, 1.10, 1.10, 1.0)
+	var pressed := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
+	pressed.modulate_color = Color(0.82, 0.87, 0.94, 1.0)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("focus", hover)
+	for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(color_name, Color.WHITE)
+	var cloud := button.get_node_or_null("CloudFrame") as Control
+	if cloud != null:
+		cloud.hide()
+
+
 func _apply_settlement_visuals(round_delta: int) -> void:
 	var scale := _settlement_content_scale()
 	_refresh_settlement_skin_palette()
@@ -6770,29 +6798,8 @@ func _apply_settlement_visuals(round_delta: int) -> void:
 	settlement_hand_card.add_theme_stylebox_override("panel", _build_settlement_hand_style())
 	settlement_player_list_card.add_theme_stylebox_override("panel", _build_settlement_side_style())
 	settlement_detail_card.add_theme_stylebox_override("panel", _build_settlement_detail_style())
-	settlement_close_button.add_theme_stylebox_override("normal", _build_settlement_primary_button_style())
-	settlement_close_button.add_theme_stylebox_override("hover", _build_settlement_primary_button_hover_style())
-	settlement_close_button.add_theme_stylebox_override("pressed", _build_settlement_primary_button_pressed_style())
-	settlement_close_button.add_theme_stylebox_override("focus", _build_settlement_primary_button_hover_style())
-	settlement_close_button.add_theme_color_override("font_color", Color("176EA9"))
-	var close_cloud := settlement_close_button.get_node_or_null("CloudFrame") as Control
-	if close_cloud != null:
-		close_cloud.hide()
-	var next_glass := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
-	var next_glass_hover := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
-	next_glass_hover.modulate_color = Color(1.10, 1.10, 1.10, 1.0)
-	var next_glass_pressed := _lan_round_glass_style(LAN_ROUND_READY_BUTTON_GLASS, 14.0)
-	next_glass_pressed.modulate_color = Color(0.82, 0.87, 0.94, 1.0)
-	next_round_button.add_theme_stylebox_override("normal", next_glass)
-	next_round_button.add_theme_stylebox_override("hover", next_glass_hover)
-	next_round_button.add_theme_stylebox_override("pressed", next_glass_pressed)
-	next_round_button.add_theme_stylebox_override("focus", next_glass_hover)
-	next_round_button.add_theme_color_override("font_color", Color.WHITE)
-	next_round_button.add_theme_color_override("font_hover_color", Color.WHITE)
-	next_round_button.add_theme_color_override("font_pressed_color", Color.WHITE)
-	var footer_cloud := next_round_button.get_node_or_null("CloudFrame") as Control
-	if footer_cloud != null:
-		footer_cloud.hide()
+	_apply_settlement_footer_button_texture(settlement_close_button)
+	_apply_settlement_footer_button_texture(next_round_button)
 	settlement_hero_badge.add_theme_stylebox_override("normal", _build_settlement_hero_badge_style())
 	settlement_hero_badge.add_theme_font_size_override("font_size", clampi(int(round(26 * scale)), 22, 28))
 	settlement_hero_badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN

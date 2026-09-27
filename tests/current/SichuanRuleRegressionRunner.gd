@@ -1083,20 +1083,20 @@ func _test_next_dealer_uses_first_winner_or_shared_discarder():
 	game_state.settlement_data = game_state._create_empty_settlement_data()
 	game_state.settlement_data["win_events"] = [
 		{"winner_seat": 2, "source_seat": 2, "win_type": "self_draw"},
-		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win"},
+		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win", "winning_tile": {"id": 41}},
 	]
 	if int(game_state._resolve_next_dealer_seat()) != 2:
 		return "expected first self-draw winner seat 2 to become dealer"
 	game_state.settlement_data["win_events"] = [
-		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win"},
-		{"winner_seat": 2, "source_seat": 1, "win_type": "discard_win"},
+		{"winner_seat": 3, "source_seat": 1, "win_type": "discard_win", "winning_tile": {"id": 41}},
+		{"winner_seat": 2, "source_seat": 1, "win_type": "discard_win", "winning_tile": {"id": 41}},
 	]
 	if int(game_state._resolve_next_dealer_seat()) != 1:
 		return "expected shared discarder seat 1 to become dealer after one-discard two-win"
 	game_state.settlement_data["win_events"] = [
-		{"winner_seat": 1, "source_seat": 0, "win_type": "discard_win"},
-		{"winner_seat": 2, "source_seat": 0, "win_type": "discard_win"},
-		{"winner_seat": 3, "source_seat": 0, "win_type": "discard_win"},
+		{"winner_seat": 1, "source_seat": 0, "win_type": "discard_win", "winning_tile": {"id": 41}},
+		{"winner_seat": 2, "source_seat": 0, "win_type": "discard_win", "winning_tile": {"id": 41}},
+		{"winner_seat": 3, "source_seat": 0, "win_type": "discard_win", "winning_tile": {"id": 41}},
 	]
 	if int(game_state._resolve_next_dealer_seat()) != 0:
 		return "expected shared discarder seat 0 to become dealer after one-discard three-win"

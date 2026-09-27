@@ -1,0 +1,21 @@
+single_lane_model_ms=206
+lane_tile=0; target=2; modeled=0.649; freedom=0.718; EV=5.732
+lane_tile=1; target=2; modeled=0.508; freedom=0.838; EV=4.424
+lane_tile=2; target=3; modeled=0.900; freedom=0.850; EV=8.068
+lane_tile=3; target=3; modeled=0.937; freedom=0.928; EV=8.419
+lane_tile=4; target=2; modeled=0.648; freedom=0.715; EV=5.726
+lane_tile=5; target=2; modeled=0.744; freedom=0.875; EV=6.616
+lane_tile=6; target=3; modeled=0.888; freedom=0.827; EV=7.960
+lane_tile=7; target=3; modeled=0.973; freedom=1.000; EV=8.745
+lane_tile=8; target=2; modeled=0.763; freedom=0.923; EV=6.795
+lane_tile=9; target=2; modeled=0.908; freedom=0.827; EV=8.143
+lane_tile=10; target=2; modeled=0.841; freedom=0.692; EV=7.521
+candidate=4; score=959; unified=9.616; shanten=1
+candidate=0; score=958; unified=9.608; shanten=1
+candidate=10; score=1001; unified=9.865; shanten=1
+candidate=9; score=971; unified=10.031; shanten=1
+candidate=1; score=757; unified=7.598; shanten=1
+strong_discard=10; keep_EV=7.521; break_pair_EV=5.732
+weak_discard=0
+uncleared_offers=3.335; cleared_offers=3.000; dead_max_EV=-0.300
+SINGLE_LANE_CHECKS elapsed_ms=1354; failures=0

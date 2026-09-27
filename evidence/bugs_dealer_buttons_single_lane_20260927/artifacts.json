@@ -1,0 +1,10 @@
+{
+  "build/android/SichuanMahjong-2.6.82-release.apk": {
+    "bytes": 227520108,
+    "sha256": "5e3ce84f37d7b23f4ffb3ef4f97430bbea2f285038400ab12a10ffdae8823735"
+  },
+  "build/ios/SichuanMahjong-2.6.82-ios-personal.ipa": {
+    "bytes": 175098729,
+    "sha256": "55424e2ea115c189d667606c799f9ebd44cc4b250eb46a636084f7f553e1546b"
+  }
+}

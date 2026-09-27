@@ -3,6 +3,7 @@ extends Node
 signal state_changed(snapshot: Dictionary)
 signal opening_roll_started(data: Dictionary)
 
+const DealerRotation := preload("res://scripts/core/dealer_rotation.gd")
 const DiagnosticFiles := preload("res://scripts/diagnostics/diagnostic_files.gd")
 const SnapshotBuilder := preload("res://scripts/game/game_snapshot_builder.gd")
 
@@ -4828,33 +4829,7 @@ func _seat_display_name(seat: int) -> String:
 
 
 func _resolve_next_dealer_seat() -> int:
-	var win_events: Array = settlement_data.get("win_events", [])
-	if win_events.is_empty():
-		# 流局无人胡牌时庄家留庄；不能沿用早期原型的固定轮转。
-		return current_dealer_seat
-	# 下一局庄家由本局的首个胡牌事件决定，而不是沿用旧庄家或固定轮转。
-	# 一炮多响（也包括抢杠的一次多胡）共享同一个来源座位；此时没有唯一
-	# 的“首胡者”，按产品规则由点炮/被抢杠者坐庄。
-	var first_event: Dictionary = win_events[0]
-	var first_source_seat := int(first_event.get("source_seat", -1))
-	var first_win_type := str(first_event.get("win_type", ""))
-	var simultaneous_first_wins := 0
-	for event_value in win_events:
-		var event: Dictionary = event_value
-		if int(event.get("source_seat", -1)) != first_source_seat:
-			break
-		if str(event.get("win_type", "")) != first_win_type:
-			break
-		if first_win_type in ["discard_win", "gang_discard_win", "qiang_gang_hu"]:
-			simultaneous_first_wins += 1
-		else:
-			break
-	if simultaneous_first_wins >= 2 and first_source_seat >= 0 and first_source_seat < players.size():
-		return first_source_seat
-	var first_winner_seat := int(first_event.get("winner_seat", -1))
-	if first_winner_seat >= 0 and first_winner_seat < players.size():
-		return first_winner_seat
-	return current_dealer_seat
+	return DealerRotation.next_dealer(settlement_data.get("win_events", []), players.size(), current_dealer_seat)
 
 
 func _consume_next_draw_reason() -> String:

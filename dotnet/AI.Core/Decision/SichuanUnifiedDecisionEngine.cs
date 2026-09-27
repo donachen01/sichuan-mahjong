@@ -3,6 +3,7 @@ using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Rules;
 using SichuanMahjong.AI.Core.Search;
+using SichuanMahjong.AI.Core.Strategy;
 
 namespace SichuanMahjong.AI.Core.Decision;
 
@@ -17,6 +18,7 @@ public sealed class SichuanUnifiedDecisionEngine
 	private readonly SichuanHandShapeEngine _shape = new();
 	private readonly SichuanMeldCounterfactualEvaluator _melds = new();
 	private readonly SichuanPublicEndgameEvaluator _publicEndgame = new();
+	private readonly SichuanSingleLaneEvaluator _singleLane = new();
 
 	public SichuanDecisionExplanation RankDiscards(SichuanStateView state, SichuanBeliefSnapshot? belief = null)
 	{
@@ -30,7 +32,7 @@ public sealed class SichuanUnifiedDecisionEngine
 		var endgameValues = _publicEndgame.Evaluate(state, analyses.Where(a => a.Shanten == 0).Select(a => a.DiscardTileType))
 			.ToDictionary(value => value.TileType);
 		var candidates = new List<SichuanDecisionCandidate>();
-		var exclusiveSuit = ResolveExclusiveMissingSuit(state);
+		var laneValues = _singleLane.EvaluateDiscards(state, belief, wallAvailability);
 		foreach (var analysis in analyses)
 		{
 			var activePlayers = Math.Max(2, state.ActiveSeats.Count(value => value));
@@ -67,8 +69,8 @@ public sealed class SichuanUnifiedDecisionEngine
 			var pairRouteValue = meldCount == 0 && pairCount >= 4
 				? Math.Min(0.45, (pairCount - 3) * 0.15)
 				: 0.0;
-			var exclusiveSuitRouteValue = EvaluateExclusiveSuitRoute(
-				state, handAfterDiscard, analysis.DiscardTileType, exclusiveSuit);
+			var lane = laneValues.GetValueOrDefault(analysis.DiscardTileType);
+			var exclusiveSuitRouteValue = lane?.Value ?? 0;
 			var routeValue = Math.Max(0, 1.2 - analysis.Shanten * 0.4)
 				+ pairRouteValue
 				+ exclusiveSuitRouteValue
@@ -87,8 +89,7 @@ public sealed class SichuanUnifiedDecisionEngine
 				state.InformationMode == "oracle" ? 1 : 0.78));
 			var hasEndgame = endgameValues.TryGetValue(analysis.DiscardTileType, out var endgame);
 			var reasons = new List<string> { $"EXACT_SHANTEN_{analysis.Shanten}", $"WALL_LIVE_{liveWaits:F2}", $"CHA_JIAO_{chaJiaoScore:F2}", $"STRUCTURAL_LOSS_{analysis.StructuralLoss}", $"CHANCE_EV_{utility.NetUtility:F2}" };
-			if (exclusiveSuitRouteValue != 0)
-				reasons.Add($"THREE_OPPONENTS_MISSING_SUIT_{exclusiveSuit}_ROUTE_{exclusiveSuitRouteValue:F2}");
+			if (lane != null) reasons.AddRange(lane.Reasons);
 			if (hasEndgame)
 			{
 				reasons.Add($"PUBLIC_ENDGAME_SAMPLES_{endgame!.Samples}");
@@ -112,41 +113,6 @@ public sealed class SichuanUnifiedDecisionEngine
 		return selected is null
 			? new SichuanDecisionExplanation(SichuanActionType.Pass, "没有合法弃牌", new[] { "NO_LEGAL_DISCARD" }, Array.Empty<SichuanDecisionCandidate>())
 			: new SichuanDecisionExplanation(SichuanActionType.Discard, $"精确净分最高，打 {selected.Action.TileType}", selected.ReasonCodes, ordered);
-	}
-
-	private static int ResolveExclusiveMissingSuit(SichuanStateView state)
-	{
-		for (var suit = 0; suit < 3; suit++)
-		{
-			var forcedOpponents = Enumerable.Range(0, 4).Count(seat => seat != state.SeatIndex
-				&& state.ActiveSeats.ElementAtOrDefault(seat)
-				&& !state.HasHu.ElementAtOrDefault(seat)
-				&& state.DingQueSuits.ElementAtOrDefault(seat) == suit);
-			if (forcedOpponents == 3) return suit;
-		}
-		return -1;
-	}
-
-	private static double EvaluateExclusiveSuitRoute(
-		SichuanStateView state,
-		IReadOnlyList<int> handAfterDiscard,
-		int discardTileType,
-		int exclusiveSuit)
-	{
-		if (exclusiveSuit is < 0 or > 2) return 0;
-		var suitStart = exclusiveSuit * 9;
-		var concealedCount = Enumerable.Range(suitStart, 9).Sum(tile => handAfterDiscard[tile]);
-		var exposedCount = state.MeldViews.ElementAtOrDefault(state.SeatIndex)?
-			.Count(meld => meld.TileType / 9 == exclusiveSuit) ?? 0;
-		var pairOrTripletCount = Enumerable.Range(suitStart, 9).Count(tile => handAfterDiscard[tile] >= 2);
-		if (concealedCount + exposedCount * 3 < 5 || pairOrTripletCount + exposedCount == 0) return 0;
-
-		// All three opponents must eventually clear this suit.  Preserve pairs,
-		// triplets and exposed-set continuations instead of valuing the tiles as
-		// ordinary isolated shape.  The bound is intentional: speed and legal Hu
-		// remain primary, while same-shanten choices now recognize the one-way lane.
-		var foundation = Math.Min(3.6, 1.4 + concealedCount * 0.16 + exposedCount * 0.55 + pairOrTripletCount * 0.35);
-		return discardTileType / 9 == exclusiveSuit ? -foundation : foundation;
 	}
 
 	private double EstimateChaJiaoScore(

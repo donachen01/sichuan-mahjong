@@ -5,6 +5,8 @@ using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Search;
 
+if (args.Contains("--single-lane")) return SingleLaneSmoke.Run();
+
 var hand = new[]
 {
     SichuanTileCodec.EncodeTileType(0, 2),

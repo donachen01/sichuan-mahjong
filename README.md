@@ -7,7 +7,7 @@
 ## 当前版本
 
 - 应用名：四川麻将新版
-- 版本：`2.6.81`
+- 版本：`2.6.82`
 - Godot：`4.6.2.stable.mono`
 - Android 包名：`com.chendong.sichuanmahjong`
 - iOS Bundle ID：`com.chendong.sichuanmahjong.iosdev`
@@ -41,7 +41,7 @@
 
 ## 当前设计与整理结果
 
-现行说明见 [当前工程架构与设计](设计文档/当前工程架构与设计.md) 与 [文档导航](文档导航.md)。2.6.81 之上的本次源码整理没有升级应用版本或重新安装；验证及清理记录见 [整理报告](evidence/structure_cleanup_20260927/REPORT.md)。下方历代版本段落保留历史事实，不代表当前视觉和交付状态。
+现行说明见 [当前工程架构与设计](设计文档/当前工程架构与设计.md) 与 [文档导航](文档导航.md)。结构整理阶段的验证及清理记录见 [整理报告](evidence/structure_cleanup_20260927/REPORT.md)；其后的 2.6.82 庄家、结算 UI 和单行道 AI 修复，以及重新打包安装结果见 [交付报告](evidence/bugs_dealer_buttons_single_lane_20260927/REPORT.md)。下方历代版本段落保留历史事实，不代表当前视觉和交付状态。
 
 ## 主要结构
 

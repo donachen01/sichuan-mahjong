@@ -1,0 +1,43 @@
+{
+  "version": "2.6.82",
+  "android_code": 342,
+  "devices": [
+    {
+      "model": "iPhone 15",
+      "previous_version": "2.6.81",
+      "installed_version": "2.6.82",
+      "transport": "paired local network",
+      "install": "success",
+      "launch": "success",
+      "running_at_followup": true
+    },
+    {
+      "model": "iPhone 15 Pro",
+      "previous_version": "2.6.81",
+      "installed_version": "2.6.82",
+      "transport": "paired local network",
+      "install": "success",
+      "launch": "success",
+      "running_at_followup": true
+    },
+    {
+      "model": "iPad Pro 12.9-inch (5th generation)",
+      "previous_version": "2.6.81",
+      "installed_version": "2.6.82",
+      "transport": "paired local network",
+      "install": "success",
+      "launch": "success",
+      "running_at_followup": true
+    }
+  ],
+  "ios_build": "Xcode Release, Apple Development",
+  "ios_signature": "deep strict verification passed",
+  "embedded_arm64_ai_markers": [
+    "SichuanSingleLaneEvaluator",
+    "SINGLE_LANE_PUBLIC_SUIT_"
+  ],
+  "embedded_ai_framework_sha256": "b0fadde2898dee3d94e184aabd3dfd1bb95265e7a98de8fe7279a80b639cea84",
+  "profile_expires_utc": "2026-10-01T12:55:55Z",
+  "android": "APK signature, ZIP CRC, version and new AI DLL passed",
+  "verification_boundary": "installation, installed version, launch and process survival; full manual game scenarios not automated on each device"
+}

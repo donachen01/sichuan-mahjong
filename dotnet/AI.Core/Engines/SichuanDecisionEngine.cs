@@ -85,9 +85,9 @@ public sealed class SichuanDecisionEngine
 				roundBrain.TargetSuit >= 0 ? roundBrain.TargetSuit : routePlan.TargetSuit,
 				belief).ToDictionary(item => item.DiscardTileType)
 			: new Dictionary<int, SichuanQingPlanCandidate>();
-		var unifiedDiscardValues = forceLightweight
-			? new Dictionary<int, double>()
-			: _unified.RankDiscards(state, belief).Candidates.ToDictionary(item => item.Action.TileType, item => item.ExpectedNetScore);
+		var unifiedDiscardCandidates = forceLightweight
+			? new Dictionary<int, Decision.SichuanDecisionCandidate>()
+			: _unified.RankDiscards(state, belief).Candidates.ToDictionary(item => item.Action.TileType);
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -231,7 +231,8 @@ public sealed class SichuanDecisionEngine
                 + roundBrainAdjustment.Score
                 + dealInPolicy.AdjustmentScore / 100.0;
             var defenseAdjustment = posteriorAdjustment * ResolveDefenseAdjustmentWeight(effectiveShanten, waitCount, roundStage, maxReadyPosterior);
-            var hasUnifiedValue = unifiedDiscardValues.TryGetValue(tileType, out var unifiedValue);
+            var hasUnifiedValue = unifiedDiscardCandidates.TryGetValue(tileType, out var unifiedCandidate);
+			var unifiedValue = unifiedCandidate?.ExpectedNetScore ?? 0;
             var unifiedActionValue = hasUnifiedValue
                 ? unifiedValue
                 : -effectiveShanten * 4.0 + effectiveLiveUkeire * 0.16 + waitCount * 0.12;
@@ -273,7 +274,7 @@ public sealed class SichuanDecisionEngine
             var posteriorReasons = BuildPosteriorReasons(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage, posteriorAdjustment);
             var riskReasons = BuildRiskReasons(danger, riskLabel, state.WallCount, roundStage, effectiveLiveUkeire, dangerEval);
             var candidateReasons = BuildReasons(effectiveShanten, effectiveLiveUkeire, danger, riskLabel, strategyTag, waitCount, roundStage, posteriorReasons, expectedScore);
-            var mergedReasons = candidateReasons
+            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SINGLE_LANE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
                 .Concat(waitCount > 0 ? waitShapeSummary.Reasons : Array.Empty<string>())
                 .Concat(shapeSummary.Reasons)
                 .Concat(limitedLookahead.Reasons)
