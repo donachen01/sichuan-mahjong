@@ -6,6 +6,7 @@ namespace SichuanMahjong.AI.Core.Cache;
 
 public sealed class SichuanAiContextCache
 {
+    private readonly object _sync = new();
     private readonly SichuanStageEvaluator _stage = new();
     private readonly SichuanHandEvaluator _hand = new();
     private readonly SichuanLongTermEVPolicy _longTermEv = new();
@@ -15,6 +16,7 @@ public sealed class SichuanAiContextCache
     private readonly SichuanStrategyModeStateMachine _strategy = new();
 
     private string _lastLowFrequencyKey = "";
+    private string _lastObserverKey = "";
     private string _lastHandKey = "";
     private string _lastVisibleKey = "";
     private string _lastStrategyMode = "";
@@ -22,18 +24,28 @@ public sealed class SichuanAiContextCache
 
     public SichuanAiContext GetOrUpdate(SichuanStateView state, SichuanBeliefSnapshot belief)
     {
+        // The facade serves all seats and native requests may overlap. Both the
+        // cached context and the strategy mode belong to one observer at a time.
+        lock (_sync)
+            return GetOrUpdateLocked(state, belief);
+    }
+
+    private SichuanAiContext GetOrUpdateLocked(SichuanStateView state, SichuanBeliefSnapshot belief)
+    {
+        var observerKey = $"{state.SeatIndex}|{state.InformationMode}|{state.PolicyVariant}|{state.RoundIndex}";
+        var observerChanged = _lastContext is null || observerKey != _lastObserverKey;
         var lowFrequencyKey = BuildLowFrequencyKey(state);
         var handKey = SichuanHandEvaluator.BuildHandKey(state);
         var visibleKey = BuildVisibleKey(state);
         var dirty = new SichuanAiContextDirtyFlags
         {
-            Stage = _lastContext is null || lowFrequencyKey != _lastLowFrequencyKey,
-            RoundGoal = _lastContext is null || lowFrequencyKey != _lastLowFrequencyKey,
-            StrategyMode = _lastContext is null || lowFrequencyKey != _lastLowFrequencyKey || handKey != _lastHandKey || visibleKey != _lastVisibleKey,
-            HandAnalysis = _lastContext is null || handKey != _lastHandKey,
-            OpponentDanger = _lastContext is null || visibleKey != _lastVisibleKey,
-            TileDanger = _lastContext is null || visibleKey != _lastVisibleKey,
-            ScoreSituation = _lastContext is null || lowFrequencyKey != _lastLowFrequencyKey
+            Stage = observerChanged || lowFrequencyKey != _lastLowFrequencyKey,
+            RoundGoal = observerChanged || lowFrequencyKey != _lastLowFrequencyKey,
+            StrategyMode = observerChanged || lowFrequencyKey != _lastLowFrequencyKey || handKey != _lastHandKey || visibleKey != _lastVisibleKey,
+            HandAnalysis = observerChanged || handKey != _lastHandKey,
+            OpponentDanger = observerChanged || visibleKey != _lastVisibleKey,
+            TileDanger = observerChanged || visibleKey != _lastVisibleKey,
+            ScoreSituation = observerChanged || lowFrequencyKey != _lastLowFrequencyKey
         };
 
         var samples = new List<SichuanModulePerfSample>();
@@ -60,7 +72,7 @@ public sealed class SichuanAiContextCache
             context.ScoreSituation,
             context.RiskTolerance));
         context.StrategyMode = Measure("StrategyModeStateMachine", samples, () => _strategy.Evaluate(
-            _lastStrategyMode,
+                observerChanged ? "" : _lastStrategyMode,
             context.RoundGoal,
             context.AttackEligibility,
             context.Stage,
@@ -72,6 +84,7 @@ public sealed class SichuanAiContextCache
         context.ReasonCodes = BuildReasonCodes(context);
 
         _lastLowFrequencyKey = lowFrequencyKey;
+        _lastObserverKey = observerKey;
         _lastHandKey = handKey;
         _lastVisibleKey = visibleKey;
         _lastStrategyMode = context.StrategyMode.Mode;
@@ -119,7 +132,7 @@ public sealed class SichuanAiContextCache
     };
 
     private static string BuildLowFrequencyKey(SichuanStateView state)
-        => $"{state.RoundIndex}|{state.TotalRounds}|{state.RemainingRounds}|{state.WallCount}|x3:{(state.ExchangeThreeEnabled ? 1 : 0)}|{string.Join(',', state.Scores)}|{state.Discards18.Sum(list => list.Count)}|{state.Melds18.Sum(list => list.Count)}|{string.Join(',', state.IsCalled.Select(item => item ? 1 : 0))}|{string.Join(',', state.IsReady.Select(item => item ? 1 : 0))}";
+        => $"seat:{state.SeatIndex}|dealer:{state.DealerSeat}|mode:{state.InformationMode}|policy:{state.PolicyVariant}|{state.RoundIndex}|{state.TotalRounds}|{state.RemainingRounds}|{state.WallCount}|x3:{(state.ExchangeThreeEnabled ? 1 : 0)}|{string.Join(',', state.Scores)}|a:{string.Join(',', state.ActiveSeats.Select(item => item ? 1 : 0))}|h:{string.Join(',', state.HasHu.Select(item => item ? 1 : 0))}|{state.Discards18.Sum(list => list.Count)}|{state.Melds18.Sum(list => list.Count)}|{string.Join(',', state.IsCalled.Select(item => item ? 1 : 0))}|{string.Join(',', state.IsReady.Select(item => item ? 1 : 0))}";
 
     private static string BuildVisibleKey(SichuanStateView state)
         => $"{state.VisibleVersion}|{state.WallCount}|q:{string.Join(',', state.DingQueSuits)}|{string.Join(',', state.Visible18)}|d:{string.Join('|', state.Discards18.Select(list => string.Join(',', list)))}|m:{string.Join('|', state.Melds18.Select(list => string.Join(',', list)))}";

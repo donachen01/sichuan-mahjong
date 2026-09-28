@@ -69,8 +69,7 @@ public sealed class SichuanQingYiSePlanner
 			var completionProbability = Math.Clamp(0.08 + targetRemaining / 96.0 - offSuitAfter * 0.085 - targetCompetition * 0.035, 0.01, 0.88);
 			var expectedFan = Math.Min(3.0, 1.0 + completionProbability * 3.2);
 			var genGangPotential = Enumerable.Range(targetSuit * 9, 9).Sum(tile => hand[tile] >= 3 ? 0.45 : hand[tile] == 2 ? 0.16 : 0.0);
-			var discardSeen = state.Visible18[discard];
-			var dangerCost = discard / 9 == targetSuit ? Math.Max(0, 4 - discardSeen) * (state.WallCount <= 12 ? 0.18 : 0.08) : 0.04;
+			var dangerCost = discard / 9 == targetSuit ? Math.Max(0, state.Remaining18[discard]) * (state.WallCount <= 12 ? 0.18 : 0.08) : 0.04;
 			var ordinaryFallback = Math.Max(0, 2.1 - bestFutureShanten * 0.55 + tenpaiProbability * 1.6);
 			var capDampening = expectedFan >= 2.9 ? 0.72 : 1.0;
             var expectedValue = (tenpaiProbability * 5.0 + expectedWaits * 0.18 + completionProbability * expectedFan * 1.2 + genGangPotential * 0.4) * capDampening

@@ -41,7 +41,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		double gangGain,
 		SichuanBeliefSnapshot? belief = null)
     {
-		var wallAvailability = _wall.Build(state, belief ?? _belief.Build(state));
+		belief ??= _belief.Build(state);
+		var wallAvailability = _wall.Build(state, belief);
         var hand = (int[])state.Hand18.Clone();
         if (tileType is >= 0 and < 27) hand[tileType] = Math.Max(0, hand[tileType] - removeCount);
         var melds = state.MeldViews[state.SeatIndex].Count > 0
@@ -69,18 +70,19 @@ public sealed class SichuanMeldCounterfactualEvaluator
 				: EvaluatePostClaimDiscards(hand, state, wallAvailability, meldCountAfter, projectedMelds, activeSeatList, settlement);
 
         var activePlayers = Math.Clamp(state.ActiveSeats.Count(value => value), 2, 4);
-        var winScore = followUp.Shanten == 0 ? Math.Max(3.5, followUp.ExpectedSelfDrawGain) : 1.5;
+		var isReady = followUp.Shanten == 0;
+        var winScore = isReady ? Math.Max(3.5, followUp.ExpectedSelfDrawGain) : 0.0;
 		var opponentLoss = followUp.Shanten == 0 ? 2.4 : 1.2;
 		var ownTurnOffset = isPass
 			? SichuanTurnOrder.DrawsBeforeSeatAfterDiscard(state, state.CurrentSeat, state.SeatIndex)
 			: isGang ? 0 : SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state);
         var chance = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
-            followUp.LiveUkeire,
+            isReady ? followUp.LiveUkeire : 0,
 			Math.Max(0, state.WallCount),
             activePlayers,
 			ownTurnOffset,
             winScore,
-            state.IsReady.Count(value => value) * 0.006,
+            SichuanUnifiedDecisionEngine.EstimateOpponentWinPerDraw(state, belief, wallAvailability),
             opponentLoss,
             GangOpportunityProbability: gangGain > 0 ? 0.08 : 0,
             GangGain: gangGain,
@@ -88,9 +90,13 @@ public sealed class SichuanMeldCounterfactualEvaluator
             MaxDraws: Math.Min(12, Math.Max(4, state.WallCount)),
 			Simulations: 256,
 			Seed: 20260809 ^ state.RoundIndex ^ tileType ^ (int)(state.EventVersion % int.MaxValue)));
+		var futureOwnDraws = Math.Max(0, (state.WallCount - ownTurnOffset + activePlayers - 1) / activePlayers);
+		var progressChance = isReady || state.WallCount <= 0 ? 0.0
+			: 1.0 - Math.Pow(1.0 - Math.Clamp(followUp.LiveUkeire / Math.Max(1.0, state.WallCount), 0.0, 1.0), futureOwnDraws);
 		var value = followUp.BaseValue
 			+ gangGain
 			+ chance.ExpectedNetScore * 0.32
+			+ progressChance * 0.4
 			+ Math.Clamp(followUp.ExpectedFan - 1.0, 0, 3) * 0.35
 			+ Math.Clamp(followUp.ExpectedSelfDrawGain / 8.0, 0, 4) * 0.12
 			+ Math.Clamp(followUp.ExpectedGangDrawBonus / 8.0, 0, 4) * 0.08

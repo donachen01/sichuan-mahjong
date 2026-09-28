@@ -153,6 +153,21 @@ func _init() -> void:
 		_expect(aot_add_gang.size() >= 8 and aot_add_gang[0] == "ok" and aot_add_gang[1] == "gang" and aot_add_gang[4] == "add_gang", "iOS AOT 补杠合同未执行", failures)
 
 		_expect(str(runtime.call("DecideDingQueSuit", 2, 5, 6)) == "tiao", "iOS AOT 定缺合同没有选择最少门", failures)
+		var structure_hand := []
+		for tile_type in [0, 0, 0, 9, 12, 15, 17, 18, 18, 19, 20, 21, 22, 23]:
+			structure_hand.append({"suit": ["tiao", "tong", "wan"][int(tile_type / 9)], "rank": int(tile_type % 9) + 1})
+		var structure_counts: PackedInt32Array = bridge.tile_codec.build_count_array(structure_hand, ["tiao", "tong", "wan"])
+		var compact_structure := ""
+		for count in structure_counts:
+			compact_structure += str(count)
+		_expect(str(runtime.call("DecideDingQueSuitFromHand", compact_structure)) == "tong",
+			"iOS AOT 结构化定缺入口未保留完整刻子", failures)
+		var manager = preload("res://scripts/ai/AIManager.gd").new()
+		manager.set_native_csharp_runtime(runtime)
+		var game_ding_que: Dictionary = manager.analyze_ding_que(structure_hand, ["tiao", "tong", "wan"])
+		_expect(str(game_ding_que.get("suit", "")) == "tong"
+			and str(game_ding_que.get("backendMode", "")) == "csharp_native_ding_que_hand",
+			"游戏定缺入口没有调用结构化 AOT 决策", failures)
 
 	if not bridge.is_available():
 		failures.append("C# CLI 产物不存在，无法验证真实运行链路")

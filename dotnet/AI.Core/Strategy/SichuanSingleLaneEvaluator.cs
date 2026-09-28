@@ -92,6 +92,7 @@ public sealed class SichuanSingleLaneEvaluator
             var offerMass = 0.0;
             var freedomMass = 0.0;
             var totalTargetMass = 0.0;
+            var futureDangerMass = 0.0;
             for (var tile = suit * 9; tile < suit * 9 + 9; tile++)
             {
                 if (hand[tile] >= 4 || state.Remaining18[tile] <= 0) continue;
@@ -108,6 +109,7 @@ public sealed class SichuanSingleLaneEvaluator
                 hand[tile]++;
                 var bestTarget = 8;
                 var choices = 0.0;
+                var safestNextDiscard = 1.0;
                 for (var nextDiscard = 0; nextDiscard < 27; nextDiscard++)
                 {
                     if (hand[nextDiscard] == 0 || nextDiscard / 9 == state.OwnDingQueSuit) continue;
@@ -119,15 +121,23 @@ public sealed class SichuanSingleLaneEvaluator
                     var permittedDebt = state.WallCount > 24 ? 1 : 0;
                     if (futureOrdinary <= ordinaryShanten + permittedDebt)
                     {
-                        if (futureTarget < bestTarget) { bestTarget = futureTarget; choices = 0; }
-                        if (futureTarget == bestTarget) choices += 1.0 - Math.Clamp(futureDanger[nextDiscard] / 100.0, 0, 1);
+                        if (futureTarget < bestTarget) { bestTarget = futureTarget; choices = 0; safestNextDiscard = 1.0; }
+                        if (futureTarget == bestTarget)
+                        {
+                            var risk = Math.Clamp(futureDanger[nextDiscard] / 100.0, 0, 1);
+                            choices += 1.0 - risk;
+                            safestNextDiscard = Math.Min(safestNextDiscard, risk);
+                        }
                     }
                     hand[nextDiscard]++;
                 }
                 hand[tile]--;
                 totalTargetMass += weight;
                 if (bestTarget <= targetShanten)
+                {
                     freedomMass += weight * Math.Min(1.0, choices / 3.0);
+                    futureDangerMass += weight * safestNextDiscard;
+                }
             }
             var freedom = totalTargetMass > 0 ? freedomMass / totalTargetMass : 0;
             var acquisitions = usefulDrawMass / Math.Max(1, state.WallCount)
@@ -146,12 +156,17 @@ public sealed class SichuanSingleLaneEvaluator
             var reserveGain = completion * extraScore * opponents.Length;
             var delayCost = (1 - completion) * Math.Max(0, targetShanten - ordinaryShanten)
                 * (state.WallCount <= 16 ? 0.8 : 0.3);
-            var value = reserveGain - delayCost;
+            var futureDangerCost = completion * (totalTargetMass > 0 ? futureDangerMass / totalTargetMass : 0) * 3.0;
+            var offSuitExitRisk = Enumerable.Range(0, 27).Where(tile => tile / 9 != suit)
+                .Sum(tile => hand[tile] * futureDanger[tile] / 100.0);
+            var exitCost = ordinaryShanten == 0 && targetShanten > 0
+                ? (1 - completion) * 2.0 : 0.0;
+            var value = reserveGain - delayCost - futureDangerCost - offSuitExitRisk * Math.Min(1.0, completion * 2.0) - exitCost;
             results[discard] = new(suit, value, completion, offerMass, freedom, targetShanten, new[]
             {
                 $"单行道公开模型：目标向听 {targetShanten}，预计可用碰/胡供张 {offerMass:F2}",
                 $"后续合法弃牌空间 {freedom:P0}，有限牌墙路线完成估计 {completion:P1}",
-                $"清色增益 {reserveGain:F2}，延迟成本 {delayCost:F2}；净值 {value:F2}",
+                $"清色增益 {reserveGain:F2}，延迟 {delayCost:F2}，后续危险弃牌 {futureDangerCost:F2}，转普通胡成本 {exitCost:F2}；净值 {value:F2}",
                 $"公开出张证明已清缺 {opponents.Length - clearing.Length} 家，未见清缺 {clearing.Length} 家",
                 $"SINGLE_LANE_PUBLIC_SUIT_{suit}"
             });

@@ -1,0 +1,16 @@
+{
+  "version": "2.6.82",
+  "commit": "abf8c6ea1712c7ce08712ef8780b0c91a612d2d0",
+  "sections": 15,
+  "diagrams": 15,
+  "source_links_invalid": [],
+  "desktop_overflow": false,
+  "broken_internal_links": [],
+  "javascript_errors": [],
+  "mobile_viewport": {
+    "bodyWidth": 390,
+    "viewport": 390,
+    "navVisible": "block"
+  },
+  "diagram_zoom_opened": true
+}

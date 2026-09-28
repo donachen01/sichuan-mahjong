@@ -87,7 +87,7 @@ public sealed class SichuanPosteriorNormalizer
             return 0.0;
         var countWeight = Math.Max(0.001, remainingCount);
         var wallDepth = Math.Clamp(state.WallCount / 19.0, 0.0, 1.0);
-        var visibleScarcity = Math.Clamp(1.0 - state.Visible18[tileType] / 4.0, 0.0, 1.0);
+        var visibleScarcity = Math.Clamp(state.Remaining18[tileType] / 4.0, 0.0, 1.0);
         return countWeight * (0.74 + wallDepth * 0.18 + visibleScarcity * 0.08);
     }
 }

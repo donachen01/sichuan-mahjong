@@ -11,17 +11,17 @@ public sealed class SichuanStageEvaluator
         var exposedMeldCount = state.Melds18.Sum(list => list.Count / 3);
         var hasLikelyReady = Enumerable.Range(0, 4)
             .Where(seat => seat != state.SeatIndex && !state.HasHu[seat])
-            .Any(seat => state.IsCalled[seat] || state.IsReady[seat] || belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
+            .Any(seat => state.IsReady[seat] || belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
         var riskRaised = exposedMeldCount >= 3 || hasLikelyReady;
+        var activeCount = Math.Max(1, state.ActiveSeats.Count(active => active));
+        var ownDrawBudget = (state.WallCount + activeCount - 1) / activeCount;
 
-        if (state.WallCount <= 6)
-            return Build("late", 2, "STAGE_LATE_BY_REMAINING_TILES", state, maxDiscards, exposedMeldCount, hasLikelyReady, riskRaised);
-        if (hasLikelyReady && state.WallCount <= 8)
+        if (ownDrawBudget <= 2)
+            return Build("late", 2, "STAGE_LATE_BY_DRAW_BUDGET", state, maxDiscards, exposedMeldCount, hasLikelyReady, riskRaised);
+        if (hasLikelyReady && ownDrawBudget <= 3)
             return Build("late", 2, "STAGE_LATE_BY_READY_PRESSURE", state, maxDiscards, exposedMeldCount, hasLikelyReady, true);
-        if (maxDiscards >= 10 || state.WallCount <= 13 || exposedMeldCount >= 5)
+        if (maxDiscards >= 10 || ownDrawBudget <= 4 || exposedMeldCount >= 5)
             return Build("middle", 1, "STAGE_MIDDLE_BY_PROGRESS", state, maxDiscards, exposedMeldCount, hasLikelyReady, riskRaised);
-        if (hasLikelyReady && state.WallCount <= 10)
-            return Build("middle", 1, "STAGE_MIDDLE_BY_READY_PRESSURE", state, maxDiscards, exposedMeldCount, hasLikelyReady, true);
         return Build("early", 0, "STAGE_EARLY_BY_LOW_PROGRESS", state, maxDiscards, exposedMeldCount, hasLikelyReady, riskRaised);
     }
 
@@ -105,7 +105,7 @@ public sealed class SichuanHandEvaluator
     }
 
     public static string BuildHandKey(SichuanStateView state)
-        => string.Join(',', state.Hand18) + $"|m:{string.Join(',', state.Melds18[state.SeatIndex])}|w:{state.WallCount}";
+        => string.Join(',', state.Hand18) + $"|m:{string.Join(',', state.Melds18[state.SeatIndex])}|w:{state.WallCount}|q:{state.OwnDingQueSuit}";
 
     private static int CountIsolatedSingles(int[] hand18)
     {
@@ -269,13 +269,14 @@ public sealed class SichuanOpponentDangerEvaluator
             var danger = (int)Math.Round(
                 readyPosterior * 45
                 + meldCount * 12
-                + (state.IsCalled[seat] || state.IsReady[seat] ? 30 : 0)
+                + (state.IsReady[seat] ? 30 : state.IsCalled[seat] ? 6 : 0)
                 + (stage.StageIndex >= 2 ? 10 : stage.StageIndex * 4)
                 + bigHandRisk * 0.22
                 + Math.Min(12, discardCount));
             var missingSuit = ResolveLikelyMissingSuit(state, seat);
             var reasonCodes = new List<string>();
-            if (state.IsCalled[seat] || state.IsReady[seat]) reasonCodes.Add("OPPONENT_READY_DECLARED");
+            if (state.IsReady[seat]) reasonCodes.Add("OPPONENT_READY_DECLARED");
+            else if (state.IsCalled[seat]) reasonCodes.Add("OPPONENT_EXPOSED_MELD");
             if (readyPosterior >= 0.55) reasonCodes.Add("OPPONENT_LIKELY_READY_POSTERIOR");
             if (meldCount >= 2) reasonCodes.Add("OPPONENT_MANY_EXPOSED_MELDS");
             if (bigHandRisk >= 65) reasonCodes.Add("OPPONENT_BIG_HAND_RISK");
@@ -284,7 +285,7 @@ public sealed class SichuanOpponentDangerEvaluator
             {
                 Seat = seat,
                 DangerLevel = Math.Clamp(danger, 0, 100),
-                LikelyReady = state.IsCalled[seat] || state.IsReady[seat] || readyPosterior >= 0.55,
+                LikelyReady = state.IsReady[seat] || readyPosterior >= 0.55,
                 LikelyMissingSuit = missingSuit,
                 BigHandRisk = bigHandRisk,
                 ExposedMeldCount = meldCount,

@@ -414,6 +414,7 @@ public sealed class SichuanDecisionEngine
             reasons = sortedBestCandidate.Reasons.ToList();
         }
 
+		string? finalSelectionReason = null;
 		var useSearch = !forceLightweight && ShouldUseDiscardSearch(candidates, state.WallCount);
         var searchResult = useSearch
 			? _search.EvaluateTopCandidates(
@@ -425,6 +426,7 @@ public sealed class SichuanDecisionEngine
             : new SichuanSearchResult { Used = false };
 		if (searchResult.Used)
         {
+			finalSelectionReason = "LIMITED_SEARCH_SELECTION";
             candidates = ApplySearchBonuses(candidates, searchResult, roundStage, aiContext);
             candidateScores = candidates.ToDictionary(item => item.TileType, item => item.Score);
             var bestCandidate = candidates[0];
@@ -442,6 +444,7 @@ public sealed class SichuanDecisionEngine
         var extremeDangerOverride = SelectExtremeDangerSameSpeedOverride(candidates, bestTile, state);
         if (extremeDangerOverride is not null)
         {
+			finalSelectionReason = "EXTREME_DANGER_SAME_SPEED_OVERRIDE";
             bestTile = extremeDangerOverride.TileType;
             bestScore = extremeDangerOverride.Score;
             bestShanten = extremeDangerOverride.Shanten;
@@ -456,6 +459,7 @@ public sealed class SichuanDecisionEngine
         var lateWallDefense = SelectLateWallDefenseOverride(candidates, bestTile, state, maxReadyPosterior);
         if (lateWallDefense is not null)
         {
+			finalSelectionReason = "LATE_WALL_DEFENSE_OVERRIDE";
             bestTile = lateWallDefense.TileType;
             bestScore = lateWallDefense.Score;
             bestShanten = lateWallDefense.Shanten;
@@ -470,6 +474,7 @@ public sealed class SichuanDecisionEngine
 		var lateWallTempo = SelectLateWallSafeTempoOverride(candidates, bestTile, state);
 		if (lateWallTempo is not null)
 		{
+			finalSelectionReason = "LATE_WALL_SAFE_TEMPO_OVERRIDE";
 			bestTile = lateWallTempo.TileType;
 			bestScore = lateWallTempo.Score;
 			bestShanten = lateWallTempo.Shanten;
@@ -484,6 +489,7 @@ public sealed class SichuanDecisionEngine
 		var unifiedNearTie = SelectUnifiedActionValueOverride(candidates, bestTile);
 		if (unifiedNearTie is not null)
 		{
+			finalSelectionReason = "UNIFIED_NEAR_TIE_OVERRIDE";
 			bestTile = unifiedNearTie.TileType;
 			bestScore = unifiedNearTie.Score;
 			bestShanten = unifiedNearTie.Shanten;
@@ -498,6 +504,7 @@ public sealed class SichuanDecisionEngine
 		var exactStructureNearTie = SelectExactStructureNearTieOverride(candidates, bestTile);
         if (exactStructureNearTie is not null)
         {
+			finalSelectionReason = "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE";
             bestTile = exactStructureNearTie.TileType;
             bestScore = exactStructureNearTie.Score;
             bestShanten = exactStructureNearTie.Shanten;
@@ -531,6 +538,7 @@ public sealed class SichuanDecisionEngine
 			: null;
 		if (twoPlyReadyChoice is not null)
 		{
+			finalSelectionReason = "POLICY_VARIANT_OVERRIDE";
 			bestTile = twoPlyReadyChoice.TileType;
 			bestScore = twoPlyReadyChoice.Score;
 			bestShanten = twoPlyReadyChoice.Shanten;
@@ -556,6 +564,7 @@ public sealed class SichuanDecisionEngine
         var lateWallKeepReady = SelectLateWallKeepReadyOverride(candidates, bestTile, state);
         if (lateWallKeepReady is not null)
         {
+			finalSelectionReason = "LATE_WALL_KEEP_READY_OVERRIDE";
             bestTile = lateWallKeepReady.TileType;
             bestScore = lateWallKeepReady.Score;
             bestShanten = lateWallKeepReady.Shanten;
@@ -577,7 +586,8 @@ public sealed class SichuanDecisionEngine
         decisionStopwatch.Stop();
         var performance = BuildPerformanceReport(decisionStopwatch.Elapsed.TotalMilliseconds, aiContext.ModulePerf);
         var explain = BuildExplain(bestTile, bestScore, aiContext, reasons);
-        var finalReasons = reasons
+        var finalReasons = (finalSelectionReason is null ? Array.Empty<string>() : new[] { finalSelectionReason })
+            .Concat(reasons)
             .Concat(aiContext.ReasonCodes)
             .Distinct()
             .Take(12)

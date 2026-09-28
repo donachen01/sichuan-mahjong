@@ -102,5 +102,10 @@ public sealed class SichuanAiFacade
         IReadOnlyList<string> activeSuits)
         => _dingQueDecisionEngine.DecideDingQue(suitCounts, activeSuits);
 
+    public SichuanDingQueDecisionResult DecideDingQue(
+        IReadOnlyList<int> hand18,
+        IReadOnlyList<string> activeSuits)
+        => _dingQueDecisionEngine.DecideDingQue(hand18, activeSuits);
+
     public CacheSnapshot GetTurnCacheSnapshot() => _turnCache.Snapshot();
 }

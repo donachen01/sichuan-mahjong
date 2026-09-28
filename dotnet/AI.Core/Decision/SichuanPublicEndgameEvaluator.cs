@@ -32,7 +32,7 @@ public sealed record SichuanPublicContinuationReport(
 public sealed class SichuanPublicEndgameEvaluator
 {
     private const int MaximumWall = 4;
-    private const int SampleCount = 32;
+    private const int SampleCount = 16;
     private readonly SichuanHiddenHandInferenceEngine _inference = new();
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanFanProjectionEngine _fans = new();
@@ -126,9 +126,12 @@ public sealed class SichuanPublicEndgameEvaluator
 
     public IReadOnlyList<SichuanPublicEndgameEstimate> Evaluate(SichuanStateView state, IEnumerable<int> discardTiles)
     {
-        if (!TryPrepare(state, discardTiles, MaximumWall, out var seats, out var tiles, out _))
+        // Exited winners still hold concealed tiles. Sampling them as wall tiles
+        // overstates every surviving player's live waits.
+        if (!TryPrepare(state, discardTiles, MaximumWall, out var seats, out var tiles, out _, includeExitedSeats: true))
             return Array.Empty<SichuanPublicEndgameEstimate>();
-        var particles = _inference.SampleParticles(state, SampleCount, 20260901 ^ state.RoundIndex ^ state.TurnIndex);
+        var particles = _inference.SampleParticles(state, SampleCount, 20260901 ^ state.RoundIndex ^ state.TurnIndex,
+            SichuanHiddenHandProposal.PublicPriorThenLikelihood, minimumParticleCount: SampleCount);
         if (!ParticlesMatchPublicState(state, seats, particles))
             return Array.Empty<SichuanPublicEndgameEstimate>();
         var values = tiles.ToDictionary(t => t, _ => 0.0);
@@ -459,9 +462,35 @@ public sealed class SichuanPublicEndgameEvaluator
     private int BestDiscard(int[] hand, List<SichuanMeldView> melds, int missing, int[] visible)
     {
         var forced = HasMissing(hand, missing) ? missing : -1;
-        return _hands.AnalyzeDiscards(hand, PublicRemaining(hand, visible), melds.Count, melds.Count == 0, forced)
-            .OrderBy(a => a.Shanten).ThenByDescending(a => a.LiveUkeire).ThenBy(a => a.DiscardTileType)
-            .Select(a => a.DiscardTileType).DefaultIfEmpty(-1).First();
+        var bestShanten = int.MaxValue;
+        var tied = new List<int>();
+        for (var tile = 0; tile < 27; tile++)
+        {
+            if (hand[tile] <= 0 || forced >= 0 && tile / 9 != forced) continue;
+            hand[tile]--;
+            var shanten = Shanten(hand, melds.Count);
+            hand[tile]++;
+            if (shanten < bestShanten) { bestShanten = shanten; tied.Clear(); }
+            if (shanten == bestShanten) tied.Add(tile);
+        }
+        if (tied.Count <= 1) return tied.Count == 0 ? -1 : tied[0];
+        var remaining = PublicRemaining(hand, visible);
+        return tied.Select(tile =>
+            {
+                hand[tile]--;
+                var live = 0;
+                for (var draw = 0; draw < 27; draw++)
+                {
+                    if (remaining[draw] <= 0 || hand[draw] >= 4) continue;
+                    hand[draw]++;
+                    if (Shanten(hand, melds.Count) < bestShanten) live += remaining[draw];
+                    hand[draw]--;
+                }
+                hand[tile]++;
+                return (tile, live);
+            })
+            .OrderByDescending(item => item.live).ThenBy(item => item.tile)
+            .First().tile;
     }
     private static bool HasMissing(int[] hand, int suit) => suit is >= 0 and < 3 && Enumerable.Range(suit * 9, 9).Any(t => hand[t] > 0);
     private static int[] PublicRemaining(int[] hand, int[] visible)

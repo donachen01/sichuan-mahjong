@@ -38,7 +38,8 @@ public sealed class SichuanActionTreeEvaluator
 		double DrawProbability,
 		double ExpectedGangGain,
 		int Simulations,
-		double ElapsedMilliseconds);
+		double ElapsedMilliseconds,
+		double HorizonProbability);
 
     public SichuanExpectedValueBreakdown EvaluateWait(
         int liveTiles,
@@ -75,7 +76,8 @@ public sealed class SichuanActionTreeEvaluator
 				1,
 				0,
 				simulations,
-				watch.Elapsed.TotalMilliseconds);
+				watch.Elapsed.TotalMilliseconds,
+				0);
 		}
 		var activePlayers = Math.Clamp(request.ActivePlayers, 2, 4);
 		var random = new Random(request.Seed);
@@ -83,20 +85,23 @@ public sealed class SichuanActionTreeEvaluator
 		var wins = 0;
 		var opponentWins = 0;
 		var draws = 0;
+		var horizons = 0;
 		var gangGain = 0.0;
 		for (var sample = 0; sample < simulations; sample++)
 		{
-			var wall = Math.Max(1, request.WallTiles);
+			var wall = request.WallTiles;
 			var live = Math.Clamp(request.LiveTiles, 0.0, wall);
 			var net = 0.0;
 			var resolved = false;
+			var actualDraw = false;
 			var extraOwnDraws = 0;
-			for (var drawIndex = 0; drawIndex < Math.Min(request.MaxDraws, wall) + extraOwnDraws; drawIndex++)
+			var maxDraws = Math.Min(Math.Max(0, request.MaxDraws), request.WallTiles);
+			for (var drawIndex = 0; drawIndex < maxDraws + extraOwnDraws && wall > 0; drawIndex++)
 			{
 				var isOwnDraw = (drawIndex - request.OwnTurnOffset) % activePlayers == 0 && drawIndex >= request.OwnTurnOffset;
 				if (isOwnDraw)
 				{
-					if (live > 0 && random.NextDouble() < live / (double)Math.Max(1, wall))
+					if (live > 0 && random.NextDouble() < live / wall)
 					{
 						net += request.WinScore;
 						wins++;
@@ -117,14 +122,20 @@ public sealed class SichuanActionTreeEvaluator
 					resolved = true;
 					break;
 				}
+				// A missed own draw removes a non-target tile. Opponent draws
+				// may remove a target tile; condition on the still-unknown pool.
+				if (!isOwnDraw && live > 0)
+					live = Math.Max(0, live - live / wall);
 				wall--;
-				if (wall <= 0) break;
+				actualDraw = wall == 0;
 			}
-			if (!resolved)
+			if (!resolved && actualDraw)
 			{
 				net += request.ChaJiaoValue;
 				draws++;
 			}
+			else if (!resolved)
+				horizons++;
 			totalNet += net;
 		}
 		watch.Stop();
@@ -135,6 +146,7 @@ public sealed class SichuanActionTreeEvaluator
 			draws / (double)simulations,
 			gangGain / simulations,
 			simulations,
-			watch.Elapsed.TotalMilliseconds);
+			watch.Elapsed.TotalMilliseconds,
+			horizons / (double)simulations);
 	}
 }

@@ -232,6 +232,15 @@ public partial class SichuanCSharpRuntime : Node
         return _facade.DecideDingQue(suitCounts, ["tiao", "tong", "wan"]).Suit;
     }
 
+    // Compact AOT-safe hand input: one digit (0..4) for each of the 27 tiles.
+    public string DecideDingQueSuitFromHand(string handCounts)
+    {
+        if (handCounts.Length != 27 || handCounts.Any(value => value is < '0' or > '4'))
+            return string.Empty;
+        var hand = handCounts.Select(value => value - '0').ToArray();
+        return _facade.DecideDingQue(hand, ["tiao", "tong", "wan"]).Suit;
+    }
+
     // iOS NativeAOT disables reflection-based System.Text.Json metadata. These
     // compact entry points use generated input metadata and a scalar transport
     // so gameplay decisions remain available without a reflection fallback.
@@ -897,7 +906,9 @@ public partial class SichuanCSharpRuntime : Node
 
     private object BuildDingQueObject(DingQuePayload payload)
     {
-        var result = _facade.DecideDingQue(payload.SuitCounts, payload.ActiveSuits);
+        var result = payload.Hand18.Count == 27
+            ? _facade.DecideDingQue(payload.Hand18, payload.ActiveSuits)
+            : _facade.DecideDingQue(payload.SuitCounts, payload.ActiveSuits);
         return new
         {
             ok = true,
@@ -1532,6 +1543,7 @@ public partial class SichuanCSharpRuntime : Node
     {
         public Dictionary<string, int> SuitCounts { get; set; } = new();
         public List<string> ActiveSuits { get; set; } = new();
+        public List<int> Hand18 { get; set; } = new();
     }
 
     private class HellChallengePayload : DiscardPayload

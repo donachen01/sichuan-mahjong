@@ -21,17 +21,23 @@ public sealed class SichuanHiddenHandInferenceEngine
         if (mode == SichuanInformationMode.Oracle && oracleHands is not null)
             return BuildOracle(state, oracleHands, oracleWall);
 
-        return Aggregate(state, SampleParticles(state, particleCount, seed));
+        // Public play must allocate every unseen tile between the actual wall
+        // and all concealed hands, including players who have already Hu.
+        return Aggregate(state, SampleParticles(state, particleCount, seed,
+            mode == SichuanInformationMode.Public
+                ? SichuanHiddenHandProposal.PublicPriorThenLikelihood
+                : SichuanHiddenHandProposal.BehaviorWeightedLegacy));
     }
 
     public IReadOnlyList<SichuanHiddenHandParticle> SampleParticles(
         SichuanStateView state,
         int particleCount = 256,
         int seed = 20260713,
-        SichuanHiddenHandProposal proposal = SichuanHiddenHandProposal.BehaviorWeightedLegacy)
+        SichuanHiddenHandProposal proposal = SichuanHiddenHandProposal.BehaviorWeightedLegacy,
+        int minimumParticleCount = 32)
     {
 
-        particleCount = Math.Clamp(particleCount, 32, 4096);
+        particleCount = Math.Clamp(particleCount, Math.Clamp(minimumParticleCount, 8, 32), 4096);
         var random = new Random(seed ^ state.VisibleVersion ^ (state.SeatIndex << 16));
         var pool = Enumerable.Range(0, 27).Select(tile => Math.Max(0, state.Remaining18[tile])).ToArray();
         var handSizes = ResolveHiddenHandSizes(

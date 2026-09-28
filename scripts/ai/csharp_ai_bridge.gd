@@ -118,6 +118,7 @@ func build_ding_que_transport_payload(hand_tiles: Array, active_suits: Array) ->
 	return {
 		"suitCounts": counts,
 		"activeSuits": active_suits.duplicate(true),
+		"hand18": tile_codec.build_count_array(hand_tiles, active_suits),
 	}
 
 
@@ -214,7 +215,8 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 	if int(last_draw.get("seat", -1)) == self_seat:
 		last_draw_tile_type = tile_codec.tile_type(last_draw.get("tile", {}), active_suits)
 	var hand18: PackedInt32Array = tile_codec.build_count_array(hand_tiles, active_suits)
-	var visible18: PackedInt32Array = tile_codec.build_visible_count_array(players, hand_tiles, active_suits, self_seat)
+	# Visible18 is the public allocation; Remaining18 separately excludes our hand.
+	var visible18: PackedInt32Array = tile_codec.build_visible_count_array(players, [], active_suits, self_seat)
 	var remaining18: PackedInt32Array = tile_codec.build_remaining_count_array(hand_tiles, players, active_suits, self_seat)
 	var discards18: Array = []
 	var melds18: Array = []

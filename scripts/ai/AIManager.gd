@@ -151,7 +151,26 @@ func analyze_ding_que(hand_tiles: Array, active_suits: Array) -> Dictionary:
 	var analysis: Dictionary = {}
 	var active_backend := "csharp_ding_que_required"
 	last_native_turn_error = ""
-	if has_native_csharp_runtime() and native_csharp_runtime.has_method("DecideDingQueSuit"):
+	if has_native_csharp_runtime() and native_csharp_runtime.has_method("DecideDingQueSuitFromHand"):
+		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
+		var suit_counts: Dictionary = payload.get("suitCounts", {})
+		var counts18: PackedInt32Array = csharp_bridge.tile_codec.build_count_array(hand_tiles, active_suits)
+		var compact_hand := ""
+		for count in counts18:
+			compact_hand += str(count)
+		var native_suit := str(native_csharp_runtime.call("DecideDingQueSuitFromHand", compact_hand))
+		if active_suits.has(native_suit):
+			analysis = {
+				"ok": true,
+				"action": "ding_que",
+				"suit": native_suit,
+				"suitCounts": suit_counts.duplicate(true),
+				"backendMode": "csharp_native_ding_que_hand",
+			}
+			active_backend = "csharp_native_ding_que_hand"
+		else:
+			last_native_turn_error = "invalid_native_hand_ding_que_result"
+	elif has_native_csharp_runtime() and native_csharp_runtime.has_method("DecideDingQueSuit"):
 		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
 		var suit_counts: Dictionary = payload.get("suitCounts", {})
 		var native_suit := str(native_csharp_runtime.call(

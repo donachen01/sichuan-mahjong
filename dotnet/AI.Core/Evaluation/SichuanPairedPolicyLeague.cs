@@ -204,7 +204,9 @@ public sealed class SichuanPairedPolicyLeague
         }
         var remaining = Enumerable.Range(0, 27).Select(tile => Math.Max(0, 4 - hand[tile] - visible[tile])).ToArray();
         return SichuanStateCodec.FromRaw(
-            seat, roundIndex % 4, seat, Math.Max(6, 81 - publicCount), hand, visible, remaining,
+            // Four physical hands consume 14 + 3*13 tiles at this decision.
+            // The earlier 81-publicCount wall counted 26 hidden tiles twice.
+            seat, roundIndex % 4, seat, 55 - publicCount, hand, visible, remaining,
             discards18: discards, roundIndex: roundIndex);
     }
 
@@ -215,17 +217,31 @@ public sealed class SichuanPairedPolicyLeague
             var tiles = BuildShuffledWall(random);
             var hand = new int[27];
             for (var i = 0; i < 13; i++) hand[tiles[i]]++;
-            var pairs = Enumerable.Range(0, 27).Where(tile => hand[tile] >= 2).ToArray();
+            var pairs = Enumerable.Range(0, 27).Where(tile => hand[tile] is >= 2 and < 4).ToArray();
             if (pairs.Length == 0) continue;
             reactionTile = pairs[random.Next(pairs.Length)];
             canGang = hand[reactionTile] >= 3;
             var visible = new int[27];
-            visible[reactionTile] = 1;
             var discards = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
-            discards[(seat + 3) % 4].Add(reactionTile);
+            var sourceSeat = (seat + 3) % 4;
+            var consumedReaction = false;
+            var publicCount = random.Next(1, 50);
+            for (var i = 13; i < tiles.Length && visible.Sum() < publicCount - 1; i++)
+            {
+                if (!consumedReaction && tiles[i] == reactionTile)
+                {
+                    consumedReaction = true;
+                    continue;
+                }
+                var discardSeat = (i - 13) % 4;
+                discards[discardSeat].Add(tiles[i]);
+                visible[tiles[i]]++;
+            }
+            discards[sourceSeat].Add(reactionTile);
+            visible[reactionTile]++;
             var remaining = Enumerable.Range(0, 27).Select(tile => Math.Max(0, 4 - hand[tile] - visible[tile])).ToArray();
             return SichuanStateCodec.FromRaw(
-                seat, roundIndex % 4, (seat + 3) % 4, random.Next(6, 56), hand, visible, remaining,
+                seat, roundIndex % 4, sourceSeat, 56 - publicCount, hand, visible, remaining,
                 discards18: discards, roundIndex: roundIndex);
         }
     }

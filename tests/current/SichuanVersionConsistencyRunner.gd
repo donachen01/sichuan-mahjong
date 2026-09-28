@@ -1,7 +1,7 @@
 extends SceneTree
 
-const EXPECTED_VERSION := "2.6.82"
-const EXPECTED_ANDROID_CODE := 342
+const EXPECTED_VERSION := "2.6.83"
+const EXPECTED_ANDROID_CODE := 343
 
 var failures: Array[String] = []
 

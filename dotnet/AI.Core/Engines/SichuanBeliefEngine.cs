@@ -194,7 +194,7 @@ public sealed class SichuanBeliefEngine
                 }
 
                 var centerBias = rank is >= 3 and <= 7 ? 0.62 : rank is 2 or 8 ? 0.48 : 0.34;
-                var visibleBias = Math.Max(0.05, 1.0 - state.Visible18[tileType] / 4.0);
+                var visibleBias = Math.Max(0.05, state.Remaining18[tileType] / 4.0);
                 var nearDiscardPenalty = CountNearbyDiscards(discardByTile, tileType) * 0.08;
                 var sameTilePenalty = discardByTile[tileType] * 0.24;
                 var meldRankBoost = meldBySuit[suit] > 0 ? 0.08 : 0.0;
@@ -392,7 +392,14 @@ public sealed class SichuanBeliefEngine
         SichuanHiddenHandPosterior particlePosterior,
         SichuanPosteriorNormalizer normalizer)
     {
-        var normalized = normalizer.Normalize(state, activeSeats, seatWeightsByTile);
+        // Exited winners still own concealed tiles. They are not threats, but
+        // excluding them from allocation would relabel those tiles as wall.
+        var allocationSeats = Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex).ToArray();
+        var allocationWeights = seatWeightsByTile.ToDictionary(item => item.Key, item => item.Value);
+        foreach (var seat in allocationSeats.Where(seat => !allocationWeights.ContainsKey(seat)))
+            allocationWeights[seat] = Enumerable.Range(0, 27).ToDictionary(tile => tile,
+                tile => Math.Max(0.01, particlePosterior.HoldProbabilities[seat][tile]));
+        var normalized = normalizer.Normalize(state, allocationSeats, allocationWeights);
         for (var tileType = 0; tileType < 27; tileType++)
         {
             if (state.WallCount <= 0)
@@ -420,14 +427,12 @@ public sealed class SichuanBeliefEngine
     private static double EstimateReadyPosterior(SichuanStateView state, int seat, int discardCount, int meldGroupCount, double pressure)
     {
         if (state.IsReady[seat]) return 0.98;
-        if (state.IsCalled[seat]) return 0.86;
-
-        var posterior = 0.08
-            + pressure * 0.42
+        var posterior = 0.04
+            + pressure * 0.32
             + meldGroupCount * 0.10
-            + (discardCount >= 10 ? 0.16 : discardCount >= 7 ? 0.09 : 0.0)
+            + (discardCount >= 10 ? 0.14 : discardCount >= 7 ? 0.07 : 0.0)
             + (state.WallCount <= 6 ? 0.08 : state.WallCount <= 10 ? 0.04 : 0.0);
-        return Math.Clamp(posterior, 0.04, 0.92);
+        return Math.Clamp(posterior, 0.04, 0.90);
     }
 
     private static double AverageVisibleScarcity(SichuanStateView state, int suit)
@@ -436,7 +441,7 @@ public sealed class SichuanBeliefEngine
         var total = 0.0;
         for (var index = 0; index < 9; index++)
         {
-            total += Math.Max(0.0, 1.0 - state.Visible18[start + index] / 4.0);
+            total += Math.Max(0.0, state.Remaining18[start + index] / 4.0);
         }
         return total / 9.0;
     }
@@ -462,13 +467,13 @@ public sealed class SichuanBeliefEngine
         var rank = tileType % 9;
         var affinity = 0.0;
         if (rank - 2 >= 0)
-            affinity += Math.Max(0.0, 1.0 - state.Visible18[suitStart + rank - 2] / 4.0) * 0.18;
+            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank - 2] / 4.0) * 0.18;
         if (rank - 1 >= 0)
-            affinity += Math.Max(0.0, 1.0 - state.Visible18[suitStart + rank - 1] / 4.0) * 0.26;
+            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank - 1] / 4.0) * 0.26;
         if (rank + 1 < 9)
-            affinity += Math.Max(0.0, 1.0 - state.Visible18[suitStart + rank + 1] / 4.0) * 0.26;
+            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank + 1] / 4.0) * 0.26;
         if (rank + 2 < 9)
-            affinity += Math.Max(0.0, 1.0 - state.Visible18[suitStart + rank + 2] / 4.0) * 0.18;
+            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank + 2] / 4.0) * 0.18;
         if (state.IsCalled[seat] || state.IsReady[seat])
             affinity *= 1.06;
         return Math.Clamp(affinity, 0.0, 1.0);

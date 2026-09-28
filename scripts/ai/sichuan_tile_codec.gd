@@ -56,17 +56,31 @@ func build_visible_count_array(players: Array, extra_tiles: Array, active_suits:
 	var counts := PackedInt32Array()
 	counts.resize(active_suits.size() * 9)
 	counts.fill(0)
+	var public_tile_ids := {}
 	for player in players:
 		var seat := int(player.get("seat", -1))
 		for tile in player.get("discards", []):
 			_increment(counts, tile_type(tile, active_suits))
+			if int(tile.get("id", -1)) >= 0:
+				public_tile_ids[int(tile.get("id", -1))] = true
 		for meld in player.get("melds", []):
 			for tile in meld.get("tiles", []):
 				_increment(counts, tile_type(tile, active_suits))
+				if int(tile.get("id", -1)) >= 0:
+					public_tile_ids[int(tile.get("id", -1))] = true
 		if seat != self_seat:
 			var winning_tile: Dictionary = player.get("winning_tile", {})
-			if not winning_tile.is_empty():
+			var winning_id := int(winning_tile.get("id", -1))
+			var win_type := str(player.get("win_type", ""))
+			var is_self_draw := win_type in ["self_draw", "gang_self_draw", "dian_gang_hua"] \
+				or (win_type.is_empty() and int(player.get("winning_source_seat", seat)) == seat)
+			# Self-draw keeps the tile inside the winner's concealed hand. A
+			# multi-Hu uses the same physical discard for all winners.
+			if not winning_tile.is_empty() and not is_self_draw \
+				and (winning_id < 0 or not public_tile_ids.has(winning_id)):
 				_increment(counts, tile_type(winning_tile, active_suits))
+				if winning_id >= 0:
+					public_tile_ids[winning_id] = true
 	for tile in extra_tiles:
 		_increment(counts, tile_type(tile, active_suits))
 	return counts

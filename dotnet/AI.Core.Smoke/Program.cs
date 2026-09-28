@@ -6,6 +6,7 @@ using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Search;
 
 if (args.Contains("--single-lane")) return SingleLaneSmoke.Run();
+if (args.Contains("--ai-model-fixes")) return AiModelFixSmoke.Run();
 
 var hand = new[]
 {

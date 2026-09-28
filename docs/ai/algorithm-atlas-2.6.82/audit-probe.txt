@@ -1,0 +1,2 @@
+public_only_visible_control: accepted=True; violating_tile_types=0; ready_candidates=1
+runtime_bridge_includes_own_hand: accepted=False; violating_tile_types=5; ready_candidates=0

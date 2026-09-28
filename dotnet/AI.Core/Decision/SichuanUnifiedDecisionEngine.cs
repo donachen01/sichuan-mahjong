@@ -40,18 +40,21 @@ public sealed class SichuanUnifiedDecisionEngine
 				? analysis.Waits.Select(wait => wait.TileType)
 				: analysis.ImprovingTiles;
 			var liveWaits = wallAvailability.SumExpected(relevantTiles);
-			var winScore = analysis.Shanten == 0 ? 4.0 * (activePlayers - 1) : 2.0;
+			var isReady = analysis.Shanten == 0;
 			var opponentLoss = 2.5;
 			var handAfterDiscard = (int[])state.Hand18.Clone();
 			handAfterDiscard[analysis.DiscardTileType]--;
-			var chaJiaoScore = EstimateChaJiaoScore(state, handAfterDiscard, analysis.Waits);
+			var winScore = isReady ? EstimateReadyWinScore(state, handAfterDiscard, analysis.Waits,
+				wallAvailability, activePlayers - 1) : 0.0;
+			var chaJiaoScore = EstimateChaJiaoScore(state, handAfterDiscard, analysis.Waits, belief);
+			var opponentWinPerDraw = EstimateOpponentWinPerDraw(state, belief, wallAvailability);
 			var chance = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
-				liveWaits,
+				isReady ? liveWaits : 0,
 				Math.Max(0, state.WallCount),
 				activePlayers,
-				0,
+				SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state),
 				winScore,
-				state.IsReady.Count(value => value) * 0.008,
+				opponentWinPerDraw,
 				opponentLoss,
 				ChaJiaoValue: chaJiaoScore,
 				Simulations: 512,
@@ -59,7 +62,20 @@ public sealed class SichuanUnifiedDecisionEngine
 			var structuralLoss = state.WallCount <= 0
 				? Math.Max(0, analysis.Shanten - analyses.Min(item => item.Shanten)) * 3.5
 				: analysis.StructuralLoss * 0.035;
-			var dealInRisk = Math.Max(0, 4 - state.Visible18[analysis.DiscardTileType]) * (state.WallCount <= 10 ? 0.08 : 0.025);
+			var baselineRisk = Math.Max(0, state.Remaining18[analysis.DiscardTileType])
+				* (state.WallCount <= 10 ? 0.08 : 0.025);
+			var modeledMultiHuRisk = Enumerable.Range(0, 4)
+				.Where(seat => seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
+				.Sum(seat => (belief.SeatTileWaitProbability.GetValueOrDefault(seat)
+					?.GetValueOrDefault(analysis.DiscardTileType, 0.0) ?? 0.0)
+					* (2.0 + Math.Min(4, state.Melds18[seat].Count / 3) * 0.75));
+			// Public wait probabilities are not yet calibrated enough to price
+			// routine early discards. Use the multi-Hu cost when the wall is short
+			// or there is independent high-readiness evidence.
+			var highThreat = state.WallCount <= 12 || Enumerable.Range(0, 4)
+				.Any(seat => seat != state.SeatIndex && state.ActiveSeats[seat]
+					&& belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
+			var dealInRisk = highThreat ? Math.Max(baselineRisk, modeledMultiHuRisk) : baselineRisk;
 			var winGain = chance.OwnWinProbability * winScore;
 			var expectedGangGain = chance.ExpectedGangGain;
 			var chaJiaoValue = chance.DrawProbability * chaJiaoScore;
@@ -71,9 +87,14 @@ public sealed class SichuanUnifiedDecisionEngine
 				: 0.0;
 			var lane = laneValues.GetValueOrDefault(analysis.DiscardTileType);
 			var exclusiveSuitRouteValue = lane?.Value ?? 0;
+			var futureOwnDraws = Math.Max(0, (state.WallCount - SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)
+				+ activePlayers - 1) / activePlayers);
+			var progressChance = isReady || state.WallCount <= 0 ? 0.0
+				: 1.0 - Math.Pow(1.0 - Math.Clamp(liveWaits / state.WallCount, 0.0, 1.0), futureOwnDraws);
 			var routeValue = Math.Max(0, 1.2 - analysis.Shanten * 0.4)
 				+ pairRouteValue
 				+ exclusiveSuitRouteValue
+				+ progressChance * Math.Max(0.2, 1.2 - analysis.Shanten * 0.2)
 				+ Math.Clamp(shape.ShapeScore, -1.0, 1.0) * 0.12;
 			var uncertainty = state.InformationMode == "oracle" ? 0 : 0.18;
 			var utility = _multiPlayer.Evaluate(new SichuanMultiPlayerUtilityInput(
@@ -88,7 +109,7 @@ public sealed class SichuanUnifiedDecisionEngine
 				activePlayers,
 				state.InformationMode == "oracle" ? 1 : 0.78));
 			var hasEndgame = endgameValues.TryGetValue(analysis.DiscardTileType, out var endgame);
-			var reasons = new List<string> { $"EXACT_SHANTEN_{analysis.Shanten}", $"WALL_LIVE_{liveWaits:F2}", $"CHA_JIAO_{chaJiaoScore:F2}", $"STRUCTURAL_LOSS_{analysis.StructuralLoss}", $"CHANCE_EV_{utility.NetUtility:F2}" };
+			var reasons = new List<string> { $"EXACT_SHANTEN_{analysis.Shanten}", $"WALL_LIVE_{liveWaits:F2}", $"PROGRESS_CHANCE_{progressChance:F2}", $"MULTI_HU_LOSS_{modeledMultiHuRisk:F2}", highThreat ? "MULTI_HU_RISK_ACTIVE" : "MULTI_HU_RISK_SHADOW", $"CHA_JIAO_{chaJiaoScore:F2}", $"CHANCE_HORIZON_{chance.HorizonProbability:F2}", $"STRUCTURAL_LOSS_{analysis.StructuralLoss}", $"CHANCE_EV_{utility.NetUtility:F2}" };
 			if (lane != null) reasons.AddRange(lane.Reasons);
 			if (hasEndgame)
 			{
@@ -115,10 +136,51 @@ public sealed class SichuanUnifiedDecisionEngine
 			: new SichuanDecisionExplanation(SichuanActionType.Discard, $"精确净分最高，打 {selected.Action.TileType}", selected.ReasonCodes, ordered);
 	}
 
+	internal static double EstimateOpponentWinPerDraw(
+		SichuanStateView state, SichuanBeliefSnapshot belief, SichuanWallAvailability wall)
+	{
+		if (wall.WallCount <= 0) return 0;
+		var seats = Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex
+			&& state.ActiveSeats[seat] && !state.HasHu[seat]).ToArray();
+		if (seats.Length == 0) return 0;
+		return Math.Clamp(seats.Average(seat =>
+		{
+			var waits = belief.SeatTileWaitProbability.GetValueOrDefault(seat);
+			return Enumerable.Range(0, 27).Sum(tile => wall.ExpectedCounts18[tile]
+				* (waits?.GetValueOrDefault(tile, 0.0) ?? 0.0)) / wall.WallCount;
+		}), 0.0, 0.35);
+	}
+
+	private double EstimateReadyWinScore(
+		SichuanStateView state,
+		int[] handAfterDiscard,
+		IReadOnlyList<SichuanWaitAnalysis> waits,
+		SichuanWallAvailability wall,
+		int activeOpponents)
+	{
+		var melds = state.MeldViews[state.SeatIndex].Count > 0
+			? state.MeldViews[state.SeatIndex].ToArray()
+			: InferMeldViews(state, state.SeatIndex);
+		var weightedScore = 0.0;
+		var totalWeight = 0.0;
+		foreach (var wait in waits)
+		{
+			var weight = wall.ExpectedCounts18[wait.TileType];
+			if (weight <= 0) continue;
+			var completed = (int[])handAfterDiscard.Clone();
+			completed[wait.TileType]++;
+			weightedScore += weight * _fans.Project(completed, melds, SichuanWinType.SelfDraw).PerPayerScore
+				* activeOpponents;
+			totalWeight += weight;
+		}
+		return totalWeight > 0 ? weightedScore / totalWeight : 0.0;
+	}
+
 	private double EstimateChaJiaoScore(
 		SichuanStateView state,
 		int[] handAfterDiscard,
-		IReadOnlyList<SichuanWaitAnalysis> waits)
+		IReadOnlyList<SichuanWaitAnalysis> waits,
+		SichuanBeliefSnapshot belief)
 	{
 		if (waits.Count == 0) return 0.0;
 		var melds = state.MeldViews[state.SeatIndex].Count > 0
@@ -134,7 +196,8 @@ public sealed class SichuanUnifiedDecisionEngine
 		}
 		var expectedPayers = state.ActiveSeats
 			.Select((active, seat) => (active, seat))
-			.Count(item => item.active && item.seat != state.SeatIndex && !state.IsReady[item.seat]);
+			.Where(item => item.active && item.seat != state.SeatIndex)
+			.Sum(item => 1.0 - Math.Clamp(belief.SeatReadyPosterior.GetValueOrDefault(item.seat, 0.0), 0.0, 1.0));
 		return bestPerPayer * expectedPayers;
 	}
 

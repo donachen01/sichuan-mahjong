@@ -393,8 +393,8 @@ public sealed class SichuanRoutePlanEngine
             threat += 18;
         if (offSuitDiscards >= 7 && targetSuitDiscards <= 1)
             threat += 18;
-        if (state.IsReady[seat] || state.IsCalled[seat])
-            threat += 20;
+        if (state.IsReady[seat]) threat += 20;
+        else if (state.IsCalled[seat]) threat += 5;
         if (state.WallCount <= 13)
             threat += Math.Min(12, exposedSets * 4);
         return Math.Clamp(threat, 0, 100);

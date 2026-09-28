@@ -86,6 +86,33 @@ internal static class SichuanPublicInferenceBoundary
             return "four_copy_conservation_failed";
 
         var publicCounts = new int[27];
+        var recordedDiscards = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
+        var claimedDiscardEvents = new HashSet<(int Turn, int Source, int Tile)>();
+        var externalHuTiles = new HashSet<(int Turn, int Source, int Tile)>();
+        foreach (var item in state.PublicEvents)
+        {
+            if (item.Seat is < 0 or > 3) continue;
+            if (item.Type == SichuanPublicEventType.Discard && item.TileType is >= 0 and < 27)
+            {
+                recordedDiscards[item.Seat].Add(item.TileType);
+                continue;
+            }
+            if (item.Type is not (SichuanPublicEventType.Peng or SichuanPublicEventType.MeldedGang or SichuanPublicEventType.Hu)
+                || item.SourceSeat is < 0 or > 3 || item.SourceSeat == item.Seat
+                || item.TileType is < 0 or > 26) continue;
+            var meldGroups = state.Melds18[item.Seat].Distinct().Count();
+            var concealedBase = 13 - 3 * meldGroups;
+            // A self-draw can transfer gang money from another seat; its Hu
+            // source does not mean the winning tile came from that seat.
+            if (item.Type == SichuanPublicEventType.Hu && state.HandCounts[item.Seat] != concealedBase)
+                continue;
+            var claim = (Turn: item.TurnIndex, Source: item.SourceSeat, Tile: item.TileType);
+            if (item.Type == SichuanPublicEventType.Hu) externalHuTiles.Add(claim);
+            if (!claimedDiscardEvents.Add(claim)) continue;
+            var history = recordedDiscards[item.SourceSeat];
+            var index = history.FindLastIndex(tile => tile == item.TileType);
+            if (index >= 0) history.RemoveAt(index);
+        }
         for (var seat = 0; seat < 4; seat++)
         {
             if (state.Melds18[seat].Concat(state.Discards18[seat]).Any(tile => tile is < 0 or > 26))
@@ -101,12 +128,10 @@ internal static class SichuanPublicInferenceBoundary
                     || state.HasHu[seat] && state.HandCounts[seat] == baseHandSize + 1;
             if (!handSizeValid) return "public_hand_size_failed";
             foreach (var tile in state.Melds18[seat].Concat(state.Discards18[seat])) publicCounts[tile]++;
-            var orderedDiscards = state.PublicEvents
-                .Where(item => item.Seat == seat && item.Type == SichuanPublicEventType.Discard)
-                .Select(item => item.TileType);
-            if (!orderedDiscards.SequenceEqual(state.Discards18[seat]))
+            if (!recordedDiscards[seat].SequenceEqual(state.Discards18[seat]))
                 return "public_discard_history_incomplete";
         }
+        foreach (var claim in externalHuTiles) publicCounts[claim.Tile]++;
         if (!publicCounts.SequenceEqual(state.Visible18)) return "public_allocation_incomplete";
         if (state.Remaining18.Sum() != state.WallCount + Enumerable.Range(0, 4)
             .Where(seat => seat != state.SeatIndex).Sum(seat => state.HandCounts[seat]))
