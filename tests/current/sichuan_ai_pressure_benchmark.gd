@@ -309,6 +309,8 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 	var initial_world_hash := _checkpoint_world_hash(game_state, candidate_seat)
 	var audit_records: Array = []
 	var started_ms := Time.get_ticks_msec()
+	var native_runtime = game_state.get("ai_manager").native_csharp_runtime
+	var continuation_before := str(native_runtime.call("GetContinuationDiagnosticsCompact")) if native_runtime.has_method("GetContinuationDiagnosticsCompact") else "unavailable"
 	var result := await _play_single_round(
 		game_state, round_no, max_steps_per_round,
 		"paired_%s_seat_%d" % [label, candidate_seat], record_audit, audit_records,
@@ -331,6 +333,8 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 	}).sha256_text()
 	var arm := {
 		"policy": candidate_variant,
+		"continuation_before": continuation_before,
+		"continuation_after": str(native_runtime.call("GetContinuationDiagnosticsCompact")) if native_runtime.has_method("GetContinuationDiagnosticsCompact") else "unavailable",
 		"seat_delta": _seat_delta(score_changes, candidate_seat) if candidate_seat >= 0 else 0,
 		"score_changes": score_changes.duplicate(true),
 		"gang_net": gang_net.duplicate(true),
@@ -801,6 +805,7 @@ func _append_new_discard_audit_records(records: Array, game_state: Node, round_n
 		if analysis.is_empty():
 			analysis = fallback_analysis
 		_apply_decision_audit_fields(record, analysis, tile)
+		record["decision_policy_reasons"] = Array(Dictionary(analysis.get("csharp_result", {})).get("reasons", [])).duplicate()
 		records.append(record)
 
 

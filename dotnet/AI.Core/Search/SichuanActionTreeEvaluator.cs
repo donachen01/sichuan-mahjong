@@ -39,7 +39,14 @@ public sealed class SichuanActionTreeEvaluator
 		double ExpectedGangGain,
 		int Simulations,
 		double ElapsedMilliseconds,
-		double HorizonProbability);
+		double HorizonProbability)
+	{
+		public double ExpectedOwnWinGain { get; init; }
+		public double ExpectedOpponentLoss { get; init; }
+		public double ExpectedChaJiaoValue { get; init; }
+		public double ExpectedContinuationValue { get; init; }
+		public double BattleEndProbability { get; init; }
+	}
 
     public SichuanExpectedValueBreakdown EvaluateWait(
         int liveTiles,
@@ -62,91 +69,19 @@ public sealed class SichuanActionTreeEvaluator
     public double CompareImmediateHuWithPass(double immediateHuScore, SichuanExpectedValueBreakdown passRoute, double shunHuLockCost)
         => passRoute.Net - shunHuLockCost - immediateHuScore;
 
-	public ChanceSearchResult SearchChanceNodes(ChanceSearchRequest request)
-	{
-		var watch = Stopwatch.StartNew();
-		var simulations = Math.Clamp(request.Simulations, 64, 8192);
-		if (request.WallTiles <= 0)
-		{
-			watch.Stop();
-			return new ChanceSearchResult(
-				request.ChaJiaoValue,
-				0,
-				0,
-				1,
-				0,
-				simulations,
-				watch.Elapsed.TotalMilliseconds,
-				0);
-		}
-		var activePlayers = Math.Clamp(request.ActivePlayers, 2, 4);
-		var random = new Random(request.Seed);
-		var totalNet = 0.0;
-		var wins = 0;
-		var opponentWins = 0;
-		var draws = 0;
-		var horizons = 0;
-		var gangGain = 0.0;
-		for (var sample = 0; sample < simulations; sample++)
-		{
-			var wall = request.WallTiles;
-			var live = Math.Clamp(request.LiveTiles, 0.0, wall);
-			var net = 0.0;
-			var resolved = false;
-			var actualDraw = false;
-			var extraOwnDraws = 0;
-			var maxDraws = Math.Min(Math.Max(0, request.MaxDraws), request.WallTiles);
-			for (var drawIndex = 0; drawIndex < maxDraws + extraOwnDraws && wall > 0; drawIndex++)
-			{
-				var isOwnDraw = (drawIndex - request.OwnTurnOffset) % activePlayers == 0 && drawIndex >= request.OwnTurnOffset;
-				if (isOwnDraw)
-				{
-					if (live > 0 && random.NextDouble() < live / wall)
-					{
-						net += request.WinScore;
-						wins++;
-						resolved = true;
-						break;
-					}
-					if (request.GangOpportunityProbability > 0 && random.NextDouble() < request.GangOpportunityProbability)
-					{
-						net += request.GangGain;
-						gangGain += request.GangGain;
-						extraOwnDraws++;
-					}
-				}
-				else if (random.NextDouble() < Math.Clamp(request.OpponentWinProbabilityPerDraw, 0, 1))
-				{
-					net -= Math.Max(0, request.OpponentWinLoss);
-					opponentWins++;
-					resolved = true;
-					break;
-				}
-				// A missed own draw removes a non-target tile. Opponent draws
-				// may remove a target tile; condition on the still-unknown pool.
-				if (!isOwnDraw && live > 0)
-					live = Math.Max(0, live - live / wall);
-				wall--;
-				actualDraw = wall == 0;
-			}
-			if (!resolved && actualDraw)
-			{
-				net += request.ChaJiaoValue;
-				draws++;
-			}
-			else if (!resolved)
-				horizons++;
-			totalNet += net;
-		}
-		watch.Stop();
-		return new ChanceSearchResult(
-			totalNet / simulations,
-			wins / (double)simulations,
-			opponentWins / (double)simulations,
-			draws / (double)simulations,
-			gangGain / simulations,
-			simulations,
-			watch.Elapsed.TotalMilliseconds,
-			horizons / (double)simulations);
-	}
+    public ChanceSearchResult SearchChanceNodes(ChanceSearchRequest request)
+    {
+        var watch = Stopwatch.StartNew();
+        var value = new SichuanBloodBattleChanceModel().Evaluate(request);
+        watch.Stop();
+        return new ChanceSearchResult(value.Net, value.Win, value.OpponentWin,
+            value.Draw, value.Gang, 0, watch.Elapsed.TotalMilliseconds, value.Horizon)
+        {
+            ExpectedOwnWinGain = value.WinGain,
+            ExpectedOpponentLoss = value.Loss,
+            ExpectedChaJiaoValue = value.ChaJiao,
+            ExpectedContinuationValue = value.Continuation,
+            BattleEndProbability = value.BattleEnd
+        };
+    }
 }

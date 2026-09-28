@@ -1,0 +1,14 @@
+{
+  "pairs": 32,
+  "independent_deals": 8,
+  "invalid_pairs": 0,
+  "mean_delta": 0.15625,
+  "deal_cluster_ci95": [
+    0.0,
+    0.375
+  ],
+  "different_action_sequences": 3,
+  "scope": "current continuation selector versus same engine with selector disabled",
+  "instrumented_subset_confirmed_overrides": 4,
+  "instrumented_subset_deals": 3
+}

@@ -13,7 +13,11 @@ public sealed record SichuanPublicContinuationEstimate(
     double ImmediateScore,
     double ContinuationScore,
     double InitialDealInProbability,
-    int Samples);
+    int Samples)
+{
+    public double WinProbability { get; init; }
+    public double ReadyAtEndProbability { get; init; }
+}
 
 public sealed record SichuanPublicContinuationReport(
     IReadOnlyList<SichuanPublicContinuationEstimate> Candidates,
@@ -22,7 +26,13 @@ public sealed record SichuanPublicContinuationReport(
     int Seed,
     int MaximumWall,
     bool AppliedToPolicy,
-    string Status);
+    string Status)
+{
+    public IReadOnlyList<SichuanContinuationComparison> Comparisons { get; init; } = Array.Empty<SichuanContinuationComparison>();
+}
+
+public sealed record SichuanContinuationComparison(int TileType, int ReferenceTile,
+    double MeanNetDifference, double StandardError);
 
 /// <summary>
 /// Small, public-only endgame counterfactuals. Every candidate uses the same
@@ -40,17 +50,16 @@ public sealed class SichuanPublicEndgameEvaluator
     private readonly Engines.SichuanShantenEngine _shanten = new();
 
     /// <summary>
-    /// Read-only, public-information diagnostic for blood-battle continuation.
-    /// Unlike <see cref="Evaluate"/>, this can inspect a longer wall, but its
-    /// result is never consumed by candidate scoring. Callers must calibrate and
-    /// promote the mechanism separately before policy use.
+    /// Public-information blood-battle continuation with paired candidate samples.
+    /// Policy callers must apply independent confirmation and uncertainty gates.
     /// </summary>
     public SichuanPublicContinuationReport AnalyzeContinuation(
         SichuanStateView state,
         IEnumerable<int> discardTiles,
         int maximumWall = 32,
         int sampleCount = 128,
-        int seed = 20260909)
+        int seed = 20260909,
+        bool includeUnready = false)
     {
         maximumWall = Math.Clamp(maximumWall, 4, 72);
         sampleCount = Math.Clamp(sampleCount, 32, 4096);
@@ -69,7 +78,8 @@ public sealed class SichuanPublicEndgameEvaluator
         if (projection.WallCount > maximumWall)
             return EmptyContinuation(0, seed, maximumWall, "wall_out_of_scope");
         if (!TryPrepare(
-            projection, discardTiles, maximumWall, out _, out var tiles, out _, includeExitedSeats: true))
+            projection, discardTiles, maximumWall, out _, out var tiles, out _, includeExitedSeats: true,
+            includeUnready: includeUnready))
             return EmptyContinuation(0, seed, maximumWall, "state_out_of_scope");
 
         var particles = _inference.SampleParticles(
@@ -89,20 +99,28 @@ public sealed class SichuanPublicEndgameEvaluator
         var immediate = tiles.ToDictionary(t => t, _ => 0.0);
         var continuation = tiles.ToDictionary(t => t, _ => 0.0);
         var dealIn = tiles.ToDictionary(t => t, _ => 0.0);
+        var wins = tiles.ToDictionary(t => t, _ => 0.0);
+        var readyAtEnd = tiles.ToDictionary(t => t, _ => 0.0);
         var sumSquaredWeights = 0.0;
+        var differences = tiles.ToDictionary(t => t, _ => new List<(double Delta, double Weight)>());
         for (var i = 0; i < particles.Count; i++)
         {
             var particle = particles[i];
             var normalizedWeight = particle.Weight / totalWeight;
             sumSquaredWeights += normalizedWeight * normalizedWeight;
             var wall = ShuffledWall(particle, seed ^ projection.RoundIndex ^ i * 7919);
+            var referenceScore = 0.0;
             foreach (var tile in tiles)
             {
                 var outcome = Simulate(projection, particle, wall, tile);
+                if (tile == tiles[0]) referenceScore = outcome.NetScore;
+                differences[tile].Add((outcome.NetScore - referenceScore, normalizedWeight));
                 net[tile] += outcome.NetScore * normalizedWeight;
                 immediate[tile] += outcome.ImmediateScore * normalizedWeight;
                 continuation[tile] += outcome.ContinuationScore * normalizedWeight;
                 if (outcome.InitialDealIn) dealIn[tile] += normalizedWeight;
+                if (outcome.OwnWon) wins[tile] += normalizedWeight;
+                if (outcome.OwnReadyAtEnd) readyAtEnd[tile] += normalizedWeight;
             }
         }
 
@@ -112,7 +130,7 @@ public sealed class SichuanPublicEndgameEvaluator
             immediate[tile],
             continuation[tile],
             dealIn[tile],
-            particles.Count)).ToArray();
+            particles.Count) { WinProbability = wins[tile], ReadyAtEndProbability = readyAtEnd[tile] }).ToArray();
         var effectiveSampleSize = sumSquaredWeights <= 0 ? 0 : 1.0 / sumSquaredWeights;
         return new SichuanPublicContinuationReport(
             estimates,
@@ -121,7 +139,16 @@ public sealed class SichuanPublicEndgameEvaluator
             seed,
             maximumWall,
             AppliedToPolicy: false,
-            Status: estimates.Length > 0 ? "diagnostic_only" : "no_ready_candidates");
+            Status: estimates.Length > 0 ? "diagnostic_only" : "no_ready_candidates")
+        {
+            Comparisons = tiles.Select(tile =>
+            {
+                var mean = differences[tile].Sum(x => x.Delta*x.Weight);
+                var variance = differences[tile].Sum(x => x.Weight * Math.Pow(x.Delta-mean, 2));
+                return new SichuanContinuationComparison(tile, tiles[0], mean,
+                    Math.Sqrt(variance / Math.Max(1, effectiveSampleSize-1)));
+            }).ToArray()
+        };
     }
 
     public IReadOnlyList<SichuanPublicEndgameEstimate> Evaluate(SichuanStateView state, IEnumerable<int> discardTiles)
@@ -147,13 +174,15 @@ public sealed class SichuanPublicEndgameEvaluator
         return tiles.Select(t => new SichuanPublicEndgameEstimate(t, values[t], particles.Count)).ToArray();
     }
 
-    private sealed record SimulationOutcome(
+    internal sealed record SimulationOutcome(
         double NetScore,
         double ImmediateScore,
         double ContinuationScore,
-        bool InitialDealIn);
+        bool InitialDealIn,
+        bool OwnWon,
+        bool OwnReadyAtEnd);
 
-    private SimulationOutcome Simulate(SichuanStateView state, SichuanHiddenHandParticle particle, int[] wall, int firstDiscard)
+    internal SimulationOutcome Simulate(SichuanStateView state, SichuanHiddenHandParticle particle, int[] wall, int firstDiscard)
     {
         var hands = particle.Hands27.Select(h => (int[])h.Clone()).ToArray();
         hands[state.SeatIndex] = (int[])state.Hand18.Clone();
@@ -161,7 +190,9 @@ public sealed class SichuanPublicEndgameEvaluator
         var active = Enumerable.Range(0, 4).Select(s => state.ActiveSeats[s] && !state.HasHu[s]).ToArray();
         var changes = new int[4];
         var publicVisible = (int[])state.Visible18.Clone();
-        var won = new Dictionary<int, int>();
+        var won = Enumerable.Range(0, 4).Where(s => state.HasHu[s] && state.WonScores[s] >= 0)
+            .ToDictionary(s => s, s => state.WonScores[s]);
+        var singleLane = Strategy.SichuanSingleLaneEvaluator.ResolveSuit(state);
         var wallIndex = 0;
         var current = state.SeatIndex;
         var tile = firstDiscard;
@@ -175,9 +206,8 @@ public sealed class SichuanPublicEndgameEvaluator
             SichuanPublicEventType.MeldedGang or SichuanPublicEventType.ConcealedGang or SichuanPublicEventType.AddedGang;
         var lastGangType = precedingAction?.Type == SichuanPublicEventType.ConcealedGang ? SichuanMeldType.ConcealedGang
             : precedingAction?.Type == SichuanPublicEventType.MeldedGang ? SichuanMeldType.MeldedGang : SichuanMeldType.AddedGang;
-        var lastGangPayers = afterGang && lastGangType == SichuanMeldType.MeldedGang && precedingAction!.SourceSeat is >= 0 and < 4
-            ? new[] { precedingAction.SourceSeat }
-            : afterGang ? ActiveSeats().Where(s => s != current).ToArray() : Array.Empty<int>();
+        var lastGangSource = afterGang ? precedingAction!.SourceSeat : -1;
+        var lastGangPayers = afterGang ? ActiveSeats().Where(s => s != current).ToArray() : Array.Empty<int>();
         // A wall-proportional hard budget allows diagnostic continuations while
         // protecting callers from malformed claim loops without inventing an action.
         var stepBudget = Math.Min(320, Math.Max(32, wall.Length * 4 + 16));
@@ -196,7 +226,7 @@ public sealed class SichuanPublicEndgameEvaluator
             }
             if (winners.Length > 0 && afterGang)
                 Add(_settlement.ProjectScenario(new(TransferEvents: winners.Select(w =>
-                    new SichuanHuJiaoTransferEvent(w, lastGangType, lastGangPayers, current)).ToArray())).ScoreChanges);
+                    new SichuanHuJiaoTransferEvent(w, lastGangType, lastGangPayers, current, lastGangSource)).ToArray())).ScoreChanges);
             if (initialDecisionPending)
             {
                 initialDealIn = winners.Length > 0;
@@ -215,13 +245,14 @@ public sealed class SichuanPublicEndgameEvaluator
                 {
                     if (hands[seat][tile] < 2 || melds[seat].Count >= 4) continue;
                     var before = Shanten(hands[seat], melds[seat].Count);
-                    var gang = hands[seat][tile] >= 3;
+                    var gang = hands[seat][tile] >= 3 && wallIndex < wall.Length;
                     var probe = (int[])hands[seat].Clone();
                     probe[tile] -= gang ? 3 : 2;
                     var nextMelds = melds[seat].Append(new SichuanMeldView(gang ? SichuanMeldType.MeldedGang : SichuanMeldType.Peng, tile, current, 0)).ToList();
                     var claimedVisible = (int[])publicVisible.Clone();
                     claimedVisible[tile] += gang ? 3 : 2;
-                    var discard = gang ? -1 : BestDiscard(probe, nextMelds, state.DingQueSuits[seat], claimedVisible);
+                    var discard = gang ? -1 : BestDiscard(probe, nextMelds, state.DingQueSuits[seat], claimedVisible,
+                        seat == state.SeatIndex ? singleLane : -1, wall.Length-wallIndex, active.Count(x => x));
                     if (!gang && discard < 0) continue;
                     if (!gang) probe[discard]--;
                     var after = Shanten(probe, nextMelds.Count);
@@ -234,14 +265,11 @@ public sealed class SichuanPublicEndgameEvaluator
                     claimed = true;
                     if (gang)
                     {
-                        lastGangPayers = new[] { source };
+                        lastGangPayers = ActiveSeats().Where(s => s != seat).ToArray();
+                        lastGangSource = source;
                         lastGangType = SichuanMeldType.MeldedGang;
-                        Add(_settlement.ProjectScenario(new(GangEvents: new[] { new SichuanGangScoreEvent(seat, lastGangType, lastGangPayers) })).ScoreChanges);
-                        // Current GameState permits a final-discard Gang and
-                        // settles when no replacement remains. Do not import
-                        // a video's different last-tile rule into the AI.
-                        if (wallIndex >= wall.Length) return Finish();
-                        if (DrawAndDiscard(seat, true, out tile)) break;
+                        Add(_settlement.ProjectScenario(new(GangEvents: new[] { new SichuanGangScoreEvent(seat, lastGangType, lastGangPayers, SourceSeat: source) })).ScoreChanges);
+                        DrawAndDiscard(seat, true, out tile);
                         afterGang = true;
                     }
                     else
@@ -283,12 +311,32 @@ public sealed class SichuanPublicEndgameEvaluator
             hands[seat][draw]++;
             if (IsLegalWinning(seat, hands[seat]))
             {
-                var type = replacement ? SichuanWinType.GangSelfDraw : SichuanWinType.SelfDraw;
+                var pointGangFlower = replacement && lastGangType == SichuanMeldType.MeldedGang;
+                var type = pointGangFlower ? SichuanWinType.DianGangHua
+                    : replacement ? SichuanWinType.GangSelfDraw : SichuanWinType.SelfDraw;
                 var fan = _fans.Project(hands[seat], melds[seat], type);
-                Add(_settlement.ProjectWin(seat, -1, ActiveSeats(), fan, type).ScoreChanges);
+                Add(_settlement.ProjectWin(seat, pointGangFlower ? lastGangSource : -1, ActiveSeats(), fan, type).ScoreChanges);
                 active[seat] = false;
                 won[seat] = fan.HandScore;
                 return true;
+            }
+            if (wallIndex < wall.Length && melds[seat].Count < 4)
+            {
+                var before = Shanten(hands[seat], melds[seat].Count);
+                for (var quad = 0; quad < 27; quad++)
+                {
+                    if (hands[seat][quad] != 4 || state.DingQueSuits[seat] == quad / 9) continue;
+                    hands[seat][quad] -= 4;
+                    var after = Shanten(hands[seat], melds[seat].Count + 1);
+                    if (after > before) { hands[seat][quad] += 4; continue; }
+                    publicVisible[quad] += 4;
+                    melds[seat].Add(new(SichuanMeldType.ConcealedGang, quad, seat, 0));
+                    lastGangPayers = ActiveSeats().Where(s => s != seat).ToArray();
+                    lastGangType = SichuanMeldType.ConcealedGang;
+                    Add(_settlement.ProjectScenario(new(GangEvents: new[] {
+                        new SichuanGangScoreEvent(seat, lastGangType, lastGangPayers) })).ScoreChanges);
+                    return DrawAndDiscard(seat, true, out discard);
+                }
             }
             // Added Gang is considered from own known tiles, before observing
             // the replacement. Rob-Gang winners take priority over payment.
@@ -321,7 +369,8 @@ public sealed class SichuanPublicEndgameEvaluator
                 afterGang = true;
                 return DrawAndDiscard(seat, true, out discard);
             }
-            discard = BestDiscard(hands[seat], melds[seat], state.DingQueSuits[seat], publicVisible);
+            discard = BestDiscard(hands[seat], melds[seat], state.DingQueSuits[seat], publicVisible,
+                seat == state.SeatIndex ? singleLane : -1, wall.Length-wallIndex, active.Count(x => x));
             if (discard < 0) return true;
             hands[seat][discard]--;
             publicVisible[discard]++;
@@ -372,7 +421,10 @@ public sealed class SichuanPublicEndgameEvaluator
                 initialDecisionPending = false;
             }
             var netScore = changes[state.SeatIndex];
-            return new SimulationOutcome(netScore, immediateScore, netScore - immediateScore, initialDealIn);
+            var ownWon = won.ContainsKey(state.SeatIndex);
+            var ownReady = !ownWon && !HasMissing(hands[state.SeatIndex], state.OwnDingQueSuit)
+                && Shanten(hands[state.SeatIndex], melds[state.SeatIndex].Count) == 0;
+            return new SimulationOutcome(netScore, immediateScore, netScore - immediateScore, initialDealIn, ownWon, ownReady);
         }
     }
 
@@ -383,7 +435,8 @@ public sealed class SichuanPublicEndgameEvaluator
         out int[] seats,
         out int[] tiles,
         out int ownMeldCount,
-        bool includeExitedSeats = false)
+        bool includeExitedSeats = false,
+        bool includeUnready = false)
     {
         seats = Array.Empty<int>();
         tiles = Array.Empty<int>();
@@ -411,13 +464,16 @@ public sealed class SichuanPublicEndgameEvaluator
         // do not silently relabel their tiles as drawable wall tiles.
         if (state.Remaining18.Sum() != state.WallCount + seats.Sum(s => state.HandCounts[s]))
             return false;
-        // Only compare continuations which keep the caller ready. The compact
-        // state has no per-winner historical cha-jiao liability, so breaking
-        // ready must remain with the existing general evaluator.
+        if (includeUnready && Enumerable.Range(0, 4).Any(s => state.HasHu[s] && state.WonScores[s] < 0))
+            return false;
+        // Breaking ready needs the announced winners' public score liability.
+        // Older transports may still request the ready-only diagnostic.
         var readyMeldCount = ownMeldCount;
+        var forced = HasMissing(state.Hand18, state.OwnDingQueSuit) ? state.OwnDingQueSuit : -1;
         tiles = discardTiles.Distinct().Where(t => t is >= 0 and < 27 && state.Hand18[t] > 0
-            && !HasMissing(state.Hand18, state.OwnDingQueSuit)).Where(t =>
+            && (forced < 0 || t / 9 == forced)).Where(t =>
             {
+                if (includeUnready) return true;
                 var hand = (int[])state.Hand18.Clone();
                 hand[t]--;
                 return Shanten(hand, readyMeldCount) == 0;
@@ -459,7 +515,8 @@ public sealed class SichuanPublicEndgameEvaluator
             AppliedToPolicy: false,
             Status: status);
 
-    private int BestDiscard(int[] hand, List<SichuanMeldView> melds, int missing, int[] visible)
+    private int BestDiscard(int[] hand, List<SichuanMeldView> melds, int missing, int[] visible,
+        int preferredSuit = -1, int remainingWall = 0, int activePlayers = 4)
     {
         var forced = HasMissing(hand, missing) ? missing : -1;
         var bestShanten = int.MaxValue;
@@ -472,6 +529,37 @@ public sealed class SichuanPublicEndgameEvaluator
             hand[tile]++;
             if (shanten < bestShanten) { bestShanten = shanten; tied.Clear(); }
             if (shanten == bestShanten) tied.Add(tile);
+        }
+        if (forced < 0 && preferredSuit >= 0 && melds.All(m => m.TileType/9 == preferredSuit))
+        {
+            var target = hand.Select((count,t) => t/9 == preferredSuit ? count : 0).ToArray();
+            var targetDistance = Shanten(target, melds.Count);
+            var ownDraws = remainingWall / Math.Max(1, activePlayers);
+            // Keep a reachable flush route, but leave the ordinary ready exit
+            // intact. Route choice observes only this hand and public tiles.
+            var debt = bestShanten > 0 && ownDraws > targetDistance+1 && remainingWall >= 16 ? 1 : 0;
+            if (target.Sum() >= Math.Ceiling(hand.Sum()*.6) && ownDraws >= targetDistance+1)
+            {
+                var routeTiles = new List<(int Tile, int Target, int Ordinary)>();
+                for (var discard = 0; discard < 27; discard++)
+                {
+                    if (hand[discard] == 0) continue;
+                    hand[discard]--;
+                    if (discard/9 == preferredSuit) target[discard]--;
+                    var ordinary = Shanten(hand, melds.Count);
+                    var distance = Shanten(target, melds.Count);
+                    if (ordinary <= bestShanten+debt) routeTiles.Add((discard,distance,ordinary));
+                    hand[discard]++;
+                    if (discard/9 == preferredSuit) target[discard]++;
+                }
+                if (routeTiles.Count > 0)
+                {
+                    var minTarget = routeTiles.Min(t => t.Target);
+                    var minOrdinary = routeTiles.Where(t => t.Target == minTarget).Min(t => t.Ordinary);
+                    tied = routeTiles.Where(t => t.Target == minTarget && t.Ordinary == minOrdinary).Select(t => t.Tile).ToList();
+                    bestShanten = minOrdinary;
+                }
+            }
         }
         if (tied.Count <= 1) return tied.Count == 0 ? -1 : tied[0];
         var remaining = PublicRemaining(hand, visible);

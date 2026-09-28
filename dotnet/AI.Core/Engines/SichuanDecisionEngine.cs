@@ -32,6 +32,8 @@ public sealed class SichuanDecisionEngine
 	private readonly SichuanDefenseTempoEvaluator _defenseTempo = new();
 	private readonly SichuanTwoPlyReadyEvaluator _twoPlyReady = new();
 	private readonly SichuanPublicJointRouteAnalysis _publicJointRoutes = new();
+    public static IReadOnlyDictionary<string, long> GetContinuationDiagnostics() => SichuanCriticalContinuationSelector.Diagnostics();
+    private readonly SichuanCriticalContinuationSelector _criticalContinuation = new();
 
     private sealed record SichuanBigHandRouteAdjustment(double Score, IReadOnlyList<string> Reasons)
     {
@@ -576,6 +578,20 @@ public sealed class SichuanDecisionEngine
                 .ToList();
         }
 
+        var continuationChoice = !forceLightweight && state.PolicyVariant != "continuation_disabled"
+            ? _criticalContinuation.Select(state, candidates, bestTile) : null;
+        if (continuationChoice is { } continuation)
+        {
+            var chosen = candidates.First(c => c.TileType == continuation.Tile);
+            bestTile = chosen.TileType;
+            bestScore = chosen.Score;
+            bestShanten = chosen.Shanten;
+            bestUkeire = chosen.Ukeire;
+            bestLive = chosen.LiveUkeire;
+            bestSearchBonus = chosen.SearchBonus;
+            finalSelectionReason = continuation.Reason;
+            reasons = chosen.Reasons.ToList();
+        }
         var bestCandidateSnapshot = candidates.FirstOrDefault(item => item.TileType == bestTile);
         var finalDanger = bestTile >= 0 ? _danger.EvaluateDetail(bestTile, state, belief) : new SichuanDangerEvaluation { Risk = 0, RiskLabel = "低危" };
         var finalDealInProbability = SichuanRiskCalibration.ToDealInProbability(finalDanger.Risk, roundStage, maxReadyPosterior);

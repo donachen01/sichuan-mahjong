@@ -1,0 +1,7 @@
+public_endgame_ms=353
+public_endgame_ready_candidates=5
+real_endgame_decision_ms=670; tile=1
+warmed_endgame_decision_ms=110; tile=1
+warmed_unified_endgame_ms=73
+定缺分别比较三种方案清缺成本、保留牌形和有效进张; tiao：清缺 3，保留结构向听 3（普通 3/七对 5），有效进张 41，预计成本 6.38; tong：清缺 4，保留结构向听 2（普通 2/七对 4），有效进张 15，预计成本 5.16; wan：清缺 7，保留结构向听 5（普通 5/七对 6），有效进张 26，预计成本 12.05; 公开未知牌配对模拟 24 组、每组最多 10 次自身摸牌：三方案进度成本 8.92/8.00/12.71；配对优势 0.00、标准误 0.00；未计对手碰杠
+AI_MODEL_FIX_CHECKS failures=0

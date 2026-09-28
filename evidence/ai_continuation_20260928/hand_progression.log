@@ -1,0 +1,3 @@
+MULTI_HU_CONTINUATION immediate=-2; net=-2
+REAL_HAND_PROGRESS before_ready=False; progressed_ready=True; won=True; score=2
+AI_PROGRESSION_CHECKS failures=0

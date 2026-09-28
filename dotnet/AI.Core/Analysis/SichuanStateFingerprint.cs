@@ -31,9 +31,24 @@ public static class SichuanStateFingerprint
         AppendVector(builder, "remain", state.Remaining18);
         AppendVector(builder, "scores", state.Scores);
         AppendVector(builder, "dingQue", state.DingQueSuits);
+        AppendVector(builder, "handCounts", state.HandCounts);
+        AppendVector(builder, "wonScores", state.WonScores);
+        AppendVector(builder, "lockedFans", state.LockedFans);
+        AppendVector(builder, "lockTurns", state.LockTurns);
+        builder.Append("|mode=").Append(state.InformationMode)
+            .Append("|events=").Append(state.EventVersion)
+            .Append("|lastGang=").Append(state.LastGangSeat).Append(',').Append(state.LastGangTileType)
+            .Append(',').Append(state.LastGangType).Append("|drawOrigin=").Append(state.LastDrawOrigin);
+        foreach (var item in state.PublicEvents) builder.Append('|').Append(item);
 
         for (var seat = 0; seat < 4; seat++)
         {
+            builder.Append("|active=").Append(state.ActiveSeats[seat])
+                .Append("|unlock=").Append(state.UnlockOnOwnDraw[seat]);
+            foreach (var meld in state.MeldViews[seat]) builder.Append('|').Append(meld);
+            AppendVector(builder, $"passHu{seat}", state.PassedHu18[seat]);
+            AppendVector(builder, $"passPeng{seat}", state.PassedPeng18[seat]);
+            AppendVector(builder, $"passGang{seat}", state.PassedGang18[seat]);
             AppendList(builder, $"d{seat}", state.Discards18[seat]);
             AppendList(builder, $"m{seat}", state.Melds18[seat]);
             builder.Append("|bj").Append(seat).Append('=').Append(state.IsCalled[seat] ? 1 : 0);

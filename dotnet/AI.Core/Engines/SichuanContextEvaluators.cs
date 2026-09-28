@@ -105,7 +105,9 @@ public sealed class SichuanHandEvaluator
     }
 
     public static string BuildHandKey(SichuanStateView state)
-        => string.Join(',', state.Hand18) + $"|m:{string.Join(',', state.Melds18[state.SeatIndex])}|w:{state.WallCount}|q:{state.OwnDingQueSuit}";
+        // This caches live ukeire and risk waste, not only mathematical shape.
+        // Include the public evidence and own blockers used by those values.
+        => SichuanMahjong.AI.Core.Analysis.SichuanStateFingerprint.BuildTurnKey(state, false, false);
 
     private static int CountIsolatedSingles(int[] hand18)
     {

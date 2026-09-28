@@ -304,6 +304,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"scores": scores,
 		"dingQueSuits": ding_que_suits,
 		"handCounts": hand_counts,
+		"wonScores": table_state.get("public_won_scores", [-1, -1, -1, -1]),
 		"lockedFans": locked_fans,
 		"lockTurns": lock_turns,
 		"unlockOnOwnDraw": unlock_on_own_draw,

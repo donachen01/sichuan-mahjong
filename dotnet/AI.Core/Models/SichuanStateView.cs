@@ -19,6 +19,9 @@ public sealed class SichuanStateView
     public int[] Scores { get; set; } = new int[4];
     public int[] DingQueSuits { get; set; } = Enumerable.Repeat(-1, 4).ToArray();
 	public int[] HandCounts { get; set; } = new[] { 13, 13, 13, 13 };
+    // Public score of an already announced win, used only for future draw
+    // liabilities. -1 means the transport did not supply this public fact.
+    public int[] WonScores { get; set; } = Enumerable.Repeat(-1, 4).ToArray();
 	public int[] LockedFans { get; set; } = Enumerable.Repeat(-1, 4).ToArray();
 	public int[] LockTurns { get; set; } = Enumerable.Repeat(-1, 4).ToArray();
 	public bool[] UnlockOnOwnDraw { get; set; } = new bool[4];

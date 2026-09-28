@@ -179,13 +179,8 @@ public sealed class SichuanSingleLaneEvaluator
 
     private static bool HasPubliclyCleared(SichuanStateView state, int seat, int suit)
     {
-        var last = state.PublicEvents.Where(e => e.Seat == seat
-            && e.Type is SichuanPublicEventType.Draw or SichuanPublicEventType.Discard)
-            .OrderByDescending(e => e.EventIndex).FirstOrDefault();
-        if (last != null)
-            return last.Type == SichuanPublicEventType.Discard && last.TileType >= 0 && last.TileType / 9 != suit;
-        var discards = state.Discards18[seat];
-        return discards.Count > 0 && discards[^1] / 9 != suit;
+        return state.DingQueSuits[seat] == suit
+            && SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.MustHaveClearedMissing(state, seat);
     }
 
     private static double BinomialTail(int trials, int needed, double probability)

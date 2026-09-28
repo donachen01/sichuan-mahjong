@@ -777,6 +777,12 @@ func _build_table_state() -> Dictionary:
 	table_state["public_ai_events"] = ai_public_events.duplicate(true)
 	table_state["event_version"] = ai_public_event_version
 	table_state["last_gang_context"] = last_gang_context.duplicate(true)
+	var public_won_scores: Array[int] = [-1, -1, -1, -1]
+	for event in settlement_data.get("win_events", []):
+		var winner := int(event.get("winner_seat", -1))
+		if winner >= 0 and winner < 4:
+			public_won_scores[winner] = int(Dictionary(event.get("fan_detail", {})).get("hand_score", -1))
+	table_state["public_won_scores"] = public_won_scores
 	table_state["shun_he_locks"] = shun_he_locks.duplicate(true)
 	table_state["round_index"] = round_index
 	table_state["current_dealer_seat"] = current_dealer_seat

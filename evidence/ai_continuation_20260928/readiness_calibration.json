@@ -1,0 +1,274 @@
+{
+  "input": "evidence/ai_continuation_20260928/readiness_games.json",
+  "feature_order": [
+    "intercept",
+    "baseline_logit",
+    "wall_elapsed",
+    "meld_fraction",
+    "discard_fraction",
+    "recent_hand_fraction",
+    "recent_draw_fraction",
+    "recent_central_fraction",
+    "last_missing",
+    "cleared"
+  ],
+  "penalty": 0.01,
+  "weights": [
+    -0.9702856618085739,
+    0.7719462731389833,
+    0.26915106511395703,
+    -0.2706590089496971,
+    0.45151167448011903,
+    -0.4263969490871862,
+    0.5055213623330069,
+    0.21805998143637786,
+    -0.4373360968738694,
+    1.4303854580207362
+  ],
+  "split": {
+    "training": "rounds 1-20",
+    "validation": "21-26",
+    "holdout": "27-32"
+  },
+  "baseline_holdout": {
+    "observations": 168,
+    "rounds": 6,
+    "brier": 0.18587346352362163,
+    "round_mean_brier": 0.18994490192936672,
+    "round_paired_brier_delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 80,
+        "predicted": 0.07245778696620987,
+        "observed": 0.075
+      },
+      {
+        "lower": 0.1,
+        "count": 26,
+        "predicted": 0.14295127727739054,
+        "observed": 0.46153846153846156
+      },
+      {
+        "lower": 0.2,
+        "count": 16,
+        "predicted": 0.2545173968752524,
+        "observed": 0.4375
+      },
+      {
+        "lower": 0.3,
+        "count": 23,
+        "predicted": 0.34774951212300925,
+        "observed": 0.5652173913043478
+      },
+      {
+        "lower": 0.4,
+        "count": 15,
+        "predicted": 0.442451085841968,
+        "observed": 0.5333333333333333
+      },
+      {
+        "lower": 0.5,
+        "count": 6,
+        "predicted": 0.57627506758696,
+        "observed": 0.6666666666666666
+      },
+      {
+        "lower": 0.6,
+        "count": 1,
+        "predicted": 0.666529336858949,
+        "observed": 1
+      },
+      {
+        "lower": 0.7,
+        "count": 1,
+        "predicted": 0.71359780125136,
+        "observed": 1
+      }
+    ]
+  },
+  "candidate_holdout": {
+    "observations": 168,
+    "rounds": 6,
+    "brier": 0.14344172972914612,
+    "round_mean_brier": 0.14637017045674106,
+    "round_paired_brier_delta_ci95": [
+      -0.07973443784585546,
+      -0.021636037661776252
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 69,
+        "predicted": 0.036658725654691846,
+        "observed": 0
+      },
+      {
+        "lower": 0.1,
+        "count": 20,
+        "predicted": 0.15598401445491195,
+        "observed": 0.25
+      },
+      {
+        "lower": 0.2,
+        "count": 10,
+        "predicted": 0.23222492898800157,
+        "observed": 0.5
+      },
+      {
+        "lower": 0.3,
+        "count": 15,
+        "predicted": 0.3624558268915354,
+        "observed": 0.6
+      },
+      {
+        "lower": 0.4,
+        "count": 15,
+        "predicted": 0.442056460762474,
+        "observed": 0.4
+      },
+      {
+        "lower": 0.5,
+        "count": 15,
+        "predicted": 0.5505344922911,
+        "observed": 0.7333333333333333
+      },
+      {
+        "lower": 0.6,
+        "count": 13,
+        "predicted": 0.6536527083290639,
+        "observed": 0.6923076923076923
+      },
+      {
+        "lower": 0.7,
+        "count": 6,
+        "predicted": 0.7521003612310181,
+        "observed": 0.6666666666666666
+      },
+      {
+        "lower": 0.8,
+        "count": 5,
+        "predicted": 0.8504603456293554,
+        "observed": 0.6
+      }
+    ]
+  },
+  "baseline_validation": {
+    "observations": 187,
+    "rounds": 6,
+    "brier": 0.14328101608815916,
+    "round_mean_brier": 0.1459563122341921,
+    "round_paired_brier_delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 88,
+        "predicted": 0.07319776988988813,
+        "observed": 0.045454545454545456
+      },
+      {
+        "lower": 0.1,
+        "count": 37,
+        "predicted": 0.14329877586032524,
+        "observed": 0.32432432432432434
+      },
+      {
+        "lower": 0.2,
+        "count": 26,
+        "predicted": 0.25291590969286576,
+        "observed": 0.2692307692307692
+      },
+      {
+        "lower": 0.3,
+        "count": 14,
+        "predicted": 0.3404950772868706,
+        "observed": 0.35714285714285715
+      },
+      {
+        "lower": 0.4,
+        "count": 16,
+        "predicted": 0.4417444240199575,
+        "observed": 0.5625
+      },
+      {
+        "lower": 0.5,
+        "count": 6,
+        "predicted": 0.5448524629598057,
+        "observed": 0.6666666666666666
+      }
+    ]
+  },
+  "candidate_validation": {
+    "observations": 187,
+    "rounds": 6,
+    "brier": 0.12474646040495031,
+    "round_mean_brier": 0.12601713722413704,
+    "round_paired_brier_delta_ci95": [
+      -0.04497568547840747,
+      0.006676385887146051
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 86,
+        "predicted": 0.04457738258764167,
+        "observed": 0.023255813953488372
+      },
+      {
+        "lower": 0.1,
+        "count": 18,
+        "predicted": 0.1776514837970819,
+        "observed": 0.1111111111111111
+      },
+      {
+        "lower": 0.2,
+        "count": 13,
+        "predicted": 0.23567363820755535,
+        "observed": 0.3076923076923077
+      },
+      {
+        "lower": 0.3,
+        "count": 17,
+        "predicted": 0.3500246617042119,
+        "observed": 0.35294117647058826
+      },
+      {
+        "lower": 0.4,
+        "count": 13,
+        "predicted": 0.44834653797596696,
+        "observed": 0.5384615384615384
+      },
+      {
+        "lower": 0.5,
+        "count": 13,
+        "predicted": 0.5414839700285214,
+        "observed": 0.07692307692307693
+      },
+      {
+        "lower": 0.6,
+        "count": 12,
+        "predicted": 0.6397532445594685,
+        "observed": 0.75
+      },
+      {
+        "lower": 0.7,
+        "count": 12,
+        "predicted": 0.7412761290377384,
+        "observed": 0.5833333333333334
+      },
+      {
+        "lower": 0.8,
+        "count": 3,
+        "predicted": 0.8140554874784005,
+        "observed": 1
+      }
+    ]
+  },
+  "scope": "Self-play diagnostics only; six held-out games are not evidence of general human-opponent calibration."
+}

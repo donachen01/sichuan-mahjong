@@ -76,10 +76,10 @@ public sealed class SichuanUnifiedDecisionEngine
 				.Any(seat => seat != state.SeatIndex && state.ActiveSeats[seat]
 					&& belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
 			var dealInRisk = highThreat ? Math.Max(baselineRisk, modeledMultiHuRisk) : baselineRisk;
-			var winGain = chance.OwnWinProbability * winScore;
+			var winGain = chance.ExpectedOwnWinGain;
 			var expectedGangGain = chance.ExpectedGangGain;
-			var chaJiaoValue = chance.DrawProbability * chaJiaoScore;
-			var opponentFutureLoss = chance.OpponentWinProbability * opponentLoss;
+			var chaJiaoValue = chance.ExpectedChaJiaoValue;
+			var opponentFutureLoss = chance.ExpectedOpponentLoss;
 			var shape = _shape.Evaluate(handAfterDiscard, wallAvailability.RepresentativeCounts18, meldCount, analysis.Shanten);
 			var pairCount = handAfterDiscard.Count(count => count >= 2);
 			var pairRouteValue = meldCount == 0 && pairCount >= 4
@@ -92,6 +92,7 @@ public sealed class SichuanUnifiedDecisionEngine
 			var progressChance = isReady || state.WallCount <= 0 ? 0.0
 				: 1.0 - Math.Pow(1.0 - Math.Clamp(liveWaits / state.WallCount, 0.0, 1.0), futureOwnDraws);
 			var routeValue = Math.Max(0, 1.2 - analysis.Shanten * 0.4)
+				+ chance.ExpectedContinuationValue
 				+ pairRouteValue
 				+ exclusiveSuitRouteValue
 				+ progressChance * Math.Max(0.2, 1.2 - analysis.Shanten * 0.2)

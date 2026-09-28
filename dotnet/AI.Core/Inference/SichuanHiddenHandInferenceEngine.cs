@@ -43,13 +43,15 @@ public sealed class SichuanHiddenHandInferenceEngine
         var handSizes = ResolveHiddenHandSizes(
             state, includeExitedSeats: proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood);
         var particles = new List<SichuanHiddenHandParticle>(particleCount);
-        for (var sample = 0; sample < particleCount; sample++)
+        var cleared = Enumerable.Range(0, 4).Select(seat => SichuanOpponentTimeline.MustHaveClearedMissing(state, seat)).ToArray();
+        for (var attempt = 0; attempt < particleCount * 4 && particles.Count < particleCount; attempt++)
         {
             var remaining = (int[])pool.Clone();
             var hands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
             var logWeight = 0.0;
             var valid = true;
-            foreach (var seat in Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex))
+            foreach (var seat in Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex)
+                .OrderByDescending(seat => cleared[seat]))
             {
                 for (var draw = 0; draw < handSizes[seat]; draw++)
                 {
@@ -58,8 +60,18 @@ public sealed class SichuanHiddenHandInferenceEngine
                     // prior and applies BehaviorLogLikelihood exactly once in the
                     // particle weight; otherwise the same evidence enters both
                     // proposal and weight without an importance correction.
+                    var forbiddenSuit = cleared[seat] ? state.DingQueSuits[seat] : -1;
+                    if (proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood && forbiddenSuit >= 0)
+                    {
+                        var total = remaining.Sum();
+                        var allowed = total - Enumerable.Range(forbiddenSuit*9, 9).Sum(t => remaining[t]);
+                        if (allowed <= 0) { valid = false; break; }
+                        // Importance correction for drawing from the legal
+                        // subset instead of rejecting whole completed hands.
+                        logWeight += Math.Log(allowed/(double)total);
+                    }
                     var tile = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
-                        ? PriorDraw(remaining, random)
+                        ? PriorDraw(remaining, random, forbiddenSuit)
                         : WeightedDraw(remaining, state, seat, random);
                     if (tile < 0) { valid = false; break; }
                     hands[seat][tile]++;
@@ -73,12 +85,7 @@ public sealed class SichuanHiddenHandInferenceEngine
                     : Math.Log(SichuanOrderedPublicInference.CandidateHandCompatibility(state, seat, hands[seat])) * 0.35;
             }
             if (!valid) continue;
-            particles.Add(new SichuanHiddenHandParticle(hands, remaining, Math.Exp(Math.Clamp(logWeight, -30, 20))));
-        }
-        if (particles.Count == 0)
-        {
-            var emptyHands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
-            particles.Add(new SichuanHiddenHandParticle(emptyHands, pool, 1.0));
+            particles.Add(new SichuanHiddenHandParticle(hands, remaining, Math.Exp(Math.Clamp(logWeight, -700, 20))));
         }
         return NormalizeWeights(particles);
     }
@@ -111,11 +118,18 @@ public sealed class SichuanHiddenHandInferenceEngine
                     if (particle.Hands27[seat][tile] > 0) hold[seat][tile] += weight;
                 var meldCount = Math.Max(0, state.Melds18[seat].Count / 3);
                 var hand = particle.Hands27[seat];
-                var isReady = _shanten.CalcBestShanten(hand, meldCount, meldCount == 0) == 0;
+                var missing = state.DingQueSuits[seat];
+                var isReady = seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat]
+                    && !(missing is >= 0 and < 3 && Enumerable.Range(missing*9, 9).Any(t => hand[t] > 0))
+                    && _shanten.CalcBestShanten(hand, meldCount, meldCount == 0) == 0;
                 if (isReady)
                 {
                     ready[seat] += weight;
-                    var seatWaits = _analyzer.EnumerateWaits(hand, particle.Wall27, meldCount);
+                    // A discard can deal in even when that tile is absent from
+                    // the wall. Structural waits and drawable waits differ.
+                    var possible = Enumerable.Range(0, 27).Select(t => t/9 == missing ? 0
+                        : Math.Max(0, 4-hand[t]-state.Melds18[seat].Count(m => m == t))).ToArray();
+                    var seatWaits = _analyzer.EnumerateWaits(hand, possible, meldCount);
                     foreach (var wait in seatWaits) waits[seat][wait.TileType] += weight;
                 }
                 var route = ClassifyRoute(hand, meldCount);
@@ -136,9 +150,14 @@ public sealed class SichuanHiddenHandInferenceEngine
         {
             var hand = Normalize(hands[seat]);
             for (var tile = 0; tile < 27; tile++) hold[seat][tile] = hand[tile] > 0 ? 1 : 0;
-			var remaining = wall.Select(value => (int)Math.Round(value)).ToArray();
-            var seatWaits = _analyzer.EnumerateWaits(hand, remaining, state.Melds18[seat].Count / 3);
-            ready[seat] = seatWaits.Count > 0 ? 1 : 0;
+			var missing = state.DingQueSuits[seat];
+            var remaining = Enumerable.Range(0, 27).Select(t => t/9 == missing ? 0
+                : Math.Max(0, 4-hand[t]-state.Melds18[seat].Count(m => m == t))).ToArray();
+            var eligible = seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat]
+                && !(missing is >= 0 and < 3 && Enumerable.Range(missing*9, 9).Any(t => hand[t] > 0));
+            var seatWaits = _analyzer.EnumerateWaits(hand, remaining, state.Melds18[seat].Count / 3)
+                .Where(_ => eligible).ToArray();
+            ready[seat] = seatWaits.Length > 0 ? 1 : 0;
             foreach (var wait in seatWaits) waits[seat][wait.TileType] = 1;
             routes[seat][ClassifyRoute(hand, state.Melds18[seat].Count / 3)] = 1;
         }
@@ -170,13 +189,14 @@ public sealed class SichuanHiddenHandInferenceEngine
         return Array.FindLastIndex(remaining, value => value > 0);
     }
 
-    private static int PriorDraw(IReadOnlyList<int> remaining, Random random)
+    private static int PriorDraw(IReadOnlyList<int> remaining, Random random, int forbiddenSuit = -1)
     {
-        var total = remaining.Sum();
+        var total = Enumerable.Range(0, remaining.Count).Where(t => t/9 != forbiddenSuit).Sum(t => remaining[t]);
         if (total <= 0) return -1;
         var target = random.Next(total);
         for (var tile = 0; tile < remaining.Count; tile++)
         {
+            if (tile/9 == forbiddenSuit) continue;
             if (target < remaining[tile]) return tile;
             target -= remaining[tile];
         }

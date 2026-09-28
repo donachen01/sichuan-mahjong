@@ -1,0 +1,24 @@
+{
+  "version": "2.6.84",
+  "ios_bundle": "com.chendong.sichuanmahjong.iosdev",
+  "signing": "Apple Development",
+  "ipa_sha256": "87b8c74bc261256340fac1c6807c4f4cbb36bdc20fd62e26c60f6d1b882337b7",
+  "devices": [
+    {
+      "name": "dona iPhone",
+      "installed_version": "2.6.84",
+      "launch_process_observed": true
+    },
+    {
+      "name": "iPhone",
+      "installed_version": "2.6.84",
+      "launch_process_observed": true
+    },
+    {
+      "name": "iPad Pro",
+      "installed_version": "2.6.84",
+      "launch_process_observed": true
+    }
+  ],
+  "validation_limit": "Startup verified; not manual full-game interaction verification. Personal signing expires."
+}

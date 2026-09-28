@@ -135,7 +135,10 @@ public sealed class SichuanAiContextCache
         => $"seat:{state.SeatIndex}|dealer:{state.DealerSeat}|mode:{state.InformationMode}|policy:{state.PolicyVariant}|{state.RoundIndex}|{state.TotalRounds}|{state.RemainingRounds}|{state.WallCount}|x3:{(state.ExchangeThreeEnabled ? 1 : 0)}|{string.Join(',', state.Scores)}|a:{string.Join(',', state.ActiveSeats.Select(item => item ? 1 : 0))}|h:{string.Join(',', state.HasHu.Select(item => item ? 1 : 0))}|{state.Discards18.Sum(list => list.Count)}|{state.Melds18.Sum(list => list.Count)}|{string.Join(',', state.IsCalled.Select(item => item ? 1 : 0))}|{string.Join(',', state.IsReady.Select(item => item ? 1 : 0))}";
 
     private static string BuildVisibleKey(SichuanStateView state)
-        => $"{state.VisibleVersion}|{state.WallCount}|q:{string.Join(',', state.DingQueSuits)}|{string.Join(',', state.Visible18)}|d:{string.Join('|', state.Discards18.Select(list => string.Join(',', list)))}|m:{string.Join('|', state.Melds18.Select(list => string.Join(',', list)))}";
+        // Danger depends on observer blockers, surviving seats, public event
+        // history and locks as well as the visible river. Use the full input
+        // fingerprint so a same-wall reaction cannot leave a stale threat map.
+        => SichuanMahjong.AI.Core.Analysis.SichuanStateFingerprint.BuildTurnKey(state, false, false);
 
     private static IReadOnlyList<string> BuildReasonCodes(SichuanAiContext context)
         => new[]

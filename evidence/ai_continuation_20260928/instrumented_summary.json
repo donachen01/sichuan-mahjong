@@ -1,0 +1,32 @@
+{
+  "pairs": 12,
+  "invalid_pairs": 0,
+  "mean_delta": 0.416666666666667,
+  "policy_reason_hits": [
+    [
+      20261219,
+      1,
+      3,
+      21
+    ],
+    [
+      20261219,
+      3,
+      2,
+      11
+    ],
+    [
+      20263237,
+      3,
+      16,
+      26
+    ],
+    [
+      20263237,
+      3,
+      11,
+      21
+    ]
+  ],
+  "scope": "Instrumented replay of first three deals; not additional independent strength evidence."
+}

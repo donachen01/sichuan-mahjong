@@ -1,0 +1,131 @@
+{
+  "input": "evidence/ai_continuation_20260928/readiness_independent_games.json",
+  "frozen_fit": "evidence/ai_continuation_20260928/readiness_calibration.json",
+  "baseline": {
+    "observations": 985,
+    "rounds": 32,
+    "brier": 0.13941374902265188,
+    "round_mean_brier": 0.14250981486077988,
+    "round_paired_brier_delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 427,
+        "predicted": 0.07264940902067801,
+        "observed": 0.04215456674473068
+      },
+      {
+        "lower": 0.1,
+        "count": 129,
+        "predicted": 0.1422622939765055,
+        "observed": 0.26356589147286824
+      },
+      {
+        "lower": 0.2,
+        "count": 163,
+        "predicted": 0.25284908116556837,
+        "observed": 0.19631901840490798
+      },
+      {
+        "lower": 0.3,
+        "count": 130,
+        "predicted": 0.34109349338431033,
+        "observed": 0.46153846153846156
+      },
+      {
+        "lower": 0.4,
+        "count": 83,
+        "predicted": 0.44553483573757613,
+        "observed": 0.6024096385542169
+      },
+      {
+        "lower": 0.5,
+        "count": 41,
+        "predicted": 0.5464052433607792,
+        "observed": 0.7317073170731707
+      },
+      {
+        "lower": 0.6,
+        "count": 12,
+        "predicted": 0.6458906004804615,
+        "observed": 1
+      }
+    ]
+  },
+  "candidate": {
+    "observations": 985,
+    "rounds": 32,
+    "brier": 0.12659516635683418,
+    "round_mean_brier": 0.12668563761980528,
+    "round_paired_brier_delta_ci95": [
+      -0.028533736610781634,
+      -0.0027511027615624906
+    ],
+    "bins": [
+      {
+        "lower": 0.0,
+        "count": 383,
+        "predicted": 0.04076351916896699,
+        "observed": 0.005221932114882507
+      },
+      {
+        "lower": 0.1,
+        "count": 104,
+        "predicted": 0.16195604913612233,
+        "observed": 0.1346153846153846
+      },
+      {
+        "lower": 0.2,
+        "count": 59,
+        "predicted": 0.23868437936033207,
+        "observed": 0.23728813559322035
+      },
+      {
+        "lower": 0.3,
+        "count": 73,
+        "predicted": 0.36205005486747854,
+        "observed": 0.2054794520547945
+      },
+      {
+        "lower": 0.4,
+        "count": 91,
+        "predicted": 0.45040075621830866,
+        "observed": 0.3626373626373626
+      },
+      {
+        "lower": 0.5,
+        "count": 100,
+        "predicted": 0.5488359730140511,
+        "observed": 0.44
+      },
+      {
+        "lower": 0.6,
+        "count": 77,
+        "predicted": 0.6465515173989765,
+        "observed": 0.5064935064935064
+      },
+      {
+        "lower": 0.7,
+        "count": 75,
+        "predicted": 0.7461199416791118,
+        "observed": 0.6933333333333334
+      },
+      {
+        "lower": 0.8,
+        "count": 20,
+        "predicted": 0.8305283156528265,
+        "observed": 1
+      },
+      {
+        "lower": 0.9,
+        "count": 3,
+        "predicted": 0.9091139309506809,
+        "observed": 1
+      }
+    ]
+  },
+  "scope": "Independent complete games; no fitting or parameter selection on these observations."
+}

@@ -7,6 +7,7 @@ using SichuanMahjong.AI.Core.Search;
 
 if (args.Contains("--single-lane")) return SingleLaneSmoke.Run();
 if (args.Contains("--ai-model-fixes")) return AiModelFixSmoke.Run();
+if (args.Contains("--ai-progression")) return AiProgressionSmoke.Run();
 
 var hand = new[]
 {

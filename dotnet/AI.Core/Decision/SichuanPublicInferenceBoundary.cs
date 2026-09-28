@@ -25,6 +25,9 @@ internal static class SichuanPublicInferenceBoundary
             Visible18 = (int[])state.Visible18.Clone(),
             Remaining18 = (int[])state.Remaining18.Clone(),
             HandCounts = (int[])state.HandCounts.Clone(),
+            WonScores = (int[])state.WonScores.Clone(),
+            RoundIndex = state.RoundIndex,
+            TurnIndex = state.TurnIndex,
             DingQueSuits = (int[])state.DingQueSuits.Clone(),
             ActiveSeats = (bool[])state.ActiveSeats.Clone(),
             HasHu = (bool[])state.HasHu.Clone(),
@@ -32,6 +35,8 @@ internal static class SichuanPublicInferenceBoundary
             Melds18 = state.Melds18.Select(m => m.ToList()).ToArray()
         };
 
+        for (var seat = 0; seat < 4; seat++)
+            projection.MeldViews[seat].AddRange(state.MeldViews[seat]);
         // Draw events reveal no tile identity to opponents. Hu and meld timing
         // are not likelihood features yet. A Pass is retained only when its
         // legal public alternatives were explicitly recorded.

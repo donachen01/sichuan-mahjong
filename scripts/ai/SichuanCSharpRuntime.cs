@@ -241,6 +241,31 @@ public partial class SichuanCSharpRuntime : Node
         return _facade.DecideDingQue(hand, ["tiao", "tong", "wan"]).Suit;
     }
 
+    public string GetContinuationDiagnosticsCompact() => string.Join(";",
+        SichuanDecisionEngine.GetContinuationDiagnostics().OrderBy(x => x.Key).Select(x => $"{x.Key}={x.Value}"));
+
+    // Evaluation-only readout: input is exactly the ordinary observer payload.
+    // Hidden-hand truth is evaluated separately by the game test harness.
+    public string DiagnosePublicReadinessCompact(string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize(payloadJson, RuntimeJsonContext.Default.DiscardPayload);
+        if (payload is null) return string.Empty;
+        var state = BuildState(payload);
+        var belief = new SichuanBeliefEngine().Build(state);
+        return string.Join(";", belief.SeatReadyPosterior.OrderBy(x => x.Key).Select(x =>
+        {
+            var seat = x.Key;
+            var timeline = SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.Build(state, seat);
+            return string.Join(",", new[] { (double)seat, belief.PublicReadFeatures.GetValueOrDefault($"seat:{seat}:uncalibrated_ready", x.Value), state.WallCount,
+                state.MeldViews[seat].Count, state.Discards18[seat].Count,
+                timeline.TurnsSinceNonMissingDiscard, timeline.RecentHandDiscards,
+                timeline.RecentDrawDiscards, timeline.RecentCentralDiscards,
+                timeline.LastDiscardWasMissing ? 1.0 : 0.0,
+                SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.MustHaveClearedMissing(state, seat) ? 1.0 : 0.0 }
+                .Select(v => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
+        }));
+    }
+
     // iOS NativeAOT disables reflection-based System.Text.Json metadata. These
     // compact entry points use generated input metadata and a scalar transport
     // so gameplay decisions remain available without a reflection fallback.
@@ -1251,6 +1276,7 @@ public partial class SichuanCSharpRuntime : Node
 			payload.InformationMode);
 
         if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
+        if (payload.WonScores is { Length: 4 }) state.WonScores = (int[])payload.WonScores.Clone();
         if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
 		if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
 		state.PolicyVariant = payload.PolicyVariant;
@@ -1475,6 +1501,7 @@ public partial class SichuanCSharpRuntime : Node
         public List<int> Scores { get; set; } = new();
         public List<int> DingQueSuits { get; set; } = new();
 		public List<int> HandCounts { get; set; } = new();
+        public int[] WonScores { get; set; } = Array.Empty<int>();
 		public List<int> LockedFans { get; set; } = new();
 		public List<int> LockTurns { get; set; } = new();
 		public List<bool> UnlockOnOwnDraw { get; set; } = new();

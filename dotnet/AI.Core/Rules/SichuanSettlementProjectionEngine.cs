@@ -20,7 +20,8 @@ public sealed record SichuanHuJiaoTransferEvent(
     int WinnerSeat,
     SichuanMeldType GangType,
     IReadOnlyList<int> PayerSeats,
-    int FromSeat = -1);
+    int FromSeat = -1,
+    int GangSourceSeat = -1);
 
 public sealed record SichuanDrawAssessment(
     int Seat,
@@ -91,7 +92,9 @@ public sealed class SichuanSettlementProjectionEngine
 
         foreach (var item in scenario.TransferEvents ?? Array.Empty<SichuanHuJiaoTransferEvent>())
         {
-            var totalGangMoney = GangUnit(item.GangType) * item.PayerSeats.Count;
+            var totalGangMoney = item.GangSourceSeat >= 0
+                ? item.PayerSeats.Sum(payer => GangPayment(item.GangType, payer, item.GangSourceSeat))
+                : GangUnit(item.GangType) * item.PayerSeats.Count;
             if (item.FromSeat is >= 0 and < 4)
                 ApplyPayment(transfers, item.WinnerSeat, item.FromSeat, totalGangMoney);
             else

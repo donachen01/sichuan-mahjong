@@ -1,13 +1,41 @@
 namespace SichuanMahjong.AI.Core.Engines;
 
+using System.Collections.Concurrent;
+
 public sealed class SichuanShantenEngine
 {
+    // Only mathematical hand structure is shared, never seat information or
+    // policy state. Bounded memoization also works in the iOS AOT runtime.
+    private static readonly ConcurrentDictionary<(ulong Low, ulong High, int Melds), int> StandardCache = new();
+    private const int CacheCapacity = 65536;
+    private static int _cacheEntries;
+
     public int CalcStandardShanten(int[] hand18, int meldCount = 0)
     {
+        var cacheable = hand18.Length == 27 && meldCount is >= 0 and <= 4;
+        ulong low = 0, high = 0;
+        if (cacheable)
+            for (var tile = 0; tile < 27; tile++)
+            {
+                if (hand18[tile] is < 0 or > 4) { cacheable = false; break; }
+                if (tile < 21) low |= (ulong)hand18[tile] << (tile * 3);
+                else high |= (ulong)hand18[tile] << ((tile - 21) * 3);
+            }
+        var key = (low, high, meldCount);
+        if (cacheable && StandardCache.TryGetValue(key, out var cached)) return cached;
         var counts = (int[])hand18.Clone();
         var best = 8;
         Search(counts, 0, meldCount, 0, 0, ref best);
-        return Math.Max(-1, best);
+        var result = Math.Max(-1, best);
+        if (cacheable)
+        {
+            if (StandardCache.TryAdd(key, result) && Interlocked.Increment(ref _cacheEntries) >= CacheCapacity)
+            {
+                StandardCache.Clear();
+                Interlocked.Exchange(ref _cacheEntries, 0);
+            }
+        }
+        return result;
     }
 
     public int CalcSevenPairsShanten(int[] hand18)

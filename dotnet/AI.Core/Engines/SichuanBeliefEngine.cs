@@ -101,7 +101,7 @@ public sealed class SichuanBeliefEngine
         var activeSeats = new List<int>();
         for (var seat = 0; seat < 4; seat++)
         {
-            if (seat == state.SeatIndex || state.HasHu[seat]) continue;
+            if (seat == state.SeatIndex || state.HasHu[seat] || !state.ActiveSeats[seat]) continue;
             activeSeats.Add(seat);
             var discards = state.Discards18[seat];
             var meldTiles = state.Melds18[seat];
@@ -123,6 +123,10 @@ public sealed class SichuanBeliefEngine
                 range.ReadyProbability * 0.85 + particlePosterior.ReadyProbabilities[seat] * 0.15,
                 0.0,
                 0.99);
+            var uncalibratedReady = snapshot.SeatReadyPosterior[seat];
+            snapshot.PublicReadFeatures[$"seat:{seat}:uncalibrated_ready"] = uncalibratedReady;
+            if (state.PolicyVariant != "readiness_uncalibrated")
+                snapshot.SeatReadyPosterior[seat] = SichuanReadinessCalibration.Apply(state, seat, uncalibratedReady);
 
             var discardBySuit = new[] { 0, 0, 0 };
             var meldBySuit = new[] { 0, 0, 0 };
@@ -190,6 +194,9 @@ public sealed class SichuanBeliefEngine
                     waitWeights[tileType] = BlendPosterior(
                         range.WaitProbability18[tileType],
                         particlePosterior.WaitProbabilities[seat][tileType]);
+                waitWeights[tileType] = Math.Clamp(waitWeights[tileType]
+                    * snapshot.SeatReadyPosterior[seat] / Math.Max(1e-9, uncalibratedReady),
+                    0, snapshot.SeatReadyPosterior[seat]);
                     continue;
                 }
 
@@ -298,7 +305,8 @@ public sealed class SichuanBeliefEngine
             .Append("|event=").Append(state.EventVersion)
 			.Append("|exchange3=").Append(state.ExchangeThreeEnabled ? 1 : 0)
             .Append("|visibleVersion=").Append(state.VisibleVersion)
-            .Append("|mode=").Append(state.InformationMode);
+            .Append("|mode=").Append(state.InformationMode)
+            .Append("|policy=").Append(state.PolicyVariant);
         // Hidden-hand sampling depends on these public inputs (and uses
         // VisibleVersion in its seed); cached and uncached inference must agree.
         AppendIntArray(builder, "|dingque=", state.DingQueSuits);
@@ -309,6 +317,13 @@ public sealed class SichuanBeliefEngine
         AppendBoolArray(builder, "|called=", state.IsCalled);
         AppendBoolArray(builder, "|ready=", state.IsReady);
         AppendBoolArray(builder, "|hu=", state.HasHu);
+        AppendBoolArray(builder, "|active=", state.ActiveSeats);
+        builder.Append("|meldViews=");
+        foreach (var seatMelds in state.MeldViews)
+        {
+            foreach (var meld in seatMelds) builder.Append(meld).Append(';');
+            builder.Append('/');
+        }
         AppendListArray(builder, "|discards=", state.Discards18);
         AppendListArray(builder, "|melds=", state.Melds18);
         AppendMatrix(builder, "|passedHu=", state.PassedHu18);

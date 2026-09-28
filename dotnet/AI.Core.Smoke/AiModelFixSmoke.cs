@@ -5,6 +5,7 @@ using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Inference;
 using SichuanMahjong.AI.Core.Rules;
 using SichuanMahjong.AI.Core.Search;
 
@@ -15,8 +16,10 @@ internal static class AiModelFixSmoke
         var failures = new List<string>();
         CheckObserverIsolation(failures);
         CheckChanceTerminalState(failures);
+        CheckGangContinuationScore(failures);
         CheckEndgameContract(failures);
         CheckReadyInferenceAndStage(failures);
+        CheckStructuralWaitAndActiveCache(failures);
         CheckDecisionValueSemantics(failures);
         CheckDingQueShape(failures);
         Console.WriteLine($"AI_MODEL_FIX_CHECKS failures={failures.Count}");
@@ -45,6 +48,14 @@ internal static class AiModelFixSmoke
             && switched.ScoreSituation.SelfScore == fresh.ScoreSituation.SelfScore
             && switched.DirtyFlags.HandAnalysis && switched.DirtyFlags.OpponentDanger,
             "seat switch reused another observer's context", failures);
+        var changedPool = State(1);
+        cache.GetOrUpdate(changedPool, belief);
+        changedPool.Remaining18[10] = 0;
+        var changed = cache.GetOrUpdate(changedPool, belief);
+        var expected = new SichuanAiContextCache().GetOrUpdate(changedPool, belief);
+        Check(changed.DirtyFlags.HandAnalysis && changed.DirtyFlags.TileDanger
+            && changed.HandAnalysis.LiveUkeireCount == expected.HandAnalysis.LiveUkeireCount,
+            "same-wall unknown-pool change reused live ukeire or threat analysis", failures);
     }
 
     private static void CheckChanceTerminalState(List<string> failures)
@@ -58,9 +69,34 @@ internal static class AiModelFixSmoke
             Simulations: 64));
         Check(actualDraw.DrawProbability == 1 && actualDraw.ExpectedNetScore == 7
             && truncated.DrawProbability == 0 && truncated.HorizonProbability == 1
-            && truncated.ExpectedNetScore == 0
+            && truncated.ExpectedNetScore == 7 && truncated.ExpectedContinuationValue == 7
             && beforeOurTurn.OwnWinProbability == 0,
             "chance search confused horizon with wall exhaustion or turn order", failures);
+        var withoutReplacement = tree.SearchChanceNodes(new(1, 8, 4, 3, 12, 0, 0, MaxDraws: 8));
+        Check(Math.Abs(withoutReplacement.OwnWinProbability - 0.25) < 1e-10,
+            "fixed-wait probability disagrees with two own draws from eight tiles", failures);
+        var continueAfterHu = tree.SearchChanceNodes(new(2, 2, 3, 1, 12, 1, 2, MaxDraws: 2));
+        Check(continueAfterHu.OwnWinProbability == 1 && continueAfterHu.OpponentWinProbability == 1
+            && continueAfterHu.ExpectedOwnWinGain == 6 && continueAfterHu.ExpectedOpponentLoss == 2
+            && continueAfterHu.ExpectedNetScore == 4,
+            "opponent exit did not continue play or reduce the self-draw payer count", failures);
+        var lastSurvivor = tree.SearchChanceNodes(new(0, 8, 4, 3, 12, 1, 2, MaxDraws: 8));
+        Check(lastSurvivor.BattleEndProbability == 1 && lastSurvivor.DrawProbability == 0
+            && lastSurvivor.ExpectedOpponentLoss == 6 && lastSurvivor.ExpectedNetScore == -6,
+            "blood battle stopped at the first opponent win or settled a false draw", failures);
+    }
+
+    private static void CheckGangContinuationScore(List<string> failures)
+    {
+        var result = new SichuanSettlementProjectionEngine().ProjectScenario(new(
+            GangEvents: new[] { new SichuanGangScoreEvent(1, SichuanMeldType.MeldedGang,
+                new[] {0, 2, 3}, SourceSeat: 2) },
+            TransferEvents: new[] { new SichuanHuJiaoTransferEvent(0, SichuanMeldType.MeldedGang,
+                new[] {0, 2, 3}, FromSeat: 1, GangSourceSeat: 2) }));
+        Check(result.GangChanges.SequenceEqual(new[] {-1, 4, -2, -1})
+            && result.TransferChanges.SequenceEqual(new[] {4, -4, 0, 0})
+            && result.ScoreChanges.Sum() == 0,
+            "melded gang or transfer disagrees with source-two / other-one payments", failures);
     }
 
     private static void CheckEndgameContract(List<string> failures)
@@ -148,11 +184,36 @@ internal static class AiModelFixSmoke
             "one exposed meld was treated as ready or stage ignored future own draws", failures);
     }
 
+    private static void CheckStructuralWaitAndActiveCache(List<string> failures)
+    {
+        var hand = new int[27];
+        foreach (var tile in new[] {0,1,2,3,4,5,6,7,8,9,9,9,10}) hand[tile]++;
+        var state = new SichuanStateView { SeatIndex = 0, DingQueSuits = new[] {2,2,2,2} };
+        var oracle = new SichuanHiddenHandInferenceEngine().Infer(state, mode: SichuanInformationMode.Oracle,
+            oracleHands: new[] {new int[27], hand, new int[27], new int[27]}, oracleWall: new int[27]);
+        Check(oracle.ReadyProbabilities[1] == 1 && oracle.WaitProbabilities[1][10] == 1,
+            "structural discard wait disappeared when the wall had zero copies", failures);
+        var engine = new SichuanBeliefEngine();
+        var active = engine.Build(state);
+        state.ActiveSeats[1] = false;
+        var exited = engine.Build(state);
+        Check(!ReferenceEquals(active, exited) && !exited.SeatReadyPosterior.ContainsKey(1),
+            "active-seat change reused cached inference or retained inactive threat", failures);
+        state.ActiveSeats[1] = true;
+        state.Discards18[1].Add(0);
+        Check(SichuanOpponentTimeline.MustHaveClearedMissing(state, 1),
+            "legal non-missing discard did not establish the post-discard cleared-suit constraint", failures);
+        state.HandCounts[1] = 14;
+        Check(!SichuanOpponentTimeline.MustHaveClearedMissing(state, 1),
+            "post-discard missing-suit constraint leaked into a newly drawn hand", failures);
+    }
+
     private static void CheckDingQueShape(List<string> failures)
     {
         var hand = new int[27];
         foreach (var tile in new[] { 0, 0, 0, 9, 12, 15, 17, 18, 18, 19, 20, 21, 22, 23 }) hand[tile]++;
         var choice = new SichuanDingQueDecisionEngine().DecideDingQue(hand, new[] { "tiao", "tong", "wan" });
+        Console.WriteLine(string.Join("; ", choice.Reasons));
         Check(choice.Suit == "tong", "ding que discarded an existing triplet over four loose tiles", failures);
     }
 

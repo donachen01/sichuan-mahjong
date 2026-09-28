@@ -42,6 +42,13 @@ internal static class SingleLaneSmoke
         Check(clearedValues[10].ExpectedOffers < values[10].ExpectedOffers, "three public clearances should remove held-tile supply", failures);
         Console.WriteLine($"uncleared_offers={values[10].ExpectedOffers:F3}; cleared_offers={clearedValues[10].ExpectedOffers:F3}; dead_max_EV={deadValues.Values.Max(v => v.Value):F3}");
 
+        // A later forced discard of a newly drawn missing tile does not undo
+        // earlier public proof that the concealed hand had cleared that suit.
+        cleared.Discards18[1].Add(0);
+        cleared.PublicEvents.Add(new(10, 10, 1, SichuanPublicEventType.Discard, 0, SichuanTileOrigin.Draw));
+        Check(SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.MustHaveClearedMissing(cleared, 1),
+            "forced missing-suit draw-discard incorrectly erased earlier clearance", failures);
+
         var late = Make(strongTiles, late: true);
         var lateValues = Evaluate(late, evaluator);
         Check(lateValues.Values.All(v => v.ModeledCompletion == 0), "insufficient draw budget must stop flush investment", failures);

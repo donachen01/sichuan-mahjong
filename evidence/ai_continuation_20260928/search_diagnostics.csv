@@ -1,0 +1,5 @@
+seat,wins,self_draw_wins,discard_wins,qiang_gang_hu_wins,gang_count,an_gang_count,add_gang_count,melded_gang_count,total_delta,avg_delta_per_round,win_rate,deal_in_count,deal_in_rate,deal_in_loss_total,positive_rounds,negative_rounds,zero_rounds,max_single_round_gain,max_single_round_loss,final_score
+0,3,2,1,0,0,0,0,0,-2,-0.5,0.75,2,0.5,2,3,1,0,4,-8,-2
+1,2,1,1,0,0,0,0,0,-2,-0.5,0.5,2,0.5,-4,2,2,0,1,-3,-2
+2,4,2,2,0,2,0,1,1,7,1.75,1.0,0,0.0,0,4,0,0,3,0,7
+3,3,1,2,0,0,0,0,0,-3,-0.75,0.75,2,0.5,-8,2,2,0,4,-7,-3
