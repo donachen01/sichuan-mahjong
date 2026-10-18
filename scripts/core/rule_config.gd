@@ -23,7 +23,7 @@ var fan_cap: int = 4
 
 var use_ding_que_phase: bool = true
 var enable_cha_jiao: bool = true
-var enable_tui_shui: bool = false
+var enable_tui_shui: bool = true
 var enable_hua_zhu: bool = true
 var enable_hu_jiao_zhuan_yi: bool = true
 var dian_gang_hua_as_discard_win: bool = true
@@ -63,7 +63,7 @@ func _apply_sichuan_defaults() -> void:
 	fan_cap = 4
 	use_ding_que_phase = true
 	enable_cha_jiao = true
-	enable_tui_shui = false
+	enable_tui_shui = true
 	enable_hua_zhu = true
 	enable_hu_jiao_zhuan_yi = true
 	dian_gang_hua_as_discard_win = true

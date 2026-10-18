@@ -14,4 +14,5 @@ public sealed record SichuanPublicEvent(
     int WallCountAfter = -1,
     bool CanHu = false,
     bool CanPeng = false,
-    bool CanGang = false);
+    bool CanGang = false,
+    bool GangScoreEligible = true);

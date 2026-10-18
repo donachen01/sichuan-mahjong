@@ -686,7 +686,8 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
         performance = result.Performance,
         aiContext = BuildAiContextObject(result.AiContext),
 		reasons = result.Reasons,
-        candidateScores = result.CandidateScores,
+        openingObservations = result.OpeningObservations,
+            candidateScores = result.CandidateScores,
         candidates = result.Candidates.Select(item => new
         {
             tileType = item.TileType,
@@ -727,6 +728,16 @@ static object BuildDiscardObject(SichuanAiFacade facade, DiscardPayload payload)
             pairPressure = item.PairPressure,
             taatsuOverflow = item.TaatsuOverflow,
             sameShantenImprovementCount = item.SameShantenImprovementCount,
+            bucketSupported = item.BucketSupported,
+            bucketWeakestCompletionMass = item.BucketWeakestCompletionMass,
+            bucketImprovementMass = item.BucketTotalImprovementMass,
+            bucketCapacityOverflow = item.BucketCapacityOverflow,
+            bucketContinuationStatus = item.BucketContinuationStatus,
+            bucketContinuationSamples = item.BucketContinuationSamples,
+            bucketContinuationEffectiveSamples = item.BucketContinuationEffectiveSamples,
+            bucketContinuationNet = item.BucketContinuationNet,
+            bucketContinuationPeng = item.BucketContinuationPeng,
+            bucketContinuationStandardError = item.BucketContinuationStandardError,
             middleTileFlexibility = item.MiddleTileFlexibility,
             shapeScore = item.ShapeScore,
             breaksPair = item.BreaksPair,
@@ -799,6 +810,7 @@ static object BuildReactionObject(SichuanAiFacade facade, ReactionPayload payloa
         shantenAfter = result.ShantenAfter,
         ukeireAfter = result.UkeireAfter,
         liveUkeireAfter = result.LiveUkeireAfter,
+        plannedDiscardTile = result.PlannedDiscardTile,
         currentShanten = result.CurrentShanten,
         currentLiveUkeire = result.CurrentLiveUkeire,
         threatLevel = result.ThreatLevel,
@@ -808,6 +820,7 @@ static object BuildReactionObject(SichuanAiFacade facade, ReactionPayload payloa
         reasons = result.Reasons,
         posteriorSummary = result.PosteriorSummary,
         futureSummary = result.FutureSummary,
+            pengStructure = result.PengStructure,
         searchBonus = result.SearchBonus,
         searchSimulations = result.SearchSimulations,
         searchUsed = result.SearchUsed,
@@ -843,7 +856,11 @@ static object BuildSelfActionObject(SichuanAiFacade facade, SelfActionPayload pa
 
 static object BuildDingQueObject(SichuanAiFacade facade, DingQuePayload payload)
 {
-    var result = facade.DecideDingQue(payload.SuitCounts, payload.ActiveSuits);
+    // A supplied hand must reach the same structural entry used by Godot.
+    // Invalid nonempty hands are rejected there, never silently reduced to counts.
+    var result = payload.Hand18.Count > 0
+        ? facade.DecideDingQue(payload.Hand18, payload.ActiveSuits)
+        : facade.DecideDingQue(payload.SuitCounts, payload.ActiveSuits);
     return new
     {
         action = "ding_que",
@@ -851,7 +868,8 @@ static object BuildDingQueObject(SichuanAiFacade facade, DingQuePayload payload)
         score = result.Score,
         reasons = result.Reasons,
         suitCounts = result.SuitCounts,
-        backendMode = "csharp_ding_que"
+        kScoreBySuit = result.KScoreBySuit,
+            backendMode = "csharp_ding_que"
     };
 }
 
@@ -886,15 +904,22 @@ static SichuanStateView BuildState(DiscardPayload payload)
 		payload.EventVersion,
 		payload.InformationMode);
 
+    state.Phase = payload.Phase;
+    state.TurnIndex = payload.TurnIndex;
+    if (payload.WonScores is { Length: 4 }) state.WonScores = (int[])payload.WonScores.Clone();
     if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
     if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
 	if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
 	state.PolicyVariant = payload.PolicyVariant;
     state.LastDrawTileType = payload.LastDrawTileType;
+	state.OwnDrawReason = payload.OwnDrawReason;
+	state.LastGangSourceSeat = payload.LastGangSourceSeat;
 	state.LastDrawOrigin = payload.LastDrawOrigin;
 	state.LastGangSeat = payload.LastGangSeat;
 	state.LastGangTileType = payload.LastGangTileType;
 	state.LastGangType = payload.LastGangType;
+	state.LastGangScoreEligible = payload.LastGangScoreEligible;
+    state.PendingAddedGangScoreEligible = payload.PendingAddedGangScoreEligible;
 	state.PublicEvents.AddRange(payload.PublicEvents.Where(item => item.TileType is >= -1 and < 27));
 	for (var seat = 0; seat < Math.Min(4, payload.MeldViews.Length); seat++)
 		state.MeldViews[seat].AddRange(payload.MeldViews[seat].Where(item => item.TileType is >= 0 and < 27));
@@ -1160,6 +1185,11 @@ static bool IsFrozenPolicy(DiscardPayload payload)
 
 internal class DiscardPayload
 {
+    public int Phase { get; init; }
+    public int TurnIndex { get; init; }
+    public int[] WonScores { get; init; } = Array.Empty<int>();
+    public string OwnDrawReason { get; init; } = string.Empty;
+    public int LastGangSourceSeat { get; init; } = -1;
     public int SeatIndex { get; init; }
     public int DealerSeat { get; init; }
     public int CurrentSeat { get; init; }
@@ -1198,6 +1228,8 @@ internal class DiscardPayload
 	public int LastGangSeat { get; init; } = -1;
 	public int LastGangTileType { get; init; } = -1;
 	public string LastGangType { get; init; } = string.Empty;
+	public bool LastGangScoreEligible { get; init; } = true;
+    public bool? PendingAddedGangScoreEligible { get; init; }
     public bool MobileSpeedMode { get; init; }
     public bool ForceLightweight { get; init; }
     public bool CompactResult { get; init; }
@@ -1232,6 +1264,7 @@ internal sealed class SelfActionPayload : DiscardPayload
 
 internal sealed class DingQuePayload
 {
+    public List<int> Hand18 { get; init; } = new();
     public Dictionary<string, int> SuitCounts { get; init; } = new();
     public List<string> ActiveSuits { get; init; } = new();
 }

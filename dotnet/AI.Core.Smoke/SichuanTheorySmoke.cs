@@ -302,9 +302,9 @@ internal static class SichuanTheorySmoke
         var contested = new SichuanQingYiSePlanner().Evaluate(Build(true), 1).First();
         var sole = new SichuanQingYiSePlanner().Evaluate(Build(false), 1).First();
         var table = new SichuanTableSituationEvaluator().Evaluate(Build(false));
-        Console.WriteLine($"inactive_strategy competition={contested.TargetSuitCompetition}->{sole.TargetSuitCompetition} completion={contested.CompletionProbability:F3}->{sole.CompletionProbability:F3} threat={table.StrongestThreatSeat}");
+        Console.WriteLine($"inactive_strategy competition={contested.TargetSuitCompetition}->{sole.TargetSuitCompetition} immediate_win={contested.ImmediateWinChanceNextDraw:F3}->{sole.ImmediateWinChanceNextDraw:F3} threat={table.StrongestThreatSeat}");
         return sole.TargetSuitCompetition == contested.TargetSuitCompetition - 1
-            && sole.CompletionProbability > contested.CompletionProbability
+            && sole.ExpectedValue > contested.ExpectedValue
             && table.StrongestThreatSeat != 1;
     }
 
@@ -540,9 +540,9 @@ internal static class SichuanTheorySmoke
         Console.WriteLine($"exact_scored_waits={scored.Count} settlement={string.Join(',', settlement.ScoreChanges)} cha={string.Join(',', settlement.ChaJiaoChanges)} hua={string.Join(',', settlement.HuaZhuChanges)}");
         return scored.Count == 3
             && scored.All(item => item.FanProjections.Count > 0 && item.MaximumSettlement >= item.MinimumSettlement)
-            && settlement.ScoreChanges.SequenceEqual(new[] { 21, -8, -31, 18 })
+            && settlement.ScoreChanges.SequenceEqual(new[] { 15, -6, -29, 20 })
             && settlement.GangChanges.SequenceEqual(new[] { 6, -2, -2, -2 })
-            && settlement.RefundChanges.SequenceEqual(new[] { 0, 0, 0, 0 })
+            && settlement.RefundChanges.SequenceEqual(new[] { -6, 2, 2, 2 })
             && settlement.TransferChanges.SequenceEqual(new[] { -3, 0, 3, 0 })
             && settlement.ChaJiaoChanges.SequenceEqual(new[] { 2, -6, 0, 4 })
             && settlement.HuaZhuChanges.SequenceEqual(new[] { 16, 0, -32, 16 });
@@ -599,9 +599,9 @@ internal static class SichuanTheorySmoke
 		var highCompetitionState = SichuanStateCodec.FromRaw(0, 0, 0, 36, strongHand, new int[27], dingQueSuits: new[] { 2, 1, 1, 1 });
 		var lowCompetition = planner.Evaluate(lowCompetitionState, 0).First();
 		var highCompetition = planner.Evaluate(highCompetitionState, 0).First();
-		Console.WriteLine($"qing_strength strong={strong.CompletionProbability:F2}/{strong.ExpectedValue:F2} weak={weak.CompletionProbability:F2}/{weak.ExpectedValue:F2} overlap={overlap.OrdinaryFallbackValue:F2}/{overlap.GenGangPotential:F2} competition={lowCompetition.TargetSuitCompetition}->{highCompetition.TargetSuitCompetition}");
+		Console.WriteLine($"qing_strength strong={strong.ImmediateWinChanceNextDraw:F2}/{strong.ExpectedValue:F2} weak={weak.ImmediateWinChanceNextDraw:F2}/{weak.ExpectedValue:F2} overlap={overlap.OrdinaryFallbackValue:F2}/{overlap.GenGangPotential:F2} competition={lowCompetition.TargetSuitCompetition}->{highCompetition.TargetSuitCompetition}");
 		return strong.DiscardTileType / 9 != 0
-			&& strong.CompletionProbability > weak.CompletionProbability
+			&& strong.ExpectedValue > weak.ExpectedValue
 			&& strong.ExpectedFan >= weak.ExpectedFan
 			&& overlap.OrdinaryFallbackValue > 0
 			&& overlap.GenGangPotential > 0

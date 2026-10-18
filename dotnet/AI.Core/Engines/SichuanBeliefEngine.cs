@@ -9,9 +9,24 @@ namespace SichuanMahjong.AI.Core.Engines;
 public sealed class SichuanBeliefEngine
 {
     private const int CacheLimit = 256;
-    private static readonly object CacheLock = new();
-    private static readonly Dictionary<string, SichuanBeliefSnapshot> Cache = new();
-    private static readonly Queue<string> CacheOrder = new();
+    public sealed class ScopedCache
+    {
+        internal readonly object Gate = new();
+        internal readonly Dictionary<string, SichuanBeliefSnapshot> Values = new();
+        internal readonly Queue<string> Order = new();
+    }
+    private static readonly AsyncLocal<ScopedCache?> LocalCache = new();
+    private static readonly ScopedCache DefaultCache = new();
+    private static object CacheLock => (LocalCache.Value ?? DefaultCache).Gate;
+    private static Dictionary<string, SichuanBeliefSnapshot> Cache => (LocalCache.Value ?? DefaultCache).Values;
+    private static Queue<string> CacheOrder => (LocalCache.Value ?? DefaultCache).Order;
+    public static IDisposable UseCache(ScopedCache cache) => new CacheScope(cache);
+    private sealed class CacheScope : IDisposable
+    {
+        private readonly ScopedCache? _previous;
+        public CacheScope(ScopedCache cache) { _previous = LocalCache.Value; LocalCache.Value = cache; }
+        public void Dispose() { LocalCache.Value = _previous; }
+    }
     private static long _callCount;
     private static long _cacheHits;
     private static long _cacheMisses;
@@ -25,6 +40,7 @@ public sealed class SichuanBeliefEngine
 
     public SichuanBeliefSnapshot Build(SichuanStateView state)
     {
+        using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("belief");
         var cacheKey = BuildCacheKey(state);
         lock (CacheLock)
         {
@@ -94,8 +110,14 @@ public sealed class SichuanBeliefEngine
         var particlePosterior = _hiddenInference.Infer(
             state,
             particleBudget,
-            unchecked(20260713 + state.SeatIndex * 1009 + (int)(state.EventVersion % int.MaxValue)),
+            unchecked(20260713 + state.SeatIndex * 1009),
             SichuanInformationMode.Public);
+        // Observable diagnostic of an enforced public fact, not a score or
+        // a claim that the remaining hand/fan posterior has been calibrated.
+        snapshot.PublicReadFeatures["public_won_missing_clearance_seats"] = particlePosterior.ParticleCount > 0
+            ? Enumerable.Range(0, 4).Count(seat => seat != state.SeatIndex
+                && state.HasHu[seat] && state.DingQueSuits[seat] is >= 0 and < 3)
+            : 0;
         snapshot.Unknown18 = state.Remaining18.Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
         var seatWeightsByTile = new Dictionary<int, Dictionary<int, double>>();
         var activeSeats = new List<int>();
@@ -106,7 +128,7 @@ public sealed class SichuanBeliefEngine
             var discards = state.Discards18[seat];
             var meldTiles = state.Melds18[seat];
             var discardCount = discards.Count;
-            var meldGroupCount = meldTiles.Count / 3;
+            var meldGroupCount = state.MeldCount(seat);
             var isAggressive = state.IsCalled[seat] || state.IsReady[seat];
             var range = _range.BuildSeatRange(state, evidence, seat);
 
@@ -267,7 +289,7 @@ public sealed class SichuanBeliefEngine
             item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Hand);
         var drawCut = state.PublicEvents.Count(item =>
             item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Draw);
-        var rootCount = meldTiles.Count(tile => tile is >= 0 and < 27) / 3
+        var rootCount = state.MeldCount(seat)
             + (seat == state.SeatIndex ? state.Hand18.Count(tile => tile >= 3) : 0);
         var brokenLines = 0;
         var liveLines = 0;
@@ -307,8 +329,9 @@ public sealed class SichuanBeliefEngine
             .Append("|visibleVersion=").Append(state.VisibleVersion)
             .Append("|mode=").Append(state.InformationMode)
             .Append("|policy=").Append(state.PolicyVariant);
-        // Hidden-hand sampling depends on these public inputs (and uses
-        // VisibleVersion in its seed); cached and uncached inference must agree.
+        // Version fields invalidate caches; they do not change the sampling
+        // distribution or seed. Identical public evidence must yield the same
+        // inference through a direct call and a persistent game agent.
         AppendIntArray(builder, "|dingque=", state.DingQueSuits);
         AppendIntArray(builder, "|handCounts=", state.HandCounts);
         AppendIntArray(builder, "|hand=", state.Hand18);

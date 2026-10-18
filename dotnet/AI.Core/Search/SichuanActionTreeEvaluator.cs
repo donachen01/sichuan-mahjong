@@ -71,6 +71,7 @@ public sealed class SichuanActionTreeEvaluator
 
     public ChanceSearchResult SearchChanceNodes(ChanceSearchRequest request)
     {
+        using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_model");
         var watch = Stopwatch.StartNew();
         var value = new SichuanBloodBattleChanceModel().Evaluate(request);
         watch.Stop();

@@ -8,7 +8,7 @@ public sealed class SichuanStageEvaluator
     public SichuanStageContext Evaluate(SichuanStateView state, SichuanBeliefSnapshot belief)
     {
         var maxDiscards = state.Discards18.Max(list => list.Count);
-        var exposedMeldCount = state.Melds18.Sum(list => list.Count / 3);
+        var exposedMeldCount = Enumerable.Range(0, 4).Sum(state.MeldCount);
         var hasLikelyReady = Enumerable.Range(0, 4)
             .Where(seat => seat != state.SeatIndex && !state.HasHu[seat])
             .Any(seat => state.IsReady[seat] || belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
@@ -59,7 +59,7 @@ public sealed class SichuanHandEvaluator
             return cached;
 
         var stopwatch = Stopwatch.StartNew();
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         var shanten = _shanten.CalcBestShanten(state.Hand18, meldCount);
         var bestUkeire = 0;
         var bestLiveUkeire = 0;
@@ -147,7 +147,7 @@ public sealed class SichuanHandEvaluator
         foreach (var tile in state.Melds18[state.SeatIndex])
             suitCounts[tile / 9]++;
         var maxSuit = suitCounts.Max();
-        var tripletLike = state.Hand18.Count(count => count >= 3) + state.Melds18[state.SeatIndex].Count / 3;
+        var tripletLike = state.Hand18.Count(count => count >= 3) + state.MeldCount(state.SeatIndex);
         return Math.Clamp(maxSuit * 5 + pairCount * 6 + tripletLike * 10, 0, 100);
     }
 
@@ -264,7 +264,7 @@ public sealed class SichuanOpponentDangerEvaluator
         for (var seat = 0; seat < 4; seat++)
         {
             if (seat == state.SeatIndex || state.HasHu[seat]) continue;
-            var meldCount = state.Melds18[seat].Count / 3;
+            var meldCount = state.MeldCount(seat);
             var discardCount = state.Discards18[seat].Count;
             var readyPosterior = belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0);
             var bigHandRisk = EstimateBigHandRisk(state, seat);
@@ -349,18 +349,30 @@ public sealed class SichuanTileDangerEvaluator
                     ReasonCodes = BuildTileReasonCodes(state, belief, seat, tile, score, stage)
                 };
             }
+            var canAnyOpponentWin = Enumerable.Range(0, 4).Any(seat => CanWinOnTile(state, seat, tile));
+            var strongest = byOpponent.Values.OrderByDescending(item => item.Score).FirstOrDefault();
+            var maxDanger = canAnyOpponentWin
+                ? Math.Max(global.Risk, strongest?.Score ?? 0) : 0;
             result[tile] = new SichuanTileDangerProfile
             {
                 TileType = tile,
-                MaxDangerScore = Math.Max(global.Risk, byOpponent.Values.Select(item => item.Score).DefaultIfEmpty(0).Max()),
-                TopThreatSeat = global.TopThreatSeat,
-                Level = ResolveLevel(global.Risk),
+                MaxDangerScore = maxDanger,
+                TopThreatSeat = maxDanger == 0 ? -1 : strongest is not null && strongest.Score > global.Risk
+                    ? strongest.Seat : global.TopThreatSeat,
+                Level = ResolveLevel(maxDanger),
                 ByOpponent = byOpponent,
-                ReasonCodes = ConvertRiskReasons(global.Reasons, global.Risk, stage)
+                ReasonCodes = canAnyOpponentWin
+                    ? ConvertRiskReasons(global.Reasons, maxDanger, stage)
+                    : new[] { "NO_LEGAL_WINNER_FOR_TILE" }
             };
         }
         return result;
     }
+
+    private static bool CanWinOnTile(SichuanStateView state, int seat, int tile)
+        => seat is >= 0 and < 4 && seat != state.SeatIndex
+            && state.ActiveSeats[seat] && !state.HasHu[seat]
+            && state.DingQueSuits[seat] != tile / 9;
 
     private static int EstimateSeatTileDanger(
         SichuanStateView state,
@@ -370,6 +382,8 @@ public sealed class SichuanTileDangerEvaluator
         SichuanOpponentDangerProfile profile,
         SichuanStageContext stage)
     {
+        // Public legality is a hard constraint; inferred missing suits remain soft.
+        if (!CanWinOnTile(state, seat, tile)) return 0;
         var score = profile.DangerLevel * 0.48;
         var wait = belief.SeatTileWaitProbability.TryGetValue(seat, out var waitMap) ? waitMap.GetValueOrDefault(tile, 0.0) : 0.0;
         var hold = belief.SeatTileHoldProbability.TryGetValue(seat, out var holdMap) ? holdMap.GetValueOrDefault(tile, 0.0) : 0.0;
@@ -392,6 +406,9 @@ public sealed class SichuanTileDangerEvaluator
         int score,
         SichuanStageContext stage)
     {
+        if (!CanWinOnTile(state, seat, tile))
+            return new[] { state.DingQueSuits.ElementAtOrDefault(seat) == tile / 9
+                ? "KNOWN_DING_QUE_CANNOT_WIN" : "SEAT_CANNOT_WIN" };
         var reasons = new List<string>();
         if (belief.SeatExactSafeTiles.TryGetValue(seat, out var safeTiles) && safeTiles.Contains(tile))
             reasons.Add("SAFE_DISCARDED_BY_OPPONENT");

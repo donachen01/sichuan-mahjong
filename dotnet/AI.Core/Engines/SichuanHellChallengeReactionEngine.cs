@@ -52,7 +52,7 @@ public sealed class SichuanHellChallengeReactionEngine
         var teamPlan = SichuanHellChallengeTeamPlanner.BuildPlan(state, allHands18, exactWall18, currentScores);
         var seatPlan = teamPlan.ForSeat(state.SeatIndex);
         var humanPressure = teamPlan.HumanPressureLevel;
-        var currentMeldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var currentMeldCount = state.MeldCount(state.SeatIndex);
         var currentShanten = _shanten.CalcBestShanten(state.Hand18, currentMeldCount);
         var currentLive = EstimateBestLiveUkeire(state.Hand18, exactWall18, currentMeldCount);
 
@@ -244,7 +244,7 @@ public sealed class SichuanHellChallengeReactionEngine
         Dictionary<string, int> inheritedScores)
     {
         var handAfter = RemoveCopies(state.Hand18, reactionTileType, removeCount);
-        var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
+        var meldCountAfter = state.MeldCount(state.SeatIndex) + 1;
         var shantenAfter = _shanten.CalcBestShanten(handAfter, meldCountAfter);
         var liveAfter = EstimateBestLiveUkeire(handAfter, exactWall18, meldCountAfter);
         var blocksHuman = sourceSeat == 0 && reactionType == "discard";

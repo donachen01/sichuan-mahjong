@@ -42,6 +42,48 @@ var native_async_enabled: bool = false
 var force_mobile_aot_runtime_for_tests: bool = false
 
 
+func update_round_agents(operation: String, views: Array = [], round_id: String = "", generation: int = 0, checkpoints: Array = []) -> bool:
+	if not has_native_csharp_runtime() or not native_csharp_runtime.has_method("UpdateRoundAgentsJson"):
+		last_native_turn_error = "seat_agents_require_native_runtime"
+		return false
+	var message := {"operation": operation, "views": views, "roundId": round_id, "hostGeneration": generation, "checkpoints": checkpoints}
+	var parsed = JSON.parse_string(str(native_csharp_runtime.call("UpdateRoundAgentsJson", JSON.stringify(message))))
+	if typeof(parsed) != TYPE_DICTIONARY or not bool(parsed.get("ok", false)):
+		last_native_turn_error = str(parsed.get("error", "invalid_agent_response")) if typeof(parsed) == TYPE_DICTIONARY else "invalid_agent_response"
+		push_error(last_native_turn_error)
+		return false
+	if operation == "restore":
+		csharp_bridge.restore_agent_view_stamps(views)
+	if operation == "end":
+		turn_analysis_cache.clear()
+		turn_cache_order.clear()
+		csharp_bridge.clear_agent_views()
+	return true
+
+
+func capture_round_agent_memories(views: Array) -> Array:
+	var checkpoints: Array = []
+	if not has_native_csharp_runtime():
+		return checkpoints
+	for view in views:
+		var raw := str(native_csharp_runtime.call("CaptureRoundAgentJson", JSON.stringify(view)))
+		var parsed = JSON.parse_string(raw)
+		if typeof(parsed) != TYPE_DICTIONARY or parsed.has("error"):
+			return []
+		# Keep the C# checkpoint opaque: Godot JSON numbers are floating point.
+		checkpoints.append(raw)
+	return checkpoints
+
+
+func analyze_agent_ding_que(player_state: Dictionary, table_state: Dictionary, rules_config, active_suits: Array) -> Dictionary:
+	var payload: Dictionary = csharp_bridge.build_discard_transport_payload(player_state, table_state, rules_config)
+	payload["activeSuits"] = active_suits
+	if not has_native_csharp_runtime():
+		return {}
+	var parsed = JSON.parse_string(str(native_csharp_runtime.call("AnalyzeAgentDingQueJson", JSON.stringify(payload))))
+	return parsed if typeof(parsed) == TYPE_DICTIONARY and bool(parsed.get("ok", false)) else {}
+
+
 func _should_use_csharp_backend(rules_config) -> bool:
 	if has_native_csharp_runtime():
 		return true
@@ -170,26 +212,6 @@ func analyze_ding_que(hand_tiles: Array, active_suits: Array) -> Dictionary:
 			active_backend = "csharp_native_ding_que_hand"
 		else:
 			last_native_turn_error = "invalid_native_hand_ding_que_result"
-	elif has_native_csharp_runtime() and native_csharp_runtime.has_method("DecideDingQueSuit"):
-		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
-		var suit_counts: Dictionary = payload.get("suitCounts", {})
-		var native_suit := str(native_csharp_runtime.call(
-			"DecideDingQueSuit",
-			int(suit_counts.get("tiao", 0)),
-			int(suit_counts.get("tong", 0)),
-			int(suit_counts.get("wan", 0))
-		))
-		if active_suits.has(native_suit):
-			analysis = {
-				"ok": true,
-				"action": "ding_que",
-				"suit": native_suit,
-				"suitCounts": suit_counts.duplicate(true),
-				"backendMode": "csharp_native_ding_que_direct",
-			}
-			active_backend = "csharp_native_ding_que_direct"
-		else:
-			last_native_turn_error = "invalid_native_direct_ding_que_result"
 	elif has_native_csharp_runtime() and native_csharp_runtime.has_method("AnalyzeDingQueJson"):
 		var payload: Dictionary = csharp_bridge.build_ding_que_transport_payload(hand_tiles, active_suits)
 		var raw := str(native_csharp_runtime.call("AnalyzeDingQueJson", JSON.stringify(payload)))
@@ -1766,6 +1788,8 @@ func _deliver_async_payload(payload: Dictionary) -> int:
 
 
 func _build_turn_cache_key(player_state: Dictionary, table_state: Dictionary, rules_config, allow_cheat: bool, force_gdscript: bool, force_lightweight: bool = false) -> String:
+	if Array(table_state.get("agent_seats", [])).has(int(player_state.get("seat", -1))):
+		return JSON.stringify(csharp_bridge.build_discard_transport_payload(player_state, table_state, rules_config, force_lightweight))
 	var active_suits: Array = csharp_bridge.tile_codec.resolve_active_suits(rules_config)
 	var parts: Array[String] = []
 	parts.append("seat=%d" % int(player_state.get("seat", -1)))

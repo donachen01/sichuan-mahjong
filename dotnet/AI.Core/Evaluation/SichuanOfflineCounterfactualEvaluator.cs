@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Engines;
+using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Rules;
 using SichuanMahjong.AI.Core.Search;
@@ -58,7 +59,10 @@ public sealed class SichuanOfflineCounterfactualEvaluator
     public SichuanOfflineActionValue EvaluateAddedGang(SichuanStateView state, int tileType)
     {
         var gang = _transitions.ApplyAddedGang(_transitions.FromState(state), tileType);
-        return EvaluateReplacementDraw(state, gang, "added_gang", immediateGangGain: 1.0);
+        var scoreEligible = state.CurrentSeat == state.SeatIndex
+            && state.LastDrawOrigin == SichuanTileOrigin.Draw
+            && state.LastDrawTileType == tileType;
+        return EvaluateReplacementDraw(state, gang, "added_gang", immediateGangGain: scoreEligible ? 1.0 : 0.0);
     }
 
     private SichuanOfflineActionValue EvaluateWaiting(

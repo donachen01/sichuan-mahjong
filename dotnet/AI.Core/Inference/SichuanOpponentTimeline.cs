@@ -28,7 +28,7 @@ public sealed record SichuanOpponentTimeline(int TurnsSinceNonMissingDiscard,
     // this constraint between their draw and discard or to inactive winners.
     public static bool MustHaveClearedMissing(SichuanStateView state, int seat)
         => !state.HasHu[seat] && state.ActiveSeats[seat]
-            && state.HandCounts[seat] == 13 - 3 * Math.Max(state.MeldViews[seat].Count, state.Melds18[seat].Count / 3)
+            && state.HandCounts[seat] == 13 - 3 * state.MeldCount(seat)
             && state.DingQueSuits[seat] is >= 0 and < 3
             && (state.PublicEvents.Any(e => e.Seat == seat && e.Type == SichuanPublicEventType.Discard
                     && e.TileType is >= 0 and < 27 && e.TileType / 9 != state.DingQueSuits[seat])

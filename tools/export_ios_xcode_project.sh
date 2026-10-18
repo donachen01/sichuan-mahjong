@@ -1,5 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
+
+python3 "${0:A:h:h}/tools/validate_strategy_release.py"
 setopt NULL_GLOB
 
 PROJECT_DIR="${0:A:h:h}"
@@ -96,11 +98,18 @@ echo "Export output: $EXPORT_DIR"
 echo "Team ID: ${GODOT_IOS_TEAM_ID:-FCB4ZVWWD8}"
 echo "Bundle ID: ${GODOT_IOS_BUNDLE_ID:-com.chendong.sichuanmahjong.iosdev}"
 
+EXPORT_SWITCH="--export-release"
+if [[ "$EXPORT_CONFIG" == "ExportDebug" ]]; then
+  EXPORT_SWITCH="--export-debug"
+fi
+# General resource filters are read-only in EditorExportPreset's scripting API.
+# Use the standard exporter so export_presets.cfg is authoritative.
 "$GODOT_BIN" \
   --headless \
   --editor \
   --path "$PROJECT_DIR" \
-  --script res://tools/export_ios_xcode_direct.gd
+  --log-file "$EXPORT_DIR/godot_export_engine.log" \
+  "$EXPORT_SWITCH" "iOS" "$GODOT_IOS_OUTPUT"
 
 if [[ ! -f "$EXPORT_DIR/SichuanMahjongIOS.xcodeproj/project.pbxproj" ]]; then
   echo "iOS export did not produce an Xcode project at $EXPORT_DIR"

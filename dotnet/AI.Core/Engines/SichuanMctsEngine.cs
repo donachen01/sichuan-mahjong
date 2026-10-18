@@ -104,7 +104,7 @@ public sealed class SichuanMctsEngine
 		var remaining = new int[27];
 		foreach (var tile in wallOrder.Where(tile => tile is >= 0 and < 27))
 			remaining[tile]++;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         var totalScore = 0.0;
 		var activePlayers = Math.Max(2, state.ActiveSeats.Count(active => active));
 		var ownDrawOffset = Math.Max(0, activePlayers - 1);

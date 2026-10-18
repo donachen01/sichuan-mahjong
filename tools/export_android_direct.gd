@@ -148,6 +148,9 @@ func _app_version_name() -> String:
 
 
 func _app_version_code(version_name: String) -> int:
+	var override := OS.get_environment("GODOT_ANDROID_VERSION_CODE").strip_edges()
+	if override.is_valid_int() and int(override) > 0:
+		return int(override)
 	var parts := version_name.split(".")
 	if parts.size() >= 3:
 		return maxi(1, int(parts[0]) * 100 + int(parts[1]) * 10 + int(parts[2]))

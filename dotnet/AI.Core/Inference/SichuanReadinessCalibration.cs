@@ -26,7 +26,7 @@ internal static class SichuanReadinessCalibration
         var timeline = SichuanOpponentTimeline.Build(state, seat);
         var p = Math.Clamp(baseline, .001, .999);
         var features = new[] {1.0, Math.Log(p/(1-p)), (60-state.WallCount)/60.0,
-            state.MeldViews[seat].Count/4.0, state.Discards18[seat].Count/12.0,
+            state.MeldCount(seat)/4.0, state.Discards18[seat].Count/12.0,
             timeline.RecentHandDiscards/4.0, timeline.RecentDrawDiscards/4.0,
             timeline.RecentCentralDiscards/4.0, timeline.LastDiscardWasMissing ? 1.0 : 0.0,
             SichuanOpponentTimeline.MustHaveClearedMissing(state, seat) ? 1.0 : 0.0};

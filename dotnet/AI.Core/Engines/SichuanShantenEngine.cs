@@ -23,10 +23,13 @@ public sealed class SichuanShantenEngine
             }
         var key = (low, high, meldCount);
         if (cacheable && StandardCache.TryGetValue(key, out var cached)) return cached;
-        var counts = (int[])hand18.Clone();
-        var best = 8;
-        Search(counts, 0, meldCount, 0, 0, ref best);
-        var result = Math.Max(-1, best);
+        int result;
+        if (cacheable) result = new SichuanStructuralDistance().Best(hand18, meldCount, false);
+        else
+        {
+            var counts = (int[])hand18.Clone(); var best=8;
+            Search(counts,0,meldCount,0,0,ref best); result=Math.Max(-1,best);
+        }
         if (cacheable)
         {
             if (StandardCache.TryAdd(key, result) && Interlocked.Increment(ref _cacheEntries) >= CacheCapacity)
@@ -64,6 +67,33 @@ public sealed class SichuanShantenEngine
         var clone = (int[])hand18.Clone();
         clone[tileType]--;
         return CalcBestShanten(clone, meldCount, allowQiDui);
+    }
+
+    // Missing-suit tiles cannot contribute a meld, pair or connection. The
+    // ordinary formula assumes a full hand, so also retain the number of tiles
+    // still needed to fill the legal concealed winning hand after clearing.
+    public int CalcLegalShanten(int[] hand, int meldCount, int missingSuit, bool allowQiDui = true)
+    {
+        if (missingSuit is < 0 or > 2 || !hand.Skip(missingSuit * 9).Take(9).Any(n => n > 0))
+            return CalcBestShanten(hand, meldCount, allowQiDui);
+        var clean = (int[])hand.Clone();
+        Array.Clear(clean, missingSuit * 9, 9);
+        return Math.Max(CalcBestShanten(clean, meldCount, allowQiDui), 13 - 3 * meldCount - clean.Sum());
+    }
+
+    public int[] LegalImprovingTiles(int[] hand, int[] remaining, int meldCount, int missingSuit)
+    {
+        var distance = CalcLegalShanten(hand, meldCount, missingSuit, meldCount == 0);
+        var probe = (int[])hand.Clone();
+        var result = new List<int>();
+        for (var tile = 0; tile < 27; tile++)
+        {
+            if (tile / 9 == missingSuit || probe[tile] >= 4 || remaining[tile] <= 0) continue;
+            probe[tile]++;
+            if (CalcLegalShanten(probe, meldCount, missingSuit, meldCount == 0) < distance) result.Add(tile);
+            probe[tile]--;
+        }
+        return result.ToArray();
     }
 
     private static void Search(int[] counts, int index, int melds, int taatsu, int pairs, ref int best)

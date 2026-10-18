@@ -1,6 +1,8 @@
 #!/bin/zsh
 set -euo pipefail
 
+python3 "${0:A:h:h}/tools/validate_strategy_release.py"
+
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
 if [[ -n "${DOTNET_ROOT:-}" && -x "$DOTNET_ROOT/dotnet" ]]; then
   export DOTNET_ROOT="$DOTNET_ROOT"
@@ -19,6 +21,9 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
 export PATH="$DOTNET_ROOT:$DOTNET_ROOT/sdk:$JAVA_HOME/bin:/opt/homebrew/opt/dotnet@9/bin:/opt/homebrew/bin:/Users/chendong/Library/Android/sdk/platform-tools:$PATH"
 export GODOT_ANDROID_EXPORT_MODE=release
+# Use Godot's embedded Android template by default; this avoids requiring a locally cached AGP.
+export GODOT_ANDROID_USE_GRADLE="${GODOT_ANDROID_USE_GRADLE:-0}"
+export GODOT_ANDROID_VERSION_CODE=346
 PROJECT_DIR="${0:A:h:h}"
 APP_VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' "$PROJECT_DIR/project.godot" | head -n 1)"
 if [[ -z "$APP_VERSION" ]]; then

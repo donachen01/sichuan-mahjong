@@ -30,7 +30,7 @@ public sealed class SichuanHellChallengeEngine
         exactWall18 = NormalizeCounts(exactWall18);
 
         var hand = state.Hand18;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         var oldHandDecision = _oldHand.DecideDiscard(state);
         var oldHandCandidates = oldHandDecision.Candidates
             .OrderByDescending(candidate => candidate.Score)
@@ -347,7 +347,7 @@ public sealed class SichuanHellChallengeEngine
                 continue;
             var hand = allHands18[seat].Take(27).Concat(Enumerable.Repeat(0, 27)).Take(27).ToArray();
             hand[discardTileType]++;
-            var meldCount = state.Melds18[seat].Count / 3;
+            var meldCount = state.MeldCount(seat);
             if (CanHu(hand, meldCount))
                 targets.Add(seat);
         }
@@ -373,7 +373,7 @@ public sealed class SichuanHellChallengeEngine
             return 0;
 
         humanHand[discardTileType] = Math.Max(0, humanHand[discardTileType] - 2);
-        var meldCountAfter = state.Melds18[0].Count / 3 + 1;
+        var meldCountAfter = state.MeldCount(0) + 1;
         var concealedCount = humanHand.Sum();
         if (concealedCount < 4)
             return 1;

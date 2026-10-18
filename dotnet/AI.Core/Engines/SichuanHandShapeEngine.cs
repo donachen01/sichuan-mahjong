@@ -5,13 +5,16 @@ namespace SichuanMahjong.AI.Core.Engines;
 public sealed class SichuanHandShapeEngine
 {
     private readonly SichuanShantenEngine _shanten = new();
+    private readonly SichuanHandImprovementEngine _improvements = new();
 
     public SichuanHandShapeSummary Evaluate(
         int[] hand18,
         int[] remaining18,
         int meldCount,
-        int shanten)
+        int shanten,
+        int? publicMissingSuit = null)
     {
+        using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("shape");
         var profiles = EnumerateMutuallyExclusiveProfiles(hand18, meldCount);
         var best = profiles.FirstOrDefault() ?? ShapeProfile.Empty;
         var goodShapeCount = best.Ryanmen;
@@ -26,7 +29,11 @@ public sealed class SichuanHandShapeEngine
         var pairPressure = Math.Max(0, pairCount - 5);
         var taatsuOverflow = Math.Max(0, taatsuCount - neededTaatsu);
         var middleTileFlexibility = best.MiddleSingles;
-        var sameShantenImprovementCount = CountSameShantenImprovements(hand18, remaining18, meldCount, shanten);
+        // Fair play supplies its missing suit and evaluates legal draw/discard
+        // successors. Keep the separate oracle challenge's existing policy intact.
+        var sameShantenImprovementCount = publicMissingSuit.HasValue
+            ? _improvements.Enumerate(hand18, remaining18, meldCount, publicMissingSuit.Value).Sum(item => item.Copies)
+            : CountSameShantenImprovements(hand18, remaining18, meldCount, shanten);
         var shapeScore = best.Score
             + sameShantenImprovementCount * 0.08
             + middleTileFlexibility * 0.025
@@ -68,7 +75,21 @@ public sealed class SichuanHandShapeEngine
         };
     }
 
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, IReadOnlyList<ShapeProfile>> ProfileCache = new();
+
     private static IReadOnlyList<ShapeProfile> EnumerateMutuallyExclusiveProfiles(int[] source, int exposedMeldCount)
+    {
+        // Profiles contain only immutable structural facts, never seat beliefs,
+        // remaining tiles or plans. Keep those state-dependent evaluations outside.
+        var key = exposedMeldCount + ":" + string.Join(',', source);
+        if (ProfileCache.TryGetValue(key, out var cached)) return cached;
+        var result = EnumerateMutuallyExclusiveProfilesUncached(source, exposedMeldCount);
+        if (ProfileCache.Count > 16384) ProfileCache.Clear();
+        ProfileCache.TryAdd(key, result);
+        return result;
+    }
+
+    private static IReadOnlyList<ShapeProfile> EnumerateMutuallyExclusiveProfilesUncached(int[] source, int exposedMeldCount)
     {
         var counts = source.Select(value => Math.Clamp(value, 0, 4)).ToArray();
         var profiles = new List<ShapeProfile>();

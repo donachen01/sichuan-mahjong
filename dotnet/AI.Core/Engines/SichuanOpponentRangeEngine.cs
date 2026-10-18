@@ -12,7 +12,7 @@ public sealed class SichuanOpponentRangeEngine
         var discards = state.Discards18[seat];
         var meldTiles = state.Melds18[seat];
         var discardCount = discards.Count;
-        var meldGroupCount = meldTiles.Count / 3;
+        var meldGroupCount = state.MeldCount(seat);
         var pressure = EstimatePressure(state, seat, discardCount, meldGroupCount);
         var readyProbability = EstimateReadyProbability(state, seat, discardCount, meldGroupCount, pressure);
         var discardBySuit = new[] { 0, 0, 0 };
@@ -23,6 +23,7 @@ public sealed class SichuanOpponentRangeEngine
             meldBySuit[tile / 9]++;
 
         var suitDemand = new double[3];
+        var opening = Inference.SichuanOpeningObservation.Build(state, seat);
         for (var suit = 0; suit < 3; suit++)
         {
             var meldFocus = meldTiles.Count == 0 ? 0.0 : meldBySuit[suit] / (double)Math.Max(1, meldTiles.Count);
@@ -30,7 +31,7 @@ public sealed class SichuanOpponentRangeEngine
                 + meldFocus * 0.34
                 + AverageVisibleScarcity(state, suit) * 0.18
                 + ((state.IsCalled[seat] || state.IsReady[seat]) ? 0.08 : 0.0)
-                - discardBySuit[suit] * 0.09;
+                - opening.RecentHandDiscards[suit] * 0.09;
             if (evidence.SeatAbandonedSuitEvidence[seat][suit] >= 0.56)
                 heat *= 0.58;
             suitDemand[suit] = Math.Clamp(heat, 0.04, 0.98);

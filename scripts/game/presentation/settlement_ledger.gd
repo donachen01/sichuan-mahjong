@@ -39,11 +39,18 @@ static func _build_settlement_breakdown_lines(players: Array, settlement_data: D
 			)
 
 	for event in settlement_data.get("gang_events", []):
-		if str(event.get("related_outcome", "")) == "gang_discard_win":
+		if not bool(event.get("score_eligible", true)):
+			if int(event.get("actor_seat", -1)) == focus_seat:
+				lines.append({
+					"reason": "补杠（手上第四张，不计杠分）",
+					"source": seat_name.call(focus_seat),
+					"factor": "不计杠分",
+					"score": "+0",
+				})
 			continue
+		# A later transfer does not erase the original gang receipt/payments.
 		var actor_seat: int = int(event.get("actor_seat", -1))
 		var gang_total_score: int = _resolve_gang_event_total_score(event)
-		var gang_unit_score: int = _resolve_gang_unit_score(str(event.get("gang_type", "")))
 		var gang_payers: Array = event.get("payer_seats", [])
 		if actor_seat == focus_seat:
 			lines.append(
@@ -60,13 +67,12 @@ static func _build_settlement_breakdown_lines(players: Array, settlement_data: D
 					"reason": "支付%s" % _gang_type_display_name(str(event.get("gang_type", "melded_gang"))),
 					"source": seat_name.call(actor_seat),
 					"factor": "杠分",
-					"score": "-%d" % gang_unit_score,
+					"score": "-%d" % _resolve_gang_event_payment_for_payer(event, focus_seat),
 				}
 			)
 
 	for refund in settlement_data.get("tui_gang_refunds", []):
 		var refund_actor_seat: int = int(refund.get("actor_seat", -1))
-		var refund_unit_score: int = _resolve_gang_unit_score(str(refund.get("gang_type", "")))
 		var refund_payers: Array = refund.get("payer_seats", [])
 		if refund_actor_seat == focus_seat:
 			lines.append(
@@ -74,7 +80,7 @@ static func _build_settlement_breakdown_lines(players: Array, settlement_data: D
 					"reason": "退回%s税" % _gang_type_display_name(str(refund.get("gang_type", ""))),
 					"source": _refund_payers_display(refund_payers, seat_name),
 					"factor": "退税",
-					"score": "-%d" % (refund_unit_score * refund_payers.size()),
+					"score": "-%d" % _resolve_gang_event_total_score(refund),
 				}
 			)
 		elif refund_payers.has(focus_seat):
@@ -83,32 +89,37 @@ static func _build_settlement_breakdown_lines(players: Array, settlement_data: D
 					"reason": "收回退税",
 					"source": seat_name.call(refund_actor_seat),
 					"factor": "退税",
-					"score": "+%d" % refund_unit_score,
+					"score": "+%d" % _resolve_gang_event_payment_for_payer(refund, focus_seat),
 				}
 			)
 
 	for event in settlement_data.get("transfer_events", []):
+		if not bool(event.get("score_eligible", true)):
+			continue
 		if str(event.get("transfer_type", "")) != "hu_jiao_zhuan_yi":
 			continue
 		var transfer_winner_seat: int = int(event.get("to_seat", -1))
-		var transfer_unit_score: int = _resolve_gang_unit_score(str(event.get("gang_type", "")))
+		var transfer_actor_seat: int = int(event.get("from_seat", event.get("related_actor_seat", -1)))
+		var transfer_score := int(event.get("transfer_score", 0))
+		if transfer_score <= 0:
+			transfer_score = _resolve_gang_event_total_score(event)
 		var transfer_payers: Array = event.get("payer_seats", [])
 		if transfer_winner_seat == focus_seat:
 			lines.append(
 				{
 					"reason": "呼叫转移",
-					"source": _refund_payers_display(transfer_payers, seat_name),
+					"source": "%s（原付款：%s）" % [seat_name.call(transfer_actor_seat), _refund_payers_display(transfer_payers, seat_name)],
 					"factor": "转移杠分",
-					"score": "+%d" % (transfer_unit_score * transfer_payers.size()),
+					"score": "+%d" % transfer_score,
 				}
 			)
-		elif transfer_payers.has(focus_seat):
+		elif transfer_actor_seat == focus_seat:
 			lines.append(
 				{
 					"reason": "支付呼叫转移",
 					"source": seat_name.call(transfer_winner_seat),
 					"factor": "转移杠分",
-					"score": "-%d" % transfer_unit_score,
+					"score": "-%d" % transfer_score,
 				}
 			)
 
@@ -266,12 +277,22 @@ static func _resolve_event_payment_for_payer(event: Dictionary, _payer_seat: int
 
 static func _resolve_gang_event_total_score(event: Dictionary) -> int:
 	var payer_seats: Array = event.get("payer_seats", [])
-	var gang_type := str(event.get("gang_type", ""))
-	var source_seat := int(event.get("source_seat", -1))
 	var total := 0
 	for payer in payer_seats:
-		total += 2 if gang_type == "melded_gang" and int(payer) == source_seat else _resolve_gang_unit_score(gang_type if gang_type != "melded_gang" else "add_gang")
+		total += _resolve_gang_event_payment_for_payer(event, int(payer))
 	return total
+
+
+static func _resolve_gang_event_payment_for_payer(event: Dictionary, payer_seat: int) -> int:
+	if not bool(event.get("score_eligible", true)):
+		return 0
+	var gang_type := str(event.get("gang_type", ""))
+	if gang_type == "melded_gang":
+		var source_seat := int(event.get("source_seat", -1))
+		if source_seat < 0 and Array(event.get("payer_seats", [])).size() == 1:
+			source_seat = payer_seat
+		return 2 if payer_seat == source_seat else 1
+	return _resolve_gang_unit_score(gang_type)
 
 
 static func _resolve_gang_unit_score(gang_type: String) -> int:

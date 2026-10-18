@@ -4,6 +4,7 @@ using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Strategy;
 using SichuanMahjong.AI.Core.Decision;
 using SichuanMahjong.AI.Core.Rules;
+using SichuanMahjong.AI.Core.Domain;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -18,22 +19,25 @@ public sealed class SichuanDecisionEngine
     private readonly SichuanDangerEngine _danger = new();
     private readonly SichuanMctsEngine _search = new();
     private readonly SichuanExpectedScoreEngine _expectedScore = new();
+    private readonly SichuanReadyWaitPricing _readyWaitPricing = new();
     private readonly SichuanSelfDrawProbabilityEngine _selfDraw = new();
     private readonly SichuanHandShapeEngine _shape = new();
+    private readonly SichuanBucketTheoryEngine _bucket = new();
+    private readonly SichuanIsolatedTileEvaluator _isolatedTile = new();
     private readonly SichuanClassicPatternEngine _classicPattern = new();
+    private readonly SichuanCourseTempoPolicy _courseTempo = new();
     private readonly SichuanWaitShapeEngine _waitShape = new();
     private readonly SichuanLimitedLookaheadEngine _limitedLookahead = new();
     private readonly SichuanRoutePlanEngine _routePlan = new();
     private readonly SichuanAiContextCache _contextCache = new();
     private readonly SichuanDealInPolicyEvaluator _dealInPolicy = new();
 	private readonly SichuanQingYiSePlanner _qingYiSePlanner = new();
-	private readonly SichuanRouteValueEvaluator _routeValueEvaluator = new();
+	private readonly SichuanFlushRouteGate _flushRouteGate = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
 	private readonly SichuanDefenseTempoEvaluator _defenseTempo = new();
 	private readonly SichuanTwoPlyReadyEvaluator _twoPlyReady = new();
 	private readonly SichuanPublicJointRouteAnalysis _publicJointRoutes = new();
     public static IReadOnlyDictionary<string, long> GetContinuationDiagnostics() => SichuanCriticalContinuationSelector.Diagnostics();
-    private readonly SichuanCriticalContinuationSelector _criticalContinuation = new();
 
     private sealed record SichuanBigHandRouteAdjustment(double Score, IReadOnlyList<string> Reasons)
     {
@@ -59,12 +63,29 @@ public sealed class SichuanDecisionEngine
         bool forceLightweight = false,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("discard");
+        using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
+        var missing = state.OwnDingQueSuit;
+        var forcedTiles = missing is >= 0 and < 3
+            ? Enumerable.Range(missing * 9, 9).Where(t => state.Hand18[t] > 0).ToArray() : Array.Empty<int>();
+        if (forcedTiles.Length == 1)
+        {
+            var tile = forcedTiles[0];
+            var after = (int[])state.Hand18.Clone(); after[tile]--;
+            var distance = _shanten.CalcLegalShanten(after, state.OwnMeldCount, missing);
+            var evidence = new[] { "ONLY_LEGAL_MISSING_SUIT_DISCARD", "规则只允许这一种牌；无需重复估算其他非法动作" };
+            return new() { Action = new(SichuanActionType.Discard,tile,0,evidence[1]), Shanten = distance,
+                Reasons = evidence, RoundBrain = roundBrain ?? new(),
+                CandidateScores = new Dictionary<int,int>{{tile,0}},
+                Candidates = new[]{new SichuanCandidateDetail {TileType=tile,Shanten=distance,Reasons=evidence}} };
+        }
         var decisionStopwatch = Stopwatch.StartNew();
+        var continuationPerf = new List<SichuanModulePerfSample>();
         var belief = _belief.Build(state);
         var wallAvailability = _wall.Build(state, belief);
         var aiContext = _contextCache.GetOrUpdate(state, belief);
         var roundStage = aiContext.Stage.StageIndex;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var currentShanten = _shanten.CalcBestShanten(state.Hand18, meldCount);
         var classicPattern = _classicPattern.Analyze(state.Hand18, meldCount);
@@ -76,20 +97,20 @@ public sealed class SichuanDecisionEngine
             PrimaryRoute = _routePlan.Evaluate(state).PrimaryRoute
         };
         var routePlan = _routePlan.Evaluate(state, roundBrain);
-		var routeValues = _routeValueEvaluator.Evaluate(state);
-		var qingRouteValue = routeValues.FirstOrDefault(item => item.Route == "清一色");
-		var shouldPlanQing = SichuanRoutePlanEngine.IsFlushRoute(roundBrain.PrimaryRoute)
-			|| SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute)
-			|| qingRouteValue is { CompletionProbability: >= 0.42 };
+		var committedQing = SichuanRoutePlanEngine.IsFlushRoute(roundBrain.PrimaryRoute)
+			|| SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute);
+		var structuralQingTarget = committedQing ? -1 : _flushRouteGate.FindReachableTarget(state);
+		var shouldPlanQing = state.WallCount > 0 && (committedQing
+			|| structuralQingTarget >= 0);
 		var qingPlans = shouldPlanQing
 			? _qingYiSePlanner.Evaluate(
 				state,
-				roundBrain.TargetSuit >= 0 ? roundBrain.TargetSuit : routePlan.TargetSuit,
+				SichuanRoutePlanEngine.IsFlushRoute(roundBrain.PrimaryRoute) && roundBrain.TargetSuit >= 0
+					? roundBrain.TargetSuit
+					: SichuanRoutePlanEngine.IsFlushRoute(routePlan.PrimaryRoute) ? routePlan.TargetSuit : structuralQingTarget,
 				belief).ToDictionary(item => item.DiscardTileType)
 			: new Dictionary<int, SichuanQingPlanCandidate>();
-		var unifiedDiscardCandidates = forceLightweight
-			? new Dictionary<int, Decision.SichuanDecisionCandidate>()
-			: _unified.RankDiscards(state, belief).Candidates.ToDictionary(item => item.Action.TileType);
+		// Exact discard analyses are shared by structural and utility ranking below.
         var candidateScores = new Dictionary<int, int>();
         var candidates = new List<SichuanCandidateDetail>();
         var bestTile = -1;
@@ -109,16 +130,33 @@ public sealed class SichuanDecisionEngine
             meldCount == 0,
             mustClearDingQue ? forcedDingQueSuit : -1)
             .ToDictionary(item => item.DiscardTileType);
+        var minimumDiscardDistance = exactDiscardAnalyses.Keys.Select(tile =>
+            _shanten.CalcLegalShanten(RemoveOne(state.Hand18,tile),meldCount,state.OwnDingQueSuit,meldCount==0))
+            .DefaultIfEmpty(8).Min();
+        var rankingWatch = Stopwatch.StartNew();
+        var unifiedDiscardCandidates = _unified.RankDiscards(state, belief, exactDiscardAnalyses.Values.ToArray())
+            .Candidates.ToDictionary(item => item.Action.TileType);
+        rankingWatch.Stop();
+        continuationPerf.Add(new SichuanModulePerfSample { Module = "UnifiedDiscardRanking", ElapsedMs = rankingWatch.Elapsed.TotalMilliseconds, Warning = rankingWatch.Elapsed.TotalMilliseconds >= 100 });
         for (var tileType = 0; tileType < 27; tileType++)
         {
             if (state.Hand18[tileType] <= 0) continue;
             if (mustClearDingQue && tileType / 9 != forcedDingQueSuit) continue;
-            var shanten = _shanten.CalcShantenAfterDiscard(state.Hand18, tileType, meldCount);
-            var (ukeire, liveUkeire, improvingTiles) = _ukeire.CalcUkeire(state.Hand18, state.Remaining18, tileType, meldCount);
+            var prepared = exactDiscardAnalyses[tileType];
             var remainingHand = RemoveOne(state.Hand18, tileType);
-            var exactReadyTiles = GetExactReadyTiles(remainingHand, meldCount);
+            var shanten = _shanten.CalcLegalShanten(remainingHand, meldCount, state.OwnDingQueSuit, meldCount == 0);
+            var improvingTiles = (mustClearDingQue
+                ? _shanten.LegalImprovingTiles(remainingHand, state.Remaining18, meldCount, state.OwnDingQueSuit)
+                : prepared.ImprovingTiles).ToList();
+            var ukeire = improvingTiles.Count;
+            var liveUkeire = mustClearDingQue ? improvingTiles.Sum(t => state.Remaining18[t]) : prepared.LiveUkeire;
+            // A hand further than zero shanten cannot win on one tile. Avoid
+            // re-enumerating 27 completions for every non-ready candidate.
+            var exactReadyPrice = shanten == 0 ? _readyWaitPricing.Build(state, remainingHand, wallAvailability.ExpectedCounts18) : null;
+            var exactReadyTiles = exactReadyPrice?.Waits.Select(w => w.TileType).ToList() ?? new List<int>();
+            var structuralReadyRejected = shanten == 0 && exactReadyPrice is null;
             var effectiveUkeire = exactReadyTiles.Count > 0 ? exactReadyTiles.Count : ukeire;
-            var effectiveShanten = exactReadyTiles.Count > 0 ? 0 : shanten;
+            var effectiveShanten = structuralReadyRejected ? 1 : shanten;
 			var expectedLiveUkeire = wallAvailability.SumExpected(
 				exactReadyTiles.Count > 0 ? exactReadyTiles : improvingTiles);
 			var effectiveLiveUkeire = expectedLiveUkeire <= 0.000001
@@ -132,12 +170,20 @@ public sealed class SichuanDecisionEngine
             var bigHandRoute = EvaluateBigHandRouteAdjustment(state.Hand18, remainingHand, state, tileType, meldCount, roundStage, currentShanten, effectiveShanten, effectiveLiveUkeire, waitCount);
             var routePlanAdjustment = EvaluateRoutePlanAdjustment(routePlan, routePlanAfter, state.Hand18, remainingHand, tileType, effectiveShanten, waitCount, roundStage);
 			var qingPlanAdjustment = BuildQingPlanAdjustment(tileType, routePlan, qingPlans);
-            var setPreservation = EvaluateSetPreservationAdjustment(state.Hand18, remainingHand, tileType, roundStage);
-            var orphanTerminal = EvaluateOrphanTerminalDiscardAdjustment(state.Hand18, tileType, roundStage);
+            var setPreservation = EvaluateSetPreservationAdjustment(state.Hand18, remainingHand, tileType, roundStage,
+                state.Remaining18[tileType],shanten,minimumDiscardDistance,meldCount);
+            var isolatedTile = _isolatedTile.Evaluate(
+                state.Hand18, state.Remaining18, wallAvailability.ExpectedCounts18, tileType);
+            var isolatedTileEligible = (isolatedTile.IsIsolated || isolatedTile.IsDepletedEdge) && roundStage <= 1
+                && state.WallCount > 0 && !mustClearDingQue;
+            var orphanTerminal = isolatedTileEligible
+                ? new SichuanSimpleAdjustment(isolatedTile.DiscardPriority * 0.1, isolatedTile.Reasons)
+                : SichuanSimpleAdjustment.Empty;
             var connectedRun = EvaluateConnectedRunPreservationAdjustment(state.Hand18, tileType, roundStage);
             var endgamePairWait = EvaluateEndgamePairWaitAdjustment(state.Hand18, tileType, state.WallCount, meldCount);
             var qualityScore = _quality.EvaluateScore(effectiveImprovingTiles, wallAvailability.RepresentativeCounts18);
-            var shapeSummary = _shape.Evaluate(remainingHand, wallAvailability.RepresentativeCounts18, meldCount, effectiveShanten);
+            var shapeSummary = _shape.Evaluate(remainingHand, wallAvailability.RepresentativeCounts18, meldCount, effectiveShanten,
+                state.PolicyVariant == "theory_shape_legacy" ? null : state.OwnDingQueSuit);
             var classicPatternScore = _classicPattern.EvaluateDiscard(classicPattern, remainingHand, meldCount);
 			var waitShapeSummary = _waitShape.Evaluate(remainingHand, waitCount > 0 ? effectiveImprovingTiles : Array.Empty<int>());
             var exactDiscard = exactDiscardAnalyses.GetValueOrDefault(tileType);
@@ -179,7 +225,7 @@ public sealed class SichuanDecisionEngine
             var selfDrawProbability = _selfDraw.Estimate(state, effectiveImprovingTiles, waitCount, effectiveLiveUkeire, effectiveShanten, danger, belief);
             var dealInProbability = SichuanRiskCalibration.ToDealInProbability(danger, roundStage, maxReadyPosterior);
             var winProbability = Math.Clamp(tenpaiProbability * 0.58 + selfDrawProbability * 0.42, 0.01, 0.95);
-            var expectedFan = EstimateExpectedFan(routesAfter, qingPlans.GetValueOrDefault(tileType), waitCount);
+            var expectedFan = exactReadyPrice?.WeightedFan ?? Math.Clamp(EstimateExpectedFan(routesAfter, qingPlans.GetValueOrDefault(tileType), waitCount),0,SichuanRuleSnapshot.Frozen.FanCap);
             var posteriorAdjustment = EstimatePosteriorDefensePenalty(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage);
             var expectedScore = _expectedScore.EvaluateDiscardCandidate(
                 state,
@@ -196,7 +242,8 @@ public sealed class SichuanDecisionEngine
                 maxReadyPosterior,
                 wallDrawPosterior,
                 roundStage,
-                routesAfter);
+                routesAfter,
+                exactReadyPrice);
             var strategicAdjustment = EvaluateStrategyContextAdjustment(
                 aiContext,
                 tileType,
@@ -262,11 +309,13 @@ public sealed class SichuanDecisionEngine
                 + Math.Clamp(defenseTempo.DiscardNowAdjustment, -0.85, 0.85);
             var modelResidual = Math.Clamp(expectedScore.Net - unifiedActionValue, -2.0, 2.0);
             var boundedDefenseCost = Math.Clamp(defenseAdjustment, 0.0, 2.0);
+            var attackWeights = new SichuanAttackWeightPolicy().Evaluate(state,
+                danger, maxReadyPosterior, boundedDefenseCost);
 				var expectedValue = unifiedActionValue
 				+ Math.Clamp(limitedLookahead.Score, -18.0, 24.0) * 0.06
                 + strategicResidual * 0.05
                 + modelResidual * 0.20
-                - boundedDefenseCost * 0.35;
+                - attackWeights.ExtraDefenseCost;
             var score = (int)Math.Round(expectedValue * 100.0);
             var fastTingDiscardRank = ResolveFastRank(effectiveShanten, waitCount, effectiveLiveUkeire);
             var riskLabel = dangerEval.RiskLabel;
@@ -277,6 +326,9 @@ public sealed class SichuanDecisionEngine
             var riskReasons = BuildRiskReasons(danger, riskLabel, state.WallCount, roundStage, effectiveLiveUkeire, dangerEval);
             var candidateReasons = BuildReasons(effectiveShanten, effectiveLiveUkeire, danger, riskLabel, strategyTag, waitCount, roundStage, posteriorReasons, expectedScore);
             var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SINGLE_LANE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
+                .Concat(structuralReadyRejected ? new[] { "STRUCTURAL_READY_NOT_LEGAL" } : Array.Empty<string>())
+                .Concat(exactReadyPrice is not null ? new[] { "LEGAL_READY_ALL_WAIT_PRICING" } : Array.Empty<string>())
+                .Concat(exactReadyPrice is { HasDrawableWait: false } ? new[] { "LEGAL_READY_DEAD_WAIT_CHA_JIAO" } : Array.Empty<string>())
                 .Concat(waitCount > 0 ? waitShapeSummary.Reasons : Array.Empty<string>())
                 .Concat(shapeSummary.Reasons)
                 .Concat(limitedLookahead.Reasons)
@@ -294,6 +346,7 @@ public sealed class SichuanDecisionEngine
 				.Concat(defenseTempo.Reasons)
 				.Concat(hasUnifiedValue ? new[] { $"统一动作净值 {unifiedActionValue:F2}", $"有限策略残差 {strategicResidual:F2}" } : Array.Empty<string>())
                 .Concat(new[] { dealInPolicy.ReasonCode })
+                .Concat(attackWeights.Reasons)
                 .ToArray();
             candidateScores[tileType] = score;
             candidates.Add(new SichuanCandidateDetail
@@ -332,6 +385,9 @@ public sealed class SichuanDecisionEngine
                 ExpectedReadyValue = expectedScore.ReadyValue,
                 PosteriorAdjustment = posteriorAdjustment,
                 DefenseAdjustment = defenseAdjustment,
+                AppliedExtraDefenseWeight = attackWeights.AppliedDefenseWeight,
+                WeightedExtraDefenseCost = attackWeights.ExtraDefenseCost,
+                PublicThreatEvidenceLevel = attackWeights.PublicThreatLevel,
                 DefenseTempoAdjustment = defenseTempo.DiscardNowAdjustment,
                 GoodShapeCount = shapeSummary.GoodShapeCount,
                 BadShapeCount = shapeSummary.BadShapeCount,
@@ -344,6 +400,9 @@ public sealed class SichuanDecisionEngine
                 BreaksPair = setPreservation.BreaksPair,
                 BreaksTriplet = setPreservation.BreaksTriplet,
                 SetPreservationScore = setPreservation.Score,
+                IsolatedDiscardPriority = isolatedTileEligible
+                    ? isolatedTile.DiscardPriority : 0,
+                IsolatedRetentionValue = isolatedTile.RetentionValue,
                 WaitShapeLabel = waitShapeSummary.Label,
                 WaitShapeScore = waitShapeSummary.WaitShapeScore,
                 RyanmenWaitCount = waitShapeSummary.RyanmenCount,
@@ -443,8 +502,9 @@ public sealed class SichuanDecisionEngine
                 .ToList();
         }
 
+        var arbiter = new SichuanDiscardArbiter(candidates.Select(c => c.TileType), bestTile);
         var extremeDangerOverride = SelectExtremeDangerSameSpeedOverride(candidates, bestTile, state);
-        if (extremeDangerOverride is not null)
+        if (extremeDangerOverride is not null && arbiter.TrySelect(extremeDangerOverride.TileType, SichuanDiscardArbiter.ExtremeSafety, "EXTREME_DANGER_SAME_SPEED_OVERRIDE"))
         {
 			finalSelectionReason = "EXTREME_DANGER_SAME_SPEED_OVERRIDE";
             bestTile = extremeDangerOverride.TileType;
@@ -459,7 +519,7 @@ public sealed class SichuanDecisionEngine
         }
 
         var lateWallDefense = SelectLateWallDefenseOverride(candidates, bestTile, state, maxReadyPosterior);
-        if (lateWallDefense is not null)
+        if (lateWallDefense is not null && arbiter.TrySelect(lateWallDefense.TileType, SichuanDiscardArbiter.LateDefense, "LATE_WALL_DEFENSE_OVERRIDE"))
         {
 			finalSelectionReason = "LATE_WALL_DEFENSE_OVERRIDE";
             bestTile = lateWallDefense.TileType;
@@ -474,7 +534,7 @@ public sealed class SichuanDecisionEngine
         }
 
 		var lateWallTempo = SelectLateWallSafeTempoOverride(candidates, bestTile, state);
-		if (lateWallTempo is not null)
+		if (lateWallTempo is not null && arbiter.TrySelect(lateWallTempo.TileType, SichuanDiscardArbiter.SafeTempo, "LATE_WALL_SAFE_TEMPO_OVERRIDE"))
 		{
 			finalSelectionReason = "LATE_WALL_SAFE_TEMPO_OVERRIDE";
 			bestTile = lateWallTempo.TileType;
@@ -489,7 +549,7 @@ public sealed class SichuanDecisionEngine
 		}
 
 		var unifiedNearTie = SelectUnifiedActionValueOverride(candidates, bestTile);
-		if (unifiedNearTie is not null)
+		if (unifiedNearTie is not null && arbiter.TrySelect(unifiedNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "UNIFIED_NEAR_TIE_OVERRIDE"))
 		{
 			finalSelectionReason = "UNIFIED_NEAR_TIE_OVERRIDE";
 			bestTile = unifiedNearTie.TileType;
@@ -503,8 +563,11 @@ public sealed class SichuanDecisionEngine
 				.ToList();
 		}
 
-		var exactStructureNearTie = SelectExactStructureNearTieOverride(candidates, bestTile);
-        if (exactStructureNearTie is not null)
+		// With no wall, live structural improvement cannot occur. Keep the
+		// settlement-priced action instead of promoting a prettier hand shape.
+		var exactStructureNearTie = state.WallCount > 0
+			? SelectExactStructureNearTieOverride(candidates, bestTile) : null;
+        if (exactStructureNearTie is not null && arbiter.TrySelect(exactStructureNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE"))
         {
 			finalSelectionReason = "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE";
             bestTile = exactStructureNearTie.TileType;
@@ -517,6 +580,34 @@ public sealed class SichuanDecisionEngine
                 .Concat(new[] { "精确牌形近分裁决：同速候选优先互斥分解的最低结构损失" })
                 .ToList();
 		}
+
+        if (!forceLightweight && state.InformationMode == "public"
+            && state.PolicyVariant != "bucket_disabled" && state.WallCount >= 8 && !committedQing
+            && aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+            && aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
+        {
+            var bucketWatch = Stopwatch.StartNew();
+            PopulateBucketTheory(candidates, bestTile, state, wallAvailability, meldCount);
+            bucketWatch.Stop();
+            continuationPerf.Add(new SichuanModulePerfSample { Module = "BucketStructure", ElapsedMs = bucketWatch.Elapsed.TotalMilliseconds, Warning = bucketWatch.Elapsed.TotalMilliseconds >= 100 });
+            foreach (var candidate in candidates.Where(c => c.BucketSupported))
+                candidate.BucketContinuationStatus = "structural_evidence_only";
+            var bucketChoice = state.PolicyVariant == "bucket_local_candidate_v1"
+                ? SichuanDiscardArbiter.SelectBucketDominance(candidates, bestTile) : null;
+            if (bucketChoice is not null && arbiter.TrySelect(bucketChoice.TileType, SichuanDiscardArbiter.CandidateValue, "BUCKET_LOCAL_DOMINANCE"))
+            {
+                bestTile = bucketChoice.TileType; bestScore = bucketChoice.Score; bestShanten = bucketChoice.Shanten;
+                bestUkeire = bucketChoice.Ukeire; bestLive = bucketChoice.LiveUkeire; bestSearchBonus = bucketChoice.SearchBonus;
+                finalSelectionReason = "BUCKET_LOCAL_DOMINANCE";
+                reasons = bucketChoice.Reasons.Prepend("同速、风险与路线约束下，公开木桶供给逐项不劣且至少一项更优；未换算成终局期望收益").ToList();
+            }
+            var structuralEvidence = candidates.First(c => c.TileType == bestTile);
+            if (structuralEvidence.BucketSupported)
+                reasons = reasons.Concat(new[] {
+                    "BUCKET_CURRENT_STRUCTURE",
+                    $"木桶结构依据：最弱块供应 {structuralEvidence.BucketWeakestCompletionMass:F2}，改良供应 {structuralEvidence.BucketTotalImprovementMass:F2}，超额块 {structuralEvidence.BucketCapacityOverflow}；不作终局收益承诺"
+                }).ToList();
+        }
 
 		var publicRouteV4Guarded = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase);
 		var publicRouteV5Robust = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase);
@@ -538,7 +629,7 @@ public sealed class SichuanDecisionEngine
 			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase)
 				? SelectTwoMeldPositiveEvPublicRouteOverride(candidates, bestTile, meldCount)
 			: null;
-		if (twoPlyReadyChoice is not null)
+		if (twoPlyReadyChoice is not null && arbiter.TrySelect(twoPlyReadyChoice.TileType, SichuanDiscardArbiter.CandidateValue, "POLICY_VARIANT_OVERRIDE"))
 		{
 			finalSelectionReason = "POLICY_VARIANT_OVERRIDE";
 			bestTile = twoPlyReadyChoice.TileType;
@@ -564,7 +655,7 @@ public sealed class SichuanDecisionEngine
 		}
 
         var lateWallKeepReady = SelectLateWallKeepReadyOverride(candidates, bestTile, state);
-        if (lateWallKeepReady is not null)
+        if (lateWallKeepReady is not null && arbiter.TrySelect(lateWallKeepReady.TileType, SichuanDiscardArbiter.SafeReadySettlement, "LATE_WALL_KEEP_READY_OVERRIDE"))
         {
 			finalSelectionReason = "LATE_WALL_KEEP_READY_OVERRIDE";
             bestTile = lateWallKeepReady.TileType;
@@ -578,20 +669,120 @@ public sealed class SichuanDecisionEngine
                 .ToList();
         }
 
-        var continuationChoice = !forceLightweight && state.PolicyVariant != "continuation_disabled"
-            ? _criticalContinuation.Select(state, candidates, bestTile) : null;
-        if (continuationChoice is { } continuation)
+        var clearTile = maxReadyPosterior < 0.55
+            ? SichuanOpeningClearPolicy.Select(state, roundStage, candidates) : -1;
+        if (clearTile >= 0 && arbiter.TrySelect(clearTile, SichuanDiscardArbiter.GlobalPlan, "OPENING_CLEAR_PUBLIC_ORDER"))
         {
-            var chosen = candidates.First(c => c.TileType == continuation.Tile);
+            var chosen = candidates.First(c => c.TileType == clearTile);
             bestTile = chosen.TileType;
             bestScore = chosen.Score;
             bestShanten = chosen.Shanten;
             bestUkeire = chosen.Ukeire;
             bestLive = chosen.LiveUkeire;
             bestSearchBonus = chosen.SearchBonus;
-            finalSelectionReason = continuation.Reason;
-            reasons = chosen.Reasons.ToList();
+            finalSelectionReason = "OPENING_CLEAR_PUBLIC_ORDER";
+            reasons = chosen.Reasons.Prepend("洗脸：公开生张优先；同类先释放碰杠结构损失较小的牌；幺九、偏张、中张分层").ToList();
         }
+        var openingObservations = Enumerable.Range(0,4).Where(s => s != state.SeatIndex)
+            .Select(s => Inference.SichuanOpeningObservation.Build(state, s)).ToArray();
+        // Early-clear alone is not a threat. Require a deliberate suit trend,
+        // exclusive access, and a slower own route competing with every seat.
+        // Prefer speed only when it does not raise the existing danger metric.
+        var faster = SichuanOpeningClearPolicy.SelectRaceTempo(state, roundStage, routePlan.TargetSuit,
+            openingObservations, candidates, bestTile);
+        if (faster is not null && arbiter.TrySelect(faster.TileType, SichuanDiscardArbiter.GlobalPlan, "OPENING_PUBLIC_RACE_TEMPO"))
+        {
+            bestTile = faster.TileType; bestScore = faster.Score; bestShanten = faster.Shanten;
+            bestUkeire = faster.Ukeire; bestLive = faster.LiveUkeire; bestSearchBonus = faster.SearchBonus;
+            finalSelectionReason = "OPENING_PUBLIC_RACE_TEMPO";
+            reasons = faster.Reasons.Prepend("独收对手早清缺且持续手打另一门，本家目标门全桌竞争：采用不增加危险度的更快路线").ToList();
+        }
+        var developmentTile=new SichuanDevelopmentPolicy().SelectLiveDiscard(state,bestTile);
+        var developmentCandidate=candidates.FirstOrDefault(c=>c.TileType==developmentTile);
+        var developmentIncumbent=candidates.FirstOrDefault(c=>c.TileType==bestTile);
+        if(developmentTile!=bestTile && developmentCandidate is not null && developmentIncumbent is not null
+            && developmentCandidate.Danger<=developmentIncumbent.Danger
+            && arbiter.TrySelect(developmentTile, SichuanDiscardArbiter.GlobalPlan, "PUBLIC_DEVELOPMENT_DISCARD"))
+        {
+            bestTile=developmentTile;bestScore=developmentCandidate.Score;bestShanten=developmentCandidate.Shanten;
+            bestUkeire=developmentCandidate.Ukeire;bestLive=developmentCandidate.LiveUkeire;
+            bestSearchBonus=developmentCandidate.SearchBonus;
+            finalSelectionReason="PUBLIC_DEVELOPMENT_DISCARD";
+            reasons=developmentCandidate.Reasons.Prepend("公开供给证明换听或有条件重建更优，且首打危险不增加").ToList();
+        }
+        // A publicly supplied single lane is a strategic decision, not an
+        // unconditional minimum-shanten tie-break. Keep hard safety authority.
+        if (aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+            && aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
+        {
+            var investment = new SichuanSingleLaneReadyInvestment().Select(state, candidates, bestTile,
+                wallAvailability, unifiedDiscardCandidates.GetValueOrDefault(bestTile)?.ChaJiaoValue ?? 0);
+            if (investment is not null && arbiter.TrySelect(investment.Tile,
+                SichuanDiscardArbiter.GlobalPlan, investment.Code))
+            {
+                var chosen = candidates.First(c => c.TileType == investment.Tile);
+                bestTile = chosen.TileType; bestScore = chosen.Score; bestShanten = chosen.Shanten;
+                bestUkeire = chosen.Ukeire; bestLive = chosen.LiveUkeire; bestSearchBonus = chosen.SearchBonus;
+                finalSelectionReason = investment.Code; reasons = investment.Reasons.Concat(chosen.Reasons).ToList();
+            }
+        }
+        // Basic hand development is shared by normal and lightweight play.
+        // It may not undo a hard safety exit or an explicit strategic plan.
+        if (state.InformationMode == "public" && !committedQing
+            && state.PolicyVariant != "bucket_disabled"
+            && aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+            && aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
+        {
+            var tempoWatch = Stopwatch.StartNew();
+            var choice = _courseTempo.Select(state, candidates, bestTile, roundStage);
+            tempoWatch.Stop();
+            continuationPerf.Add(new SichuanModulePerfSample { Module = "CourseTempoStructure",
+                ElapsedMs = tempoWatch.Elapsed.TotalMilliseconds,
+                Warning = tempoWatch.Elapsed.TotalMilliseconds >= 100 });
+            if (choice is not null && arbiter.TrySelect(choice.Tile,
+                SichuanDiscardArbiter.CandidateValue, choice.Code))
+            {
+                var selected = candidates.First(c => c.TileType == choice.Tile);
+                bestTile = selected.TileType; bestScore = selected.Score; bestShanten = selected.Shanten;
+                bestUkeire = selected.Ukeire; bestLive = selected.LiveUkeire; bestSearchBonus = selected.SearchBonus;
+                finalSelectionReason = choice.Code;
+                reasons = choice.Reasons.Concat(selected.Reasons).ToList();
+            }
+        }
+        if(state.InformationMode=="public"&&!committedQing
+            &&aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+            &&aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
+        {
+            var triplet=new SichuanNewConcealedTripletPolicy().Evaluate(state,bestTile,candidates);
+            var proposed=candidates.FirstOrDefault(c=>c.TileType==triplet.SelectedDiscard);
+            var incumbent=candidates.First(c=>c.TileType==bestTile);
+            if(proposed is not null&&proposed.TileType!=bestTile
+                &&proposed.Shanten==incumbent.Shanten
+                &&arbiter.TrySelect(proposed.TileType,SichuanDiscardArbiter.GlobalPlan,triplet.Status))
+            {
+                bestTile=proposed.TileType;bestScore=proposed.Score;bestShanten=proposed.Shanten;
+                bestUkeire=proposed.Ukeire;bestLive=proposed.LiveUkeire;bestSearchBonus=proposed.SearchBonus;
+                finalSelectionReason=triplet.Status;
+                reasons=new[]{"新摸暗刻：逐舍牌比较听口与公开有限墙的一杠局部机会；保刻不增加拒胡额度",
+                    "NEW_TRIPLET_LOCAL_MODEL_UNCALIBRATED_NO_OPPONENT_EXITS_OR_FULL_WAITING_LOSSES"}
+                    .Concat(proposed.Reasons).ToList();
+            }
+        }
+        if (SichuanOpponentWideBedDefense.Applies(state))
+        {
+            var safer = SichuanOpponentWideBedDefense.SaferDiscard(state,candidates,bestTile);
+            if(safer is not null && arbiter.TrySelect(safer.TileType,SichuanDiscardArbiter.OpponentWideBedDefense,
+                "OPPONENT_WIDE_BED_SAFER_DISCARD"))
+            {
+                bestTile=safer.TileType;bestScore=safer.Score;bestShanten=safer.Shanten;
+                bestUkeire=safer.Ukeire;bestLive=safer.LiveUkeire;bestSearchBonus=safer.SearchBonus;
+                finalSelectionReason="OPPONENT_WIDE_BED_SAFER_DISCARD";reasons=safer.Reasons.ToList();
+            }
+            reasons.Insert(0,SichuanOpponentWideBedDefense.ActiveCode);
+        }
+        if (bestTile != arbiter.SelectedTile) throw new InvalidOperationException("arbitration_selection_desynchronized");
+        reasons = new[] { "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+            $"裁决过程：{arbiter.Steps.Count} 条建议，{arbiter.Steps.Count(x => !x.Accepted)} 条因合法性或更高优先级拒绝" }.Concat(reasons).ToList();
         var bestCandidateSnapshot = candidates.FirstOrDefault(item => item.TileType == bestTile);
         var finalDanger = bestTile >= 0 ? _danger.EvaluateDetail(bestTile, state, belief) : new SichuanDangerEvaluation { Risk = 0, RiskLabel = "低危" };
         var finalDealInProbability = SichuanRiskCalibration.ToDealInProbability(finalDanger.Risk, roundStage, maxReadyPosterior);
@@ -600,13 +791,14 @@ public sealed class SichuanDecisionEngine
         var finalWinProbability = Math.Clamp(finalTenpaiProbability * 0.58 + finalSelfDrawProbability * 0.42, 0.01, 0.95);
         var beliefSummary = BuildBeliefSummary(state, belief, bestTile, bestCandidateSnapshot);
         decisionStopwatch.Stop();
-        var performance = BuildPerformanceReport(decisionStopwatch.Elapsed.TotalMilliseconds, aiContext.ModulePerf);
+        var performance = BuildPerformanceReport(decisionStopwatch.Elapsed.TotalMilliseconds, aiContext.ModulePerf.Concat(continuationPerf).ToArray());
         var explain = BuildExplain(bestTile, bestScore, aiContext, reasons);
         var finalReasons = (finalSelectionReason is null ? Array.Empty<string>() : new[] { finalSelectionReason })
             .Concat(reasons)
             .Concat(aiContext.ReasonCodes)
             .Distinct()
-            .Take(12)
+            .Take(wallAvailability.KnownWallCounts18.Sum()>0?11:12)
+            .Concat(wallAvailability.KnownWallCounts18.Sum()>0?new[]{"PUBLIC_WALL_KNOWN_COPIES"}:Array.Empty<string>())
             .ToArray();
 
         return new SichuanDecisionResult
@@ -626,9 +818,11 @@ public sealed class SichuanDecisionEngine
             Reasons = finalReasons,
             CandidateScores = candidateScores,
             Candidates = candidates,
+            Arbitration = arbiter.Steps,
             ClassicPattern = classicPattern,
             RoutePlan = routePlan,
-            RoundBrain = roundBrain
+            RoundBrain = roundBrain,
+            OpeningObservations = openingObservations
         };
     }
 
@@ -899,7 +1093,7 @@ public sealed class SichuanDecisionEngine
             if (count >= 2) pairCount++;
             if (count >= 3) tripleLike++;
         }
-        var meldGroupCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldGroupCount = state.OwnMeldCount;
         foreach (var meldTile in state.Melds18[state.SeatIndex])
         {
             var suitIndex = meldTile / 9;
@@ -949,6 +1143,31 @@ public sealed class SichuanDecisionEngine
         if (challenger.Shanten != incumbent.Shanten)
             return challenger.Shanten < incumbent.Shanten;
         return challenger.LiveUkeire > incumbent.LiveUkeire;
+    }
+
+    private void PopulateBucketTheory(
+        IReadOnlyList<SichuanCandidateDetail> candidates, int currentTile,
+        SichuanStateView state, SichuanWallAvailability wall, int meldCount)
+    {
+        var current = candidates.FirstOrDefault(item => item.TileType == currentTile);
+        if (current is null || current.Shanten is < 1 or > 2
+            || SichuanRoutePlanEngine.IsFlushRoute(current.RoutePlanPrimary)) return;
+        foreach (var item in candidates.Where(item => item.Shanten == current.Shanten
+            && item.Danger <= current.Danger + 5
+            && item.DealInProbability <= current.DealInProbability + 0.01
+            && !SichuanRoutePlanEngine.IsFlushRoute(item.RoutePlanPrimary)))
+        {
+            var hand = RemoveOne(state.Hand18, item.TileType);
+            var bucket = _bucket.Evaluate(hand, state.Remaining18,
+                wall.ExpectedCounts18, meldCount, state.OwnDingQueSuit);
+            item.BucketSupported = bucket.Supported;
+            item.BucketWeakestCompletionMass = bucket.WeakestCompletionMass;
+            item.BucketNextCompletionMass = bucket.NextCompletionMass;
+            item.BucketTotalImprovementMass = bucket.TotalImprovementMass;
+            item.BucketCapacityOverflow = bucket.CapacityOverflow;
+            item.BucketWeakestTileA = bucket.WeakestTileA;
+            item.BucketWeakestTileB = bucket.WeakestTileB;
+        }
     }
 
     private static List<SichuanCandidateDetail> SortDiscardCandidates(
@@ -1010,11 +1229,12 @@ public sealed class SichuanDecisionEngine
             // retain their separate table-state objectives.
             .OrderBy(item => StrategicShantenRank(item, roundStage))
             .ThenByDescending(item => item.LiveUkeire)
-            .ThenByDescending(item => item.ClassicPatternScore)
             // These are course tie-breakers, not substitutes for speed: only
             // compare them after shanten and strict live ukeire are identical.
             .ThenByDescending(item => item.SetPreservationScore)
+            .ThenByDescending(item => item.ClassicPatternScore)
             .ThenByDescending(item => item.WaitShapeScore)
+            .ThenByDescending(item => item.IsolatedDiscardPriority)
             .ThenByDescending(item => item.Score)
             .ThenBy(item => item.Danger >= 86 ? 1 : 0)
             .ThenByDescending(item => item.ExpectedNetScore)
@@ -1115,7 +1335,11 @@ public sealed class SichuanDecisionEngine
         int[] handBeforeDiscard18,
         int[] handAfterDiscard18,
         int discardTileType,
-        int roundStage)
+        int roundStage,
+        int remainingCopies,
+        int afterDistance,
+        int bestDiscardDistance,
+        int meldCount)
     {
         if (discardTileType is < 0 or >= 27)
             return SichuanSetPreservationAdjustment.Empty;
@@ -1146,34 +1370,22 @@ public sealed class SichuanDecisionEngine
         }
         else if (breaksPair)
         {
-            var penalty = roundStage <= 1 ? 0.9 : 0.45;
-            score -= penalty;
-            reasons.Add("拆对子，轻微降权");
+            // Exact distance still protects a needed head. Four or more closed
+            // pairs also retain their special-route evidence. Do not add an
+            // unconditional set bonus to an exhausted pair when splitting it
+            // keeps the fastest legal structure and no developed pair route.
+            var specialPairRoute = meldCount==0 && handBeforeDiscard18.Count(n=>n>=2)>=4;
+            if(remainingCopies<=0 && afterDistance==bestDiscardDistance && !specialPairRoute)
+                reasons.Add("PAIR_PUBLICLY_EXHAUSTED_NO_BLIND_RETENTION_PENALTY");
+            else
+            {
+                var penalty = roundStage <= 1 ? 0.9 : 0.45;
+                score -= penalty;
+                reasons.Add("拆对子，轻微降权；将牌与特殊路线仍按整手结构比较");
+            }
         }
 
         return new SichuanSetPreservationAdjustment(score, breaksPair, breaksTriplet, reasons);
-    }
-
-    private static SichuanSimpleAdjustment EvaluateOrphanTerminalDiscardAdjustment(
-        int[] handBeforeDiscard18,
-        int discardTileType,
-        int roundStage)
-    {
-        if (discardTileType is < 0 or >= 27 || handBeforeDiscard18[discardTileType] != 1)
-            return SichuanSimpleAdjustment.Empty;
-
-        var rank = discardTileType % 9;
-        if (rank is not 0 and not 8)
-            return SichuanSimpleAdjustment.Empty;
-
-        var suitStart = discardTileType - rank;
-        var adjacent = rank == 0 ? suitStart + 1 : suitStart + 7;
-        var innerNeighbor = rank == 0 ? suitStart + 2 : suitStart + 6;
-        if (handBeforeDiscard18[adjacent] > 0 || handBeforeDiscard18[innerNeighbor] > 0)
-            return SichuanSimpleAdjustment.Empty;
-
-        var score = roundStage <= 0 ? 44.0 : roundStage == 1 ? 24.0 : 7.0;
-        return new SichuanSimpleAdjustment(score, new[] { "孤幺九单张优先处理" });
     }
 
     private static SichuanSimpleAdjustment EvaluateConnectedRunPreservationAdjustment(
@@ -1593,7 +1805,7 @@ public sealed class SichuanDecisionEngine
         SichuanQingPlanCandidate? qingPlan,
         int waitCount)
     {
-        if (qingPlan is not null && qingPlan.CompletionProbability >= 0.18)
+        if (qingPlan is not null && qingPlan.ImmediateWinChanceNextDraw > 0)
             return Math.Clamp(qingPlan.ExpectedFan, 1, 6);
         if (routes.Any(route => route.Contains("青龙七对", StringComparison.Ordinal))) return 6;
         if (routes.Any(route => route.Contains("清七对", StringComparison.Ordinal))) return 5;
@@ -1779,19 +1991,8 @@ public sealed class SichuanDecisionEngine
         if (posteriorReasons.Count > 0 && posteriorReasons[0] != "后验未明显压分")
             reasons.Add($"后验：{posteriorReasons[0]}");
         reasons.AddRange(expectedScore.Reasons.Take(2));
+        reasons.AddRange(expectedScore.Reasons.Where(r=>r.StartsWith("READY_",StringComparison.Ordinal) || r.StartsWith("各听张",StringComparison.Ordinal)));
         return reasons;
-    }
-
-    private static int ResolveRoundStage(SichuanStateView state)
-    {
-        var maxDiscards = state.Discards18.Max(list => list.Count);
-        var hasLikelyReady = state.IsCalled.Any(value => value) || state.IsReady.Any(value => value);
-        var exposedMeldCount = state.Melds18.Sum(list => list.Count / 3);
-        if (state.WallCount <= 6) return 2;
-        if (hasLikelyReady && state.WallCount <= 8) return 2;
-        if (maxDiscards >= 10 || state.WallCount <= 13 || exposedMeldCount >= 5) return 1;
-        if (hasLikelyReady && state.WallCount <= 10) return 1;
-        return 0;
     }
 
     private static string RoundStageLabel(int roundStage) => roundStage switch
@@ -2014,9 +2215,33 @@ public sealed class SichuanDecisionEngine
             .ThenByDescending(item => item.LiveUkeire)
             .ThenByDescending(item => item.WaitQualityScore)
             .ThenBy(item => item.StructuralLoss)
+            .ThenByDescending(item => item.IsolatedDiscardPriority)
             .ThenBy(item => item.TileType)
             .First();
         if (exactBest.TileType == current.TileType)
+            return null;
+        // With identical ready outs, an isolated-discard preference must not
+        // erase live improvement when it buys no value or safety advantage.
+        // This is a dominance guard, not a fixed kanchan/penchan ranking.
+        if (current.Shanten == 0 && exactBest.Shanten == 0
+            && exactBest.LiveUkeire == current.LiveUkeire
+            && exactBest.ImprovingTiles.Order().SequenceEqual(current.ImprovingTiles.Order())
+            && exactBest.SameShantenImprovementCount < current.SameShantenImprovementCount
+            && exactBest.WaitQualityScore <= current.WaitQualityScore
+            && exactBest.ExpectedFan <= current.ExpectedFan
+            && exactBest.ExpectedWinGain <= current.ExpectedWinGain + 1e-9
+            && exactBest.ExpectedNetScore <= current.ExpectedNetScore + 1e-9
+            && exactBest.UnifiedActionValue <= current.UnifiedActionValue + 1e-9
+            && exactBest.Danger >= current.Danger
+            && exactBest.DealInProbability >= current.DealInProbability - 1e-9)
+            return null;
+        // TileType only stabilizes enumeration. It is not structural evidence
+        // and must not overturn the incumbent when every measured feature ties.
+        if (exactBest.Shanten == current.Shanten
+            && exactBest.LiveUkeire == current.LiveUkeire
+            && exactBest.WaitQualityScore == current.WaitQualityScore
+            && exactBest.StructuralLoss == current.StructuralLoss
+            && Math.Abs(exactBest.IsolatedDiscardPriority - current.IsolatedDiscardPriority) <= 1e-9)
             return null;
         if (exactBest.Shanten > current.Shanten
             || exactBest.LiveUkeire < current.LiveUkeire
@@ -2255,6 +2480,9 @@ public sealed class SichuanDecisionEngine
                 ExpectedReadyValue = candidate.ExpectedReadyValue,
                 PosteriorAdjustment = candidate.PosteriorAdjustment,
                 DefenseAdjustment = candidate.DefenseAdjustment,
+                AppliedExtraDefenseWeight = candidate.AppliedExtraDefenseWeight,
+                WeightedExtraDefenseCost = candidate.WeightedExtraDefenseCost,
+                PublicThreatEvidenceLevel = candidate.PublicThreatEvidenceLevel,
                 GoodShapeCount = candidate.GoodShapeCount,
                 BadShapeCount = candidate.BadShapeCount,
                 PairPressure = candidate.PairPressure,
@@ -2263,6 +2491,19 @@ public sealed class SichuanDecisionEngine
                 ClassicPatternScore = candidate.ClassicPatternScore,
                 MiddleTileFlexibility = candidate.MiddleTileFlexibility,
                 ShapeScore = candidate.ShapeScore,
+                BucketSupported = candidate.BucketSupported,
+                BucketContinuationStatus = candidate.BucketContinuationStatus,
+                BucketContinuationSamples = candidate.BucketContinuationSamples,
+                BucketContinuationEffectiveSamples = candidate.BucketContinuationEffectiveSamples,
+                BucketContinuationNet = candidate.BucketContinuationNet,
+                BucketContinuationPeng = candidate.BucketContinuationPeng,
+                BucketContinuationStandardError = candidate.BucketContinuationStandardError,
+                BucketWeakestCompletionMass = candidate.BucketWeakestCompletionMass,
+                BucketNextCompletionMass = candidate.BucketNextCompletionMass,
+                BucketTotalImprovementMass = candidate.BucketTotalImprovementMass,
+                BucketCapacityOverflow = candidate.BucketCapacityOverflow,
+                BucketWeakestTileA = candidate.BucketWeakestTileA,
+                BucketWeakestTileB = candidate.BucketWeakestTileB,
                 BreaksPair = candidate.BreaksPair,
                 BreaksTriplet = candidate.BreaksTriplet,
                 SetPreservationScore = candidate.SetPreservationScore,

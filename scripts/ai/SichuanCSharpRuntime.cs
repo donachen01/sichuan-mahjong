@@ -12,6 +12,7 @@ using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Evaluation;
 using SichuanMahjong.AI.Core.Learning;
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Rules;
 
 public partial class SichuanCSharpRuntime : Node
 {
@@ -53,6 +54,75 @@ public partial class SichuanCSharpRuntime : Node
         WriteIndented = false,
         Converters = { new JsonStringEnumConverter() }
     };
+
+    // Full filtered snapshots are the initial transport: authoritative state plus ordered history.
+    // Source-generated decoding is used here as on the existing AOT action path.
+    private string UpdateRoundAgentsJsonCore(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            var operation = root.GetProperty("operation").GetString();
+            if (operation == "end")
+            {
+                _facade.Agents.End(root.GetProperty("roundId").GetString()!, root.GetProperty("hostGeneration").GetInt64());
+                _asyncRequests.Clear(); // No completed or in-flight result can be polled after this round.
+            }
+            else
+            {
+                var views = root.GetProperty("views").EnumerateArray().Select(element => BuildState(
+                    JsonSerializer.Deserialize(element.GetRawText(), RuntimeJsonContext.Default.DiscardPayload)!)).ToArray();
+                if (operation == "begin") _facade.Agents.Begin(views);
+                else if (operation == "observe") foreach (var view in views) _facade.Agents.Observe(view);
+                else if (operation == "restore")
+                {
+                    var checkpoints = root.GetProperty("checkpoints").EnumerateArray().Select(e =>
+                        JsonSerializer.Deserialize(e.ValueKind == JsonValueKind.String ? e.GetString()! : e.GetRawText(), RuntimeJsonContext.Default.SichuanAgentCheckpoint)!).ToArray();
+                    _facade.Agents.Restore(views, checkpoints);
+                }
+                else throw new ArgumentException("unknown_agent_operation");
+            }
+            return "{\"ok\":true}";
+        }
+        catch (Exception ex) { return JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions); }
+    }
+
+    private string AnalyzeAgentDingQueJsonCore(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var state = BuildState(JsonSerializer.Deserialize(json, RuntimeJsonContext.Default.DiscardPayload)!);
+            var suits = doc.RootElement.GetProperty("activeSuits").EnumerateArray().Select(e => e.GetString()!).ToArray();
+            var result = _facade.DecideDingQue(state, suits);
+            // Compact output avoids reflection over new agent types under NativeAOT.
+            return "{\"ok\":true,\"suit\":\"" + result.Suit + "\",\"backendMode\":\"csharp_seat_agent\"}";
+        }
+        catch (Exception ex) { return JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions); }
+    }
+
+    public string CaptureRoundAgentJson(string json)
+    {
+        try
+        {
+            var state = BuildState(JsonSerializer.Deserialize(json, RuntimeJsonContext.Default.DiscardPayload)!);
+            return JsonSerializer.Serialize(_facade.Agents.Capture(state), RuntimeJsonContext.Default.SichuanAgentCheckpoint);
+        }
+        catch (Exception ex) { return JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions); }
+    }
+
+    public string InspectRoundAgentJson(string json)
+    {
+        try
+        {
+            var state = BuildState(JsonSerializer.Deserialize(json, RuntimeJsonContext.Default.DiscardPayload)!);
+            var snapshot = _facade.Agents.Inspect(state);
+            return JsonSerializer.Serialize(snapshot, RuntimeJsonContext.Default.AgentSnapshot);
+        }
+        catch (Exception ex) { return JsonSerializer.Serialize(new { ok = false, error = ex.Message }, JsonOptions); }
+    }
+    public int GetActiveRoundAgentCount() => _facade.Agents.ActiveCount;
 
     public bool IsRuntimeReady() => true;
 
@@ -136,7 +206,7 @@ public partial class SichuanCSharpRuntime : Node
 
     public bool HasPendingAiRequests() => !_asyncRequests.IsEmpty;
 
-    public string AnalyzeDiscardJson(string payloadJson)
+    private string AnalyzeDiscardJsonCore(string payloadJson)
     {
         try
         {
@@ -153,7 +223,7 @@ public partial class SichuanCSharpRuntime : Node
         }
     }
 
-    public string AnalyzeReactionJson(string payloadJson)
+    private string AnalyzeReactionJsonCore(string payloadJson)
     {
         try
         {
@@ -187,7 +257,7 @@ public partial class SichuanCSharpRuntime : Node
         }
     }
 
-    public string AnalyzeSelfActionJson(string payloadJson)
+    private string AnalyzeSelfActionJsonCore(string payloadJson)
     {
         try
         {
@@ -244,6 +314,8 @@ public partial class SichuanCSharpRuntime : Node
     public string GetContinuationDiagnosticsCompact() => string.Join(";",
         SichuanDecisionEngine.GetContinuationDiagnostics().OrderBy(x => x.Key).Select(x => $"{x.Key}={x.Value}"));
 
+    public string GetTheoryShapeDiagnosticsCompact() => SichuanHandImprovementEngine.DiagnosticsCompact();
+
     // Evaluation-only readout: input is exactly the ordinary observer payload.
     // Hidden-hand truth is evaluated separately by the game test harness.
     public string DiagnosePublicReadinessCompact(string payloadJson)
@@ -257,7 +329,7 @@ public partial class SichuanCSharpRuntime : Node
             var seat = x.Key;
             var timeline = SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.Build(state, seat);
             return string.Join(",", new[] { (double)seat, belief.PublicReadFeatures.GetValueOrDefault($"seat:{seat}:uncalibrated_ready", x.Value), state.WallCount,
-                state.MeldViews[seat].Count, state.Discards18[seat].Count,
+                state.MeldCount(seat), state.Discards18[seat].Count,
                 timeline.TurnsSinceNonMissingDiscard, timeline.RecentHandDiscards,
                 timeline.RecentDrawDiscards, timeline.RecentCentralDiscards,
                 timeline.LastDiscardWasMissing ? 1.0 : 0.0,
@@ -269,7 +341,7 @@ public partial class SichuanCSharpRuntime : Node
     // iOS NativeAOT disables reflection-based System.Text.Json metadata. These
     // compact entry points use generated input metadata and a scalar transport
     // so gameplay decisions remain available without a reflection fallback.
-    public string AnalyzeDiscardAotCompact(string payloadJson, bool hellChallenge)
+    private string AnalyzeDiscardAotCompactCore(string payloadJson, bool hellChallenge)
     {
         try
         {
@@ -333,7 +405,7 @@ public partial class SichuanCSharpRuntime : Node
         }
     }
 
-    public string AnalyzeReactionAotCompact(string payloadJson, bool hellChallenge)
+    private string AnalyzeReactionAotCompactCore(string payloadJson, bool hellChallenge)
     {
         try
         {
@@ -377,7 +449,7 @@ public partial class SichuanCSharpRuntime : Node
 			{
 				var action = _frozenPolicy.DecideReaction(
 					reactionState, reactionPayload.ReactionTileType, reactionPayload.CanHu,
-					reactionPayload.CanPeng, reactionPayload.CanGang, reactionPayload.MandatoryGang);
+					reactionPayload.CanPeng && !NoClaimOpponent(reactionPayload), reactionPayload.CanGang && !NoClaimOpponent(reactionPayload), reactionPayload.MandatoryGang);
 				return PackCompact("ok", action.ToString().ToLowerInvariant(), reactionPayload.ReactionTileType,
 					0, 0, 0, 0, 0, 0, 0, "frozen_hard_tier_reaction_aot_compact");
 			}
@@ -411,7 +483,7 @@ public partial class SichuanCSharpRuntime : Node
         }
     }
 
-    public string AnalyzeSelfActionAotCompact(string payloadJson)
+    private string AnalyzeSelfActionAotCompactCore(string payloadJson)
     {
         try
         {
@@ -419,7 +491,7 @@ public partial class SichuanCSharpRuntime : Node
             if (payload is null)
                 return "error|invalid_self_action_payload";
             var state = BuildState(payload);
-            var result = _facade.DecideSelfAction(
+            var result = FullyFrozenOpponent(payload) ? FrozenSelfAction(payload) : _facade.DecideSelfAction(
                 state,
                 payload.CanSelfHu,
                 payload.AnGangTileTypes,
@@ -653,6 +725,7 @@ public partial class SichuanCSharpRuntime : Node
             forceLightweight = payload.ForceLightweight,
             compactResult = payload.CompactResult,
 			reasons = result.Reasons,
+            openingObservations = result.OpeningObservations,
             candidateScores = result.CandidateScores,
             candidates = candidateSource
         };
@@ -778,7 +851,7 @@ public partial class SichuanCSharpRuntime : Node
 		if (IsFrozenPolicy(payload))
 		{
 			var action = _frozenPolicy.DecideReaction(
-				state, payload.ReactionTileType, payload.CanHu, payload.CanPeng, payload.CanGang, payload.MandatoryGang);
+				state, payload.ReactionTileType, payload.CanHu, payload.CanPeng && !NoClaimOpponent(payload), payload.CanGang && !NoClaimOpponent(payload), payload.MandatoryGang);
 			stopwatch.Stop();
 			return new
 			{
@@ -836,6 +909,7 @@ public partial class SichuanCSharpRuntime : Node
             reasons = result.Reasons,
             posteriorSummary = result.PosteriorSummary,
             futureSummary = result.FutureSummary,
+            pengStructure = result.PengStructure,
             searchBonus = result.SearchBonus,
             searchSimulations = result.SearchSimulations,
             searchUsed = result.SearchUsed,
@@ -901,7 +975,7 @@ public partial class SichuanCSharpRuntime : Node
         var beforeBelief = SichuanBeliefEngine.GetDiagnostics();
         var state = BuildState(payload);
         SichuanSelfActionDecisionResult result;
-        result = _facade.DecideSelfAction(
+        result = FullyFrozenOpponent(payload) ? FrozenSelfAction(payload) : _facade.DecideSelfAction(
             state,
             payload.CanSelfHu,
             payload.AnGangTileTypes,
@@ -942,6 +1016,7 @@ public partial class SichuanCSharpRuntime : Node
             score = result.Score,
             reasons = result.Reasons,
             suitCounts = result.SuitCounts,
+            kScoreBySuit = result.KScoreBySuit,
             backendMode = "csharp_native_ding_que"
         };
     }
@@ -1147,11 +1222,24 @@ public partial class SichuanCSharpRuntime : Node
             expectedReadyValue = item.ExpectedReadyValue,
             posteriorAdjustment = item.PosteriorAdjustment,
             defenseAdjustment = item.DefenseAdjustment,
+            appliedExtraDefenseWeight = item.AppliedExtraDefenseWeight,
+            weightedExtraDefenseCost = item.WeightedExtraDefenseCost,
+            publicThreatEvidenceLevel = item.PublicThreatEvidenceLevel,
             goodShapeCount = item.GoodShapeCount,
             badShapeCount = item.BadShapeCount,
             pairPressure = item.PairPressure,
             taatsuOverflow = item.TaatsuOverflow,
             sameShantenImprovementCount = item.SameShantenImprovementCount,
+            bucketSupported = item.BucketSupported,
+            bucketWeakestCompletionMass = item.BucketWeakestCompletionMass,
+            bucketImprovementMass = item.BucketTotalImprovementMass,
+            bucketCapacityOverflow = item.BucketCapacityOverflow,
+            bucketContinuationStatus = item.BucketContinuationStatus,
+            bucketContinuationSamples = item.BucketContinuationSamples,
+            bucketContinuationEffectiveSamples = item.BucketContinuationEffectiveSamples,
+            bucketContinuationNet = item.BucketContinuationNet,
+            bucketContinuationPeng = item.BucketContinuationPeng,
+            bucketContinuationStandardError = item.BucketContinuationStandardError,
             middleTileFlexibility = item.MiddleTileFlexibility,
             shapeScore = item.ShapeScore,
             breaksPair = item.BreaksPair,
@@ -1214,11 +1302,24 @@ public partial class SichuanCSharpRuntime : Node
             expectedReadyValue = item.ExpectedReadyValue,
             posteriorAdjustment = item.PosteriorAdjustment,
             defenseAdjustment = item.DefenseAdjustment,
+            appliedExtraDefenseWeight = item.AppliedExtraDefenseWeight,
+            weightedExtraDefenseCost = item.WeightedExtraDefenseCost,
+            publicThreatEvidenceLevel = item.PublicThreatEvidenceLevel,
             goodShapeCount = item.GoodShapeCount,
             badShapeCount = item.BadShapeCount,
             pairPressure = item.PairPressure,
             taatsuOverflow = item.TaatsuOverflow,
             sameShantenImprovementCount = item.SameShantenImprovementCount,
+            bucketSupported = item.BucketSupported,
+            bucketWeakestCompletionMass = item.BucketWeakestCompletionMass,
+            bucketImprovementMass = item.BucketTotalImprovementMass,
+            bucketCapacityOverflow = item.BucketCapacityOverflow,
+            bucketContinuationStatus = item.BucketContinuationStatus,
+            bucketContinuationSamples = item.BucketContinuationSamples,
+            bucketContinuationEffectiveSamples = item.BucketContinuationEffectiveSamples,
+            bucketContinuationNet = item.BucketContinuationNet,
+            bucketContinuationPeng = item.BucketContinuationPeng,
+            bucketContinuationStandardError = item.BucketContinuationStandardError,
             middleTileFlexibility = item.MiddleTileFlexibility,
             shapeScore = item.ShapeScore,
             breaksPair = item.BreaksPair,
@@ -1275,16 +1376,30 @@ public partial class SichuanCSharpRuntime : Node
 			payload.EventVersion,
 			payload.InformationMode);
 
+        state.Phase = payload.Phase;
+        state.TurnIndex = payload.TurnIndex;
+        state.RoundId = payload.RoundId;
+        state.HostGeneration = payload.HostGeneration;
+        state.ViewVersion = payload.ViewVersion;
         if (payload.IsCalled is { Length: 4 }) Array.Copy(payload.IsCalled, state.IsCalled, 4);
         if (payload.WonScores is { Length: 4 }) state.WonScores = (int[])payload.WonScores.Clone();
         if (payload.IsReady is { Length: 4 }) Array.Copy(payload.IsReady, state.IsReady, 4);
 		if (payload.HasHu is { Length: 4 }) Array.Copy(payload.HasHu, state.HasHu, 4);
-		state.PolicyVariant = payload.PolicyVariant;
+		#if DEBUG
+        state.PolicyVariant = payload.PolicyVariant;
+#else
+        if (payload.PolicyVariant != "current") throw new InvalidOperationException("experimental_policy_not_in_production_build");
+        state.PolicyVariant = "current";
+#endif
         state.LastDrawTileType = payload.LastDrawTileType;
 		state.LastDrawOrigin = payload.LastDrawOrigin;
+		state.OwnDrawReason = payload.OwnDrawReason;
+		state.LastGangSourceSeat = payload.LastGangSourceSeat;
 		state.LastGangSeat = payload.LastGangSeat;
 		state.LastGangTileType = payload.LastGangTileType;
 		state.LastGangType = payload.LastGangType;
+		state.LastGangScoreEligible = payload.LastGangScoreEligible;
+        state.PendingAddedGangScoreEligible = payload.PendingAddedGangScoreEligible;
 		state.PublicEvents.AddRange(payload.PublicEvents.Where(item => item.TileType is >= -1 and < 27));
 		for (var seat = 0; seat < Math.Min(4, payload.MeldViews.Count); seat++)
 			state.MeldViews[seat].AddRange(payload.MeldViews[seat].Where(item => item.TileType is >= 0 and < 27));
@@ -1488,6 +1603,11 @@ public partial class SichuanCSharpRuntime : Node
 
 	private class DiscardPayload
     {
+        public string RoundId { get; set; } = string.Empty;
+        public int Phase { get; set; }
+        public int TurnIndex { get; set; }
+        public long HostGeneration { get; set; }
+        public long ViewVersion { get; set; }
         public int SeatIndex { get; set; }
         public int DealerSeat { get; set; }
         public int CurrentSeat { get; set; }
@@ -1524,16 +1644,42 @@ public partial class SichuanCSharpRuntime : Node
         public bool[] HasHu { get; set; } = Array.Empty<bool>();
         public int LastDrawTileType { get; set; } = -1;
 		public SichuanTileOrigin LastDrawOrigin { get; set; } = SichuanTileOrigin.Unknown;
+		public string OwnDrawReason { get; set; } = string.Empty;
+		public int LastGangSourceSeat { get; set; } = -1;
 		public int LastGangSeat { get; set; } = -1;
 		public int LastGangTileType { get; set; } = -1;
 		public string LastGangType { get; set; } = string.Empty;
+		public bool LastGangScoreEligible { get; set; } = true;
+        public bool? PendingAddedGangScoreEligible { get; set; }
         public bool ForceLightweight { get; set; }
         public bool MobileSpeedMode { get; set; }
         public bool CompactResult { get; set; }
 	}
 
 	private static bool IsFrozenPolicy(DiscardPayload payload)
-		=> string.Equals(payload.PolicyVariant, "frozen_hard_tier_v1", StringComparison.OrdinalIgnoreCase);
+		=> string.Equals(payload.PolicyVariant, "frozen_hard_tier_v1", StringComparison.OrdinalIgnoreCase)
+            || FullyFrozenOpponent(payload)
+            || NoClaimOpponent(payload);
+    private static bool NoClaimOpponent(DiscardPayload payload)
+        => payload.PolicyVariant is "frozen_hard_tier_no_claims_v1" or "frozen_cashflow_no_claims_v1";
+    private static bool FullyFrozenOpponent(DiscardPayload payload)
+        => payload.PolicyVariant is "frozen_cashflow_claims_v1" or "frozen_cashflow_no_claims_v1";
+    private static SichuanSelfActionDecisionResult FrozenSelfAction(SelfActionPayload payload)
+    {
+        var action=payload.CanSelfHu?SichuanActionType.Hu:SichuanActionType.Pass;
+        var tile=payload.CanSelfHu?payload.LastDrawTileType:-1;
+        var subtype="";
+        if(!payload.CanSelfHu)
+            foreach(var mandatory in payload.MandatoryGangTileTypes.Order())
+            {
+                if(payload.AnGangTileTypes.Contains(mandatory))subtype="an_gang";
+                else if(payload.AddGangTileTypes.Contains(mandatory) && SichuanAddedGangRules.CanUpgrade(BuildState(payload),mandatory))subtype="add_gang";
+                else continue;
+                action=SichuanActionType.Gang;tile=mandatory;break;
+            }
+        return new(){Action=new(action,tile,0,"frozen_self_cashout_or_mandatory"),GangSubtype=subtype,
+            Reasons=["FROZEN_SELF_POLICY_V1"],ActionScores=new Dictionary<string,int>{{action.ToString().ToLowerInvariant(),0}}};
+    }
 
     private sealed class ReactionPayload : DiscardPayload
     {
@@ -1587,6 +1733,8 @@ public partial class SichuanCSharpRuntime : Node
     }
 
     [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true, UseStringEnumConverter = true)]
+    [JsonSerializable(typeof(SichuanMahjong.AI.Core.Agents.SichuanAgentCheckpoint))]
+    [JsonSerializable(typeof(SichuanMahjong.AI.Core.Agents.AgentSnapshot))]
     [JsonSerializable(typeof(DiscardPayload))]
     [JsonSerializable(typeof(ReactionPayload))]
     [JsonSerializable(typeof(SelfActionPayload))]

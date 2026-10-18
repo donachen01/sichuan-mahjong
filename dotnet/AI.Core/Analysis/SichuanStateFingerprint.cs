@@ -38,7 +38,12 @@ public static class SichuanStateFingerprint
         builder.Append("|mode=").Append(state.InformationMode)
             .Append("|events=").Append(state.EventVersion)
             .Append("|lastGang=").Append(state.LastGangSeat).Append(',').Append(state.LastGangTileType)
-            .Append(',').Append(state.LastGangType).Append("|drawOrigin=").Append(state.LastDrawOrigin);
+            .Append(',').Append(state.LastGangType)
+            .Append(',').Append(state.LastGangScoreEligible)
+            .Append("|pendingAddedGangScoreEligible=").Append(state.PendingAddedGangScoreEligible)
+            .Append("|lastGangSource=").Append(state.LastGangSourceSeat)
+            .Append("|ownDrawReason=").Append(state.OwnDrawReason)
+            .Append("|drawOrigin=").Append(state.LastDrawOrigin);
         foreach (var item in state.PublicEvents) builder.Append('|').Append(item);
 
         for (var seat = 0; seat < 4; seat++)

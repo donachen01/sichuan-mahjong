@@ -1,5 +1,6 @@
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Domain;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -20,16 +21,17 @@ public sealed class SichuanExpectedScoreEngine
         double maxReadyPosterior,
         double wallDrawPosterior,
         int roundStage,
-        IReadOnlyList<string> routesAfter)
+        IReadOnlyList<string> routesAfter,
+        SichuanReadyPrice? exactReadyPrice = null)
     {
         var activeOpponentCount = CountActiveOpponents(state);
-        var estimatedFan = EstimateFan(handAfterDiscard18, routesAfter, shanten, waitCount, liveUkeire, roundStage);
-        var estimatedBaseScore = ScoreFromFan(estimatedFan);
+        var estimatedFan = exactReadyPrice?.WeightedFan ?? EstimateFan(handAfterDiscard18, routesAfter, shanten, waitCount, liveUkeire, roundStage);
+        var estimatedBaseScore = exactReadyPrice?.WeightedHandScore ?? ScoreFromFan(estimatedFan);
         var selfDrawShare = EstimateSelfDrawShare(selfDrawProbability, winProbability, wallDrawPosterior, waitCount);
         var discardWinShare = 1.0 - selfDrawShare;
         var winGainPerWin = discardWinShare * estimatedBaseScore
-            + selfDrawShare * (estimatedBaseScore + 1) * activeOpponentCount;
-        var winGain = winProbability * winGainPerWin;
+            + selfDrawShare * (exactReadyPrice?.WeightedSelfDrawPerPayer ?? estimatedBaseScore + SichuanRuleSnapshot.Frozen.SelfDrawBottomBonus) * activeOpponentCount;
+        var winGain = activeOpponentCount == 0 || exactReadyPrice is { HasDrawableWait: false } ? 0 : winProbability * winGainPerWin;
 
         var opponentFan = EstimateOpponentFan(maxReadyPosterior, topThreatScore, roundStage, state.WallCount);
         var opponentBaseScore = ScoreFromFan(opponentFan);
@@ -54,7 +56,13 @@ public sealed class SichuanExpectedScoreEngine
             roundStage);
 
         var net = winGain - dealInLoss - drawRiskLoss + readyValue;
-        var reasons = BuildReasons(estimatedFan, estimatedBaseScore, winGain, dealInLoss, drawRiskLoss, readyValue);
+        var reasons = BuildReasons(estimatedFan, estimatedBaseScore, winGain, dealInLoss, drawRiskLoss, readyValue).ToList();
+        if(exactReadyPrice is not null)
+        {
+            reasons.Add("READY_WAIT_RULE_PRICING");
+            reasons.Add($"各听张逐张规则计分后按公开墙供应加权：基础 {exactReadyPrice.WeightedHandScore:0.###}，自摸每家 {exactReadyPrice.WeightedSelfDrawPerPayer:0.###}；供应模型未独立校准");
+            if(!exactReadyPrice.HasDrawableWait)reasons.Add("READY_ALL_WALL_WAITS_DEAD_NO_WIN_GAIN");
+        }
         return new SichuanExpectedScore
         {
             Net = net,
@@ -73,10 +81,10 @@ public sealed class SichuanExpectedScoreEngine
         var count = 0;
         for (var seat = 0; seat < state.HasHu.Length; seat++)
         {
-            if (seat != state.SeatIndex && !state.HasHu[seat])
+            if (seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
                 count++;
         }
-        return Math.Max(1, count);
+        return count;
     }
 
     private static double EstimateFan(
@@ -181,7 +189,7 @@ public sealed class SichuanExpectedScoreEngine
 
     private static IReadOnlyList<string> BuildReasons(
         double estimatedFan,
-        int estimatedBaseScore,
+        double estimatedBaseScore,
         double winGain,
         double dealInLoss,
         double drawRiskLoss,

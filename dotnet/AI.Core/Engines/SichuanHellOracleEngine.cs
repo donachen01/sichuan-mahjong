@@ -16,7 +16,7 @@ public sealed class SichuanHellOracleEngine
     {
         var challenge = _challenge.DecideDiscard(state, allHands18, exactWall18, currentScores);
         var hand = state.Hand18;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         var bestTile = challenge.Action.TileType;
         var bestFeedsHumanHu = challenge.OracleFeedsHumanHu;
         var bestFeedsHumanPeng = challenge.OracleFeedsHumanPeng;

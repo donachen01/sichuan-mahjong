@@ -11,15 +11,21 @@ namespace SichuanMahjong.AI.Core.Decision;
 /// </summary>
 internal static class SichuanPublicInferenceBoundary
 {
-    public static bool TryProject(SichuanStateView state, out SichuanStateView projection, out string reason)
+    public static bool TryProject(SichuanStateView state, out SichuanStateView projection, out string reason, bool reaction = false, int sourceSeat = -1, bool robGang = false)
     {
         projection = new SichuanStateView();
-        reason = Validate(state) ?? string.Empty;
+        reason = Validate(state, reaction, sourceSeat, robGang) ?? string.Empty;
         if (reason.Length > 0) return false;
 
         projection = new SichuanStateView {
             SeatIndex = state.SeatIndex,
-            CurrentSeat = state.SeatIndex,
+            OwnDrawReason=state.OwnDrawReason,LastGangSourceSeat=state.LastGangSourceSeat,
+            LastGangSeat=state.LastGangSeat,LastGangTileType=state.LastGangTileType,LastGangType=state.LastGangType,
+            LastGangScoreEligible=state.LastGangScoreEligible,
+            PendingAddedGangScoreEligible=state.PendingAddedGangScoreEligible,
+            LastDrawTileType=state.LastDrawTileType,LastDrawOrigin=state.LastDrawOrigin,
+            DealerSeat = state.DealerSeat,
+            CurrentSeat = reaction ? sourceSeat : state.SeatIndex,
             WallCount = state.WallCount,
             Hand18 = (int[])state.Hand18.Clone(),
             Visible18 = (int[])state.Visible18.Clone(),
@@ -39,8 +45,10 @@ internal static class SichuanPublicInferenceBoundary
             projection.MeldViews[seat].AddRange(state.MeldViews[seat]);
         // Draw events reveal no tile identity to opponents. Hu and meld timing
         // are not likelihood features yet. A Pass is retained only when its
-        // legal public alternatives were explicitly recorded.
-        foreach (var item in state.PublicEvents.Where(IsInferenceEvent))
+        // own legal alternatives were explicitly recorded. Opponent passes
+        // expose private legality and are never inference inputs.
+        foreach (var item in state.PublicEvents.Where(IsInferenceEvent)
+            .Where(item => item.Type != SichuanPublicEventType.Pass || item.Seat == state.SeatIndex))
         {
             projection.PublicEvents.Add(new(
                 projection.PublicEvents.Count,
@@ -53,9 +61,22 @@ internal static class SichuanPublicInferenceBoundary
                 item.WallCountAfter,
                 item.CanHu,
                 item.CanPeng,
-                item.CanGang));
+                item.CanGang,
+                item.GangScoreEligible));
         }
         return true;
+    }
+
+    // Particle likelihood and continuation-policy history have different
+    // needs. Restore rule/tempo evidence only AFTER particles were sampled.
+    // Private opponent draw identities and pass alternatives remain excluded.
+    internal static void RestorePolicyHistory(SichuanStateView original,SichuanStateView projection)
+    {
+        projection.PublicEvents.Clear();
+        projection.PublicEvents.AddRange(original.PublicEvents
+            .Where(e=>e.Type!=SichuanPublicEventType.Pass||e.Seat==original.SeatIndex)
+            .Where(e=>e.Type!=SichuanPublicEventType.Draw||e.Seat==original.SeatIndex||e.TileType==-1)
+            .Select(e=>e.Seat==original.SeatIndex?e:e with {CanHu=false,CanPeng=false,CanGang=false}));
     }
 
     public static bool ParticleConserves(SichuanStateView state, SichuanMahjong.AI.Core.Inference.SichuanHiddenHandParticle particle)
@@ -69,11 +90,13 @@ internal static class SichuanPublicInferenceBoundary
         => item.Type == SichuanPublicEventType.Discard
             || item.Type == SichuanPublicEventType.Pass && (item.CanHu || item.CanPeng || item.CanGang);
 
-    private static string? Validate(SichuanStateView state)
+    private static string? Validate(SichuanStateView state, bool reaction, int sourceSeat, bool robGang)
     {
         if (state.InformationMode != "public") return "public_mode_required";
-        if (state.SeatIndex is < 0 or > 3 || state.CurrentSeat != state.SeatIndex)
+        if (state.SeatIndex is < 0 or > 3 || (!reaction && state.CurrentSeat != state.SeatIndex))
             return "own_discard_phase_required";
+        if (reaction && (sourceSeat is < 0 or > 3 || sourceSeat == state.SeatIndex))
+            return "invalid_reaction_source";
         if (state.ActiveSeats.Length != 4 || state.HasHu.Length != 4
             || !state.ActiveSeats[state.SeatIndex] || state.HasHu[state.SeatIndex]
             || Enumerable.Range(0, 4).Any(seat => state.ActiveSeats[seat] == state.HasHu[seat]))
@@ -128,9 +151,9 @@ internal static class SichuanPublicInferenceBoundary
                 return "illegal_public_melds";
             var baseHandSize = 13 - 3 * meldGroups.Length;
             var handSizeValid = seat == state.SeatIndex
-                ? state.HandCounts[seat] == baseHandSize + 1 && state.Hand18.Sum() == baseHandSize + 1
+                ? state.HandCounts[seat] == baseHandSize + (reaction ? 0 : 1) && state.Hand18.Sum() == baseHandSize + (reaction ? 0 : 1)
                 : state.HandCounts[seat] == baseHandSize
-                    || state.HasHu[seat] && state.HandCounts[seat] == baseHandSize + 1;
+                    || (state.HasHu[seat] || reaction && robGang && seat == sourceSeat) && state.HandCounts[seat] == baseHandSize + 1;
             if (!handSizeValid) return "public_hand_size_failed";
             foreach (var tile in state.Melds18[seat].Concat(state.Discards18[seat])) publicCounts[tile]++;
             if (!recordedDiscards[seat].SequenceEqual(state.Discards18[seat]))

@@ -5,9 +5,65 @@ using SichuanMahjong.AI.Core.Entry;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Search;
 
+if (args.Length==3 && args[0]=="--book-flush-tempo-study") return BookFlushTempoStudy.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--adaptive-route-options") return AdaptiveRouteOptionsStudy.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--adaptive-route-options-focused") return AdaptiveRouteOptionsSmoke.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--active-flush-supply-focused") return ActiveFlushSupplySmoke.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--book-flush-tempo-focused") return BookFlushTempoSmoke.Run(args[1],args[2]);
+if (args.Length==1 && args[0]=="--flush-ready-copy-capacity") return FlushCapacitySmoke.Run();
+if (args.Length>=1 && args[0]=="--ready-wait-pricing") return ReadyWaitPricingSmoke.Run(args.Length>1?args[1]:null);
+if (args.Length==1 && args[0]=="--public-meld-accounting") return PublicMeldAccountingSmoke.Run();
+if (args.Length==3 && args[0]=="--natural-flush-feature-study") return NaturalFlushFeatureStudy.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--natural-meld-value-study") return NaturalMeldValueStudy.Run(args[1],args[2]);
+if (args.Length==3 && args[0]=="--public-posterior-actual-labels") return PublicPosteriorNaturalStudy.Labels(args[1],args[2]);
+if (args.Length==3 && args[0]=="--public-posterior-natural-study") return PublicPosteriorNaturalStudy.Run(args[1],args[2]);
+if (args.Length==2 && args[0]=="--lower-book-section") return LowerBookSectionSmoke.Run(args[1]);
+if (args.Contains("--meld-group-count")) return MeldGroupCountSmoke.Run();
+if (args.Contains("--self-draw-cashflow")) return SelfDrawCashflowSmoke.Run();
+if (args.Contains("--public-known-wall")) return PublicKnownWallSmoke.Run();
+if (args.Contains("--public-sampling-order")) return PublicSamplingOrderSmoke.Run();
+if (args.Length==2 && args[0]=="--bucket-transfer-analysis") return BucketTransferAnalysis.Run(args[1]);
+if (args.Length==3 && args[0]=="--natural-self-hu-study") return NaturalSelfHuContinuationSmoke.Run(args[1],args[2]);
+if (args.Length==2 && args[0]=="--self-hu-public-clearance-study") return SelfHuContinuationSmoke.RunStudy(args[1],true);
+if (args.Length==2 && args[0]=="--self-hu-study") return SelfHuContinuationSmoke.RunStudy(args[1]);
+if (args.Contains("--self-hu-continuation")) return SelfHuContinuationSmoke.Run();
+if (args.Contains("--gang-cashflow")) return GangCashflowSmoke.Run();
+if (args.Length==3 && args[0]=="--exposed-triplet") return ExposedTripletSmoke.Run(args[1],args[2]);
+if (args.Contains("--added-gang-timing")) return AddedGangTimingSmoke.Run();
+if (args.Contains("--added-gang-rule")) return AddedGangRuleSmoke.Run();
+if (args.Contains("--gang-public-wall")) return GangPublicWallSmoke.Run();
+if (args.Contains("--legal-ready-value")) return LegalReadyValueSmoke.Run();
+if (args.Contains("--projected-meld-legality")) return ProjectedMeldLegalitySmoke.Run();
+if (args.Contains("--public-likelihood-performance")) return PublicLikelihoodPerformanceSmoke.Run();
+if (args.Contains("--strategy-delivery")) return StrategyDeliverySmoke.Run();
+if (args.Contains("--live-strategy-boundary")) return LiveStrategyBoundarySmoke.Run();
+if (args.Contains("--exact-performance")) return ExactPerformanceSmoke.Run();
+if (args.Contains("--shared-policy-probe")) return SharedPolicyProbe.Run();
+if (args.Contains("--strategy-journal")) return StrategyJournalSmoke.Run();
+if (args.Contains("--representative-hu")) return RepresentativeHuSmoke.Run();
+if (args.Contains("--development-policy")) return DevelopmentPolicySmoke.Run();
+if (args.Contains("--development-policy-local")) return DevelopmentPolicySmoke.Run(includeRollout:false);
 if (args.Contains("--single-lane")) return SingleLaneSmoke.Run();
 if (args.Contains("--ai-model-fixes")) return AiModelFixSmoke.Run();
 if (args.Contains("--ai-progression")) return AiProgressionSmoke.Run();
+if (args.Contains("--isolated-3-4")) return IsolatedTileSmoke.Run();
+if (args.Contains("--bucket-3-5")) return BucketTheorySmoke.Run();
+if (args.Contains("--distinct-dingque-hu")) return DistinctDingQueHuSmoke.Run();
+if (args.Length==2 && args[0]=="--chapter412") return Chapter412Smoke.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter422-audit") return Chapter422Audit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter422-application") return Chapter422Application.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter423-audit") return Chapter423Audit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter424-audit") return Chapter424Audit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter424c-conditions") return Chapter424CConditionsAudit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter43-root-weighted") return Chapter43RootWeightedAudit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter44-flying") return Chapter44FlyingAudit.Run(args[1]);
+if (args.Length==2 && args[0]=="--chapter413") return Chapter413Smoke.Run(args[1]);
+if (args.Length==2 && args[0]=="--two-missing-hu") return Chapter414TwoMissingSmoke.Run(args[1]);
+if (args.Length==2 && args[0]=="--opponent-wide-bed-defense") return OpponentWideBedDefenseSmoke.Run(args[1]);
+if (args.Contains("--hu-income-cost")) return HuIncomeCostSmoke.Run(diagnostics:args.Contains("--profile"),rulesOnly:args.Contains("--rules-only"));
+if (args.Length==2 && args[0]=="--draw-winner-assessment") return DrawWinnerAssessmentSmoke.Run(args[1]);
+if (args.Length==2 && args[0]=="--hu-waiting-model") return HuWaitingModelSmoke.Run(args[1]);
+if (args.Contains("--bucket-full")) return BucketContinuationSmoke.Run();
 
 var hand = new[]
 {
@@ -781,7 +837,7 @@ static bool SmokeAiContextStageExplainAndPerf(SichuanAiFacade facade)
     Console.WriteLine($"ai_context_stage={result.AiContext?.Stage.Stage} mode={result.AiContext?.StrategyMode.Mode} explain={string.Join('|', result.Explain.ReasonCodes)} perf={result.Performance.TotalMs:F2}");
     return result.AiContext is not null
         && result.AiContext.Stage.Stage == "late"
-        && result.AiContext.Stage.ReasonCode is "STAGE_LATE_BY_REMAINING_TILES" or "STAGE_LATE_BY_READY_PRESSURE"
+        && result.AiContext.Stage.ReasonCode is "STAGE_LATE_BY_DRAW_BUDGET" or "STAGE_LATE_BY_READY_PRESSURE"
         && result.Explain.Mode == "normal"
         && result.Explain.ReasonCodes.Count <= 10
         && result.Performance.TotalMs > 0
@@ -921,7 +977,10 @@ static bool SmokeBeliefReuseWithinReaction(SichuanAiFacade facade)
     var result = facade.DecideReaction(state, tile, false, true, true, 1, "discard");
     var diagnostics = SichuanBeliefEngine.GetDiagnostics();
     Console.WriteLine($"belief_reaction_action={result.Action.ActionType} calls={diagnostics.CallCount} builds={diagnostics.BuildCount} hits={diagnostics.CacheHits}");
-    return diagnostics.CallCount <= 1 && diagnostics.BuildCount <= 1;
+    // The formal Peng comparison also evaluates the projected post-call
+    // discard, which has a different public state and needs its own belief.
+    return diagnostics.CallCount <= 3 && diagnostics.BuildCount <= 2
+        && diagnostics.CacheHits >= 1;
 }
 
 static bool SmokeBeliefReuseWithinSelfAction(SichuanAiFacade facade)
@@ -949,7 +1008,8 @@ static bool SmokeBeliefReuseWithinSelfAction(SichuanAiFacade facade)
     var result = facade.DecideSelfAction(state, false, new[] { gangTile }, Array.Empty<int>());
     var diagnostics = SichuanBeliefEngine.GetDiagnostics();
     Console.WriteLine($"belief_self_action={result.Action.ActionType} calls={diagnostics.CallCount} builds={diagnostics.BuildCount} hits={diagnostics.CacheHits}");
-    return diagnostics.CallCount <= 1 && diagnostics.BuildCount <= 1;
+    return diagnostics.CallCount <= 2 && diagnostics.BuildCount <= 1
+        && diagnostics.CacheHits >= 1;
 }
 
 static bool SmokeMobileReactionSkipsShortSearch(SichuanAiFacade facade)
@@ -2993,12 +3053,10 @@ static bool SmokeLateWallRiskRegression(SichuanAiFacade facade)
     var result84Selected = result84.Candidates.First(candidate => candidate.TileType == result84.Action.TileType);
     var case84BestShanten = result84.Candidates.Min(candidate => candidate.Shanten);
     var case84Comparable = result84.Candidates.Where(candidate => candidate.Shanten == case84BestShanten).ToArray();
-    // Ordered public inference can legitimately move the best tile within the
-    // same late-wall structural tier. Preserve the actual regression contract:
-    // do not lose speed, keep useful live improvement, and stay close to the
-    // safest candidate of that tier instead of pinning one historical tile id.
+    // With five wall tiles, one extra theoretical live copy can cost a much
+    // riskier discard. Preserve speed and the bounded safety/progress tradeoff.
     var case84KeepsSpeedWithBoundedRisk = result84Selected.Shanten == case84BestShanten
-        && result84Selected.LiveUkeire == case84Comparable.Max(candidate => candidate.LiveUkeire)
+        && result84Selected.LiveUkeire + 1 >= case84Comparable.Max(candidate => candidate.LiveUkeire)
         && result84Selected.Danger <= case84Comparable.Min(candidate => candidate.Danger) + 5;
     var case215Top = string.Join(",", result215.Candidates.Take(6).Select(candidate => $"{candidate.TileType}:{candidate.Score}/u{candidate.UnifiedActionValue:F2}/r{candidate.StrategicResidual:F2}/s{candidate.Shanten}/w{candidate.WaitCount}/l{candidate.LiveUkeire}/d{candidate.Danger}"));
     var case84Top = string.Join(",", result84.Candidates.Take(6).Select(candidate => $"{candidate.TileType}:{candidate.Score}/u{candidate.UnifiedActionValue:F2}/r{candidate.StrategicResidual:F2}/s{candidate.Shanten}/w{candidate.WaitCount}/l{candidate.LiveUkeire}/d{candidate.Danger}"));

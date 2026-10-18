@@ -131,8 +131,13 @@ func evaluate_add_gang(
 	var gen_bonus: int = _estimate_gen_bonus_from_option([option.get("tile", {})], rules_config)
 	var endgame_penalty: int = _estimate_endgame_gang_penalty(strategy_profile, current_shanten, after_shanten)
 
+	var score_eligible := bool(option.get("score_eligible", false))
 	var score := 64
-	var reasons: Array[String] = ["补杠可提升番外收益"]
+	var reasons: Array[String] = ["补杠后结构与补牌机会仍需比较"]
+	if score_eligible:
+		reasons.append("本轮顺摸第四张，补杠计杠分")
+	else:
+		reasons.append("手上原有第四张，补杠不计杠分")
 	if after_shanten < current_shanten:
 		score += 74
 		reasons.append("补杠后结构变优")
@@ -144,7 +149,7 @@ func evaluate_add_gang(
 		reasons.append("补杠后结构变差")
 	score += int(round(float(after_score - current_score) * 0.20))
 	score += gen_bonus
-	if gen_bonus > 0:
+	if gen_bonus > 0 and score_eligible:
 		reasons.append("补杠能放大归/杠收益")
 	if qiang_gang_candidate_count > 0:
 		score -= 180 * qiang_gang_candidate_count

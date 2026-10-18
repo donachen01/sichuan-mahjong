@@ -1,5 +1,7 @@
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Domain;
+using SichuanMahjong.AI.Core.Strategy;
+using SichuanMahjong.AI.Core.Analysis;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -11,6 +13,7 @@ public sealed class SichuanRoundBrainEngine
 
     public SichuanRoundBrainSnapshot Observe(SichuanStateView state)
     {
+        using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("brain");
         lock (_gate)
         {
             PruneOldRounds(state.RoundIndex);
@@ -22,16 +25,26 @@ public sealed class SichuanRoundBrainEngine
                 brain = BrainState.Create(state, rawPlan, stage);
                 _brains[key] = brain;
             }
-            else if (brain.IsNewDeal(state))
+            else if (string.IsNullOrEmpty(state.RoundId) && brain.IsNewDeal(state))
             {
                 brain = BrainState.Create(state, rawPlan, stage);
                 _brains[key] = brain;
             }
-            else if (!brain.IsSameObservation(state))
+            else if (!brain.IsSameObservation(state) || brain.HasInadmissibleFlushGoal(state))
             {
                 brain.Observe(state, rawPlan, stage);
             }
             return brain.ToSnapshot();
+        }
+    }
+
+    internal void Restore(SichuanStateView state, Agents.AgentBrainMemory memory)
+    {
+        lock (_gate)
+        {
+            var brain = BrainState.Create(state, _routePlanner.Evaluate(state), ResolveStage(state));
+            brain.Restore(memory);
+            _brains[(state.RoundIndex, state.SeatIndex)] = brain;
         }
     }
 
@@ -61,10 +74,7 @@ public sealed class SichuanRoundBrainEngine
 
     private static int ResolveStage(SichuanStateView state)
     {
-        var maxDiscards = state.Discards18.Max(list => list.Count);
-        if (state.WallCount <= 6 || maxDiscards >= 15) return 2;
-        if (state.WallCount <= 13 || maxDiscards >= 9 || state.Melds18.Sum(list => list.Count / 3) >= 5) return 1;
-        return 0;
+        return new SichuanStageEvaluator().Evaluate(state, new SichuanBeliefEngine().Build(state)).StageIndex;
     }
 
     private sealed class BrainState
@@ -73,7 +83,9 @@ public sealed class SichuanRoundBrainEngine
         private int _lastWallCount;
         private int _lastDiscardCount;
         private int _lastMeldTileCount;
-        private int _lastObservationHash;
+        private string _lastObservationKey = "";
+        private SichuanSituationObservation? _lastSituation;
+        private int _knownDingQueCount;
         private readonly HashSet<int> _brokenTriplets = new();
         private readonly List<string> _history = new();
 
@@ -110,7 +122,9 @@ public sealed class SichuanRoundBrainEngine
                 _lastWallCount = state.WallCount,
                 _lastDiscardCount = state.Discards18.Sum(list => list.Count),
                 _lastMeldTileCount = state.Melds18.Sum(list => list.Count),
-                _lastObservationHash = BuildObservationHash(state)
+                _lastObservationKey = BuildObservationKey(state),
+                _lastSituation = SichuanSituationObservation.Capture(state),
+                _knownDingQueCount = state.DingQueSuits.Count(suit => suit >= 0)
             };
 			brain.UpdateThreatAndRisk(state);
             var targetCount = CountSuit(state.Hand18, plan.TargetSuit);
@@ -123,11 +137,22 @@ public sealed class SichuanRoundBrainEngine
 
         public void Observe(SichuanStateView state, SichuanRoutePlanResult rawPlan, int stage)
         {
+            var situation = SichuanSituationObservation.Capture(state);
+            var changes = situation.ChangesFrom(_lastSituation);
+            var previousRoute = PrimaryRoute;
+            if (changes.Length > 0) _history.Add("局势更新：" + string.Join("；", changes));
             CaptureBrokenTriplets(state);
             Stage = stage;
             RouteWeights = new Dictionary<string, int>(rawPlan.RouteWeights);
             var currentWeight = RouteWeights.GetValueOrDefault(PrimaryRoute, 0);
+            if (HasInadmissibleFlushGoal(state))
+            {
+                var capacity = SichuanFlushCopyCapacity.Assess(state, state.Hand18, TargetSuit);
+                currentWeight = 0;
+                _history.Add($"{capacity.Reason}：原清色目标{TargetSuit}已失效，按本次公开状态重选");
+            }
             var challenger = RouteWeights.OrderByDescending(item => item.Value).FirstOrDefault();
+            var openingRevealed = state.DingQueSuits.Count(suit => suit >= 0) > _knownDingQueCount;
             var switchMargin = 8 + Commitment / 5 + stage * 3;
             if (Revision <= 2 && stage == 0)
                 switchMargin += 40;
@@ -139,14 +164,19 @@ public sealed class SichuanRoundBrainEngine
                     switchMargin += 40;
             }
 
-            if (currentWeight <= 0 || (challenger.Key != PrimaryRoute && challenger.Value >= currentWeight + switchMargin))
+            if (currentWeight <= 0 || openingRevealed || (challenger.Key != PrimaryRoute && challenger.Value >= currentWeight + switchMargin))
             {
                 var old = PrimaryRoute;
                 FallbackRoute = currentWeight > 0 ? old : rawPlan.SecondaryRoutes.FirstOrDefault() ?? "平胡";
                 PrimaryRoute = challenger.Key ?? rawPlan.PrimaryRoute;
                 TargetSuit = rawPlan.TargetSuit;
+                if (FallbackRoute == PrimaryRoute)
+                    FallbackRoute = RouteWeights.Where(item => item.Key != PrimaryRoute)
+                        .OrderByDescending(item => item.Value).Select(item => item.Key).FirstOrDefault() ?? "平胡";
                 Commitment = Math.Clamp(30 + Math.Max(0, challenger.Value - currentWeight), 28, 68);
-                _history.Add($"策略调整：{old} -> {PrimaryRoute}，优势 {challenger.Value - currentWeight}");
+                _history.Add(old != PrimaryRoute
+                    ? $"策略调整：{old} -> {PrimaryRoute}，结构评分优势 {challenger.Value - currentWeight}"
+                    : $"新公开条件下重新确认{PrimaryRoute}，未发生牌路切换");
             }
             else
             {
@@ -167,12 +197,20 @@ public sealed class SichuanRoundBrainEngine
             _lastWallCount = state.WallCount;
             _lastDiscardCount = state.Discards18.Sum(list => list.Count);
             _lastMeldTileCount = state.Melds18.Sum(list => list.Count);
-            _lastObservationHash = BuildObservationHash(state);
+            _lastObservationKey = BuildObservationKey(state);
+            _lastSituation = situation;
+            _knownDingQueCount = state.DingQueSuits.Count(suit => suit >= 0);
 			UpdateThreatAndRisk(state);
+            if (changes.Length > 0 && PrimaryRoute == previousRoute)
+                _history.Add($"根据当前机会、收益及风险重估后继续{PrimaryRoute}；新信息不强制换路");
             Revision++;
         }
 
-        public bool IsSameObservation(SichuanStateView state) => _lastObservationHash == BuildObservationHash(state);
+        public bool IsSameObservation(SichuanStateView state) => string.Equals(_lastObservationKey, BuildObservationKey(state), StringComparison.Ordinal);
+
+        public bool HasInadmissibleFlushGoal(SichuanStateView state) =>
+            SichuanRoutePlanEngine.IsFlushRoute(PrimaryRoute) &&
+            !SichuanFlushCopyCapacity.Assess(state, state.Hand18, TargetSuit).Admissible;
 
         public bool IsNewDeal(SichuanStateView state)
         {
@@ -201,6 +239,16 @@ public sealed class SichuanRoundBrainEngine
             }
         }
 
+        public void Restore(Agents.AgentBrainMemory memory)
+        {
+            Revision = memory.Revision; Stage = memory.Stage;
+            PrimaryRoute = memory.Primary; FallbackRoute = memory.Fallback;
+            TargetSuit = memory.TargetSuit; Commitment = memory.Commitment;
+            RouteWeights = new Dictionary<string, int>(memory.RouteWeights);
+            _brokenTriplets.Clear(); _brokenTriplets.UnionWith(memory.BrokenTriplets);
+            _history.Clear(); _history.AddRange(memory.History);
+        }
+
         public void RecordDecision(string description)
         {
             _history.Add(description);
@@ -213,29 +261,10 @@ public sealed class SichuanRoundBrainEngine
             return Enumerable.Range(suit * 9, 9).Sum(tile => hand[tile]);
         }
 
-        private static int BuildObservationHash(SichuanStateView state)
-        {
-            var hash = new HashCode();
-            hash.Add(state.RoundIndex);
-            hash.Add(state.SeatIndex);
-            hash.Add(state.WallCount);
-            hash.Add(state.VisibleVersion);
-            hash.Add(state.HandVersion);
-            hash.Add(state.EventVersion);
-			hash.Add(state.ExchangeThreeEnabled);
-            foreach (var count in state.Hand18) hash.Add(count);
-            foreach (var list in state.Discards18)
-            {
-                hash.Add(list.Count);
-                foreach (var tile in list) hash.Add(tile);
-            }
-            foreach (var list in state.Melds18)
-            {
-                hash.Add(list.Count);
-                foreach (var tile in list) hash.Add(tile);
-            }
-            return hash.ToHashCode();
-        }
+        // Match the complete public-state/cache contract. Partial field hashes
+        // could retain a stale plan while current candidate calculations changed.
+        private static string BuildObservationKey(SichuanStateView state)
+            => SichuanStateFingerprint.BuildTurnKey(state, true, false);
 
 		private void UpdateThreatAndRisk(SichuanStateView state)
 		{
@@ -245,7 +274,7 @@ public sealed class SichuanRoundBrainEngine
 				{
 					Seat = seat,
 					Score = (state.IsReady.ElementAtOrDefault(seat) ? 0.48 : 0.0)
-						+ Math.Min(0.40, state.Melds18[seat].Count / 3 * 0.11)
+						+ Math.Min(0.40, state.MeldCount(seat) * 0.11)
 						+ Math.Min(0.22, state.PublicEvents.Count(item => item.Seat == seat && item.Type == SichuanPublicEventType.Discard && item.Origin == SichuanTileOrigin.Hand) * 0.018)
 				})
 				.OrderByDescending(item => item.Score)

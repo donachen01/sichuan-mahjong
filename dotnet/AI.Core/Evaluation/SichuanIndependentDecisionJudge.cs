@@ -79,7 +79,7 @@ public sealed class SichuanIndependentDecisionJudge
         IReadOnlyList<int> concealedGangTiles,
         IReadOnlyList<int> addedGangTiles)
     {
-        var actions = _legal.BuildSelfActions(canSelfHu, concealedGangTiles, addedGangTiles);
+        var actions = _legal.BuildSelfActions(canSelfHu, concealedGangTiles, addedGangTiles.Where(t => SichuanAddedGangRules.CanUpgrade(state,t)));
         var values = actions
             .Select(action => (key: ActionKey(action), value: SelfActionObjectiveValue(state, action, concealedGangTiles.Contains(action.TileType))))
             .OrderByDescending(item => item.value)
@@ -141,7 +141,7 @@ public sealed class SichuanIndependentDecisionJudge
 
     private double ReactionObjectiveValue(SichuanStateView state, SichuanAction action)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         return action.ActionType switch
         {
 			SichuanActionType.Pass => _offline.EvaluateReactionPass(state).Value,
@@ -154,7 +154,7 @@ public sealed class SichuanIndependentDecisionJudge
 
     private double SelfActionObjectiveValue(SichuanStateView state, SichuanAction action, bool concealedGang)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         return action.ActionType switch
         {
 			SichuanActionType.Pass => _offline.EvaluateSelfContinue(state).Value,
@@ -168,7 +168,7 @@ public sealed class SichuanIndependentDecisionJudge
 
     private double BestDiscardObjectiveValue(SichuanStateView state)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         return _hands.AnalyzeDiscards(state.Hand18, state.Remaining18, meldCount)
             .Select(item => ObjectiveValue(state, item))
             .DefaultIfEmpty(-20)

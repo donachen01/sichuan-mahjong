@@ -19,6 +19,22 @@ var host_client: StreamPeerTCP = StreamPeerTCP.new()
 var host_read_buffer: String = ""
 var last_transport_mode: String = "cli"
 var last_host_error: String = ""
+var agent_view_stamps: Dictionary = {}
+
+
+func clear_agent_views() -> void:
+	agent_view_stamps.clear()
+
+
+
+func restore_agent_view_stamps(views: Array) -> void:
+	agent_view_stamps.clear()
+	for item in views:
+		var view: Dictionary = item.duplicate(true)
+		var version := int(view.get("viewVersion", 0))
+		view.erase("viewVersion")
+		var stamp_key := str(view.get("roundId", "")) + ":" + str(view.get("seatIndex", -1))
+		agent_view_stamps[stamp_key] = {"signature": JSON.stringify(view), "version": version}
 
 
 func is_available() -> bool:
@@ -246,7 +262,7 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		discard_total += encoded_discards.size()
 		meld_total += encoded_melds.size()
 		scores.append(int(player.get("score", 0)))
-		ding_que_suits.append(active_suits.find(str(player.get("ding_que", ""))))
+		ding_que_suits.append(active_suits.find(str(player.get("ding_que", ""))) if index == self_seat or bool(table_state.get("ding_que_choices_public", true)) else -1)
 		hand_counts.append(int(player.get("hand_count", 0)))
 		active_seats.append(not bool(player.get("has_won", false)))
 		is_called[index] = 1 if not Array(player.get("melds", [])).is_empty() else 0
@@ -285,14 +301,17 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		lock_turns.append(int(lock_info.get("lock_turn", -1)))
 		unlock_on_own_draw.append(bool(lock_info.get("unlock_on_own_draw", true)))
 	var last_gang: Dictionary = table_state.get("last_gang_context", {})
+	var last_turn: Dictionary = table_state.get("last_turn_context", {})
 	var test_policy_variants: Dictionary = table_state.get("test_ai_policy_variants_by_seat", {})
 	var policy_variant := str(test_policy_variants.get(self_seat, test_policy_variants.get(str(self_seat), "current")))
-	return {
+	var payload: Dictionary = {
 		"seatIndex": self_seat,
 		"dealerSeat": _resolve_dealer_seat(players, table_state, self_seat),
 		"currentSeat": int(table_state.get("current_turn_seat", self_seat)),
 		"wallCount": int(table_state.get("wall_count", 0)),
 		"roundIndex": int(table_state.get("round_index", 0)),
+		"phase": int(table_state.get("current_phase", 0)),
+		"turnIndex": discard_total,
 		"totalRounds": int(table_state.get("total_rounds", 0)),
 		"remainingRounds": int(table_state.get("remaining_rounds", 0)),
 		"visibleVersion": visible_version,
@@ -329,10 +348,29 @@ func _build_payload(player_state: Dictionary, table_state: Dictionary, rules_con
 		"hasHu": _byte_array_to_bool_array(has_hu),
 		"lastDrawTileType": last_draw_tile_type,
 		"lastDrawOrigin": "draw" if last_draw_tile_type >= 0 else "unknown",
+		"ownDrawReason": str(last_turn.get("draw_reason", "")) if int(last_turn.get("seat", -1)) == self_seat else "",
+		"lastGangSourceSeat": int(last_gang.get("source_seat", -1)),
 		"lastGangSeat": int(last_gang.get("seat", -1)),
 		"lastGangTileType": tile_codec.tile_type(last_gang.get("tile", {}), active_suits),
 		"lastGangType": str(last_gang.get("gang_type", "")),
+		"lastGangScoreEligible": bool(last_gang.get("score_eligible", true)),
 	}
+	var reaction_context: Dictionary = table_state.get("current_discard_context", {})
+	if str(reaction_context.get("reaction_type", "")) == "qiang_gang_hu" and reaction_context.has("gang_score_eligible"):
+		payload["pendingAddedGangScoreEligible"] = bool(reaction_context["gang_score_eligible"])
+
+	if Array(table_state.get("agent_seats", [])).has(self_seat):
+		payload["roundId"] = str(table_state.get("agent_round_id", ""))
+		payload["hostGeneration"] = int(table_state.get("agent_generation", 0))
+		var stamp_key := str(payload["roundId"]) + ":" + str(self_seat)
+		var signature := JSON.stringify(payload)
+		var previous: Dictionary = agent_view_stamps.get(stamp_key, {})
+		var version := int(previous.get("version", 0))
+		if str(previous.get("signature", "")) != signature:
+			version += 1
+			agent_view_stamps[stamp_key] = {"signature": signature, "version": version}
+		payload["viewVersion"] = version
+	return payload
 
 
 func _encode_meld_views(melds: Array, active_suits: Array) -> Array:
@@ -354,6 +392,7 @@ func _encode_meld_views(melds: Array, active_suits: Array) -> Array:
 			"tileType": tile_codec.tile_type(tiles[0], active_suits),
 			"sourceSeat": int(meld.get("from_seat", -1)),
 			"eventIndex": index,
+			"addedGangBlockedUntilOwnDraw": bool(meld.get("added_gang_blocked_until_own_draw", false)),
 		})
 		index += 1
 	return result
@@ -385,9 +424,10 @@ func _encode_public_events(events: Array, active_suits: Array, self_seat: int) -
 			"origin": str(event.get("origin", "unknown")),
 			"sourceSeat": int(event.get("sourceSeat", -1)),
 			"wallCountAfter": int(event.get("wallCountAfter", -1)),
-			"canHu": bool(event.get("canHu", false)),
-			"canPeng": bool(event.get("canPeng", false)),
-			"canGang": bool(event.get("canGang", false)),
+			"canHu": event_seat == self_seat and bool(event.get("canHu", false)),
+			"canPeng": event_seat == self_seat and bool(event.get("canPeng", false)),
+			"canGang": event_seat == self_seat and bool(event.get("canGang", false)),
+			"gangScoreEligible": bool(event.get("gangScoreEligible", true)),
 		})
 	return result
 
@@ -416,7 +456,9 @@ func _build_reaction_pass_count_matrix(pass_evidence: Array, active_suits: Array
 
 
 func _build_reaction_payload(candidate: Dictionary, player_state: Dictionary, table_state: Dictionary, discard_context: Dictionary, rules_config) -> Dictionary:
-	var payload := _build_payload(player_state, table_state, rules_config)
+	var reaction_table := table_state.duplicate()
+	reaction_table["current_discard_context"] = discard_context
+	var payload := _build_payload(player_state, reaction_table, rules_config)
 	var active_suits: Array = tile_codec.resolve_active_suits(rules_config)
 	var reaction_tile: Dictionary = discard_context.get("tile", {})
 	payload["reactionTileType"] = tile_codec.tile_type(reaction_tile, active_suits)
@@ -430,6 +472,9 @@ func _build_reaction_payload(candidate: Dictionary, player_state: Dictionary, ta
 
 
 func _resolve_dealer_seat(players: Array, table_state: Dictionary, fallback: int) -> int:
+	# GameState publishes this authority; all observers must see the same dealer.
+	if table_state.has("current_dealer_seat"):
+		return int(table_state["current_dealer_seat"])
 	if table_state.has("dealer_seat"):
 		return int(table_state.get("dealer_seat", fallback))
 	for player in players:

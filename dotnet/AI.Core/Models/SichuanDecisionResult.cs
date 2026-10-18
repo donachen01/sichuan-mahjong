@@ -2,6 +2,8 @@ namespace SichuanMahjong.AI.Core.Models;
 
 public sealed class SichuanDecisionResult
 {
+    public IReadOnlyList<Decision.SichuanArbitrationStep> Arbitration { get; init; } = Array.Empty<Decision.SichuanArbitrationStep>();
+    public IReadOnlyList<Inference.SichuanOpeningObservation> OpeningObservations { get; init; } = Array.Empty<Inference.SichuanOpeningObservation>();
     public SichuanAction Action { get; init; } = new(SichuanActionType.Pass);
     public int Shanten { get; init; }
     public int Ukeire { get; init; }

@@ -8785,6 +8785,9 @@ func _on_top_exit_pressed() -> void:
 
 func _confirm_exit_game() -> void:
 	_save_ui_preferences()
+	var game_state := get_node_or_null("/root/GameState")
+	if game_state != null:
+		game_state.call("abort_agent_round")
 	var lan_runtime := get_node_or_null("/root/LanRuntime")
 	if lan_runtime != null:
 		lan_runtime.leave_room()

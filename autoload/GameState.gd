@@ -57,7 +57,7 @@ const HELL_REPLAY_DIR := "res://测试数据统计/hell_replay"
 const AI_ANALYSIS_RECORDING_ENABLED := false
 const DEBUG_TRAINING_RECORDING_ENABLED := false
 const AI_LEARNING_RECORDING_ENABLED := false
-const AI_SHADOW_RECORDING_ENABLED := true
+const AI_SHADOW_RECORDING_ENABLED := false
 const AI_SHADOW_MAX_EVENTS := 1600
 const AI_SHADOW_MAX_SESSIONS := 4
 const AI_CHAIN_DEBUG_ENABLED := false
@@ -89,6 +89,11 @@ var last_draw_tile: Dictionary = {}
 var shun_he_locks: Dictionary = {}
 var debug_last_message: String = "GameState initialized."
 var round_index: int = 1
+var ai_agent_round_id: String = ""
+var ai_agent_generation: int = 0
+var ai_agent_seats: Array[int] = []
+var ai_agents_started: bool = false
+
 var rules
 var ding_que_resolver
 var reaction_resolver
@@ -144,6 +149,7 @@ var hell_last_marked_signature: String = ""
 var ai_analysis_session_id: String = ""
 var ai_analysis_event_count: int = 0
 var latest_ai_analysis_event: Dictionary = {}
+var research_recording_enabled: bool = false
 var debug_decision_trace_session_id: String = ""
 var debug_decision_trace_event_count: int = 0
 var latest_debug_decision_trace_event: Dictionary = {}
@@ -247,6 +253,7 @@ func configure_seat_controllers(controllers: Array, restart_round: bool = false)
 func prepare_lan_table(controllers: Array) -> bool:
 	if not configure_seat_controllers(controllers, false):
 		return false
+	_end_round_agents()
 	players = _create_initial_players(players)
 	wall.clear()
 	wall_count = 0
@@ -279,6 +286,7 @@ func configure_lan_members(members: Array, restart_round: bool = false) -> bool:
 
 
 func start_new_round(preserve_dealer: bool = false) -> void:
+	_end_round_agents()
 	current_phase = RoundPhase.TABLE_SETUP
 	if deterministic_seed_enabled:
 		_rng.seed = deterministic_seed + int(round_index)
@@ -649,6 +657,9 @@ func complete_opening_roll() -> bool:
 		int(opening_roll_data.get("total", 0)),
 		str(opening_roll_data.get("opening_side_label", "自家")),
 	]
+	if not _begin_round_agents():
+		debug_last_message = "局内 AI 初始化失败，暂停开局。"
+		return false
 	_enter_ding_que_phase()
 	return true
 
@@ -777,6 +788,7 @@ func _build_table_state() -> Dictionary:
 	table_state["public_ai_events"] = ai_public_events.duplicate(true)
 	table_state["event_version"] = ai_public_event_version
 	table_state["last_gang_context"] = last_gang_context.duplicate(true)
+	table_state["last_turn_context"] = last_turn_context.duplicate(true)
 	var public_won_scores: Array[int] = [-1, -1, -1, -1]
 	for event in settlement_data.get("win_events", []):
 		var winner := int(event.get("winner_seat", -1))
@@ -785,10 +797,14 @@ func _build_table_state() -> Dictionary:
 	table_state["public_won_scores"] = public_won_scores
 	table_state["shun_he_locks"] = shun_he_locks.duplicate(true)
 	table_state["round_index"] = round_index
+	table_state["ding_que_choices_public"] = current_phase > RoundPhase.DING_QUE
+	table_state["agent_round_id"] = ai_agent_round_id
+	table_state["agent_generation"] = ai_agent_generation
+	table_state["agent_seats"] = ai_agent_seats.duplicate()
 	table_state["current_dealer_seat"] = current_dealer_seat
 	table_state["total_rounds"] = 0
 	table_state["remaining_rounds"] = 0
-	table_state["test_ai_policy_variants_by_seat"] = test_ai_policy_variants_by_seat.duplicate(true)
+	table_state["test_ai_policy_variants_by_seat"] = test_ai_policy_variants_by_seat.duplicate(true) if OS.is_debug_build() else {}
 	return table_state
 
 
@@ -1418,6 +1434,9 @@ func _execute_ai_turn_decision(decision: Dictionary) -> bool:
 			var decision_reasons: Array = decision.get("analysis", {}).get("csharp_result", {}).get("reasons", [])
 			if ok and decision_reasons.has("TWO_PLY_READY_OVERRIDE"):
 				_record_ai_metric("discard_two_ply_ready_override")
+			for module in ["BUCKET_LOCAL_DOMINANCE", "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE"]:
+				if ok and decision_reasons.has(module):
+					_record_ai_mechanism_event(module, seat, tile_type, decision)
 			if ok and decision_reasons.has("PUBLIC_ROUTE_FRONTIER_OVERRIDE"):
 				_record_ai_metric("discard_public_route_frontier_override")
 				_record_ai_mechanism_event("PUBLIC_ROUTE_FRONTIER_OVERRIDE", seat, tile_type, decision)
@@ -2522,7 +2541,7 @@ func _auto_select_ai_ding_que() -> void:
 			continue
 		if player["seat"] == current_dealer_seat and not _must_dealer_choose_now():
 			continue
-		var decision := _build_ai_ding_que_decision(player["hand_tiles"])
+		var decision: Dictionary = ai_manager.analyze_agent_ding_que(_build_player_state(int(player["seat"])), _build_table_state(), rules, _active_suits()) if ai_agents_started else _build_ai_ding_que_decision(player["hand_tiles"])
 		var suit := str(decision.get("suit", ""))
 		if suit == "" or not _active_suits().has(suit):
 			debug_last_message = "C# AI 未返回有效定缺结果，暂停自动定缺。"
@@ -2607,6 +2626,10 @@ func _begin_turn() -> void:
 		_enter_settlement_due_to_draw()
 		return
 	_clear_shun_he_lock_for_seat(seat)
+	var draw_reason := _consume_next_draw_reason()
+	if draw_reason != "gang_draw":
+		for meld in players[seat]["melds"]:
+			meld["added_gang_blocked_until_own_draw"] = false
 
 	var hand_tiles: Array = players[seat]["hand_tiles"]
 	hand_tiles.append(draw_tile)
@@ -2620,7 +2643,7 @@ func _begin_turn() -> void:
 	_append_ai_public_event("draw", seat, draw_tile, seat, "draw")
 	last_turn_context = {
 		"seat": seat,
-		"draw_reason": _consume_next_draw_reason(),
+		"draw_reason": draw_reason,
 	}
 	self_hu_pass_locks.erase(str(seat))
 	current_phase = RoundPhase.DISCARD
@@ -2645,6 +2668,8 @@ func _enter_settlement_due_to_draw() -> void:
 	settlement_data["end_reason"] = "draw_wall_empty"
 	_build_draw_settlement_assessment()
 	_rebuild_settlement_summary()
+	_sync_round_agents()
+	_end_round_agents()
 	debug_last_message = "牌墙摸完，已进入流局查叫/退税结算。"
 
 
@@ -2655,6 +2680,8 @@ func _enter_settlement_due_to_battle_end() -> void:
 	settlement_data["end_reason"] = "battle_end"
 	_build_draw_settlement_assessment()
 	_rebuild_settlement_summary()
+	_sync_round_agents()
+	_end_round_agents()
 	debug_last_message = "血战终局，已进入结算。赢家：%s" % [_format_winner_list()]
 
 
@@ -2750,7 +2777,54 @@ func _lock_dealer_ding_que_from_first_discard(tile_id: int) -> bool:
 	return false
 
 
+func _agent_views() -> Array:
+	var views: Array = []
+	var table := _build_table_state()
+	for seat in ai_agent_seats:
+		views.append(ai_manager.csharp_bridge.build_discard_transport_payload(_build_player_state(seat), table, rules))
+	return views
+
+
+func _begin_round_agents() -> bool:
+	# Oracle mode retains its separate information contract.
+	if _is_hell_challenge_mode():
+		return true
+	ai_agent_generation += 1
+	ai_agent_round_id = Crypto.new().generate_random_bytes(16).hex_encode()
+	ai_agent_seats.clear()
+	for player in players:
+		if bool(player.get("is_ai", false)):
+			ai_agent_seats.append(int(player["seat"]))
+	if ai_agent_seats.is_empty():
+		return true
+	ai_agents_started = ai_manager != null and ai_manager.update_round_agents("begin", _agent_views())
+	return ai_agents_started
+
+
+func _sync_round_agents() -> void:
+	if ai_agents_started and not ai_manager.update_round_agents("observe", _agent_views()):
+		debug_last_message = "AI 观察同步失败：" + str(ai_manager.last_native_turn_error)
+
+
+func abort_agent_round() -> void:
+	_clear_pending_ai_async_state()
+	_end_round_agents()
+
+
+func _end_round_agents() -> void:
+	if ai_agents_started:
+		ai_manager.update_round_agents("end", [], ai_agent_round_id, ai_agent_generation)
+	ai_agents_started = false
+	ai_agent_seats.clear()
+	ai_agent_round_id = ""
+
+
 func _emit_state_changed() -> void:
+	if current_phase == RoundPhase.SETTLEMENT:
+		_sync_round_agents()
+		_end_round_agents()
+	else:
+		_sync_round_agents()
 	_pump_ai_background_requests()
 	state_changed.emit(get_gameplay_snapshot())
 
@@ -2768,7 +2842,7 @@ func _record_ai_chain_debug(message: String) -> void:
 	ai_chain_debug_history.append(line)
 	while ai_chain_debug_history.size() > 80:
 		ai_chain_debug_history.pop_front()
-	var log_path := "user://ai_chain_debug.log"
+	var log_path := _research_recording_path("user://ai_chain_debug.log")
 	var file := FileAccess.open(log_path, FileAccess.READ_WRITE if FileAccess.file_exists(log_path) else FileAccess.WRITE)
 	if file == null:
 		return
@@ -2851,11 +2925,11 @@ func _build_diagnostic_export_package(internal_path: String, file_name: String) 
 		"snapshot": _compact_diagnostic_value(get_debug_snapshot()),
 		"ai_chain_debug_history": ai_chain_debug_history.duplicate(),
 		"text_files": _collect_diagnostic_text_files([
-			"user://ai_chain_debug.log",
+			_research_recording_path("user://ai_chain_debug.log"),
 			"user://ui_prefs.cfg",
 		]),
 		"training_files": {
-			"ai_analysis": _collect_diagnostic_dir_text_files(AI_ANALYSIS_DIR, DIAGNOSTIC_MAX_DIR_TEXT_FILES),
+			"ai_analysis": _collect_diagnostic_dir_text_files(_research_recording_path(AI_ANALYSIS_DIR), DIAGNOSTIC_MAX_DIR_TEXT_FILES),
 			"hell_training": _collect_diagnostic_dir_text_files(HELL_TRAINING_DIR, DIAGNOSTIC_MAX_DIR_TEXT_FILES),
 			"hell_marked_cases": _collect_diagnostic_dir_text_files(HELL_MARKED_CASE_DIR, DIAGNOSTIC_MAX_DIR_TEXT_FILES),
 		},
@@ -3224,9 +3298,9 @@ func _append_ai_public_event(event_type: String, seat: int, tile: Dictionary = {
 		"canHu": bool(legal.get("can_hu", false)),
 		"canPeng": bool(legal.get("can_peng", false)),
 		"canGang": bool(legal.get("can_gang", false)),
+		"gangScoreEligible": bool(legal.get("gang_score_eligible", true)),
 	})
-	while ai_public_events.size() > 256:
-		ai_public_events.remove_at(0)
+	# Preserve the full per-round journal; filtered observer sequences must not renumber.
 
 
 func _apply_passed_hu_lock_if_needed(seat: int, candidate: Dictionary) -> void:
@@ -3271,6 +3345,8 @@ func _apply_shun_he_lock_filter() -> void:
 
 
 func _find_add_gang_option(seat: int) -> Dictionary:
+	if not _is_added_gang_turn(seat):
+		return {}
 	if wall_count <= 0 or wall.is_empty():
 		return {}
 	if seat < 0 or seat >= players.size():
@@ -3279,7 +3355,7 @@ func _find_add_gang_option(seat: int) -> Dictionary:
 	var melds: Array = players[seat]["melds"]
 	for meld_index in range(melds.size()):
 		var meld: Dictionary = melds[meld_index]
-		if meld.get("type", "") != "peng":
+		if meld.get("type", "") != "peng" or bool(meld.get("added_gang_blocked_until_own_draw", false)):
 			continue
 		var meld_tiles: Array = meld.get("tiles", [])
 		if meld_tiles.is_empty():
@@ -3296,6 +3372,7 @@ func _find_add_gang_option(seat: int) -> Dictionary:
 					"meld_index": meld_index,
 					"tile": hand_tile.duplicate(true),
 					"source_seat": int(meld.get("from_seat", seat)),
+					"score_eligible": _is_drawn_add_gang_tile(seat, hand_tile),
 				}
 	return {}
 
@@ -3386,6 +3463,14 @@ func _start_add_gang(seat: int, selected_option: Dictionary = {}) -> bool:
 	if option.is_empty():
 		return false
 
+	# Revalidate against current legal options, including AI/stale caller selections.
+	var legal := false
+	for candidate in _find_all_add_gang_options(seat):
+		if int(candidate["meld_index"]) == int(option.get("meld_index", -1)) and int(candidate["tile"]["id"]) == int(option.get("tile", {}).get("id", -2)):
+			legal = true
+			break
+	if not legal:
+		return false
 	var gang_tile: Dictionary = option["tile"]
 	var meld_index: int = int(option["meld_index"])
 	pending_qiang_gang_context = {
@@ -3393,6 +3478,7 @@ func _start_add_gang(seat: int, selected_option: Dictionary = {}) -> bool:
 		"tile": gang_tile.duplicate(true),
 		"meld_index": meld_index,
 		"source_seat": int(option.get("source_seat", seat)),
+		"score_eligible": _is_drawn_add_gang_tile(seat, gang_tile),
 		"placeholder_type": "add_gang_qiang_gang_hu",
 		"status": "awaiting_reactions",
 		"winner_seats": [],
@@ -3402,6 +3488,7 @@ func _start_add_gang(seat: int, selected_option: Dictionary = {}) -> bool:
 		"source_seat": seat,
 		"tile": gang_tile.duplicate(true),
 		"reaction_type": "qiang_gang_hu",
+		"gang_score_eligible": bool(pending_qiang_gang_context["score_eligible"]),
 		"winner_seats": [],
 	}
 	pending_reactions = _build_qiang_gang_hu_candidates(seat, gang_tile)
@@ -3557,6 +3644,8 @@ func _record_ai_metric(key: String, amount: int = 1) -> void:
 
 
 func _record_ai_mechanism_event(reason_code: String, seat: int, tile_type: int, decision: Dictionary) -> void:
+	if not _is_runtime_recording_enabled():
+		return
 	var csharp_result: Dictionary = decision.get("analysis", {}).get("csharp_result", {})
 	var player: Dictionary = players[seat] if seat >= 0 and seat < players.size() else {}
 	ai_mechanism_events.append({
@@ -4053,6 +4142,8 @@ func _phase_debug_name(phase_value: int) -> String:
 
 
 func _find_all_add_gang_options(seat: int) -> Array:
+	if not _is_added_gang_turn(seat):
+		return []
 	var results: Array = []
 	if wall_count <= 0 or wall.is_empty():
 		return results
@@ -4062,7 +4153,7 @@ func _find_all_add_gang_options(seat: int) -> Array:
 	var melds: Array = players[seat]["melds"]
 	for meld_index in range(melds.size()):
 		var meld: Dictionary = melds[meld_index]
-		if meld.get("type", "") != "peng":
+		if meld.get("type", "") != "peng" or bool(meld.get("added_gang_blocked_until_own_draw", false)):
 			continue
 		var meld_tiles: Array = meld.get("tiles", [])
 		if meld_tiles.is_empty():
@@ -4079,9 +4170,24 @@ func _find_all_add_gang_options(seat: int) -> Array:
 						"meld_index": meld_index,
 						"tile": hand_tile.duplicate(true),
 						"source_seat": int(meld.get("from_seat", seat)),
+						"score_eligible": _is_drawn_add_gang_tile(seat, hand_tile),
 					}
 				)
 	return results
+
+
+func _is_added_gang_turn(seat: int) -> bool:
+	return current_phase == RoundPhase.DISCARD and current_turn_seat == seat \
+		and seat >= 0 and seat < players.size() and not bool(players[seat].get("has_won", false)) \
+		and int(last_draw_tile.get("seat", -1)) == seat and not last_draw_tile.get("tile", {}).is_empty()
+
+
+func _is_drawn_add_gang_tile(seat: int, tile: Dictionary) -> bool:
+	# 本次摸到第四张并立即补杠才收分；旧第四张只能在后续摸牌回合零分补杠。
+	if last_draw_tile.is_empty() or int(last_draw_tile.get("seat", -1)) != seat:
+		return false
+	var drawn_tile: Dictionary = last_draw_tile.get("tile", {})
+	return int(drawn_tile.get("id", -1)) == int(tile.get("id", -2))
 
 
 func _find_all_an_gang_options(seat: int) -> Array:
@@ -4149,10 +4255,11 @@ func _finalize_add_gang_without_qiang() -> bool:
 		"source_seat": int(pending_qiang_gang_context.get("source_seat", seat)),
 		"tile": tile.duplicate(true),
 		"gang_type": "add_gang",
+		"score_eligible": bool(pending_qiang_gang_context.get("score_eligible", false)),
 		"resolved": false,
 	}
-	_append_settlement_gang_event(seat, int(pending_qiang_gang_context.get("source_seat", seat)), tile, "add_gang", _get_active_non_winner_seats_excluding(seat))
-	_append_ai_public_event("added_gang", seat, tile, int(pending_qiang_gang_context.get("source_seat", seat)))
+	_append_settlement_gang_event(seat, int(pending_qiang_gang_context.get("source_seat", seat)), tile, "add_gang", _get_active_non_winner_seats_excluding(seat), bool(pending_qiang_gang_context.get("score_eligible", false)))
+	_append_ai_public_event("added_gang", seat, tile, int(pending_qiang_gang_context.get("source_seat", seat)), "unknown", {"gang_score_eligible": bool(pending_qiang_gang_context.get("score_eligible", false))})
 	_clear_reaction_context()
 	pending_qiang_gang_context.clear()
 	current_turn_seat = seat
@@ -4201,6 +4308,7 @@ func _execute_peng(seat: int) -> bool:
 	_clear_pending_ai_async_state()
 	var source_seat: int = current_discard_context["source_seat"]
 	var discarded_tile: Dictionary = current_discard_context["tile"]
+	var refusal_legal: Dictionary = _get_reaction_candidate_for_seat(seat).duplicate(true)
 	# Ding-que blocks claiming the missing suit itself, but not other suits.
 	if _is_ding_que_tile_for_seat(seat, discarded_tile):
 		debug_last_message = "%s 定缺 %s，不能碰 %s。" % [
@@ -4217,6 +4325,7 @@ func _execute_peng(seat: int) -> bool:
 	players[seat]["melds"].append(
 		{
 			"type": "peng",
+			"added_gang_blocked_until_own_draw": true,
 			"from_seat": source_seat,
 			"tiles": [
 				claimed_pair[0],
@@ -4225,7 +4334,7 @@ func _execute_peng(seat: int) -> bool:
 			],
 		}
 	)
-	_append_ai_public_event("peng", seat, discarded_tile, source_seat)
+	_append_ai_public_event("peng", seat, discarded_tile, source_seat, "unknown", refusal_legal)
 	current_turn_seat = seat
 	current_phase = RoundPhase.DISCARD
 	last_draw_tile = {}
@@ -4251,6 +4360,7 @@ func _execute_gang(seat: int) -> bool:
 	_clear_pending_ai_async_state()
 	var source_seat: int = current_discard_context["source_seat"]
 	var discarded_tile: Dictionary = current_discard_context["tile"]
+	var refusal_legal: Dictionary = _get_reaction_candidate_for_seat(seat).duplicate(true)
 	# Ding-que blocks claiming the missing suit itself, but not other suits.
 	if _is_ding_que_tile_for_seat(seat, discarded_tile):
 		return false
@@ -4268,7 +4378,7 @@ func _execute_gang(seat: int) -> bool:
 			"tiles": meld_tiles,
 		}
 	)
-	_append_ai_public_event("melded_gang", seat, discarded_tile, source_seat)
+	_append_ai_public_event("melded_gang", seat, discarded_tile, source_seat, "unknown", refusal_legal)
 	current_turn_seat = seat
 	_clear_reaction_context()
 	last_gang_context = {
@@ -4508,6 +4618,7 @@ func _pass_ai_reaction(seat: int) -> bool:
 	var candidate: Dictionary = _get_reaction_candidate_for_seat(seat)
 	if not candidate.is_empty():
 		_record_reaction_pass_evidence(seat, candidate)
+		_apply_passed_hu_lock_if_needed(seat, candidate)
 	_remove_reaction_candidate_for_seat(seat)
 	debug_last_message = "AI seat %d passed. Remaining reactions: %s" % [
 		seat,
@@ -4776,8 +4887,10 @@ func _contains_ding_que_tiles(player: Dictionary) -> bool:
 
 func _build_tui_gang_refunds(ting_seats: Array, no_ting_seats: Array, hua_zhu_seats: Array) -> Array:
 	var refunds: Array = []
-	# 本规则集的杠钱独立即时结算，流局不退税。
+	# 杠钱先即时结算；流局未听（含花猪）退回尚未转移的原杠收入。
 	if rules == null or not bool(rules.enable_tui_shui):
+		return refunds
+	if str(settlement_data.get("end_reason", "")) != "draw_wall_empty":
 		return refunds
 	if no_ting_seats.is_empty() and hua_zhu_seats.is_empty():
 		return refunds
@@ -4789,15 +4902,20 @@ func _build_tui_gang_refunds(ting_seats: Array, no_ting_seats: Array, hua_zhu_se
 		refund_actor_seats[int(seat)] = true
 
 	for event in settlement_data.get("gang_events", []):
+		if not bool(event.get("score_eligible", true)):
+			continue
 		var outcome: String = str(event.get("related_outcome", ""))
 		if outcome != "":
 			continue
 		var actor_seat: int = int(event.get("actor_seat", -1))
 		if not refund_actor_seats.has(actor_seat):
 			continue
+		if ting_seats.has(actor_seat) or (actor_seat >= 0 and actor_seat < players.size() and bool(players[actor_seat].get("has_won", false))):
+			continue
 		refunds.append(
 			{
 				"actor_seat": actor_seat,
+				"source_seat": int(event.get("source_seat", -1)),
 				"gang_type": str(event.get("gang_type", "")),
 				"payer_seats": event.get("payer_seats", []).duplicate(),
 				"refund_reason": "draw_tui_gang",
@@ -4882,7 +5000,7 @@ func _create_empty_settlement_data() -> Dictionary:
 		"notes": [
 			"胡牌分按底分×2^番数计算，累计最高 4 番；自摸每家固定另加 1 底分。",
 			"杠钱独立即时结算且不受封顶限制；杠上炮时该次全部杠钱从开杠者转给胡牌者。",
-			"流局执行花猪与查大叫；本规则集无海底捞月加番、无流局退税。",
+			"流局执行花猪与查大叫；未听者退回原杠钱，已呼叫转移的杠钱不重复退还；无海底捞月加番。",
 		],
 		"pending_features": [],
 		"summary_text": "",
@@ -4907,13 +5025,14 @@ func _append_settlement_win_event(winner_seat: int, source_seat: int, winning_ti
 	_rebuild_settlement_summary()
 
 
-func _append_settlement_gang_event(actor_seat: int, source_seat: int, tile: Dictionary, gang_type: String, payer_seats: Array) -> void:
+func _append_settlement_gang_event(actor_seat: int, source_seat: int, tile: Dictionary, gang_type: String, payer_seats: Array, score_eligible: bool = true) -> void:
 	var events: Array = settlement_data.get("gang_events", [])
 	var event := {
 		"actor_seat": actor_seat,
 		"source_seat": source_seat,
 		"tile": tile.duplicate(true),
 		"gang_type": gang_type,
+		"score_eligible": score_eligible,
 		"related_outcome": "",
 		"payer_seats": payer_seats.duplicate(),
 	}
@@ -4989,7 +5108,6 @@ func _append_transfer_event(from_seat: int, to_seat: int, tile: Dictionary, tran
 func _append_hu_jiao_zhuan_yi_event(from_seat: int, to_seat: int, tile: Dictionary) -> void:
 	var gang_event := _find_latest_transferable_gang_event(from_seat)
 	if gang_event.is_empty():
-		_append_transfer_event(from_seat, to_seat, tile, "hu_jiao_zhuan_yi", "杠后打出的补牌被胡，按呼叫转移处理。")
 		return
 	var events: Array = settlement_data.get("transfer_events", [])
 	var event := {
@@ -5139,6 +5257,8 @@ func _rebuild_settlement_summary() -> void:
 			var gang_type: String = str(event.get("gang_type", "melded_gang"))
 			var outcome: String = str(event.get("related_outcome", ""))
 			var line := "杠事件：%s %s %s" % [_seat_display_name(actor_seat), _gang_type_display_name(gang_type), tile_name]
+			if gang_type == "add_gang" and not bool(event.get("score_eligible", true)):
+				line += "（手上第四张，不计杠分）"
 			if source_seat != actor_seat and source_seat != -1:
 				line += "（来自 %s）" % _seat_display_name(source_seat)
 			if outcome != "":
@@ -5308,22 +5428,46 @@ func _is_hell_challenge_mode() -> bool:
 		and bool(ai_tuning_config.hell_ai_can_see_wall)
 
 
+# An explicit desktop research session may keep every recorder outside the
+# workspace. Environment configuration alone never enables recording.
+func _research_recording_path(default_path: String) -> String:
+	if research_recording_enabled and _is_runtime_recording_enabled():
+		var research_root := OS.get_environment("SICHUAN_RESEARCH_RECORD_ROOT")
+		if not research_root.is_empty():
+			return research_root.path_join(default_path.get_file())
+	return default_path
+
+
 func _is_ai_analysis_recording_enabled() -> bool:
 	if not _is_runtime_recording_enabled():
 		return false
-	return AI_ANALYSIS_RECORDING_ENABLED or _is_debug_training_recording_enabled()
+	return research_recording_enabled or AI_ANALYSIS_RECORDING_ENABLED or _is_debug_training_recording_enabled()
 
 
 func _is_ai_chain_debug_enabled() -> bool:
-	return AI_CHAIN_DEBUG_ENABLED or _is_ai_analysis_recording_enabled()
+	return _is_runtime_recording_enabled() and (AI_CHAIN_DEBUG_ENABLED or _is_ai_analysis_recording_enabled())
 
 
 func _is_diagnostic_export_enabled() -> bool:
-	return DIAGNOSTIC_EXPORT_ENABLED or _is_ai_analysis_recording_enabled()
+	return _is_runtime_recording_enabled() and (DIAGNOSTIC_EXPORT_ENABLED or _is_ai_analysis_recording_enabled())
+
+
+func set_research_recording_enabled(enabled: bool) -> void:
+	if enabled and (not OS.is_debug_build() or OS.has_feature("ios") or OS.has_feature("android") or OS.has_feature("web")):
+		push_error("Research recording requires a desktop debug build")
+		return
+	if ai_agents_started:
+		push_error("Change research recording between rounds")
+		return
+	if ai_manager.native_csharp_runtime != null:
+		ai_manager.native_csharp_runtime.set("DecisionAuditEnabled", enabled)
+	research_recording_enabled = enabled
 
 
 func _is_runtime_recording_enabled() -> bool:
-	return AI_ANALYSIS_RECORDING_ENABLED \
+	if not OS.is_debug_build() or OS.has_feature("ios") or OS.has_feature("android") or OS.has_feature("web"):
+		return false
+	return research_recording_enabled or AI_ANALYSIS_RECORDING_ENABLED \
 		or _is_debug_training_recording_enabled() \
 		or AI_LEARNING_RECORDING_ENABLED \
 		or AI_SHADOW_RECORDING_ENABLED \
@@ -5403,8 +5547,8 @@ func _ensure_ai_analysis_session() -> void:
 		"session_id": ai_analysis_session_id,
 		"created_at": Time.get_datetime_string_from_system(),
 		"app_version": str(ProjectSettings.get_setting("application/config/version", "")),
-		"recording_dir": AI_ANALYSIS_DIR,
-		"recording_dir_absolute": ProjectSettings.globalize_path(AI_ANALYSIS_DIR),
+		"recording_dir": _research_recording_path(AI_ANALYSIS_DIR),
+		"recording_dir_absolute": ProjectSettings.globalize_path(_research_recording_path(AI_ANALYSIS_DIR)),
 		"events_path": _ai_analysis_events_path(),
 		"events_path_absolute": ProjectSettings.globalize_path(_ai_analysis_events_path()),
 		"hell_training_dir": HELL_TRAINING_DIR,
@@ -5420,7 +5564,7 @@ func _ensure_ai_analysis_output_dirs() -> void:
 
 
 func _ai_analysis_session_dir() -> String:
-	return "%s/%s" % [AI_ANALYSIS_DIR, ai_analysis_session_id if not ai_analysis_session_id.is_empty() else "pending"]
+	return "%s/%s" % [_research_recording_path(AI_ANALYSIS_DIR), ai_analysis_session_id if not ai_analysis_session_id.is_empty() else "pending"]
 
 
 func _ai_analysis_session_path() -> String:
@@ -5502,7 +5646,7 @@ func _write_ai_analysis_summary() -> void:
 
 
 func _is_debug_decision_trace_enabled() -> bool:
-	return AI_SHADOW_RECORDING_ENABLED or _is_ai_analysis_recording_enabled()
+	return _is_runtime_recording_enabled() and (research_recording_enabled or AI_SHADOW_RECORDING_ENABLED or _is_ai_analysis_recording_enabled())
 
 
 func _ensure_debug_decision_trace_session() -> void:
@@ -5521,8 +5665,8 @@ func _ensure_debug_decision_trace_session() -> void:
 		"session_id": debug_decision_trace_session_id,
 		"created_at": Time.get_datetime_string_from_system(),
 		"app_version": str(ProjectSettings.get_setting("application/config/version", "")),
-		"recording_dir": DEBUG_DECISION_TRACE_DIR,
-		"recording_dir_absolute": ProjectSettings.globalize_path(DEBUG_DECISION_TRACE_DIR),
+		"recording_dir": _research_recording_path(DEBUG_DECISION_TRACE_DIR),
+		"recording_dir_absolute": ProjectSettings.globalize_path(_research_recording_path(DEBUG_DECISION_TRACE_DIR)),
 		"events_path": _debug_decision_trace_events_path(),
 		"events_path_absolute": ProjectSettings.globalize_path(_debug_decision_trace_events_path()),
 		"package_name": str(ProjectSettings.get_setting("application/config/name", "")),
@@ -5537,7 +5681,7 @@ func _ensure_debug_decision_trace_output_dirs() -> void:
 
 
 func _prune_debug_decision_trace_sessions() -> void:
-	var root := ProjectSettings.globalize_path(DEBUG_DECISION_TRACE_DIR)
+	var root := ProjectSettings.globalize_path(_research_recording_path(DEBUG_DECISION_TRACE_DIR))
 	DirAccess.make_dir_recursive_absolute(root)
 	var sessions := DirAccess.get_directories_at(root)
 	sessions.sort()
@@ -5553,7 +5697,7 @@ func _prune_debug_decision_trace_sessions() -> void:
 
 
 func _debug_decision_trace_session_dir() -> String:
-	return "%s/%s" % [DEBUG_DECISION_TRACE_DIR, debug_decision_trace_session_id if not debug_decision_trace_session_id.is_empty() else "pending"]
+	return "%s/%s" % [_research_recording_path(DEBUG_DECISION_TRACE_DIR), debug_decision_trace_session_id if not debug_decision_trace_session_id.is_empty() else "pending"]
 
 
 func _debug_decision_trace_session_path() -> String:
@@ -5945,7 +6089,8 @@ func _ai_turn_state_signature(seat: int) -> String:
 	if seat < 0 or seat >= players.size():
 		return ""
 	var player: Dictionary = players[seat]
-	return "r=%d|ph=%d|turn=%d|dealer=%d|wall=%d|hand=%s|draw=%s|pub=%s|pass=%s" % [
+	return "id=%s|r=%d|ph=%d|turn=%d|dealer=%d|wall=%d|hand=%s|draw=%s|pub=%s|pass=%s" % [
+		ai_agent_round_id,
 		round_index,
 		int(current_phase),
 		current_turn_seat,
@@ -6439,6 +6584,8 @@ func _find_latest_transferable_gang_event(actor_seat: int) -> Dictionary:
 		var event: Dictionary = events[index]
 		if int(event.get("actor_seat", -1)) != actor_seat:
 			continue
+		if not bool(event.get("score_eligible", true)):
+			return {}
 		return event
 	return {}
 
@@ -6463,3 +6610,7 @@ func _create_player_stub(seat: int, nickname: String, is_ai: bool) -> Dictionary
 		"melds": [],
 		"discards": [],
 	}
+
+
+func _exit_tree() -> void:
+	_end_round_agents()

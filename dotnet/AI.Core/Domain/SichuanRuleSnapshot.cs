@@ -13,10 +13,10 @@ public sealed record SichuanRuleSnapshot(
     bool MultipleWinners = true,
     bool EnableChaJiao = true,
     bool EnableHuaZhu = true,
-    bool EnableGangRefund = false,
+    bool EnableGangRefund = true,
     bool EnableHuJiaoTransfer = true,
     bool EnableRobAddedGang = true)
 {
-    public const string Version = "sichuan-v2-score-20260723";
+    public const string Version = "sichuan-v2-rule-20261018-deferred-added-gang";
     public static SichuanRuleSnapshot Frozen { get; } = new();
 }

@@ -14,8 +14,10 @@ internal sealed class SichuanCriticalContinuationSelector
     private readonly SichuanPublicEndgameEvaluator _evaluator = new();
 
     public (int Tile, string Reason)? Select(SichuanStateView state,
-        IReadOnlyList<SichuanCandidateDetail> candidates, int incumbent)
+        IReadOnlyList<SichuanCandidateDetail> candidates, int incumbent, out int samples)
     {
+        SichuanPolicyExecutionScope.RequireResearchContext();
+        samples = 0;
         var maximumWall = Strategy.SichuanSingleLaneEvaluator.ResolveSuit(state) >= 0 ? 20 : 12;
         if (state.InformationMode != "public" || state.WallCount < 1 || state.WallCount > maximumWall
             || candidates.Count < 2 || incumbent < 0) return Reject("outside_scope");
@@ -29,12 +31,14 @@ internal sealed class SichuanCriticalContinuationSelector
         // for the effective sample size, not just the requested sample count.
         var discovery = _evaluator.AnalyzeContinuation(state, choices, maximumWall, 32,
             20260928 ^ state.RoundIndex ^ state.TurnIndex, includeUnready: true);
+        samples += discovery.ParticleCount;
         if (discovery.EffectiveSampleSize < 16) return Reject("discovery_" + discovery.Status);
         var contender = discovery.Comparisons.Where(c => c.TileType != incumbent)
             .OrderByDescending(c => c.MeanNetDifference).FirstOrDefault();
         if (contender is null || contender.MeanNetDifference <= Math.Max(0.25, 2.4*contender.StandardError)) return Reject("discovery_no_advantage");
         var confirmation = _evaluator.AnalyzeContinuation(state, new[] {incumbent, contender.TileType}, maximumWall, 48,
             7919 ^ state.RoundIndex ^ state.TurnIndex, includeUnready: true);
+        samples += confirmation.ParticleCount;
         var paired = confirmation.Comparisons.FirstOrDefault(c => c.TileType == contender.TileType);
         if (confirmation.EffectiveSampleSize < 24 || paired is null
             || paired.MeanNetDifference <= Math.Max(0.25, 2.4*paired.StandardError)) return Reject("confirmation_no_advantage");

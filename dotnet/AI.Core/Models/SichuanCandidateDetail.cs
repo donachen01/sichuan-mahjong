@@ -36,6 +36,9 @@ public sealed class SichuanCandidateDetail
     public double ExpectedReadyValue { get; init; }
     public double PosteriorAdjustment { get; init; }
     public double DefenseAdjustment { get; init; }
+    public double AppliedExtraDefenseWeight { get; init; }
+    public double WeightedExtraDefenseCost { get; init; }
+    public int PublicThreatEvidenceLevel { get; init; }
     public double DefenseTempoAdjustment { get; init; }
     public int GoodShapeCount { get; init; }
     public int BadShapeCount { get; init; }
@@ -45,9 +48,24 @@ public sealed class SichuanCandidateDetail
     public double ClassicPatternScore { get; init; }
     public int MiddleTileFlexibility { get; init; }
     public double ShapeScore { get; init; }
+    public bool BucketSupported { get; set; }
+    public int BucketContinuationSamples { get; set; }
+    public string BucketContinuationStatus { get; set; } = string.Empty;
+    public double BucketContinuationEffectiveSamples { get; set; }
+    public double BucketContinuationNet { get; set; }
+    public double BucketContinuationPeng { get; set; }
+    public double BucketContinuationStandardError { get; set; }
+    public double BucketWeakestCompletionMass { get; set; }
+    public double BucketNextCompletionMass { get; set; }
+    public double BucketTotalImprovementMass { get; set; }
+    public int BucketCapacityOverflow { get; set; }
+    public int BucketWeakestTileA { get; set; } = -1;
+    public int BucketWeakestTileB { get; set; } = -1;
     public bool BreaksPair { get; init; }
     public bool BreaksTriplet { get; init; }
     public double SetPreservationScore { get; init; }
+    public double IsolatedDiscardPriority { get; init; }
+    public double IsolatedRetentionValue { get; init; }
     public string WaitShapeLabel { get; init; } = string.Empty;
     public double WaitShapeScore { get; init; }
     public int RyanmenWaitCount { get; init; }

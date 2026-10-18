@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.86 - 2026-10-18
+
+- 手机端启用基于重力传感器的自动屏幕旋转，Android 与 iOS 均使用 Sensor orientation。
+- 按最新四川麻将 AI 代码升级版本；iOS 真机工程已导出并安装启动，Android Release 使用 Godot 内置模板生成签名 APK。
+
+## 2.6.85 - 2026-10-16
+
+- 统一升级应用与 Android 构建元数据，Android 构建号为 345。
+- 重新生成 Android Release APK 与 iOS 个人开发者签名包；iOS 包安装到 dona 的 iPhone 进行启动验证。
+
 ## 2.6.83 - 2026-09-28
 
 - 修复 AI 观察座位串缓存、公开牌和暗手守恒、已胡退出者占牌及一炮多响计数；极尾盘模拟按真实牌墙耗尽结算。

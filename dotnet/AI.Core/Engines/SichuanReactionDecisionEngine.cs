@@ -14,6 +14,7 @@ public sealed class SichuanReactionDecisionEngine
 	private readonly SichuanRoutePlanEngine _routePlan = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
 	private readonly SichuanMeldCounterfactualEvaluator _meldCounterfactual = new();
+    private readonly SichuanReadyWaitPricing _readyPrices = new();
     private const int ReactionSearchDepth = 2;
     private const int ReactionSearchRollouts = 24;
 
@@ -29,28 +30,38 @@ public sealed class SichuanReactionDecisionEngine
         bool mandatoryGang = false,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
         if (canHu)
         {
-			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain);
+			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain, canGang);
 			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
 			var actionScores = comparison.Candidates.ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),
 				candidate => (int)Math.Round(candidate.ExpectedNetScore * 1000.0));
 			var selectedScore = actionScores[selected.Action.ActionType.ToString().ToLowerInvariant()];
+            if (comparison.LocalReaction is { } claim)
+            {
+                claim.Action = claim.Action with { Score = selectedScore, Reason = comparison.Summary };
+                claim.Reasons = comparison.Reasons.Concat(claim.Reasons).Distinct().ToArray();
+                claim.ValueCandidates = comparison.Candidates;
+                claim.ActionScores = actionScores;
+                return claim;
+            }
             return new SichuanReactionDecisionResult
             {
 				Action = new SichuanAction(selected.Action.ActionType, reactionTileType, selectedScore, comparison.Summary),
 				ShantenAfter = selected.Action.ActionType == SichuanActionType.Hu ? -1 : 0,
 				CurrentShanten = 0,
 				Reasons = comparison.Reasons,
+                ValueCandidates = comparison.Candidates,
                 ActionScores = actionScores
             };
         }
 
         var belief = _belief.Build(state);
 		var wallAvailability = _wall.Build(state, belief);
-        var roundStage = ResolveRoundStage(state);
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
-		var currentFollowUp = EvaluateWaitingFollowUp(state.Hand18, wallAvailability, meldCount);
+        var roundStage = new SichuanStageEvaluator().Evaluate(state, belief).StageIndex;
+        var meldCount = state.OwnMeldCount;
+		var currentFollowUp = EvaluateWaitingFollowUp(state, wallAvailability, meldCount);
         var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
         var threatLevel = ResolveThreatLevel(state, belief);
@@ -73,6 +84,7 @@ public sealed class SichuanReactionDecisionEngine
             RoundStage = roundStage,
             MaxReadyPosterior = maxReadyPosterior,
             Reasons = BuildPassReasons(currentFollowUp, roundStage, threatLevel, maxReadyPosterior)
+                .Append("CONTINUATION_LEGAL_READY_CONTEXT")
                 .Concat(BuildRouteProtectionPassReasons(state, currentPlan))
                 .Concat(currentPlan.Reasons)
                 .ToArray(),
@@ -89,10 +101,12 @@ public sealed class SichuanReactionDecisionEngine
 
         if (canPeng && reactionTileType is >= 0 and < 27 && state.Hand18[reactionTileType] >= 2)
         {
-            var pengResult = EvaluatePeng(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, roundBrain);
+            var pengResult = EvaluatePeng(state, belief, reactionTileType, currentFollowUp, currentPlan, roundStage, threatLevel, maxReadyPosterior, roundBrain, sourceSeat, forceLightweight);
             scores["peng"] = pengResult.Action.Score;
             var pengSearchHand = RemoveCopies(state.Hand18, reactionTileType, 2);
-			var pengImmediateDiscard = EvaluateBestFollowUp(pengSearchHand, wallAvailability.RepresentativeCounts18, meldCount + 1).BestDiscardTile;
+			var pengImmediateDiscard = state.InformationMode == "oracle"
+                ? EvaluateBestFollowUp(pengSearchHand, wallAvailability.RepresentativeCounts18, meldCount + 1).BestDiscardTile
+                : pengResult.PlannedDiscardTile;
             if (pengImmediateDiscard >= 0)
                 pengSearchHand = RemoveCopies(pengSearchHand, pengImmediateDiscard, 1);
 			candidates.Add(("peng", pengResult, pengSearchHand, meldCount + 1, SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)));
@@ -124,30 +138,28 @@ public sealed class SichuanReactionDecisionEngine
 			canPeng,
 			canGang,
 			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
-			belief: belief);
+			belief: belief,
+            pengDiscardTile: candidates.FirstOrDefault(item => item.action == "peng").result?.PlannedDiscardTile ?? -1,
+            gangSourceSeat:sourceSeat);
 		foreach (var unifiedCandidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
 		{
 			var key = unifiedCandidate.Action.ActionType.ToString().ToLowerInvariant();
 			if (!scores.ContainsKey(key) || scores[key] <= int.MinValue / 8) continue;
-			var commonValueScore = (int)Math.Round(Math.Clamp(unifiedCandidate.ExpectedNetScore, -20, 20) * 100.0);
+			var commonValueScore = (int)Math.Round(Math.Clamp(unifiedCandidate.ExpectedNetScore, -1000000, 1000000) * 100.0);
 			for (var index = 0; index < candidates.Count; index++)
 			{
 				if (candidates[index].action != key) continue;
 				var item = candidates[index];
 				var legacyDiagnostic = Math.Clamp(item.result.Action.Score, -40, 40);
-				var continuityPenalty = key == "peng" && roundBrain?.WasTripletBroken(reactionTileType) == true ? 1200 : 0;
-				var preservesFivePairRoute = key != "pass"
-					&& item.result.Reasons.Any(reason => reason.Contains("五对以上门清牌不", StringComparison.Ordinal));
-				var routePenalty = key != "pass" && currentPlan.ForbidsMelds
-					? 1200
-					: preservesFivePairRoute ? 1200 : 0;
-				var score = commonValueScore - continuityPenalty - routePenalty;
+                // Route loss is already inside the counterfactual value. A previous
+                // discard is evidence, not a second irreversible financial penalty.
+                var score = commonValueScore;
 				item.result.Action = item.result.Action with { Score = score };
 				item.result.Reasons = item.result.Reasons.Concat(new[]
 				{
 					$"统一动作净值 {unifiedCandidate.ExpectedNetScore:F2}",
 					$"旧启发式仅作诊断 {legacyDiagnostic:+#;-#;0}，不参与选择"
-				}).ToArray();
+                }).Concat(unifiedCandidate.ReasonCodes).Distinct().ToArray();
 				candidates[index] = item;
 				scores[key] = score;
 				break;
@@ -155,7 +167,13 @@ public sealed class SichuanReactionDecisionEngine
 		}
         best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
 
-        if (!forceLightweight && ShouldSearchReaction(candidates))
+        // Fair live interfaces share this fixed-count, two-own-draw search.
+        // Omitting it in mobile/lightweight mode could change Peng vs Pass
+        // for the identical public state. The separate oracle mode keeps its
+        // existing lightweight boundary.
+        if ((state.InformationMode == "public" || !forceLightweight)
+            && candidates.All(c => c.result.PlannedSelfAction.Length == 0)
+            && ShouldSearchReaction(candidates))
         {
             var simulations = 0;
 			var bonusMap = EvaluateReactionSearchBonuses(state, belief, candidates, ref simulations);
@@ -169,6 +187,7 @@ public sealed class SichuanReactionDecisionEngine
                 item.result.Action = item.result.Action with { Score = item.result.Action.Score + (int)Math.Round(bonus * 100.0) };
                 var mergedReasons = item.result.Reasons.ToList();
                 mergedReasons.Add($"短搜索修正 {bonus:F2}");
+                if(state.InformationMode=="public")mergedReasons.Add("PUBLIC_REACTION_SHARED_BOUNDED_SEARCH");
                 item.result.Reasons = mergedReasons;
                 candidates[index] = item;
                 scores[item.action] = item.result.Action.Score;
@@ -179,12 +198,95 @@ public sealed class SichuanReactionDecisionEngine
                 .First();
         }
 
+        // 3.2 exception: an early four-pair hand with two live opponents
+        // missing the same suit can have a real big-pair / Jin-Gou route.
+        // The ordinary speed score otherwise keeps passing the useful claim
+        // whenever Peng does not shorten shanten.  This is deliberately
+        // narrow: it requires public ding-que evidence, enough pairs, an
+        // early stage, and a legal post-claim continuation.
+        var pairRouteException = HasPairRouteException(state, currentFollowUp, currentPlan, roundStage);
+        var pairRoutePengIndex = candidates.FindIndex(item => item.action == "peng");
+        if (pairRouteException && pairRoutePengIndex >= 0)
+        {
+            var item = candidates[pairRoutePengIndex];
+            if (item.result.PlannedDiscardTile >= 0
+                && item.result.ShantenAfter <= currentFollowUp.Shanten)
+            {
+                var passScoreForRoute = candidates.First(candidate => candidate.action == "pass").result.Action.Score;
+                var routeScore = Math.Max(item.result.Action.Score, passScoreForRoute + 72);
+                item.result.Action = item.result.Action with { Score = routeScore };
+                item.result.Reasons = item.result.Reasons.Concat(new[] {
+                    "3.2对子路线例外：四对以上＋两家同缺一门，碰后保留对对和/金钩路线",
+                    "3.2尊杠机会仅作为条件收益，已与碰后结构和速度共同比较"
+                }).Distinct().ToArray();
+                candidates[pairRoutePengIndex] = item;
+                scores["peng"] = routeScore;
+                best = item.result;
+            }
+        }
+
+        // Embedded pairs that leave only edge fragments (or a broken gap)
+        // are the other half of 3.2.  The normal distance metric can count
+        // the newly exposed meld as progress even when the useful remaining
+        // shape is no better.  In the early public decision stage, preserve
+        // the pass when no strong pair-route exception is present.
+        if (!pairRouteException
+            && best.Action.ActionType == SichuanActionType.Peng
+            && IsWeakEmbeddedPairPeng(state, reactionTileType, roundStage))
+        {
+            var pass = candidates.First(candidate => candidate.action == "pass").result;
+            pass.Reasons = pass.Reasons.Concat(new[] {
+                "3.2嵌入对子：碰后只剩边张/残破间隔，未形成有效两面或坎张，保留抢和路线"
+            }).Distinct().ToArray();
+            best = pass;
+        }
+
+        // The positive mirror of the rule above: when the embedded pair is
+        // the only pair in its suit and the claim leaves a genuine internal
+        // two-sided/kanchan block, preserve the source's early useful-Peng
+        // decision even if public-copy pricing makes the raw counterfactual
+        // slightly pessimistic.  The four-pair/two-opponent exception above
+        // handles the separate 3-5 route; this branch does not apply to a
+        // same-suit second pair such as 1223347.
+        if (!currentPlan.ForbidsMelds
+            && best.Action.ActionType == SichuanActionType.Pass
+            && IsStrongEmbeddedPairPeng(state, reactionTileType, roundStage))
+        {
+            var pengIndex = candidates.FindIndex(item => item.action == "peng");
+            if (pengIndex >= 0)
+            {
+                var item = candidates[pengIndex];
+                var passScoreForPositive = candidates.First(candidate => candidate.action == "pass").result.Action.Score;
+                if (item.result.PlannedDiscardTile >= 0 && item.result.ShantenAfter <= currentFollowUp.Shanten)
+                {
+                    var score = Math.Max(item.result.Action.Score, passScoreForPositive + 72);
+                    item.result.Action = item.result.Action with { Score = score };
+                    item.result.Reasons = item.result.Reasons.Concat(new[] {
+                        "3.2嵌入对子：碰后形成有效两面/坎张，局部结构实际改善"
+                    }).Distinct().ToArray();
+                    candidates[pengIndex] = item;
+                    scores["peng"] = score;
+                    best = item.result;
+                }
+            }
+        }
+
 		var finalPengCandidate = candidates.FirstOrDefault(item => item.action == "peng");
+        var pengStructure = state.InformationMode != "oracle" && finalPengCandidate.result is { PlannedDiscardTile: >= 0 }
+            ? Decision.SichuanPengStructureComparison.Build(state, reactionTileType, finalPengCandidate.result.PlannedDiscardTile) : null;
+        var pengDevelopment = finalPengCandidate.result is { PlannedDiscardTile: >= 0 }
+            ? new SichuanDevelopmentPolicy().EvaluatePeng(state,reactionTileType,finalPengCandidate.result.PlannedDiscardTile) : null;
+        if (pengDevelopment is not null && finalPengCandidate.result is not null)
+            finalPengCandidate.result.Reasons = finalPengCandidate.result.Reasons.Concat(pengDevelopment.Reasons).ToArray();
         var passCandidate = candidates.First(item => item.action == "pass").result;
-        if (best.Action.ActionType == SichuanActionType.Peng && finalPengCandidate.result is not null)
+        if (best.Action.ActionType == SichuanActionType.Peng && finalPengCandidate.result is not null
+            && finalPengCandidate.result.PlannedSelfAction.Length == 0)
         {
             var peng = finalPengCandidate.result;
-            var noSpeedGain = peng.ShantenAfter >= currentFollowUp.Shanten && peng.ShantenAfter > 0;
+            var noSpeedGain = peng.ShantenAfter >= currentFollowUp.Shanten && peng.ShantenAfter > 0
+                && (pengStructure is null || (pengStructure.Peng.MissingTiles >= pengStructure.Pass.MissingTiles
+                    && pengStructure.Peng.LiveCopies <= pengStructure.Pass.LiveCopies
+                    && pengStructure.Peng.ImprovementCopies <= pengStructure.Pass.ImprovementCopies));
             var wideFlexibleBeforeCall = currentFollowUp.Shanten >= 2
                 && currentFollowUp.LiveUkeire >= 12
                 && peng.ShantenAfter > 0
@@ -202,7 +304,8 @@ public sealed class SichuanReactionDecisionEngine
 				&& currentFollowUp.LiveUkeire > 0;
 			var passWithinDecisionMargin = passCandidate.Action.Score >= peng.Action.Score - 45;
 			if (deadReadyAfterPeng
-				|| passWithinDecisionMargin && (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady))
+				|| passWithinDecisionMargin && pengDevelopment?.Improves != true
+                    && (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady))
             {
                 passCandidate.Reasons = passCandidate.Reasons
 					.Concat(new[] { deadReadyAfterPeng
@@ -211,6 +314,21 @@ public sealed class SichuanReactionDecisionEngine
                     .ToArray();
                 best = passCandidate;
             }
+        }
+
+        if (SichuanOpponentWideBedDefense.Applies(state))
+        {
+            foreach(var item in candidates.Where(c=>!c.result.OpponentWideBedDefenseAllowed))
+            {
+                item.result.Action=item.result.Action with{Score=int.MinValue/4};
+                scores[item.action]=item.result.Action.Score;
+            }
+            if(!best.OpponentWideBedDefenseAllowed)
+            {
+                best=candidates.First(c=>c.action=="pass").result;
+                best.Reasons=best.Reasons.Append("OPPONENT_WIDE_BED_AVOID_FORCED_RISK").ToArray();
+            }
+            best.Reasons=best.Reasons.Prepend(SichuanOpponentWideBedDefense.ActiveCode).ToArray();
         }
 
         var mandatoryGangCandidate = candidates.FirstOrDefault(item => item.action == "gang");
@@ -225,10 +343,18 @@ public sealed class SichuanReactionDecisionEngine
             best = mandatoryGangCandidate.result;
         }
 
+        best.ValueCandidates = unifiedMelds.Candidates;
         if (!scores.ContainsKey("peng")) scores["peng"] = int.MinValue / 4;
         if (!scores.ContainsKey("gang")) scores["gang"] = int.MinValue / 4;
 		best.Reasons = best.Reasons.Concat(new[] { "统一反事实层已参与全候选排序，最终动作服从规则、真实时序和连续大脑闸门" }).ToArray();
         best.ActionScores = new Dictionary<string, int>(scores);
+        best.PengStructure = pengStructure;
+        if (finalPengCandidate.result is not null)
+            best.FutureSummary = best.FutureSummary.Concat(new[] {
+                finalPengCandidate.result.PlannedSelfAction.Length > 0
+                    ? $"PENG_IMMEDIATE_{finalPengCandidate.result.PlannedSelfAction.ToUpperInvariant()}_{finalPengCandidate.result.PlannedSelfActionTile}"
+                    : $"PENG_PLANNED_DISCARD_{finalPengCandidate.result.PlannedDiscardTile}"
+            }).ToArray();
         return best;
     }
 
@@ -241,10 +367,20 @@ public sealed class SichuanReactionDecisionEngine
         int roundStage,
         int threatLevel,
         double maxReadyPosterior,
-        SichuanRoundBrainSnapshot? roundBrain)
+        SichuanRoundBrainSnapshot? roundBrain,
+        int sourceSeat,
+        bool forceLightweight)
     {
         var handAfter = RemoveCopies(state.Hand18, reactionTileType, 2);
-        var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
+        var meldCountAfter = state.OwnMeldCount + 1;
+        var plannedDiscard = -1;
+        if (state.InformationMode != "oracle")
+        {
+            var projectedState = SichuanUnifiedDecisionEngine.ProjectPengContinuation(state, handAfter, reactionTileType, sourceSeat);
+            plannedDiscard = new SichuanDecisionEngine().DecideDiscard(projectedState, forceLightweight, roundBrain).Action.TileType;
+            if (plannedDiscard is < 0 or >= 27 || handAfter[plannedDiscard] <= 0)
+                throw new InvalidOperationException("Peng continuation requires a legal discard from the current policy.");
+        }
 		var timing = _meldCounterfactual.Evaluate(
 			state,
 			"peng",
@@ -254,7 +390,28 @@ public sealed class SichuanReactionDecisionEngine
 			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
 			risk: 0,
 			gangGain: 0,
-			belief: belief);
+			belief: belief,
+            plannedDiscardTile: plannedDiscard, gangSourceSeat: sourceSeat);
+
+        if (timing.ImmediateSelfAction.Length > 0)
+        {
+            return new SichuanReactionDecisionResult
+            {
+                OpponentWideBedDefenseAllowed=SichuanOpponentWideBedDefense.SafeGang(state,belief,
+                    currentFollowUp.Shanten,currentFollowUp.LiveUkeire,timing),
+                Action = new SichuanAction(SichuanActionType.Peng, reactionTileType,
+                    (int)Math.Round(timing.Value * 100), "碰后按同一自家动作策略开杠，再按实际补牌决定弃牌"),
+                PlannedDiscardTile = -1, PlannedSelfAction = timing.ImmediateSelfAction,
+                PlannedSelfActionTile = timing.ImmediateSelfActionTile,
+                ShantenAfter = timing.Shanten, UkeireAfter = timing.LiveUkeire,
+                LiveUkeireAfter = timing.LiveUkeire, CurrentShanten = currentFollowUp.Shanten,
+                CurrentLiveUkeire = currentFollowUp.LiveUkeire, RoundStage = roundStage,
+                ThreatLevel = threatLevel, MaxReadyPosterior = maxReadyPosterior,
+                Reasons = new[] { "PENG_IMMEDIATE_SELF_ACTION_PRICED", "GANG_REPLACEMENT_PUBLIC_WALL_REBUILT",
+                    "碰后仅允许其他合法暗杠；本次碰牌的补杠须等待后续自己的正常摸牌回合" },
+                FutureSummary = new[] { timing.Transition }
+            };
+        }
 		var followUp = new FollowUpSummary(
 			timing.Shanten,
 			timing.LiveUkeire,
@@ -264,7 +421,7 @@ public sealed class SichuanReactionDecisionEngine
         var reDiscardsClaimedTile = followUp.BestDiscardTile == reactionTileType && followUp.BestDiscardTile >= 0;
         var currentPairCount = CountPairs(state.Hand18);
         var pairCountAfter = CountPairs(handAfter);
-        var currentMeldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var currentMeldCount = state.OwnMeldCount;
         var sevenPairsLikely = IsSevenPairsLikely(state.Hand18, currentMeldCount);
         var sevenPairsTenpai = IsSevenPairsTenpai(state.Hand18, currentMeldCount);
         var structureBoost = EstimatePengStructureBoost(
@@ -353,6 +510,7 @@ public sealed class SichuanReactionDecisionEngine
             reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止碰牌，碰牌会破坏七对");
         if (state.Hand18[reactionTileType] >= 3 && followUp.Shanten > 0)
             reasons.Add("持续大脑：手中已有暗刻，碰牌会放弃第四张明杠收益");
+        if (timing.ContinuationLegalContextApplied) reasons.Add("CONTINUATION_LEGAL_READY_CONTEXT");
         if (roundBrain?.WasTripletBroken(reactionTileType) == true)
             reasons.Add("持续大脑：此前主动拆过该暗刻，本次碰牌构成策略矛盾，强烈降权");
         if (sevenPairsLikely && currentPairCount >= 5)
@@ -383,9 +541,16 @@ public sealed class SichuanReactionDecisionEngine
         if (ShouldPassWideNoSpeedPeng(currentFollowUp, followUp, roundStage, maxReadyPosterior))
             reasons.Add("当前不碰也有宽进张，碰牌不降向听，优先保留门前弹性");
 
+        var defenseAllowed = !SichuanOpponentWideBedDefense.Applies(state)
+            || plannedDiscard>=0 && SichuanOpponentWideBedDefense.SafeClaim(currentFollowUp.Shanten,currentFollowUp.LiveUkeire,
+                followUp.Shanten,followUp.LiveUkeire,SichuanOpponentWideBedDefense.ReferenceDiscardRisk(state,belief),
+                _danger.Evaluate(plannedDiscard,state,belief));
+        if(!defenseAllowed)reasons.Add("OPPONENT_WIDE_BED_REJECT_UNSAFE_PENG");
         return new SichuanReactionDecisionResult
         {
+            OpponentWideBedDefenseAllowed=defenseAllowed,
             Action = new SichuanAction(SichuanActionType.Peng, reactionTileType, score, reasons[0]),
+            PlannedDiscardTile = plannedDiscard,
             ShantenAfter = followUp.Shanten,
             UkeireAfter = followUp.Ukeire,
             LiveUkeireAfter = followUp.LiveUkeire,
@@ -412,7 +577,7 @@ public sealed class SichuanReactionDecisionEngine
         string reactionType,
         int sourceSeat)
     {
-        var meldCountAfter = state.Melds18[state.SeatIndex].Count / 3 + 1;
+        var meldCountAfter = state.OwnMeldCount + 1;
         var timing = _meldCounterfactual.Evaluate(
             state,
             "gang",
@@ -421,8 +586,9 @@ public sealed class SichuanReactionDecisionEngine
             meldCountAfter,
             routeLoss: currentPlan.ForbidsGangs ? 6.0 : 0,
             risk: 0,
-			gangGain: 2.0,
-			belief: belief);
+			gangGain: 0,
+			belief: belief,
+            gangSourceSeat:sourceSeat);
         var followUp = new FollowUpSummary(
             timing.Shanten,
             timing.LiveUkeire,
@@ -433,7 +599,7 @@ public sealed class SichuanReactionDecisionEngine
         var waitWallPosterior = EstimateWallPosterior(followUp.ImprovingTiles, belief);
         var waitBlockPosterior = EstimateBlockPosterior(followUp.ImprovingTiles, belief);
         var isMeldedGang = sourceSeat >= 0 && reactionType == "discard";
-        var currentMeldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var currentMeldCount = state.OwnMeldCount;
         var sevenPairsLikely = IsSevenPairsLikely(state.Hand18, currentMeldCount);
         var tripletRedundancy = state.Hand18[reactionTileType] >= 3;
         var gangTaxBonus = isMeldedGang ? 118 : 36;
@@ -482,6 +648,12 @@ public sealed class SichuanReactionDecisionEngine
             $"杠后首打危险 {discardRisk.Risk}",
             "杠牌只在不拖慢成叫时考虑"
         };
+        if (timing.ContinuationLegalContextApplied) reasons.Add("CONTINUATION_LEGAL_READY_CONTEXT");
+        if (timing.BranchReadyValueApplied) reasons.Add("GANG_BRANCH_READY_VALUE_WEIGHTED_BEFORE_ROUNDING");
+		if (timing.BrokenReadyOpportunityLoss>0)
+			reasons.Add($"破坏当前听牌的分支机会成本 {timing.BrokenReadyOpportunityLoss:F4}，按当前过牌延续价值计入");
+		if (timing.DeadReadyBranchMass>0)
+			reasons.Add($"公开耗尽导致空听补牌分支 {timing.DeadReadyBranchMass:P1}，不按普通恢复听牌计价");
         if (currentPlan.ForbidsGangs)
             reasons.Add($"七对路线：{currentPlan.PrimaryRoute} 禁止杠牌，杠牌会破坏七对");
         if (sevenPairsLikely && CountPairs(state.Hand18) >= 5)
@@ -498,8 +670,11 @@ public sealed class SichuanReactionDecisionEngine
         if (discardRisk.Risk >= 56) reasons.Add("杠后首打风险偏高");
         if (roundStage >= 2 || maxReadyPosterior >= 0.50) reasons.Add("尾盘或后验压力高，谨慎放弃杠牌");
 
+        var defenseAllowed=SichuanOpponentWideBedDefense.SafeGang(state,belief,currentFollowUp.Shanten,currentFollowUp.LiveUkeire,timing);
+        if(!defenseAllowed)reasons.Add("OPPONENT_WIDE_BED_REJECT_UNSAFE_GANG_BRANCH");
         return new SichuanReactionDecisionResult
         {
+            OpponentWideBedDefenseAllowed=defenseAllowed,
             Action = new SichuanAction(SichuanActionType.Gang, reactionTileType, score, reasons[0]),
             ShantenAfter = followUp.Shanten,
             UkeireAfter = followUp.Ukeire,
@@ -553,9 +728,12 @@ public sealed class SichuanReactionDecisionEngine
         return new FollowUpSummary(bestShanten, bestUkeire, bestLive, bestTile, improvingTiles.ToArray());
     }
 
-	private FollowUpSummary EvaluateWaitingFollowUp(int[] hand18, SichuanWallAvailability wallAvailability, int meldCount)
+	private FollowUpSummary EvaluateWaitingFollowUp(SichuanStateView state, SichuanWallAvailability wallAvailability, int meldCount)
     {
-        var currentShanten = _shanten.CalcBestShanten(hand18, meldCount, meldCount == 0);
+        var hand18 = state.Hand18;
+        var currentShanten = _shanten.CalcLegalShanten(hand18, meldCount, state.OwnDingQueSuit, meldCount == 0);
+        var ready = currentShanten == 0 ? _readyPrices.Build(state, hand18, wallAvailability.ExpectedCounts18) : null;
+        if (currentShanten == 0 && ready is null) currentShanten = 1;
         var improving = new List<int>();
 		var live = 0.0;
         for (var draw = 0; draw < 27; draw++)
@@ -563,7 +741,8 @@ public sealed class SichuanReactionDecisionEngine
 			if (wallAvailability.ExpectedCounts18[draw] <= 0 || hand18[draw] >= 4) continue;
             var probe = (int[])hand18.Clone();
             probe[draw]++;
-            if (_shanten.CalcBestShanten(probe, meldCount, meldCount == 0) >= currentShanten) continue;
+            var after = _shanten.CalcLegalShanten(probe, meldCount, state.OwnDingQueSuit, meldCount == 0);
+            if (after >= currentShanten || (after == -1 && (ready is null || !ready.Waits.Any(w => w.TileType == draw)))) continue;
             improving.Add(draw);
 			live += wallAvailability.ExpectedCounts18[draw];
         }
@@ -578,18 +757,6 @@ public sealed class SichuanReactionDecisionEngine
         return clone;
     }
 
-    private static int ResolveRoundStage(SichuanStateView state)
-    {
-        var maxDiscards = state.Discards18.Max(list => list.Count);
-        var hasLikelyReady = state.IsCalled.Any(value => value) || state.IsReady.Any(value => value);
-        var exposedMeldCount = state.Melds18.Sum(list => list.Count / 3);
-        if (state.WallCount <= 6) return 2;
-        if (hasLikelyReady && state.WallCount <= 8) return 2;
-        if (maxDiscards >= 10 || state.WallCount <= 13 || exposedMeldCount >= 5) return 1;
-        if (hasLikelyReady && state.WallCount <= 10) return 1;
-        return 0;
-    }
-
     private int ResolveThreatLevel(SichuanStateView state, SichuanBeliefSnapshot belief)
     {
         var total = 0;
@@ -600,7 +767,7 @@ public sealed class SichuanReactionDecisionEngine
             if (belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.56) seatDanger += 2;
             else if (belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.40) seatDanger += 1;
             if (state.IsCalled[seat] || state.IsReady[seat]) seatDanger += 1;
-            if (state.Melds18[seat].Count / 3 >= 2) seatDanger += 1;
+            if (state.MeldCount(seat) >= 2) seatDanger += 1;
             total += seatDanger;
         }
         return Math.Clamp(total, 0, 5);
@@ -638,7 +805,7 @@ public sealed class SichuanReactionDecisionEngine
         SichuanStateView state,
         SichuanRoutePlanResult currentPlan)
     {
-        var currentMeldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var currentMeldCount = state.OwnMeldCount;
         var pairCount = CountPairs(state.Hand18);
         if (currentPlan.ForbidsMelds)
             return Array.Empty<string>();
@@ -705,6 +872,7 @@ public sealed class SichuanReactionDecisionEngine
         ref int simulations)
     {
         var bonuses = candidates.ToDictionary(item => item.action, _ => 0.0);
+        var firstSuit = CanonicalSampleFirstSuit(state, belief);
         for (var rollout = 0; rollout < ReactionSearchRollouts; rollout++)
         {
             var seed = unchecked(20260809
@@ -712,7 +880,7 @@ public sealed class SichuanReactionDecisionEngine
                 ^ state.TurnIndex * 67
                 ^ state.EventVersion.GetHashCode()
                 ^ rollout * 7919);
-			var wallOrder = _wall.SampleWallOrder(state, belief, seed);
+			var wallOrder = _wall.SampleWallOrder(state, belief, seed, firstSuit);
             foreach (var candidate in candidates)
             {
 				bonuses[candidate.action] += SimulateReactionFuture(
@@ -729,6 +897,33 @@ public sealed class SichuanReactionDecisionEngine
             bonuses[key] /= Math.Max(1, ReactionSearchRollouts);
         var min = bonuses.Values.Min();
         return bonuses.ToDictionary(item => item.Key, item => (item.Value - min) * 0.18);
+    }
+
+    private static int CanonicalSampleFirstSuit(SichuanStateView state, SichuanBeliefSnapshot belief)
+    {
+        // Suit labels are arbitrary. The common random wall order must begin
+        // from the same *structural* suit after a cyclic suit rotation, or a
+        // near-tied Peng/Pass choice can flip solely because of tile indices.
+        int Compare(int left, int right)
+        {
+            for (var rank = 0; rank < 9; rank++)
+            {
+                var a = left * 9 + rank; var b = right * 9 + rank;
+                var difference = state.Hand18[a].CompareTo(state.Hand18[b]);
+                if (difference != 0) return difference;
+                difference = state.Remaining18[a].CompareTo(state.Remaining18[b]);
+                if (difference != 0) return difference;
+                difference = state.Visible18[a].CompareTo(state.Visible18[b]);
+                if (difference != 0) return difference;
+                difference = belief.TileWallPosterior.GetValueOrDefault(a, 0.0)
+                    .CompareTo(belief.TileWallPosterior.GetValueOrDefault(b, 0.0));
+                if (difference != 0) return difference;
+            }
+            return 0;
+        }
+        var first = 0;
+        for (var suit = 1; suit < 3; suit++) if (Compare(suit, first) < 0) first = suit;
+        return first;
     }
 
     private double SimulateReactionFuture(
@@ -829,6 +1024,83 @@ public sealed class SichuanReactionDecisionEngine
         return count;
     }
 
+    private static bool HasPairRouteException(
+        SichuanStateView state,
+        FollowUpSummary currentFollowUp,
+        SichuanRoutePlanResult currentPlan,
+        int roundStage)
+    {
+        if (roundStage > 1 || currentFollowUp.Shanten < 2 || currentPlan.ForbidsMelds)
+            return false;
+        if (CountPairs(state.Hand18) < 4)
+            return false;
+        var activeOpponents = Enumerable.Range(0, state.DingQueSuits.Length)
+            .Where(seat => seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
+            .Select(seat => state.DingQueSuits[seat])
+            .Where(suit => suit is >= 0 and < 3)
+            .ToArray();
+        return activeOpponents.GroupBy(suit => suit).Any(group => group.Count() >= 2);
+    }
+
+    private static bool IsWeakEmbeddedPairPeng(SichuanStateView state, int reactionTileType, int roundStage)
+    {
+        if (roundStage > 1 || reactionTileType is < 0 or >= 27)
+            return false;
+        if (state.OwnDingQueSuit == reactionTileType / 9 || state.Hand18[reactionTileType] != 2)
+            return false;
+        var suitStart = reactionTileType / 9 * 9;
+        var rank = reactionTileType % 9;
+        var hasNeighbour = false;
+        for (var delta = -2; delta <= 2; delta++)
+        {
+            if (delta == 0) continue;
+            var r = rank + delta;
+            if (r is >= 0 and < 9 && state.Hand18[suitStart + r] > 0)
+            {
+                hasNeighbour = true;
+                break;
+            }
+        }
+        if (!hasNeighbour) return false;
+
+        var after = (int[])state.Hand18.Clone();
+        after[reactionTileType] -= 2;
+        var hasStrongBlock = false;
+        for (var start = 0; start < 9; start++)
+        {
+            if (after[suitStart + start] <= 0) continue;
+            if (start + 1 < 9 && after[suitStart + start + 1] > 0
+                && start >= 2 && start <= 6)
+                hasStrongBlock = true;
+            if (start + 2 < 9 && after[suitStart + start + 2] > 0
+                && start >= 2 && start <= 5)
+                hasStrongBlock = true;
+        }
+        return !hasStrongBlock;
+    }
+
+    private static bool IsStrongEmbeddedPairPeng(SichuanStateView state, int reactionTileType, int roundStage)
+    {
+        if (roundStage > 1 || reactionTileType is < 0 or >= 27)
+            return false;
+        if (state.OwnDingQueSuit == reactionTileType / 9 || state.Hand18[reactionTileType] != 2)
+            return false;
+        var suitStart = reactionTileType / 9 * 9;
+        var rank = reactionTileType % 9;
+        for (var r = 0; r < 9; r++)
+            if (r != rank && state.Hand18[suitStart + r] >= 2)
+                return false;
+        var after = (int[])state.Hand18.Clone();
+        after[reactionTileType] -= 2;
+        for (var start = 2; start <= 6; start++)
+        {
+            if (after[suitStart + start] <= 0) continue;
+            if (start + 1 < 9 && after[suitStart + start + 1] > 0) return true;
+            if (start + 2 < 9 && start <= 5 && after[suitStart + start + 2] > 0) return true;
+        }
+        return false;
+    }
+
     private bool ShouldForceOldHandPeng(
         SichuanStateView state,
         int reactionTileType,
@@ -851,7 +1123,7 @@ public sealed class SichuanReactionDecisionEngine
         {
             return false;
         }
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         if (IsSevenPairsTenpai(state.Hand18, meldCount))
             return false;
         var sevenPairsLikely = IsSevenPairsLikely(state.Hand18, meldCount);
@@ -907,7 +1179,7 @@ public sealed class SichuanReactionDecisionEngine
             return false;
         if (gangResult.ShantenAfter > currentFollowUp.Shanten)
             return false;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         if (IsSevenPairsLikely(state.Hand18, meldCount))
             return false;
         if (threatLevel >= 4 && maxReadyPosterior >= 0.70 && gangResult.ShantenAfter > 0)
@@ -935,7 +1207,7 @@ public sealed class SichuanReactionDecisionEngine
             return false;
         if (reactionTileType < 0 || reactionTileType >= state.Hand18.Length || state.Hand18[reactionTileType] < 3)
             return false;
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         if (IsSevenPairsLikely(state.Hand18, meldCount))
             return false;
         return gangResult.ShantenAfter <= currentFollowUp.Shanten;

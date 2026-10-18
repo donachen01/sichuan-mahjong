@@ -269,8 +269,9 @@ func _send_client_action(command: String, arguments: Dictionary, pending_kind: S
 	if not snapshot_before_pending_command.is_empty():
 		return false
 	var before := latest_snapshot.duplicate(true)
-	if not _send_network_command(command, arguments):
-		return false
+	# Disable only the snapshot that submitted this command, before sending.
+	# A fast/reentrant authority update may already contain a supplement-draw Hu;
+	# applying pending UI flags after send would erase that newer action window.
 	snapshot_before_pending_command = before
 	match pending_kind:
 		"discard":
@@ -291,6 +292,12 @@ func _send_client_action(command: String, arguments: Dictionary, pending_kind: S
 	own_actions["reaction"] = {}
 	latest_snapshot["own_actions"] = own_actions
 	snapshot_changed.emit(latest_snapshot.duplicate(true))
+	if not _send_network_command(command, arguments):
+		if not snapshot_before_pending_command.is_empty():
+			latest_snapshot = snapshot_before_pending_command.duplicate(true)
+			snapshot_before_pending_command.clear()
+			snapshot_changed.emit(latest_snapshot.duplicate(true))
+		return false
 	return true
 
 

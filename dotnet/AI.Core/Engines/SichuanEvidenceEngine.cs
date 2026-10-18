@@ -31,8 +31,12 @@ public sealed class SichuanEvidenceEngine
                 snapshot.SeatNoGangEvidence[seat][tileType] = BuildPassedReactionEvidence(state.PassedGang18, seat, tileType, 0.34, 0.90);
             }
 
+            var opening = Inference.SichuanOpeningObservation.Build(state, seat);
             for (var suit = 0; suit < 3; suit++)
-                snapshot.SeatAbandonedSuitEvidence[seat][suit] = Math.Clamp(discardBySuit[suit] / 5.0, 0.0, 0.92);
+                // Keep the existing strength mapping, but feed it deliberate
+                // post-clear hand discards only. Forced clears, draw discards
+                // and unknown origins do not prove a strategic abandonment.
+                snapshot.SeatAbandonedSuitEvidence[seat][suit] = Math.Clamp(opening.RecentHandDiscards[suit] / 5.0, 0.0, 0.92);
 
             snapshot.SeatRecentDiscardTrend[seat] = discards
                 .Where(tile => tile is >= 0 and < 27)

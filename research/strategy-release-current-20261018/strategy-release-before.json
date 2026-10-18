@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "production_policy_variant": "current",
+  "production_recording": false,
+  "production_terminal_rollout": false,
+  "scope": "correctness_corrections_only",
+  "unpromoted_policy_variants": [
+    "bucket_local_candidate_v1",
+    "gang_branch_candidate_v1"
+  ],
+  "created_at": "2026-10-13T23:36:46.199311+00:00",
+  "strategy_version": "current-gang-refund-03fbb44f374c",
+  "agent_version": "round-agents-v19-winner-missing-clearance",
+  "source_sha256": "03fbb44f374c3206155091a03c99070f4d1910c96eaa8e608a3005a8960c2b23",
+  "evidence": [
+    {
+      "path": "research/book_algorithm_20261011/gang-liability-20261013/core-results.json",
+      "sha256": "9f6e13c5037f73fe005ff24bcb21f06ee3b6791b3f8e9a17fde728cf21e796d8"
+    },
+    {
+      "path": "research/book_algorithm_20261011/gang-liability-20261013/refund-results.json",
+      "sha256": "eb3dd67e52cb1e5d6bac86c7cf4a1d69a3d05eb638d9f6fa654e2beea769bfec"
+    },
+    {
+      "path": "research/book_algorithm_20261011/gang-liability-20261013/continued-turn-game-results.json",
+      "sha256": "194d5614ab78bdab750f76a95fc13850451a63c8dd5689c68b17962e77c5d778"
+    }
+  ],
+  "release_inputs": {
+    "export_presets.cfg": "dd929e5f0d24cba50fbcd188579ce1c869a1a093ff9864264fa26900185d9e83",
+    "tools/validate_strategy_release.py": "b6aa1e623adc55c4cd80848f8be9fdec8cb057a7a5cd9192bfbff230f69dbe47",
+    "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
+    "tools/export_ios_xcode_project.sh": "d31b597f9b774128d309087822565d91231629def75a7ae9773c00c8aac8c0c2",
+    "tools/export_android_release.sh": "8121625e9ed0bbbfd5f036ca15cd4b7171389d3bab307fe899608922c442cd8e",
+    "tools/export_android_debug.sh": "5f986d88be60a18721f398f2129f58b6bce65960fc4a7b00cceeb455c0889745",
+    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c"
+  },
+  "notes": "Current source includes draw-wall unready gang refund with original payer amounts, gang discard public liability approximation, and cache separation by draw reason and gang source. Structural figure audits through Chengdu PDF131 are recorded; full five-book audit remains incomplete.",
+  "limitations": [
+    "Gang public wait and ordinary-score values remain uncalibrated approximations.",
+    "Several full-game attempts did not naturally terminate within the runner bound; no strength claim.",
+    "Current phone package predates this source; no new iOS installation.",
+    "Five-book and all complex figure audit remains incomplete."
+  ],
+  "validation_stage": "current_source_desktop_focused_correctness_verified"
+}

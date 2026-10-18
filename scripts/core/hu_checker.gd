@@ -40,6 +40,16 @@ func can_hu_with_full_hand(
 		return false
 	if full_hand_tiles.size() != required_concealed_size:
 		return false
+	# A waiting-hand probe adds a symbolic winning tile. Its copies must be
+	# checked together with this player's exposed tiles, so a fifth copy cannot
+	# become a legal wait or earn cha-jiao. Other players' visible copies do not
+	# invalidate a structurally legal dead wait.
+	var owned_tiles: Array = full_hand_tiles.duplicate()
+	for meld in exposed_melds:
+		owned_tiles.append_array(meld.get("tiles", []))
+	for count in _build_tile_counts(owned_tiles).values():
+		if int(count) > 4:
+			return false
 	if rules_config.require_missing_one_suit_to_win \
 		and ding_que_suit != "" \
 		and (_contains_suit(full_hand_tiles, ding_que_suit) or _melds_contain_suit(exposed_melds, ding_que_suit)):

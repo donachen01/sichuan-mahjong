@@ -38,7 +38,7 @@ public sealed class SichuanSingleLaneEvaluator
         // strategic alternative. Also do not price an impossible exposed flush.
         if (state.OwnDingQueSuit >= 0 && Enumerable.Range(state.OwnDingQueSuit * 9, 9).Any(t => state.Hand18[t] > 0))
             return new Dictionary<int, SichuanSingleLaneValue>();
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.MeldCount(state.SeatIndex);
         if (state.Melds18[state.SeatIndex].Any(t => t / 9 != suit)
             || state.MeldViews[state.SeatIndex].Any(m => m.TileType / 9 != suit))
             return new Dictionary<int, SichuanSingleLaneValue>();

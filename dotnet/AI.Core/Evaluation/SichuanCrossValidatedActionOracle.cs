@@ -260,7 +260,7 @@ public sealed class SichuanCrossValidatedActionOracle
         for (var seat = 0; seat < 4; seat++)
         {
             if (seat == state.SeatIndex || !state.ActiveSeats[seat] || state.HasHu[seat]) continue;
-            var meldCount = Math.Max(0, state.Melds18[seat].Count / 3);
+            var meldCount = Math.Max(0, state.MeldCount(seat));
             var waits = _hands.EnumerateWaits(particle.Hands27[seat], particle.Wall27, meldCount);
             foreach (var wait in waits)
             {

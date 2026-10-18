@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Strategy;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -8,13 +9,13 @@ public sealed class SichuanRoutePlanEngine
 
     public SichuanRoutePlanResult Evaluate(SichuanStateView state)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         return Evaluate(state, state.Hand18, meldCount, null);
     }
 
     public SichuanRoutePlanResult Evaluate(SichuanStateView state, SichuanRoundBrainSnapshot? brain)
     {
-        var meldCount = state.Melds18[state.SeatIndex].Count / 3;
+        var meldCount = state.OwnMeldCount;
         return Evaluate(state, state.Hand18, meldCount, brain);
     }
 
@@ -26,8 +27,14 @@ public sealed class SichuanRoutePlanEngine
     {
         var features = BuildFeatures(state, hand18, meldCount);
         var weights = BuildWeights(features);
-        if (brain is not null)
-            weights = ApplyBrainCommitment(weights, brain);
+        var flushSuit = brain is not null && IsFlushRoute(brain.PrimaryRoute) && brain.TargetSuit >= 0
+            ? brain.TargetSuit : features.TargetSuit;
+        var capacity = SichuanFlushCopyCapacity.Assess(state, hand18, flushSuit);
+        if (!capacity.Admissible)
+            foreach (var route in weights.Keys.Where(IsFlushRoute).ToArray()) weights.Remove(route);
+        // Commitment controls switching in the round brain. Do not charge it
+        // again in candidate route weights; these remain current evidence.
+
         var ordered = weights
             .OrderByDescending(item => item.Value)
             .ThenBy(item => RouteTieBreakRank(item.Key))
@@ -46,6 +53,12 @@ public sealed class SichuanRoutePlanEngine
             : features.TargetSuit;
         var constraints = BuildConstraints(primary, targetSuit);
         var reasons = BuildReasons(primary, secondary, features)
+            .Concat(capacity.Admissible ? Array.Empty<string>() : new[] {
+                capacity.Reason switch {
+                    "FLUSH_READY_COPY_CAPACITY" => $"{capacity.Reason}：{flushSuit}门可取得张数上限{capacity.AvailableCopies}，成叫至少{capacity.MinimumReadyCopies}；退出清色目标",
+                    "FLUSH_IRREVERSIBLE_OTHER_SUIT_MELD" => $"{capacity.Reason}：已有异色副露，清色路线不成立",
+                    _ => $"{capacity.Reason}：清色目标属于本家定缺或无效花色，重新选择路线"
+                } })
             .Concat(brain is null
                 ? Array.Empty<string>()
                 : new[] { $"持续大脑：{brain.PrimaryRoute}，承诺度 {brain.Commitment}，备用 {brain.FallbackRoute}" }
@@ -61,18 +74,6 @@ public sealed class SichuanRoutePlanEngine
             Reasons = reasons,
             TargetSuit = targetSuit
         };
-    }
-
-    private static Dictionary<string, int> ApplyBrainCommitment(
-        IReadOnlyDictionary<string, int> rawWeights,
-        SichuanRoundBrainSnapshot brain)
-    {
-        var adjusted = rawWeights.ToDictionary(item => item.Key, item => item.Value);
-        if (adjusted.ContainsKey(brain.PrimaryRoute))
-            adjusted[brain.PrimaryRoute] = Math.Clamp(adjusted[brain.PrimaryRoute] + 10 + brain.Commitment / 4, 0, 130);
-        if (brain.FallbackRoute != brain.PrimaryRoute && adjusted.ContainsKey(brain.FallbackRoute))
-            adjusted[brain.FallbackRoute] = Math.Clamp(adjusted[brain.FallbackRoute] + 4, 0, 110);
-        return adjusted;
     }
 
     public static bool IsSevenPairsRoute(string route)
@@ -265,7 +266,7 @@ public sealed class SichuanRoutePlanEngine
             $"路线规划：主路线 {primary}",
             $"对子 {features.PairLikeCount}，刻子 {features.TripletCount}，根潜力 {features.GenPotential}",
             $"单门 {features.TargetSuitName} {features.TargetSuitCount} 张，异门 {features.OffSuitCount} 张",
-            $"{features.TargetSuitName}门宽度：{features.TargetSuitDingQueOpponents} 家定缺，竞争 {features.TargetSuitCompetitors} 家",
+            $"{features.TargetSuitName}门宽度：{features.TargetSuitDingQueOpponents} 家定缺，竞争 {features.TargetSuitCompetitors} 家（仅计未胡出的活动玩家）",
             $"场上最大大牌威胁 {features.MaxOpponentBigHandThreat}"
         };
         if (secondary.Count > 0)
@@ -303,10 +304,11 @@ public sealed class SichuanRoutePlanEngine
             if (count >= 4) quads++;
         }
 
-        foreach (var meldTile in state.Melds18[state.SeatIndex])
+        var ownMelds = SichuanFlushCopyCapacity.OwnMeldCopies(state);
+        foreach (var meld in ownMelds)
         {
-            if (meldTile is >= 0 and < 27)
-                suitCounts[meldTile / 9]++;
+            if (meld.Tile is >= 0 and < 27)
+                suitCounts[meld.Tile / 9] += meld.Copies;
         }
 
         for (var suit = 0; suit < 3; suit++)
@@ -328,18 +330,24 @@ public sealed class SichuanRoutePlanEngine
             }
         }
 
+        var exposedSuits = ownMelds.Select(meld => meld.Tile / 9).Distinct().ToArray();
         var targetSuit = Enumerable.Range(0, 3)
-            .OrderByDescending(suit => suitCounts[suit])
+            .Where(suit => suit != state.OwnDingQueSuit)
+            .OrderByDescending(suit => exposedSuits.Length == 1 && exposedSuits[0] == suit)
+            .ThenByDescending(suit => suitCounts[suit])
             .ThenBy(suit => suit)
             .First();
         var targetSuitCount = suitCounts[targetSuit];
         var offSuitCount = suitCounts.Sum() - targetSuitCount;
         var targetSuitDingQueOpponents = Enumerable.Range(0, 4)
             .Count(seat => seat != state.SeatIndex
+                && state.ActiveSeats.ElementAtOrDefault(seat)
+                && !state.HasHu[seat]
                 && seat < state.DingQueSuits.Length
                 && state.DingQueSuits[seat] == targetSuit);
         var targetSuitCompetitors = Enumerable.Range(0, 4)
             .Count(seat => seat != state.SeatIndex
+                && state.ActiveSeats.ElementAtOrDefault(seat)
                 && !state.HasHu[seat]
                 && seat < state.DingQueSuits.Length
                 && state.DingQueSuits[seat] != targetSuit);

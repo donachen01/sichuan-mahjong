@@ -13,6 +13,19 @@ public sealed class SichuanExactHandAnalyzer
         bool allowSevenPairs = true)
     {
         var counts = Normalize(hand27);
+        // Reject impossible completions before constructing every decomposition.
+        // Winning hands still use the full enumerator for fan scoring.
+        if (exposedMeldCount is >= 0 and <= 4 && !IsWinning(counts, exposedMeldCount, allowSevenPairs))
+            return Array.Empty<SichuanHandDecomposition>();
+        return EnumerateWinningDecompositionsUnfiltered(counts, exposedMeldCount, allowSevenPairs);
+    }
+
+    private IReadOnlyList<SichuanHandDecomposition> EnumerateWinningDecompositionsUnfiltered(
+        IReadOnlyList<int> hand27,
+        int exposedMeldCount,
+        bool allowSevenPairs)
+    {
+        var counts = Normalize(hand27);
         if (counts.Sum() + exposedMeldCount * 3 != 14)
             return Array.Empty<SichuanHandDecomposition>();
 
@@ -145,7 +158,16 @@ public sealed class SichuanExactHandAnalyzer
     }
 
     public bool IsWinning(IReadOnlyList<int> hand27, int exposedMeldCount = 0, bool allowSevenPairs = true)
-        => EnumerateWinningDecompositions(hand27, exposedMeldCount, allowSevenPairs).Count > 0;
+    {
+        // Boolean legality does not require allocating every winning decomposition.
+        // Scoring still enumerates decompositions at its existing entry point.
+        if (hand27.Count != 27 || exposedMeldCount is < 0 or > 4
+            || hand27.Any(c => c is < 0 or > 4) || hand27.Sum()+3*exposedMeldCount != 14) return false;
+        var counts = hand27.ToArray();
+        var shanten = new Engines.SichuanShantenEngine();
+        return shanten.CalcStandardShanten(counts,exposedMeldCount)<0
+            || allowSevenPairs && exposedMeldCount==0 && shanten.CalcSevenPairsShanten(counts)<0;
+    }
 
     private static IReadOnlyList<IReadOnlyList<SichuanHandGroup>> EnumerateSetSuffixes(
         int[] counts,

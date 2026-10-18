@@ -293,6 +293,10 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 	var game_state: Node = GAME_STATE_SCRIPT.new()
 	get_root().add_child(game_state)
 	await process_frame
+	if _read_bool_arg("--research-recording=", false) and game_state.has_method("set_research_recording_enabled"):
+		game_state.call("set_research_recording_enabled", true)
+	# The native runtime is shared across temporary GameState instances.
+	game_state.set("ai_agent_generation", round_no)
 	game_state.call("set_test_seed", deal_seed)
 	game_state.call("set_ai_preset", "bone_ash")
 	var variants := {}
@@ -311,6 +315,7 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 	var started_ms := Time.get_ticks_msec()
 	var native_runtime = game_state.get("ai_manager").native_csharp_runtime
 	var continuation_before := str(native_runtime.call("GetContinuationDiagnosticsCompact")) if native_runtime.has_method("GetContinuationDiagnosticsCompact") else "unavailable"
+	var theory_shape_before := str(native_runtime.call("GetTheoryShapeDiagnosticsCompact")) if native_runtime.has_method("GetTheoryShapeDiagnosticsCompact") else "unavailable"
 	var result := await _play_single_round(
 		game_state, round_no, max_steps_per_round,
 		"paired_%s_seat_%d" % [label, candidate_seat], record_audit, audit_records,
@@ -334,6 +339,8 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 	var arm := {
 		"policy": candidate_variant,
 		"continuation_before": continuation_before,
+		"theory_shape_before": theory_shape_before,
+		"theory_shape_after": str(native_runtime.call("GetTheoryShapeDiagnosticsCompact")) if native_runtime.has_method("GetTheoryShapeDiagnosticsCompact") else "unavailable",
 		"continuation_after": str(native_runtime.call("GetContinuationDiagnosticsCompact")) if native_runtime.has_method("GetContinuationDiagnosticsCompact") else "unavailable",
 		"seat_delta": _seat_delta(score_changes, candidate_seat) if candidate_seat >= 0 else 0,
 		"score_changes": score_changes.duplicate(true),
@@ -369,6 +376,11 @@ func _run_policy_arm(deal_seed: int, candidate_seat: int, candidate_variant: Str
 		arm["tui_gang_refunds"] = result.get("tui_gang_refunds", []).duplicate(true)
 		arm["transfer_events"] = result.get("transfer_events", []).duplicate(true)
 		arm["draw_assessment"] = result.get("draw_assessment", []).duplicate(true)
+	if _read_bool_arg("--research-recording=", false):
+		var native_replay: String = str(native_runtime.call("GetDecisionAuditPath"))
+		arm["native_replay_path"] = native_replay
+		arm["native_replay_sha256"] = FileAccess.get_sha256(native_replay) if FileAccess.file_exists(native_replay) else ""
+		arm["native_replay_error"] = str(native_runtime.call("GetDecisionAuditError"))
 	game_state.queue_free()
 	await process_frame
 	return arm

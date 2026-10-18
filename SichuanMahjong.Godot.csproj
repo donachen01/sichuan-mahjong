@@ -15,6 +15,11 @@
 
   <ItemGroup>
     <Compile Include="scripts/ai/SichuanCSharpRuntime.cs" />
+    <Compile Include="scripts/ai/SichuanDecisionAuditRuntime.cs" />
     <ProjectReference Include="dotnet/AI.Core/AI.Core.csproj" />
   </ItemGroup>
+  <Target Name="ValidateStrategyRelease" BeforeTargets="PrepareForBuild"
+          Condition="'$(Configuration)' == 'Release' Or '$(Configuration)' == 'ExportRelease'">
+    <Exec Command="python3 &quot;$(MSBuildProjectDirectory)/tools/validate_strategy_release.py&quot;" />
+  </Target>
 </Project>

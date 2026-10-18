@@ -17,6 +17,7 @@ public sealed class SichuanRoundStrategyBrain
 {
     private readonly SichuanRoundBrainEngine _engine = new();
 
+    internal void Restore(SichuanStateView state, Agents.AgentBrainMemory memory) => _engine.Restore(state, memory);
     public SichuanRoundBrainSnapshot Observe(SichuanStateView state) => _engine.Observe(state);
     public void RecordDiscard(SichuanStateView state, int tileType, SichuanRoutePlanResult plan) => _engine.RecordDiscard(state, tileType, plan);
     public void RecordReaction(SichuanStateView state, SichuanAction action) => _engine.RecordReaction(state, action);

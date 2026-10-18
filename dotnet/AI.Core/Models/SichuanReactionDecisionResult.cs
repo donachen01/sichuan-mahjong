@@ -4,10 +4,16 @@ namespace SichuanMahjong.AI.Core.Models;
 
 public sealed class SichuanReactionDecisionResult
 {
+    internal bool OpponentWideBedDefenseAllowed { get; init; } = true;
+    public IReadOnlyList<Decision.SichuanDecisionCandidate> ValueCandidates { get; set; } = Array.Empty<Decision.SichuanDecisionCandidate>();
     public SichuanAction Action { get; set; } = new(SichuanActionType.Pass, -1, 0, "");
     public int ShantenAfter { get; set; } = 8;
     public int UkeireAfter { get; set; }
     public int LiveUkeireAfter { get; set; }
+    public int PlannedDiscardTile { get; set; } = -1;
+    public string PlannedSelfAction { get; set; } = string.Empty;
+    public int PlannedSelfActionTile { get; set; } = -1;
+    public Decision.SichuanPengStructureComparison? PengStructure { get; set; }
     public int CurrentShanten { get; set; } = 8;
     public int CurrentLiveUkeire { get; set; }
     public int ThreatLevel { get; set; }

@@ -18,11 +18,10 @@ func build_score_changes(players: Array, settlement_data: Dictionary, rules_conf
 	if rules_config != null and bool(rules_config.enable_tui_shui):
 		for refund in tui_gang_refunds:
 			var actor_seat: int = int(refund.get("actor_seat", -1))
-			var gang_type: String = str(refund.get("gang_type", ""))
 			var payer_seats: Array = refund.get("payer_seats", [])
-			var refund_unit: int = _resolve_gang_unit_score(gang_type)
 			for payer in payer_seats:
 				var payer_seat: int = int(payer)
+				var refund_unit := _resolve_gang_payer_score(refund, payer_seat)
 				if changes.has(actor_seat) and changes.has(payer_seat):
 					changes[actor_seat] -= refund_unit
 					changes[payer_seat] += refund_unit
@@ -83,6 +82,8 @@ func resolve_gang_total_score(event: Dictionary) -> int:
 
 func build_gang_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
 	var changes := _blank_score_changes(players)
+	if not bool(event.get("score_eligible", true)):
+		return changes
 	var actor_seat := int(event.get("actor_seat", -1))
 	for payer in event.get("payer_seats", []):
 		_apply_payment(changes, actor_seat, int(payer), _resolve_gang_payer_score(event, int(payer)))
@@ -90,6 +91,8 @@ func build_gang_event_score_changes(players: Array, event: Dictionary) -> Dictio
 
 
 func _resolve_gang_payer_score(event: Dictionary, payer_seat: int) -> int:
+	if not bool(event.get("score_eligible", true)):
+		return 0
 	var gang_type := str(event.get("gang_type", ""))
 	# 点杠采用逐付款人口径：点杠者付 2，其他仍在牌局中的玩家各付 1。
 	# 暗杠和补杠仍分别为每家 2、每家 1。
@@ -103,6 +106,8 @@ func _resolve_gang_payer_score(event: Dictionary, payer_seat: int) -> int:
 
 func build_transfer_event_score_changes(players: Array, event: Dictionary) -> Dictionary:
 	var changes := _blank_score_changes(players)
+	if not bool(event.get("score_eligible", true)):
+		return changes
 	if str(event.get("transfer_type", "")) != "hu_jiao_zhuan_yi":
 		return changes
 	var from_seat := int(event.get("from_seat", event.get("related_actor_seat", -1)))
