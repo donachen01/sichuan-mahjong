@@ -1,53 +1,29 @@
 {
-  "version": "2.6.88",
-  "android_version_code": 349,
-  "created_at": "2026-10-18T13:45:23.054027+00:00",
-  "artifacts": {
-    "ios_ipa": {
-      "path": "build/ios/SichuanMahjong-2.6.88-ios-personal.ipa",
-      "bytes": 171835813,
-      "sha256": "6c71a33a417dfcee2fe7afc205618117306d2c0562195a2833e69507ef8a1803"
-    },
-    "android_apk": {
-      "path": "build/android/SichuanMahjong-2.6.88-release.apk",
-      "bytes": 176209717,
-      "sha256": "55467afade6ea246462fc4074d302073fddfbb7ada96cf319bef4410ff7f543b"
-    },
-    "ios_app": {
-      "path": "build/ios/SichuanMahjong-2.6.88-adaptive-20261018-ios-xcode/DerivedData-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app",
-      "sha256": "bfd6a96804d7da3f96b6efab3b10cb6b2bfb8cfad4444bbfd2439921a9ebe84a"
-    }
+  "version": "2.6.89",
+  "android": {
+    "versionCode": 350,
+    "artifact": "build/android/SichuanMahjong-2.6.89-release.apk",
+    "sha256": "1183bb712b6e0c3b33a39d303c0f02118698ec2c1ebd3b2885fa8d75223a1c1d",
+    "dotnet_assets": true,
+    "signature_v2": true,
+    "signature_v3": true,
+    "install_target": "emulator-5554 (haotian)",
+    "physical_device_runtime": "not_connected"
   },
   "ios": {
+    "artifact": "build/ios/SichuanMahjong-2.6.89-personal.ipa",
+    "sha256": "f2189dfc22efbe210ebe355bcef647266850097d8dd4d1ed42c127afb4302ae9",
+    "signing": "Apple Development",
     "bundle_id": "com.chendong.sichuanmahjong.iosdev",
-    "team_id": "FCB4ZVWWD8",
-    "signing_identity": "Apple Development: donachen2027@outlook.com (MN54CC5STV)",
-    "provisioning_profile": "iOS Team Provisioning Profile: com.chendong.sichuanmahjong.iosdev",
-    "device_id": "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "device": "dona iPhone",
     "installed": true,
     "launched": true,
-    "process_observed": true,
-    "orientations": [
-      "UIInterfaceOrientationLandscapeLeft",
-      "UIInterfaceOrientationLandscapeRight"
-    ]
+    "process_alive": true,
+    "aot_framework_shape": "SichuanMahjong.Godot.framework/SichuanMahjong.Godot"
   },
-  "android": {
-    "package": "com.chendong.sichuanmahjong",
-    "adb_device": "emulator-5554 (haotian)",
-    "installed": true,
-    "launched": true,
-    "version_code": 349,
-    "signature_verification": "v2/v3 passed"
-  },
-  "validation": {
-    "desktop_and_godot_runtime": "passed before packaging",
-    "ios_xcodebuild": "passed",
-    "android_export": "passed",
-    "strategy_provenance_gate": "not rerun for adaptive-budget source; temporary export copy bypassed the stale-source gate; no production gate code changed"
-  },
-  "limitations": [
-    "Android connected target was emulator-5554 named haotian; no physical Android handset was enumerated.",
-    "Apple Development personal signing requires the device to remain trusted and the short provisioning lifetime to be renewed later."
-  ]
+  "ai_protocol": {
+    "policy": "unified-seat-policy-v2-adaptive-budget",
+    "self_action_compact_command_verified": true,
+    "discard_compact_command_field": "added_and_parsed"
+  }
 }

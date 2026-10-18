@@ -397,7 +397,8 @@ public partial class SichuanCSharpRuntime : Node
                 selectedDiscard?.ExpectedFan ?? 0,
                 selectedDiscard?.WinProbability ?? discardResult.WinProbability,
                 selectedDiscard?.TenpaiProbability ?? 0,
-                selectedDiscard?.ExplanationHint ?? discardResult.Reasons.FirstOrDefault() ?? string.Empty);
+                selectedDiscard?.ExplanationHint ?? discardResult.Reasons.FirstOrDefault() ?? string.Empty,
+                discardResult.Command?.ToWire() ?? string.Empty);
         }
         catch (Exception ex)
         {

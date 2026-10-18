@@ -1,0 +1,8 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+COMMAND_RAW={"schema":1,"id":"98a974ec96ec69566f36fde11dac39ca7cf2161a227a476d154d650bbc4c4e7f","window":"turn","roundId":"","generation":1,"viewVersion":4,"seat":0,"stateKey":"1e75a192b41076bc1d6209178bb5f11927c12b1bab8a31cdd44c5bcfa191e6a5","policy":"unified-seat-policy-v2-adaptive-budget","planRevision":1,"action":"discard","tile":10,"gangSubtype":"","parentId":"","continuationAction":"","continuationTile":-1,"continuationState":""}
+AOT_SELF_CHECK parts=11 action=pass continuation=10 commandPolicy=unified-seat-policy-v2-adaptive-budget

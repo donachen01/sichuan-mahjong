@@ -1,0 +1,27 @@
+--------- beginning of system
+10-18 22:13:06.126   540  2513 E PackageManager: Failure printing domain verification information
+10-18 22:13:06.126   540  2513 E PackageManager: android.content.pm.PackageManager$NameNotFoundException: Package com.chendong.sichuanmahjong.androiddev unavailable
+10-18 22:13:06.126   540  2513 E PackageManager: 	at com.android.server.pm.verify.domain.DomainVerificationUtils.throwPackageUnavailable(DomainVerificationUtils.java:48)
+10-18 22:13:06.126   540  2513 E PackageManager: 	at com.android.server.pm.verify.domain.DomainVerificationDebug.printState(DomainVerificationDebug.java:90)
+--
+10-18 22:13:26.693  7272  7272 D NetDirect: [NetDirect] constructor: libnetdirect.so loaded, pid=7272
+10-18 22:13:26.699  7274  7274 D NetDirect: [NetDirect] constructor: libnetdirect.so loaded, pid=7274
+10-18 22:13:26.700   540   830 I ActivityManager: Force stopping com.chendong.sichuanmahjong appid=10099 user=0: from pid 7274
+10-18 22:13:26.702   838   838 D CarrierSvcBindHelper: No carrier app for: 0
+10-18 22:13:26.725  7277  7277 D NetDirect: [NetDirect] constructor: libnetdirect.so loaded, pid=7277
+--
+10-18 22:13:26.850  7277  7277 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt68l.dat
+10-18 22:13:26.871  7277  7277 D AndroidRuntime: Calling main entry com.android.commands.monkey.Monkey
+10-18 22:13:26.871  7277  7277 W Monkey  : args: [-p, com.chendong.sichuanmahjong, 1]
+10-18 22:13:26.871  7277  7277 W Monkey  :  arg: "-p"
+10-18 22:13:26.871  7277  7277 W Monkey  :  arg: "com.chendong.sichuanmahjong"
+10-18 22:13:26.871  7277  7277 W Monkey  :  arg: "1"
+10-18 22:13:26.871  7277  7277 W Monkey  : data="com.chendong.sichuanmahjong"
+10-18 22:13:26.879   540   569 W BroadcastQueue: Skipping deliver [background] BroadcastRecord{4bf2214 u-1 android.net.conn.CONNECTIVITY_CHANGE} to ReceiverList{13bcabd 7277 (unknown name)/2000/u-1 remote:17b2026}: process gone or crashing
+10-18 22:13:26.883   540   830 I YYB_ENGINE_ACTIVITY: interceptStarter
+10-18 22:13:26.883   540   830 I YYB_ENGINE_ACTIVITY: interceptStarter callingPackage= com.android.shell
+10-18 22:13:26.883   540   830 I YYB_ENGINE_STARTER: realCallingPid= 7277
+10-18 22:13:26.883   540   830 I ActivityTaskManager: callerProc not exist, and app is not in mOpenedApps. Notify host to start fresh.
+10-18 22:13:26.883   540  1535 I YybMacDocumentsAbility: binghuaguo==>通知host当前应用: com.chendong.sichuanmahjong, activity: com.godot.game.GodotAppLauncher
+10-18 22:13:26.884   540  7189 D GhService: writePacket() called with: len = 130
+10-18 22:13:26.885   540  6759 D GhService: writePacket() called with: len = 115

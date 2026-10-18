@@ -492,6 +492,7 @@ func _parse_aot_discard_result(raw: String) -> Dictionary:
 		"winProbability": float(parts[12]) if parts.size() > 12 else 0.0,
 		"tenpaiProbability": float(parts[13]) if parts.size() > 13 else 0.0,
 		"reasons": [parts[14]] if parts.size() > 14 and not parts[14].is_empty() else ["iOS NativeAOT C# 决策"],
+		"decisionCommand": parts[15] if parts.size() > 15 else "",
 	}
 
 
