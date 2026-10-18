@@ -1,0 +1,344 @@
+{
+  "rows": [
+    {
+      "name": "no wall",
+      "actual": {
+        "ReadyProbability": 0,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0
+      },
+      "expectedWin": 0,
+      "expectedReady": 0,
+      "ok": true
+    },
+    {
+      "name": "no progress supply",
+      "actual": {
+        "ReadyProbability": 0,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0
+      },
+      "expectedWin": 0,
+      "expectedReady": 0,
+      "ok": true
+    },
+    {
+      "name": "only one own draw cannot both get ready and win",
+      "actual": {
+        "ReadyProbability": 0.5,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0
+      },
+      "expectedWin": 0,
+      "expectedReady": 0.5,
+      "ok": true
+    },
+    {
+      "name": "permutation n=3 players=2",
+      "actual": {
+        "ReadyProbability": 0.6666666666666667,
+        "SelfDrawProbability": 0.16666666666666666,
+        "ExpectedSelfDrawGain": 1,
+        "ExpectedOpponentLoss": 0,
+        "Net": 1
+      },
+      "expectedWin": 0.16666666666666666,
+      "expectedReady": 0.6666666666666666,
+      "ok": true
+    },
+    {
+      "name": "permutation n=3 players=3",
+      "actual": {
+        "ReadyProbability": 0.3333333333333333,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0
+      },
+      "expectedWin": 0,
+      "expectedReady": 0.3333333333333333,
+      "ok": true
+    },
+    {
+      "name": "permutation n=3 players=4",
+      "actual": {
+        "ReadyProbability": 0.3333333333333333,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0
+      },
+      "expectedWin": 0,
+      "expectedReady": 0.3333333333333333,
+      "ok": true
+    },
+    {
+      "name": "permutation n=5 players=2",
+      "actual": {
+        "ReadyProbability": 0.6000000000000001,
+        "SelfDrawProbability": 0.15000000000000002,
+        "ExpectedSelfDrawGain": 0.9000000000000001,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.9000000000000001
+      },
+      "expectedWin": 0.15,
+      "expectedReady": 0.6,
+      "ok": true
+    },
+    {
+      "name": "permutation n=5 players=3",
+      "actual": {
+        "ReadyProbability": 0.4,
+        "SelfDrawProbability": 0.05,
+        "ExpectedSelfDrawGain": 0.30000000000000004,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.30000000000000004
+      },
+      "expectedWin": 0.05,
+      "expectedReady": 0.4,
+      "ok": true
+    },
+    {
+      "name": "permutation n=5 players=4",
+      "actual": {
+        "ReadyProbability": 0.4,
+        "SelfDrawProbability": 0.05,
+        "ExpectedSelfDrawGain": 0.30000000000000004,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.30000000000000004
+      },
+      "expectedWin": 0.05,
+      "expectedReady": 0.4,
+      "ok": true
+    },
+    {
+      "name": "permutation n=7 players=2",
+      "actual": {
+        "ReadyProbability": 0.5714285714285716,
+        "SelfDrawProbability": 0.14285714285714288,
+        "ExpectedSelfDrawGain": 0.8571428571428574,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.8571428571428574
+      },
+      "expectedWin": 0.14285714285714285,
+      "expectedReady": 0.5714285714285714,
+      "ok": true
+    },
+    {
+      "name": "permutation n=7 players=3",
+      "actual": {
+        "ReadyProbability": 0.4285714285714286,
+        "SelfDrawProbability": 0.07142857142857144,
+        "ExpectedSelfDrawGain": 0.4285714285714286,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.4285714285714286
+      },
+      "expectedWin": 0.07142857142857142,
+      "expectedReady": 0.42857142857142855,
+      "ok": true
+    },
+    {
+      "name": "permutation n=7 players=4",
+      "actual": {
+        "ReadyProbability": 0.2857142857142857,
+        "SelfDrawProbability": 0.02380952380952381,
+        "ExpectedSelfDrawGain": 0.14285714285714288,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.14285714285714288
+      },
+      "expectedWin": 0.023809523809523808,
+      "expectedReady": 0.2857142857142857,
+      "ok": true
+    },
+    {
+      "name": "more waits 1",
+      "actual": {
+        "ReadyProbability": 0.4545454545454546,
+        "SelfDrawProbability": 0.04407713498622589,
+        "ExpectedSelfDrawGain": 0.3966942148760331,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.3966942148760331
+      },
+      "expectedWin": null,
+      "expectedReady": null,
+      "ok": true
+    },
+    {
+      "name": "more waits 2",
+      "actual": {
+        "ReadyProbability": 0.4545454545454546,
+        "SelfDrawProbability": 0.08512396694214876,
+        "ExpectedSelfDrawGain": 0.7661157024793386,
+        "ExpectedOpponentLoss": 0,
+        "Net": 0.7661157024793386
+      },
+      "expectedWin": null,
+      "expectedReady": null,
+      "ok": true
+    },
+    {
+      "name": "more waits 3",
+      "actual": {
+        "ReadyProbability": 0.4545454545454546,
+        "SelfDrawProbability": 0.12314049586776862,
+        "ExpectedSelfDrawGain": 1.1082644628099174,
+        "ExpectedOpponentLoss": 0,
+        "Net": 1.1082644628099174
+      },
+      "expectedWin": null,
+      "expectedReady": null,
+      "ok": true
+    },
+    {
+      "name": "more waits 4",
+      "actual": {
+        "ReadyProbability": 0.4545454545454546,
+        "SelfDrawProbability": 0.1581267217630854,
+        "ExpectedSelfDrawGain": 1.4231404958677685,
+        "ExpectedOpponentLoss": 0,
+        "Net": 1.4231404958677685
+      },
+      "expectedWin": null,
+      "expectedReady": null,
+      "ok": true
+    },
+    {
+      "name": "opponents exit dynamically",
+      "actual": {
+        "ReadyProbability": 0.25,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 2,
+        "Net": -2
+      },
+      "expectedWin": null,
+      "expectedReady": null,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=2 hazard=0",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.8571428571428572,
+        "ExpectedSelfDrawGain": 10.285714285714286,
+        "ExpectedOpponentLoss": 0,
+        "Net": 10.285714285714286
+      },
+      "expectedWin": 0.8571428571428572,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=2 hazard=0.15",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.6147150669642858,
+        "ExpectedSelfDrawGain": 7.3765808035714295,
+        "ExpectedOpponentLoss": 0.37285513392857134,
+        "Net": 7.003725669642858
+      },
+      "expectedWin": 0.6147150669642858,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=2 hazard=1",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 1.2,
+        "Net": -1.2
+      },
+      "expectedWin": 0,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=3 hazard=0",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.5535714285714286,
+        "ExpectedSelfDrawGain": 6.642857142857143,
+        "ExpectedOpponentLoss": 0,
+        "Net": 6.642857142857143
+      },
+      "expectedWin": 0.5535714285714286,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=3 hazard=0.15",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.5888403459821427,
+        "ExpectedSelfDrawGain": 5.642774330357143,
+        "ExpectedOpponentLoss": 0.6953739508928573,
+        "Net": 4.947400379464286
+      },
+      "expectedWin": 0.5888403459821427,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=3 hazard=1",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 2.4,
+        "Net": -2.4
+      },
+      "expectedWin": 0,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=4 hazard=0",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.5535714285714286,
+        "ExpectedSelfDrawGain": 6.642857142857143,
+        "ExpectedOpponentLoss": 0,
+        "Net": 6.642857142857143
+      },
+      "expectedWin": 0.5535714285714286,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=4 hazard=0.15",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0.554767628766741,
+        "ExpectedSelfDrawGain": 5.307198883928571,
+        "ExpectedOpponentLoss": 0.8850196958705356,
+        "Net": 4.422179188058035
+      },
+      "expectedWin": 0.554767628766741,
+      "expectedReady": 1,
+      "ok": true
+    },
+    {
+      "name": "shared ready model players=4 hazard=1",
+      "actual": {
+        "ReadyProbability": 1,
+        "SelfDrawProbability": 0,
+        "ExpectedSelfDrawGain": 0,
+        "ExpectedOpponentLoss": 3.5999999999999996,
+        "Net": -3.5999999999999996
+      },
+      "expectedWin": 0,
+      "expectedReady": 1,
+      "ok": true
+    }
+  ],
+  "failures": [],
+  "scope": "exact tiny disjoint-target worlds plus model invariants; does not calibrate public posterior or overlapping-target assumptions"
+}

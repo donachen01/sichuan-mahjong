@@ -1,0 +1,366 @@
+[
+  {
+    "id": "3-13",
+    "mode": "original_fixture_opponent_wide_bed",
+    "analysis": 26,
+    "formal": 26,
+    "command": {
+      "Id": "951251d718421059035e3ee921fabf47306b3dcf666d96b0991adf6c9c9c9676",
+      "Window": "turn",
+      "RoundId": "",
+      "Generation": 0,
+      "ViewVersion": 0,
+      "Seat": 0,
+      "StateKey": "f6527a4893d7181d74e274e5aad4e8c766948d3aac4f98feb0e81c4b9413ce22",
+      "Policy": "unified-seat-policy-v2-adaptive-budget",
+      "PlanRevision": 1,
+      "Action": "discard",
+      "Tile": 26,
+      "GangSubtype": "",
+      "ParentId": "",
+      "ContinuationAction": "",
+      "ContinuationTile": -1,
+      "ContinuationState": ""
+    },
+    "reasons": [
+      "OPPONENT_WIDE_BED_SAFER_DISCARD",
+      "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+      "\u88C1\u51B3\u8FC7\u7A0B\uFF1A2 \u6761\u5EFA\u8BAE\uFF0C1 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+      "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+      "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+      "\u6700\u5C0F\u5411\u542C 1",
+      "\u6D3B\u8FDB\u5F20 6",
+      "\u51C0\u5206\u671F\u671B 3.54",
+      "\u5371\u9669\u5EA6 20\uFF08\u4F4E\u5371\uFF09",
+      "\u9636\u6BB5 \u524D\u671F",
+      "\u7B56\u7565 \u901F\u542C\u63A8\u8FDB",
+      "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.4\uFF0C\u57FA\u7840 1 \u5206",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "candidates": [
+      {
+        "TileType": 25,
+        "Danger": 22,
+        "Shanten": 1,
+        "LiveUkeire": 21,
+        "ExpectedDealInLoss": 0.057876962506548564,
+        "ExpectedValue": 0.7688906448278017
+      },
+      {
+        "TileType": 19,
+        "Danger": 23,
+        "Shanten": 1,
+        "LiveUkeire": 17,
+        "ExpectedDealInLoss": 0.0596856175848782,
+        "ExpectedValue": 0.5182514177900657
+      },
+      {
+        "TileType": 10,
+        "Danger": 23,
+        "Shanten": 1,
+        "LiveUkeire": 15,
+        "ExpectedDealInLoss": 0.0596856175848782,
+        "ExpectedValue": 0.39438218425116467
+      },
+      {
+        "TileType": 26,
+        "Danger": 20,
+        "Shanten": 1,
+        "LiveUkeire": 6,
+        "ExpectedDealInLoss": 0.05425965234988929,
+        "ExpectedValue": -0.42394509004316916
+      },
+      {
+        "TileType": 13,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 31,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.413446452764081
+      },
+      {
+        "TileType": 14,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 29,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.3419936454710064
+      },
+      {
+        "TileType": 23,
+        "Danger": 22,
+        "Shanten": 2,
+        "LiveUkeire": 28,
+        "ExpectedDealInLoss": 0.057876962506548564,
+        "ExpectedValue": -3.6248946364907204
+      },
+      {
+        "TileType": 12,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 25,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.328450327428187
+      }
+    ],
+    "formalReasons": [
+      "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+      "\u5F53\u524D\u540E\u624B\u5411\u542C 1",
+      "\u5F53\u524D\u6D3B\u5F20 6",
+      "\u7EE7\u7EED\u51FA\u724C\u7EDF\u4E00\u51C0\u503C -1.95",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "SELF_PASS_PLANNED_DISCARD_26",
+      "\u5F53\u524D\u540E\u624B\u5F03\u724C\u98CE\u9669\u5DF2\u8BA1\u4EF7 0.2000",
+      "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "arbitration": [
+      {
+        "Module": "ISOLATED_COMPATIBLE_BLOCK_DEVELOPMENT",
+        "ProposedTile": 19,
+        "Priority": 10,
+        "Accepted": false,
+        "PreviousTile": 25,
+        "Reason": "higher_priority_constraint"
+      },
+      {
+        "Module": "OPPONENT_WIDE_BED_SAFER_DISCARD",
+        "ProposedTile": 26,
+        "Priority": 95,
+        "Accepted": true,
+        "PreviousTile": 25,
+        "Reason": "central_value_selection"
+      }
+    ]
+  },
+  {
+    "id": "3-13",
+    "mode": "balanced_missing_suits",
+    "analysis": 19,
+    "formal": 19,
+    "command": {
+      "Id": "391231a417f23d7ff9a20ea5a8318d9675eaf49954aed23910f373025cfecc0c",
+      "Window": "turn",
+      "RoundId": "",
+      "Generation": 0,
+      "ViewVersion": 0,
+      "Seat": 0,
+      "StateKey": "8e3ed8bb73e8e1daaa6edee91581d093dc06e94426f7031ddbafdbdaf9fa8814",
+      "Policy": "unified-seat-policy-v2-adaptive-budget",
+      "PlanRevision": 1,
+      "Action": "discard",
+      "Tile": 19,
+      "GangSubtype": "",
+      "ParentId": "",
+      "ContinuationAction": "",
+      "ContinuationTile": -1,
+      "ContinuationState": ""
+    },
+    "reasons": [
+      "ISOLATED_COMPATIBLE_BLOCK_DEVELOPMENT",
+      "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+      "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+      "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+      "\u6700\u5C0F\u5411\u542C 1",
+      "\u6D3B\u8FDB\u5F20 17",
+      "\u51C0\u5206\u671F\u671B 5.77",
+      "\u5371\u9669\u5EA6 23\uFF08\u4F4E\u5371\uFF09",
+      "\u9636\u6BB5 \u524D\u671F",
+      "\u7B56\u7565 \u62A2\u542C",
+      "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.5\uFF0C\u57FA\u7840 1 \u5206",
+      "\u6536\u76CA 2.81 / \u70B9\u70AE\u635F\u5931 0.06",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "candidates": [
+      {
+        "TileType": 25,
+        "Danger": 22,
+        "Shanten": 1,
+        "LiveUkeire": 21,
+        "ExpectedDealInLoss": 0.057876962506548564,
+        "ExpectedValue": 0.6802585587682951
+      },
+      {
+        "TileType": 19,
+        "Danger": 23,
+        "Shanten": 1,
+        "LiveUkeire": 17,
+        "ExpectedDealInLoss": 0.0596856175848782,
+        "ExpectedValue": 0.42955269907970434
+      },
+      {
+        "TileType": 10,
+        "Danger": 23,
+        "Shanten": 1,
+        "LiveUkeire": 15,
+        "ExpectedDealInLoss": 0.0596856175848782,
+        "ExpectedValue": 0.3061809840272546
+      },
+      {
+        "TileType": 26,
+        "Danger": 20,
+        "Shanten": 1,
+        "LiveUkeire": 6,
+        "ExpectedDealInLoss": 0.05425965234988929,
+        "ExpectedValue": -0.5115232716892176
+      },
+      {
+        "TileType": 13,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 31,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.502177656237926
+      },
+      {
+        "TileType": 14,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 29,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.430721863360116
+      },
+      {
+        "TileType": 23,
+        "Danger": 22,
+        "Shanten": 2,
+        "LiveUkeire": 28,
+        "ExpectedDealInLoss": 0.057876962506548564,
+        "ExpectedValue": -3.7136209486804037
+      },
+      {
+        "TileType": 12,
+        "Danger": 24,
+        "Shanten": 2,
+        "LiveUkeire": 25,
+        "ExpectedDealInLoss": 0.06149427266320785,
+        "ExpectedValue": -3.417163938641025
+      }
+    ],
+    "formalReasons": [
+      "\u5F53\u524D\u540E\u624B\u5411\u542C 1",
+      "\u5F53\u524D\u6D3B\u5F20 17",
+      "\u7EE7\u7EED\u51FA\u724C\u7EDF\u4E00\u51C0\u503C -0.67",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "SELF_PASS_PLANNED_DISCARD_19",
+      "\u5F53\u524D\u540E\u624B\u5F03\u724C\u98CE\u9669\u5DF2\u8BA1\u4EF7 0.2300",
+      "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "arbitration": [
+      {
+        "Module": "ISOLATED_COMPATIBLE_BLOCK_DEVELOPMENT",
+        "ProposedTile": 19,
+        "Priority": 10,
+        "Accepted": true,
+        "PreviousTile": 25,
+        "Reason": "central_value_selection"
+      }
+    ]
+  },
+  {
+    "id": "3-17D",
+    "mode": "MeldedGang",
+    "formal": 12,
+    "label": "4\u7B52",
+    "matches": true,
+    "Reasons": [
+      "\u5F53\u524D\u540E\u624B\u5411\u542C 1",
+      "\u5F53\u524D\u6D3B\u5F20 4",
+      "\u7EE7\u7EED\u51FA\u724C\u7EDF\u4E00\u51C0\u503C -2.27",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "SELF_PASS_PLANNED_DISCARD_12",
+      "\u5F53\u524D\u540E\u624B\u5F03\u724C\u98CE\u9669\u5DF2\u8BA1\u4EF7 0.2300",
+      "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "Command": {
+      "Id": "9e56cc2374358c7bd0dcd256b767a56ad3c481395b18b7adecf667c8948198f2",
+      "Window": "turn",
+      "RoundId": "",
+      "Generation": 0,
+      "ViewVersion": 0,
+      "Seat": 0,
+      "StateKey": "92cc95274f0aa234d2e77123866231fc81725478531f713a852020350285064b",
+      "Policy": "unified-seat-policy-v2-adaptive-budget",
+      "PlanRevision": 1,
+      "Action": "discard",
+      "Tile": 12,
+      "GangSubtype": "",
+      "ParentId": "",
+      "ContinuationAction": "",
+      "ContinuationTile": -1,
+      "ContinuationState": ""
+    }
+  },
+  {
+    "id": "3-17D",
+    "mode": "ConcealedGang",
+    "formal": 12,
+    "label": "4\u7B52",
+    "matches": true,
+    "Reasons": [
+      "\u5F53\u524D\u540E\u624B\u5411\u542C 1",
+      "\u5F53\u524D\u6D3B\u5F20 4",
+      "\u7EE7\u7EED\u51FA\u724C\u7EDF\u4E00\u51C0\u503C -2.27",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "SELF_PASS_PLANNED_DISCARD_12",
+      "\u5F53\u524D\u540E\u624B\u5F03\u724C\u98CE\u9669\u5DF2\u8BA1\u4EF7 0.2300",
+      "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "Command": {
+      "Id": "4507b1cbb99df6722b22537fdda19a50aad86b5cee34d6885e416b2b29ec5b90",
+      "Window": "turn",
+      "RoundId": "",
+      "Generation": 0,
+      "ViewVersion": 0,
+      "Seat": 0,
+      "StateKey": "023ab7d990904b0dbd2d0897a1109dcf9e2316619272b43c54627aba4da37ce1",
+      "Policy": "unified-seat-policy-v2-adaptive-budget",
+      "PlanRevision": 1,
+      "Action": "discard",
+      "Tile": 12,
+      "GangSubtype": "",
+      "ParentId": "",
+      "ContinuationAction": "",
+      "ContinuationTile": -1,
+      "ContinuationState": ""
+    }
+  },
+  {
+    "id": "3-17D",
+    "mode": "AddedGang",
+    "formal": 12,
+    "label": "4\u7B52",
+    "matches": true,
+    "Reasons": [
+      "\u5F53\u524D\u540E\u624B\u5411\u542C 1",
+      "\u5F53\u524D\u6D3B\u5F20 4",
+      "\u7EE7\u7EED\u51FA\u724C\u7EDF\u4E00\u51C0\u503C -2.27",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "SELF_PASS_PLANNED_DISCARD_12",
+      "\u5F53\u524D\u540E\u624B\u5F03\u724C\u98CE\u9669\u5DF2\u8BA1\u4EF7 0.2300",
+      "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+      "SEARCH_BUDGET_FAST"
+    ],
+    "Command": {
+      "Id": "d04a4439bbf4b91bc0e223a8d6c6ffd4af7ddd448f678ce0aeb0d4a4849b0274",
+      "Window": "turn",
+      "RoundId": "",
+      "Generation": 0,
+      "ViewVersion": 0,
+      "Seat": 0,
+      "StateKey": "cdc101103ee132bbf7bc5e1657e01f8395771eba283e18a0f2029961673f4502",
+      "Policy": "unified-seat-policy-v2-adaptive-budget",
+      "PlanRevision": 1,
+      "Action": "discard",
+      "Tile": 12,
+      "GangSubtype": "",
+      "ParentId": "",
+      "ContinuationAction": "",
+      "ContinuationTile": -1,
+      "ContinuationState": ""
+    }
+  }
+]

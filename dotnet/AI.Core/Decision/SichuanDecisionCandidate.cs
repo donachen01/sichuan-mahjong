@@ -13,4 +13,8 @@ public sealed record SichuanDecisionCandidate(
     double RouteContinuationValue,
     double UncertaintyPenalty,
     IReadOnlyList<string> ReasonCodes,
-	bool IsAdmissible = true);
+	bool IsAdmissible = true)
+{
+    public bool QuickReadyTiePreferred { get; init; }
+    public double ContinuationDiscardRisk { get; init; }
+}

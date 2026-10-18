@@ -30,6 +30,7 @@ public sealed class SichuanReactionDecisionEngine
         bool mandatoryGang = false,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
         if (canHu)
         {
@@ -137,7 +138,7 @@ public sealed class SichuanReactionDecisionEngine
 			reactionTileType,
 			canPeng,
 			canGang,
-			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
+			routeLoss: 0,
 			belief: belief,
             pengDiscardTile: candidates.FirstOrDefault(item => item.action == "peng").result?.PlannedDiscardTile ?? -1,
             gangSourceSeat:sourceSeat);
@@ -167,13 +168,32 @@ public sealed class SichuanReactionDecisionEngine
 		}
         best = candidates.OrderByDescending(item => item.result.Action.Score).First().result;
 
+        // Upgrade only the actual root after comparing all shallow values.
+        // Re-evaluate through this same engine; only the authority above it
+        // may issue the single executable command and Peng continuation.
+        var budgetOptions = candidates.Where(c => c.result.OpponentWideBedDefenseAllowed)
+            .Select(c => new SichuanSearchBudget.Option(c.action, c.result.Action.Score,
+                c.result.ShantenAfter, c.result.LiveUkeireAfter,
+                unifiedMelds.Candidates.FirstOrDefault(v => v.Action.ActionType == c.result.Action.ActionType)?.ContinuationDiscardRisk ?? 0)).ToArray();
+        var deepReason = SichuanSearchBudget.Qualify(state, budgetOptions, maxReadyPosterior >= 0.55);
+        if (canGang && !mandatoryGang && candidates.All(c => c.result.PlannedSelfAction.Length == 0))
+        {
+            using var upgrade = SichuanSearchBudget.TryDeep(state, deepReason, meld: true, terminal: true);
+            if (upgrade is not null)
+                return DecideReaction(state, reactionTileType, canHu, canPeng, canGang, sourceSeat,
+                    reactionType, forceLightweight, mandatoryGang, roundBrain);
+        }
+        using var allocatedSearch = !canGang && SichuanSearchBudget.Adaptive
+            ? SichuanSearchBudget.TryDeep(state, deepReason) : null;
+
         // Fair live interfaces share this fixed-count, two-own-draw search.
         // Omitting it in mobile/lightweight mode could change Peng vs Pass
         // for the identical public state. The separate oracle mode keeps its
         // existing lightweight boundary.
         if ((state.InformationMode == "public" || !forceLightweight)
             && candidates.All(c => c.result.PlannedSelfAction.Length == 0)
-            && ShouldSearchReaction(candidates))
+            && ShouldSearchReaction(candidates)
+            && (!SichuanSearchBudget.Adaptive || allocatedSearch is not null))
         {
             var simulations = 0;
 			var bonusMap = EvaluateReactionSearchBonuses(state, belief, candidates, ref simulations);
@@ -198,6 +218,8 @@ public sealed class SichuanReactionDecisionEngine
                 .First();
         }
 
+        var proposals = new List<(SichuanReactionDecisionResult Result,int Priority,string Code)>();
+        var excluded = new HashSet<SichuanActionType>();
         // 3.2 exception: an early four-pair hand with two live opponents
         // missing the same suit can have a real big-pair / Jin-Gou route.
         // The ordinary speed score otherwise keeps passing the useful claim
@@ -212,16 +234,13 @@ public sealed class SichuanReactionDecisionEngine
             if (item.result.PlannedDiscardTile >= 0
                 && item.result.ShantenAfter <= currentFollowUp.Shanten)
             {
-                var passScoreForRoute = candidates.First(candidate => candidate.action == "pass").result.Action.Score;
-                var routeScore = Math.Max(item.result.Action.Score, passScoreForRoute + 72);
-                item.result.Action = item.result.Action with { Score = routeScore };
+
                 item.result.Reasons = item.result.Reasons.Concat(new[] {
                     "3.2对子路线例外：四对以上＋两家同缺一门，碰后保留对对和/金钩路线",
                     "3.2尊杠机会仅作为条件收益，已与碰后结构和速度共同比较"
                 }).Distinct().ToArray();
                 candidates[pairRoutePengIndex] = item;
-                scores["peng"] = routeScore;
-                best = item.result;
+                proposals.Add((item.result,20,"PAIR_ROUTE_EXCEPTION"));
             }
         }
 
@@ -238,7 +257,8 @@ public sealed class SichuanReactionDecisionEngine
             pass.Reasons = pass.Reasons.Concat(new[] {
                 "3.2嵌入对子：碰后只剩边张/残破间隔，未形成有效两面或坎张，保留抢和路线"
             }).Distinct().ToArray();
-            best = pass;
+            excluded.Add(SichuanActionType.Peng);
+            proposals.Add((pass,80,"WEAK_EMBEDDED_PAIR_PRESERVE"));
         }
 
         // The positive mirror of the rule above: when the embedded pair is
@@ -256,17 +276,14 @@ public sealed class SichuanReactionDecisionEngine
             if (pengIndex >= 0)
             {
                 var item = candidates[pengIndex];
-                var passScoreForPositive = candidates.First(candidate => candidate.action == "pass").result.Action.Score;
                 if (item.result.PlannedDiscardTile >= 0 && item.result.ShantenAfter <= currentFollowUp.Shanten)
                 {
-                    var score = Math.Max(item.result.Action.Score, passScoreForPositive + 72);
-                    item.result.Action = item.result.Action with { Score = score };
+
                     item.result.Reasons = item.result.Reasons.Concat(new[] {
                         "3.2嵌入对子：碰后形成有效两面/坎张，局部结构实际改善"
                     }).Distinct().ToArray();
                     candidates[pengIndex] = item;
-                    scores["peng"] = score;
-                    best = item.result;
+                    proposals.Add((item.result,20,"STRONG_EMBEDDED_PAIR"));
                 }
             }
         }
@@ -312,36 +329,34 @@ public sealed class SichuanReactionDecisionEngine
 						? "连续大脑反应闸门：拒绝碰成墙内 0 活张的死叫，保留门前真实改良张"
 						: "连续大脑反应闸门：保留门前宽进张和当前听口，拒绝表面降向听的低质量碰牌" })
                     .ToArray();
-                best = passCandidate;
+                excluded.Add(SichuanActionType.Peng);
+                proposals.Add((passCandidate,90,"PENG_CONTINUATION_QUALITY_GUARD"));
             }
         }
 
         if (SichuanOpponentWideBedDefense.Applies(state))
-        {
             foreach(var item in candidates.Where(c=>!c.result.OpponentWideBedDefenseAllowed))
-            {
-                item.result.Action=item.result.Action with{Score=int.MinValue/4};
-                scores[item.action]=item.result.Action.Score;
-            }
-            if(!best.OpponentWideBedDefenseAllowed)
-            {
-                best=candidates.First(c=>c.action=="pass").result;
-                best.Reasons=best.Reasons.Append("OPPONENT_WIDE_BED_AVOID_FORCED_RISK").ToArray();
-            }
-            best.Reasons=best.Reasons.Prepend(SichuanOpponentWideBedDefense.ActiveCode).ToArray();
-        }
-
+                excluded.Add(item.result.Action.ActionType);
         var mandatoryGangCandidate = candidates.FirstOrDefault(item => item.action == "gang");
-        if (mandatoryGang && mandatoryGangCandidate.result is not null)
+        // A mandatory rule action has explicit authority over strategic gates.
+        if(mandatoryGang && mandatoryGangCandidate.result is not null)
         {
-            mandatoryGangCandidate.result.Action = mandatoryGangCandidate.result.Action with
-            {
-                Score = best.Action.Score + 96,
-                Reason = "规则要求执行杠牌"
-            };
-            scores["gang"] = mandatoryGangCandidate.result.Action.Score;
-            best = mandatoryGangCandidate.result;
+            excluded.Remove(SichuanActionType.Gang);
+            proposals.Add((mandatoryGangCandidate.result,200,"MANDATORY_RULE_GANG"));
         }
+        var eligible=candidates.Where(c=>!excluded.Contains(c.result.Action.ActionType)).ToArray();
+        if(eligible.Length==0) throw new InvalidOperationException("reaction_constraints_have_no_legal_action");
+        var preferred=proposals.Where(p=>!excluded.Contains(p.Result.Action.ActionType))
+            .OrderByDescending(p=>p.Priority).ThenByDescending(p=>p.Result.Action.Score)
+            .ThenBy(p=>p.Result.Action.ActionType).ThenBy(p=>p.Code,StringComparer.Ordinal).ToArray();
+        best=preferred.Length>0 ? preferred[0].Result : eligible.OrderByDescending(c=>c.result.Action.Score)
+            .ThenByDescending(c=>unifiedMelds.Candidates.Any(v=>v.Action.ActionType == c.result.Action.ActionType && v.QuickReadyTiePreferred))
+            .ThenBy(c=>c.result.Action.ActionType).First().result;
+        best.Reasons=best.Reasons.Concat(proposals.Select(p=>$"REACTION_PROPOSAL_{p.Priority}_{p.Code}"))
+            .Concat(excluded.Order().Select(a=>$"REACTION_EXCLUDED_{a}"))
+            .Append("REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION").ToArray();
+        if(SichuanOpponentWideBedDefense.Applies(state))
+            best.Reasons=best.Reasons.Prepend(SichuanOpponentWideBedDefense.ActiveCode).ToArray();
 
         best.ValueCandidates = unifiedMelds.Candidates;
         if (!scores.ContainsKey("peng")) scores["peng"] = int.MinValue / 4;
@@ -355,6 +370,8 @@ public sealed class SichuanReactionDecisionEngine
                     ? $"PENG_IMMEDIATE_{finalPengCandidate.result.PlannedSelfAction.ToUpperInvariant()}_{finalPengCandidate.result.PlannedSelfActionTile}"
                     : $"PENG_PLANNED_DISCARD_{finalPengCandidate.result.PlannedDiscardTile}"
             }).ToArray();
+        best.Reasons = best.Reasons.Append(SichuanSearchBudget.Reason)
+            .Append("QUICK_READY_EXACT_VALUE_TIE_PREFERENCE").ToArray();
         return best;
     }
 
@@ -377,7 +394,7 @@ public sealed class SichuanReactionDecisionEngine
         if (state.InformationMode != "oracle")
         {
             var projectedState = SichuanUnifiedDecisionEngine.ProjectPengContinuation(state, handAfter, reactionTileType, sourceSeat);
-            plannedDiscard = new SichuanDecisionEngine().DecideDiscard(projectedState, forceLightweight, roundBrain).Action.TileType;
+            plannedDiscard = SichuanDiscardPolicy.Select(projectedState, roundBrain, state).Action.TileType;
             if (plannedDiscard is < 0 or >= 27 || handAfter[plannedDiscard] <= 0)
                 throw new InvalidOperationException("Peng continuation requires a legal discard from the current policy.");
         }
@@ -387,7 +404,7 @@ public sealed class SichuanReactionDecisionEngine
 			reactionTileType,
 			2,
 			meldCountAfter,
-			routeLoss: currentPlan.ForbidsMelds ? 12.0 : 0.0,
+			routeLoss: 0,
 			risk: 0,
 			gangGain: 0,
 			belief: belief,
@@ -584,7 +601,7 @@ public sealed class SichuanReactionDecisionEngine
             reactionTileType,
             3,
             meldCountAfter,
-            routeLoss: currentPlan.ForbidsGangs ? 6.0 : 0,
+            routeLoss: 0,
             risk: 0,
 			gangGain: 0,
 			belief: belief,
@@ -889,7 +906,10 @@ public sealed class SichuanReactionDecisionEngine
 					candidate.meldCountAfter,
 					ReactionSearchDepth,
 					wallOrder,
-					candidate.ownDrawOffset);
+                    candidate.ownDrawOffset,
+                    candidate.action == "peng" ? SichuanUnifiedDecisionEngine.ProjectPengContinuation(state,
+                        RemoveCopies(state.Hand18,candidate.result.Action.TileType,2),candidate.result.Action.TileType,state.CurrentSeat)
+                        : candidate.action == "gang" ? ProjectSearchGang(state,candidate.result.Action.TileType) : state);
                 simulations++;
             }
         }
@@ -897,6 +917,15 @@ public sealed class SichuanReactionDecisionEngine
             bonuses[key] /= Math.Max(1, ReactionSearchRollouts);
         var min = bonuses.Values.Min();
         return bonuses.ToDictionary(item => item.Key, item => (item.Value - min) * 0.18);
+    }
+
+    private static SichuanStateView ProjectSearchGang(SichuanStateView state,int tile)
+    {
+        var projected=SichuanBranchState.Copy(state,RemoveCopies(state.Hand18,tile,3),currentSeat:state.SeatIndex);
+        projected.MeldViews[state.SeatIndex].Add(new(Domain.SichuanMeldType.MeldedGang,tile,state.CurrentSeat,state.EventVersion+1));
+        projected.Melds18[state.SeatIndex].AddRange(Enumerable.Repeat(tile,4));
+        projected.Visible18[tile]+=3;
+        return projected;
     }
 
     private static int CanonicalSampleFirstSuit(SichuanStateView state, SichuanBeliefSnapshot belief)
@@ -932,8 +961,10 @@ public sealed class SichuanReactionDecisionEngine
 		int meldCount,
 		int depth,
 		IReadOnlyList<int> wallOrder,
-		int ownDrawOffset)
+        int ownDrawOffset,
+        SichuanStateView projected)
     {
+        var branch=SichuanBranchState.Copy(projected,initialHand);
         var hand = (int[])initialHand.Clone();
 		var remaining = new int[27];
 		foreach (var tile in wallOrder.Where(tile => tile is >= 0 and < 27))
@@ -950,11 +981,15 @@ public sealed class SichuanReactionDecisionEngine
 				&& (drawIndex - ownDrawOffset) % activePlayers == 0;
 			if (!isOwnDraw) continue;
             hand[draw]++;
-            var followUp = EvaluateBestFollowUp(hand, remaining, meldCount);
-            total += (8 - followUp.Shanten) * 1.7 + followUp.LiveUkeire * 0.34 + followUp.Ukeire * 0.16;
-            if (followUp.Shanten <= 0) total += 3.6;
-            if (followUp.BestDiscardTile >= 0 && hand[followUp.BestDiscardTile] > 0)
-                hand[followUp.BestDiscardTile]--;
+            var drawn=SichuanBranchState.AfterOwnDraw(branch,hand,draw,state.WallCount-drawIndex-1);
+            if(SichuanReadyWaitPricing.HasLegalOwnedContext(drawn,hand,drawn.MeldViews[drawn.SeatIndex])
+                && new Rules.SichuanExactHandAnalyzer().IsWinning(hand,meldCount,meldCount==0))
+            { total+=24;ownDraws++;break; }
+            var selected=SichuanDiscardPolicy.Select(drawn,source:state,searchLeaf:true);
+            total += (8-selected.Shanten)*1.7+selected.LiveUkeire*0.34+selected.Ukeire*0.16;
+            if(selected.Shanten<=0) total+=3.6;
+            branch=SichuanBranchState.AfterDiscard(drawn,selected.Action.TileType);
+            hand=(int[])branch.Hand18.Clone();
 			ownDraws++;
         }
 		return total / Math.Max(1, ownDraws);

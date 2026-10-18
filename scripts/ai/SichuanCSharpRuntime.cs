@@ -475,7 +475,9 @@ public partial class SichuanCSharpRuntime : Node
                 reactionResult.ThreatLevel,
                 reactionResult.RoundStage,
                 "csharp_reaction_aot_compact",
-                reactionResult.Reasons.FirstOrDefault() ?? string.Empty);
+                reactionResult.Reasons.FirstOrDefault() ?? string.Empty,
+                reactionResult.PlannedDiscardTile, reactionResult.PlannedSelfAction,
+                reactionResult.PlannedSelfActionTile, reactionResult.Command?.ToWire() ?? string.Empty);
         }
         catch (Exception ex)
         {
@@ -507,7 +509,9 @@ public partial class SichuanCSharpRuntime : Node
                 result.ShantenAfter,
                 result.LiveUkeireAfter,
                 "csharp_self_action_aot_compact",
-                result.Reasons.FirstOrDefault() ?? string.Empty);
+                result.Reasons.FirstOrDefault() ?? string.Empty,
+                result.ContinuationDiscardTile,
+                result.Command?.ToWire() ?? string.Empty);
         }
         catch (Exception ex)
         {
@@ -673,6 +677,8 @@ public partial class SichuanCSharpRuntime : Node
             ok = true,
 			action = "discard",
 			tileType = selectedTileType,
+            decisionPurpose = "discard_analysis_only",
+            executable = false,
             gangSubtype = result.GangSubtype,
 			score = selectedDetail?.Score ?? result.Action.Score,
 			shanten = selectedDetail?.Shanten ?? result.Shanten,
@@ -909,6 +915,10 @@ public partial class SichuanCSharpRuntime : Node
             reasons = result.Reasons,
             posteriorSummary = result.PosteriorSummary,
             futureSummary = result.FutureSummary,
+            plannedDiscardTile = result.PlannedDiscardTile,
+            plannedSelfAction = result.PlannedSelfAction,
+            plannedSelfActionTile = result.PlannedSelfActionTile,
+            decisionCommand = result.Command?.ToWire() ?? string.Empty,
             pengStructure = result.PengStructure,
             searchBonus = result.SearchBonus,
             searchSimulations = result.SearchSimulations,
@@ -991,6 +1001,8 @@ public partial class SichuanCSharpRuntime : Node
             action = result.Action.ActionType.ToString().ToLowerInvariant(),
             tileType = result.Action.TileType,
             gangSubtype = result.GangSubtype,
+            continuationDiscardTile = result.ContinuationDiscardTile,
+            decisionCommand = result.Command?.ToWire() ?? string.Empty,
             score = result.Action.Score,
             reason = result.Action.Reason,
             shantenAfter = result.ShantenAfter,

@@ -9,6 +9,8 @@ namespace SichuanMahjong.AI.Core.Decision;
 public sealed record SichuanGangReplacementBranch(int DrawTile,double Weight,int Shanten,int LiveUkeire,int DiscardTile,double TerminalReadyValue,bool ImmediateWin)
 {
     public double NoImmediateOpponentHuProbability { get; init; } = 1;
+    public double ReachReadyProbability { get; init; }
+    public double FutureSelfDrawProbability { get; init; }
 }
 
 public sealed record SichuanMeldCounterfactual(
@@ -29,6 +31,7 @@ public sealed record SichuanMeldCounterfactual(
     public int ImmediateGangGain { get; init; }
     public double ExpectedGangRefundLoss { get; init; }
     public double ExpectedGangDiscardExtraLoss { get; init; }
+    public double ExpectedDiscardRisk { get; init; }
     public double BrokenReadyOpportunityLoss { get; init; }
     public double DeadReadyBranchMass { get; init; }
     public double ReplacementWinGain { get; init; }
@@ -38,10 +41,16 @@ public sealed record SichuanMeldCounterfactual(
     public bool ContinuationLegalContextApplied { get; init; }
     public string ImmediateSelfAction { get; init; } = string.Empty;
     public int ImmediateSelfActionTile { get; init; } = -1;
+    public string ContinuationModel { get; init; } = "rounded_followup_legacy";
+    public double ReachReadyProbability { get; init; }
+    public double FutureSelfDrawProbability { get; init; }
+    public double ExpectedFutureSelfDrawGain { get; init; }
 }
 
 public sealed class SichuanMeldCounterfactualEvaluator
 {
+    private static bool UseTwoStage(SichuanStateView state) => state.PolicyVariant == "two_stage_meld_candidate_v1" || (SichuanSearchBudget.DeepMeld && SichuanSearchBudget.IsRoot(state));
+
     private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanUkeireEngine _ukeire = new();
 	private readonly SichuanBeliefEngine _belief = new();
@@ -63,7 +72,16 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		SichuanBeliefSnapshot? belief = null,
         int plannedDiscardTile = -1,
         int gangSourceSeat = -1)
+        => SichuanPolicyExecutionScope.Memoize(
+            $"meld/{SichuanSearchBudget.CacheTag}/{SichuanDecisionCommand.Fingerprint(state)}/{(action=="gang"?"melded_gang":action)}/{tileType}/{removeCount}/{meldCountAfter}/{routeLoss:R}/{risk:R}/{gangGain:R}/{plannedDiscardTile}/{gangSourceSeat}",
+            (SichuanPolicyExecutionScope.OwnPlan,belief),
+            ()=>EvaluateCore(state,action,tileType,removeCount,meldCountAfter,routeLoss,risk,gangGain,belief,plannedDiscardTile,gangSourceSeat)) with { Action=action };
+
+    private SichuanMeldCounterfactual EvaluateCore(SichuanStateView state,string action,int tileType,int removeCount,
+        int meldCountAfter,double routeLoss,double risk,double gangGain,SichuanBeliefSnapshot? belief,
+        int plannedDiscardTile,int gangSourceSeat)
     {
+        using var timing = SichuanPolicyTiming.Measure("meld_core");
 
         if (action == "add_gang" && !SichuanAddedGangRules.CanUpgrade(state, tileType))
             throw new InvalidOperationException("Illegal added Gang before a later own draw.");
@@ -80,7 +98,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
             var concealed = Enumerable.Range(0, 27).Where(t => t / 9 != state.OwnDingQueSuit
                 && claimedHand[t] == 4).ToArray();
             var self = new SichuanSelfActionDecisionEngine().DecideSelfAction(projected, false,
-                concealed, Array.Empty<int>(), roundBrain: SichuanPolicyExecutionScope.OwnPlan);
+                concealed, Array.Empty<int>(), roundBrain: SichuanDiscardPolicy.ForkPlan(state,projected,SichuanPolicyExecutionScope.OwnPlan));
             if (self.Action.ActionType == SichuanActionType.Gang)
             {
                 var isConcealed = self.GangSubtype == "an_gang";
@@ -104,7 +122,9 @@ public sealed class SichuanMeldCounterfactualEvaluator
         var melds = state.MeldViews[state.SeatIndex].Count > 0
             ? state.MeldViews[state.SeatIndex].ToArray()
             : InferMeldViews(state);
-        var projectedMelds = ProjectMelds(melds, action, tileType, state.EventVersion);
+        var projectedMelds = ProjectMelds(melds, action, tileType, state.EventVersion + 1);
+        if(action is "peng" or "gang" or "melded_gang")
+            projectedMelds[^1]=projectedMelds[^1] with { SourceSeat=gangSourceSeat>=0?gangSourceSeat:state.CurrentSeat };
         var activeSeatList = state.ActiveSeats
             .Select((active, seat) => (active, seat))
             .Where(item => item.active)
@@ -171,6 +191,13 @@ public sealed class SichuanMeldCounterfactualEvaluator
         }
         var progressChance = isReady || continuationWallCount <= 0 ? 0.0
 			: 1.0 - Math.Pow(1.0 - Math.Clamp(followUp.LiveUkeire / Math.Max(1.0, continuationWallCount), 0.0, 1.0), futureOwnDraws);
+        // Candidate is deliberately explicit until independent node checks and
+        // latency checks support promotion. Never turn a rounded mean shanten
+        // into a categorical ready/not-ready probability.
+        bool twoStage = UseTwoStage(state) && (!SichuanSearchBudget.Adaptive
+            || (followUp.Branches.Count > 0 ? followUp.Branches.All(b => b.ImmediateWin || b.Shanten <= 1) : followUp.Shanten <= 1));
+        var staged = twoStage ? followUp.StageChance ?? EvaluateFollowUpChance(
+            followUp, belief, ownTurnOffset) : null;
 		var brokenReadyOpportunityLoss=0.0;
 		var branchReadyApplied=false;
 		if(isGang && followUp.Branches.Count>0)
@@ -201,8 +228,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		var value = followUp.BaseValue
 			+ gangGain
 			- refundLoss
-			+ chance.ExpectedNetScore * 0.32
-			+ progressChance * 0.4
+			+ (staged?.Net ?? chance.ExpectedNetScore) * 0.32
+			+ (twoStage ? 0 : progressChance * 0.4)
 			+ Math.Clamp(followUp.ExpectedFan - 1.0, 0, 3) * 0.35
 			+ Math.Clamp(followUp.ExpectedSelfDrawGain / 8.0, 0, 4) * 0.12
 			+ Math.Clamp(followUp.ExpectedGangDrawBonus / 8.0, 0, 4) * 0.08
@@ -225,8 +252,13 @@ public sealed class SichuanMeldCounterfactualEvaluator
             BestDiscardTile = followUp.BestDiscardTile,
             StructuralValue = followUp.BaseValue,
             ImmediateGangGain = immediateGangGain,
+            ContinuationModel = twoStage ? "enumerated_ready_then_fixed_wait_public_model" : "rounded_followup_legacy",
+            ReachReadyProbability = staged?.ReadyProbability ?? 0,
+            FutureSelfDrawProbability = staged?.SelfDrawProbability ?? chance.OwnWinProbability,
+            ExpectedFutureSelfDrawGain = staged?.ExpectedSelfDrawGain ?? chance.ExpectedOwnWinGain,
             ExpectedGangRefundLoss = refundLoss,
             ExpectedGangDiscardExtraLoss = followUp.GangDiscardExtraLoss,
+            ExpectedDiscardRisk = followUp.DiscardRisk,
 			BrokenReadyOpportunityLoss = brokenReadyOpportunityLoss,
 			DeadReadyBranchMass = isGang && followUp.Branches.Count>0
 				? followUp.Branches.Where(b=>!b.ImmediateWin&&b.Shanten==0&&b.LiveUkeire<=0).Sum(b=>Math.Max(0,b.Weight)) : 0,
@@ -280,6 +312,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
         IReadOnlyList<int> activeSeats,
         SichuanSettlementProjectionEngine settlement)
     {
+        using var timing = SichuanPolicyTiming.Measure("meld_waiting");
         var shanten = _shanten.CalcLegalShanten(hand, meldCount, state.OwnDingQueSuit, meldCount == 0);
         var ready = shanten == 0 ? _readyPrices.Build(state, hand, wallAvailability.ExpectedCounts18, melds) : null;
         if (shanten == 0 && ready is null) shanten = 1;
@@ -307,7 +340,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
             priced.ExpectedSelfDrawGain,
             0,
             0,
-            CommonContinuationValue(shanten, expectedLive, priced.ExpectedFan, priced.ExpectedSelfDrawGain, wallAvailability.WallCount));
+            CommonContinuationValue(shanten, expectedLive, priced.ExpectedFan, priced.ExpectedSelfDrawGain, wallAvailability.WallCount))
+            { Continuation = SichuanBranchState.Continuation(state, hand, melds, wallAvailability.WallCount) };
     }
 
     // The same continuation must have the same value whether reached by
@@ -329,10 +363,16 @@ public sealed class SichuanMeldCounterfactualEvaluator
         int plannedDiscardTile = -1,
         SichuanBeliefSnapshot? belief = null, double? projectedGangCash = null)
     {
+        using var timing = SichuanPolicyTiming.Measure("meld_post_discard");
         belief ??= _belief.Build(state);
         var forcedSuit = state.OwnDingQueSuit is >= 0 and < 3
             && Enumerable.Range(state.OwnDingQueSuit*9,9).Any(t=>hand[t]>0) ? state.OwnDingQueSuit : -1;
 		var analyses = _hands.AnalyzeDiscards(hand, state.Remaining18, meldCount, meldCount == 0, forcedSuit);
+        var projected = SichuanBranchState.Continuation(state, hand, melds, wallAvailability.WallCount, projectedGangCash);
+        if (plannedDiscardTile < 0)
+            plannedDiscardTile = SichuanDiscardPolicy.Select(projected, source: state,
+                rootContinuation: SichuanSearchBudget.RootDiscardOnly && SichuanSearchBudget.IsRoot(projected)).Action.TileType;
+        var projectedBelief = _belief.Build(projected);
         FollowUpEvaluation? best = null;
         foreach (var analysis in analyses)
         {
@@ -350,7 +390,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
             var baseValue = CommonContinuationValue(legalShanten, expectedLive,
                 priced.ExpectedFan, priced.ExpectedSelfDrawGain, wallAvailability.WallCount);
             var gangDiscardExtra = SichuanGangDiscardLiability.ExpectedExtraLoss(state, analysis.DiscardTileType, belief, projectedGangCash);
-            baseValue -= gangDiscardExtra;
+            var discardRisk = new SichuanDangerEngine().EvaluateDetail(analysis.DiscardTileType,projected,projectedBelief).Risk/100.0;
+            baseValue -= gangDiscardExtra + discardRisk;
             var candidate = new FollowUpEvaluation(
 				legalShanten,
 				live,
@@ -359,11 +400,12 @@ public sealed class SichuanMeldCounterfactualEvaluator
                 priced.ExpectedSelfDrawGain,
                 0,
                 0,
-                baseValue) { GangDiscardExtraLoss = gangDiscardExtra };
+                baseValue) { GangDiscardExtraLoss = gangDiscardExtra, DiscardRisk = discardRisk,
+                    Continuation = SichuanBranchState.AfterDiscard(projected, analysis.DiscardTileType) };
             if (best is null || candidate.BaseValue > best.BaseValue)
                 best = candidate;
         }
-        return best ?? new FollowUpEvaluation(8, 0, -1, 0, 0, 0, 0, -20);
+        return best ?? throw new InvalidOperationException("shared_discard_policy_returned_illegal_continuation");
     }
 
     private FollowUpEvaluation EvaluateGangReplacement(
@@ -378,6 +420,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
         int gangSourceSeat,
         SichuanBeliefSnapshot belief, int immediateGangGain)
     {
+        using var timing = SichuanPolicyTiming.Measure("meld_replacement");
 		var totalRemaining = wallAvailability.ExpectedCounts18.Sum(value => Math.Max(0, value));
         if (totalRemaining <= 0)
 			return EvaluateWaitingHand(handAfterGang, state, wallAvailability, meldCount, melds, activeSeats, settlement);
@@ -390,9 +433,11 @@ public sealed class SichuanMeldCounterfactualEvaluator
         var replacementWin = 0.0;
         var baseValue = 0.0;
         var gangDiscardExtraLoss = 0.0;
+        var discardRisk = 0.0;
         var discardWeights = new Dictionary<int, double>();
         var branches = new List<SichuanGangReplacementBranch>();
         var wallRebuilt = false;
+        var staged = new SichuanTwoStageEstimate(0,0,0,0);
         for (var draw = 0; draw < 27; draw++)
         {
 			var copies = Math.Max(0.0, wallAvailability.ExpectedCounts18[draw]);
@@ -429,15 +474,25 @@ public sealed class SichuanMeldCounterfactualEvaluator
 				activeSeats,
 				settlement, belief: belief, projectedGangCash: immediateGangGain);
             wallRebuilt = true;
+            var branchChance = UseTwoStage(state)
+                ? EvaluateFollowUpChance(branch, belief, SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)) : null;
+            if (branchChance is not null) staged = new(
+                staged.ReadyProbability+weight*branchChance.ReadyProbability,
+                staged.SelfDrawProbability+weight*branchChance.SelfDrawProbability,
+                staged.ExpectedSelfDrawGain+weight*branchChance.ExpectedSelfDrawGain,
+                staged.ExpectedOpponentLoss+weight*branchChance.ExpectedOpponentLoss);
             shanten += branch.Shanten * weight;
             live += branch.LiveUkeire * weight;
             expectedFan += branch.ExpectedFan * weight;
             expectedGain += branch.ExpectedSelfDrawGain * weight;
             baseValue += branch.BaseValue * weight;
             gangDiscardExtraLoss += branch.GangDiscardExtraLoss * weight;
+            discardRisk += branch.DiscardRisk * weight;
             branches.Add(new(draw,weight,branch.Shanten,branch.LiveUkeire,branch.BestDiscardTile,
                 EvaluateTerminalReadyValue(Math.Max(0,state.WallCount-1),branch),false)
-                { NoImmediateOpponentHuProbability = branch.BestDiscardTile < 0 ? 1 :
+                { ReachReadyProbability = branchChance?.ReadyProbability ?? 0,
+                    FutureSelfDrawProbability = branchChance?.SelfDrawProbability ?? 0,
+                    NoImmediateOpponentHuProbability = branch.BestDiscardTile < 0 ? 1 :
                     SichuanGangDiscardLiability.NoImmediateHuProbability(state,branch.BestDiscardTile,belief) });
             if (branch.BestDiscardTile >= 0)
                 discardWeights[branch.BestDiscardTile] = discardWeights.GetValueOrDefault(branch.BestDiscardTile) + weight;
@@ -451,7 +506,47 @@ public sealed class SichuanMeldCounterfactualEvaluator
             expectedGain,
             gangBonus,
             replacementWin,
-            baseValue) { Branches = branches.ToArray(), WallConstraintsRebuilt = wallRebuilt, GangDiscardExtraLoss = gangDiscardExtraLoss };
+            baseValue) { Branches = branches.ToArray(), WallConstraintsRebuilt = wallRebuilt, GangDiscardExtraLoss = gangDiscardExtraLoss, DiscardRisk = discardRisk,
+                StageChance = UseTwoStage(state) ? staged : null };
+    }
+
+    private SichuanTwoStageEstimate EvaluateFollowUpChance(FollowUpEvaluation followUp,
+        SichuanBeliefSnapshot parentBelief, int offset)
+        => followUp.Continuation is null ? new(0,0,0,0) : SichuanPolicyExecutionScope.Memoize(
+            $"two-stage/{SichuanDecisionCommand.Fingerprint(followUp.Continuation)}/{offset}/{followUp.Shanten}",
+            SichuanPolicyExecutionScope.OwnPlan,()=>EvaluateFollowUpChanceCore(followUp,offset));
+
+    private SichuanTwoStageEstimate EvaluateFollowUpChanceCore(FollowUpEvaluation followUp,int offset)
+    {
+        using var timing = SichuanPolicyTiming.Measure("two_stage_followup");
+        var s = followUp.Continuation;
+        if(s is null || s.WallCount <= 0) return new(0,0,0,0);
+        var belief = _belief.Build(s); var wall = _wall.Build(s,belief);
+        int players = Math.Clamp(Enumerable.Range(0,4).Count(i=>s.ActiveSeats[i]&&!s.HasHu[i]),2,4);
+        double hazard = SichuanUnifiedDecisionEngine.EstimateOpponentWinPerDraw(s,belief,wall);
+        if(followUp.Shanten == 0)
+        {
+            var ready = _readyPrices.Build(s,s.Hand18,wall.ExpectedCounts18);
+            if(ready is null || !ready.HasDrawableWait)return new(1,0,0,0);
+            var chance = _tree.SearchChanceNodes(new(ready.PublicDrawableMass,s.WallCount,players,offset,
+                ready.WeightedSelfDrawPerPayer*(players-1),hazard,2.4,MaxDraws:s.WallCount));
+            return new(1,chance.OwnWinProbability,chance.ExpectedOwnWinGain,chance.ExpectedOpponentLoss);
+        }
+        if(followUp.Shanten != 1) return new(0,0,0,0);
+        var transitions = new List<SichuanReadyTransition>();
+        for(int draw=0;draw<27;draw++)
+        {
+            if(s.Remaining18[draw]<=0 || s.Hand18[draw]>=4 || wall.ExpectedCounts18[draw]<=0)continue;
+            var hand=(int[])s.Hand18.Clone();hand[draw]++;
+            if(_shanten.CalcLegalShanten(hand,s.OwnMeldCount,s.OwnDingQueSuit,s.OwnMeldCount==0)>0)continue;
+            var branch=SichuanBranchState.AfterOwnDraw(s,hand,draw,s.WallCount-1);
+            var discard=SichuanDiscardPolicy.Select(branch,source:s,searchLeaf:true).Action.TileType;
+            var after=SichuanBranchState.AfterDiscard(branch,discard);
+            var priced=_readyPrices.Build(after,after.Hand18,_wall.AfterHypotheticalOwnDraw(s,belief,draw).ExpectedCounts18);
+            if(priced is {HasDrawableWait:true})transitions.Add(new(wall.ExpectedCounts18[draw],
+                priced.PublicDrawableMass,priced.WeightedSelfDrawPerPayer*(players-1)));
+        }
+        return new SichuanTwoStageChanceModel().Evaluate(s.WallCount,players,offset,transitions,hazard,1.2);
     }
 
     private static WaitPricing PriceReady(SichuanReadyPrice? ready, int ownSeat, IReadOnlyList<int> activeSeats)
@@ -537,6 +632,9 @@ public sealed class SichuanMeldCounterfactualEvaluator
         public IReadOnlyList<SichuanGangReplacementBranch> Branches { get; init; } = Array.Empty<SichuanGangReplacementBranch>();
         public bool WallConstraintsRebuilt { get; init; }
         public double GangDiscardExtraLoss { get; init; }
+        public double DiscardRisk { get; init; }
+        public SichuanStateView? Continuation { get; init; }
+        public SichuanTwoStageEstimate? StageChance { get; init; }
     }
 
     private sealed record WaitPricing(double ExpectedFan, double ExpectedSelfDrawGain);

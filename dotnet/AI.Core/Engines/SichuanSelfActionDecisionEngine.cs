@@ -9,7 +9,6 @@ public sealed class SichuanSelfActionDecisionEngine
     private readonly SichuanUkeireEngine _ukeire = new();
     private readonly SichuanBeliefEngine _belief = new();
     private readonly SichuanDangerEngine _danger = new();
-	private readonly SichuanRoutePlanEngine _routePlan = new();
 	private readonly SichuanUnifiedDecisionEngine _unified = new();
 	private readonly SichuanMeldCounterfactualEvaluator _meldCounterfactual = new();
 
@@ -22,7 +21,9 @@ public sealed class SichuanSelfActionDecisionEngine
         IReadOnlyList<int>? mandatoryGangTileTypes = null,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = Decision.SichuanPolicyExecutionScope.EnterDecision();
+        SichuanSearchBudget.AllowRootDiscardSearch(state, anGangTileTypes.Count == 0 && addGangTileTypes.Count == 0);
         var scores = new Dictionary<string, int>();
 
         if (canSelfHu)
@@ -46,7 +47,6 @@ public sealed class SichuanSelfActionDecisionEngine
         var meldCount = state.OwnMeldCount;
         var belief = _belief.Build(state);
         var roundStage = new SichuanStageEvaluator().Evaluate(state, belief).StageIndex;
-        var currentPlan = _routePlan.Evaluate(state, roundBrain);
         var maxReadyPosterior = belief.SeatReadyPosterior.Values.DefaultIfEmpty(0.0).Max();
 		var threatLevel = ResolveThreatLevel(state, belief);
 		var currentValue = _meldCounterfactual.Evaluate(state, "continue", -1, 0, meldCount, 0, 0, 0, belief);
@@ -56,22 +56,26 @@ public sealed class SichuanSelfActionDecisionEngine
 			currentValue.LiveUkeire,
 			currentValue.BestDiscardTile,
 			Array.Empty<int>());
+		var passDiscardRisk = current.BestDiscardTile >= 0
+			? _danger.EvaluateDetail(current.BestDiscardTile, state, belief).Risk : 0;
 		var passScore = (int)Math.Round(Math.Clamp(currentValue.Value, -20, 20) * 100.0);
-		var preservesSevenPairs = meldCount == 0 && state.Hand18.Sum(count => count / 2) >= 5;
 		scores["pass"] = passScore;
 
         var best = new SichuanSelfActionDecisionResult
         {
-            Action = new SichuanAction(SichuanActionType.Pass, -1, passScore, "保留当前最快成叫路径"),
+            Action = new SichuanAction(SichuanActionType.Pass, -1, passScore, "保留已比较的具体弃牌后手"),
+            ContinuationDiscardTile = current.BestDiscardTile,
             ShantenAfter = current.Shanten,
             LiveUkeireAfter = current.LiveUkeire,
-			Reasons = new[] { $"当前最快向听 {current.Shanten}", $"当前活张 {current.LiveUkeire}", $"继续出牌统一净值 {currentValue.Value:F2}", "CONTINUATION_LEGAL_READY_CONTEXT" }
-				.Concat(preservesSevenPairs ? new[] { "七对路线：五对以上保留门清与四张牌的 2+2 结构" } : Array.Empty<string>())
-				.Concat(BuildRouteProtectionPassReasons(state, currentPlan))
-                .Concat(currentPlan.Reasons)
+			Reasons = new[] { $"当前后手向听 {current.Shanten}", $"当前活张 {current.LiveUkeire}", $"继续出牌统一净值 {currentValue.Value:F2}", "CONTINUATION_LEGAL_READY_CONTEXT",
+					$"SELF_PASS_PLANNED_DISCARD_{current.BestDiscardTile}", $"当前后手弃牌风险已计价 {currentValue.ExpectedDiscardRisk:F4}",
+					"SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION" }
+				.Concat(BuildContinuationRouteReasons(state, current.BestDiscardTile))
                 .ToArray(),
             ActionScores = scores
         };
+        var budgetOptions = new List<SichuanSearchBudget.Option> {
+            new("continue", passScore, current.Shanten, current.LiveUkeire, currentValue.ExpectedDiscardRisk) };
         var candidateReasons = new Dictionary<string,string[]> { ["pass"] = best.Reasons.ToArray() };
         SichuanSelfActionDecisionResult? mandatoryGang = null;
         var mandatoryTiles = (mandatoryGangTileTypes ?? Array.Empty<int>()).ToHashSet();
@@ -79,11 +83,12 @@ public sealed class SichuanSelfActionDecisionEngine
         foreach (var tileType in anGangTileTypes.Where(tile => tile is >= 0 and < 27).Distinct())
         {
             if (state.Hand18[tileType] < 4) continue;
-			var candidate = EvaluateSelfGang(state, belief, tileType, "an_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, preservesSevenPairs: preservesSevenPairs);
+			var candidate = EvaluateSelfGang(state, belief, tileType, "an_gang", current, meldCount, roundStage, threatLevel, maxReadyPosterior);
             scores[$"an_gang:{tileType}"] = candidate.Action.Score;
             candidateReasons[$"an_gang:{tileType}"] = candidate.Reasons.ToArray();
             if(!candidate.OpponentWideBedDefenseAllowed&&!mandatoryTiles.Contains(tileType))
             {scores[$"an_gang:{tileType}"]=int.MinValue/4;continue;}
+            budgetOptions.Add(new("an_gang", candidate.Action.Score, candidate.ShantenAfter, candidate.LiveUkeireAfter, candidate.ContinuationDiscardRisk));
             if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
                 mandatoryGang = candidate;
             if (candidate.Action.Score > best.Action.Score)
@@ -96,11 +101,12 @@ public sealed class SichuanSelfActionDecisionEngine
             // Retain the old argument for transport compatibility, but never
             // condition a fair decision on concealed-hand-derived legal counts.
             var robGangRisk = PublicRobGangRisk(state, belief, tileType);
-			var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, currentPlan, meldCount, roundStage, threatLevel, maxReadyPosterior, robGangRisk, preservesSevenPairs);
+			var candidate = EvaluateSelfGang(state, belief, tileType, "add_gang", current, meldCount, roundStage, threatLevel, maxReadyPosterior, robGangRisk);
             scores[$"add_gang:{tileType}"] = candidate.Action.Score;
             candidateReasons[$"add_gang:{tileType}"] = candidate.Reasons.ToArray();
             if(!candidate.OpponentWideBedDefenseAllowed&&!mandatoryTiles.Contains(tileType))
             {scores[$"add_gang:{tileType}"]=int.MinValue/4;continue;}
+            budgetOptions.Add(new("add_gang", candidate.Action.Score, candidate.ShantenAfter, candidate.LiveUkeireAfter, candidate.ContinuationDiscardRisk));
             if (mandatoryTiles.Contains(tileType) && (mandatoryGang is null || candidate.Action.Score > mandatoryGang.Action.Score))
                 mandatoryGang = candidate;
             if (robGangRisk > 0 && candidate.Action.Score <= best.Action.Score)
@@ -127,10 +133,19 @@ public sealed class SichuanSelfActionDecisionEngine
             best = mandatoryGang;
         }
 
+        if (mandatoryTiles.Count == 0)
+        {
+            using var upgrade = SichuanSearchBudget.TryDeep(state,
+                SichuanSearchBudget.Qualify(state, budgetOptions, maxReadyPosterior >= 0.55), meld: true, terminal: true);
+            if (upgrade is not null)
+                return DecideSelfAction(state, canSelfHu, anGangTileTypes, addGangTileTypes,
+                    addGangQiangGangCounts, mandatoryGangTileTypes, roundBrain);
+        }
         if(SichuanOpponentWideBedDefense.Applies(state))
             best.Reasons=best.Reasons.Prepend(SichuanOpponentWideBedDefense.ActiveCode).ToArray();
         best.CandidateReasons = candidateReasons;
         best.ActionScores = new Dictionary<string, int>(scores);
+        best.Reasons = best.Reasons.Append(SichuanSearchBudget.Reason).ToArray();
         return best;
     }
 
@@ -140,13 +155,11 @@ public sealed class SichuanSelfActionDecisionEngine
         int tileType,
         string subtype,
         FollowUpSummary current,
-        SichuanRoutePlanResult currentPlan,
         int meldCount,
         int roundStage,
         int threatLevel,
         double maxReadyPosterior,
-		double robGangRisk = 0,
-		bool preservesSevenPairs = false)
+		double robGangRisk = 0)
     {
         var removeCount = subtype == "an_gang" ? 4 : 1;
         var meldCountAfter = subtype == "an_gang" ? meldCount + 1 : meldCount;
@@ -156,7 +169,10 @@ public sealed class SichuanSelfActionDecisionEngine
             tileType,
             removeCount,
             meldCountAfter,
-			routeLoss: currentPlan.ForbidsGangs || preservesSevenPairs ? 12.0 : 0,
+			// The competing continuation already evaluates the actual closed
+			// hand's legal distance and, when ready, all wait/fan prices. A route
+			// label is not an additional asset worth a fixed twelve units.
+			routeLoss: 0,
             risk: 0,
 			gangGain: 0,
 			belief: belief);
@@ -169,9 +185,9 @@ public sealed class SichuanSelfActionDecisionEngine
         var discardRisk = followUp.BestDiscardTile >= 0
             ? _danger.EvaluateDetail(followUp.BestDiscardTile, state, belief).Risk
             : 0;
-        // One modeled value and one discard risk charge. Route opportunity
-        // cost is already included in the counterfactual, never charged twice.
-        var score = (int)Math.Round(Math.Clamp(counterfactual.Value - discardRisk / 100.0, -20, 20) * 100.0);
+        // The common evaluator already prices risk at every concrete child;
+        // never charge only the representative Gang discard a second time.
+        var score = (int)Math.Round(Math.Clamp(counterfactual.Value, -20, 20) * 100.0);
 
         var robGangLoss = 0;
         if (subtype == "add_gang" && robGangRisk > 0)
@@ -216,8 +232,7 @@ public sealed class SichuanSelfActionDecisionEngine
 			if (ongoingBranches.Any(b => b.Shanten == 0) && ongoingBranches.Any(b => b.Shanten > 0))
 				reasons.Add("仅部分补牌后手能听，向听摘要不代表所有后手均已听牌");
 		}
-		if (currentPlan.ForbidsGangs || preservesSevenPairs)
-			reasons.Add($"七对路线：{currentPlan.PrimaryRoute}的{label}需计入破坏七对的机会成本");
+		reasons.Add("SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION");
         if (hasBranchProfile && ongoingBranches.Length > 0 && ongoingBranches.All(b => b.Shanten <= current.Shanten))
             reasons.Add("所评估的补牌后手均不增加向听，实际杠分仍需与改良机会比较");
         if (hasBranchProfile && ongoingBranches.Length == 0)
@@ -238,6 +253,7 @@ public sealed class SichuanSelfActionDecisionEngine
         return new SichuanSelfActionDecisionResult
         {
             OpponentWideBedDefenseAllowed=defenseAllowed,
+            ContinuationDiscardRisk=counterfactual.ExpectedDiscardRisk,
             Action = new SichuanAction(SichuanActionType.Gang, tileType, score, reasons[0]),
             GangSubtype = subtype,
             ShantenAfter = followUp.Shanten,
@@ -290,14 +306,17 @@ public sealed class SichuanSelfActionDecisionEngine
         return Math.Clamp(total, 0, 5);
     }
 
-    private static IReadOnlyList<string> BuildRouteProtectionPassReasons(
-        SichuanStateView state,
-        SichuanRoutePlanResult currentPlan)
+    private IReadOnlyList<string> BuildContinuationRouteReasons(SichuanStateView state, int discardTile)
     {
-        var meldCount = state.OwnMeldCount;
-        if (currentPlan.ForbidsGangs || meldCount > 0 || CountPairs(state.Hand18) < 5)
+        if (state.OwnMeldCount > 0 || CountPairs(state.Hand18) < 5 || discardTile is < 0 or >= 27)
             return Array.Empty<string>();
-        return new[] { "七对路线：五对以上门清牌优先过牌，保留七对/龙七对" };
+        var after = (int[])state.Hand18.Clone(); after[discardTile]--;
+        var beforeDistance = _shanten.CalcSevenPairsShanten(state.Hand18);
+        var afterDistance = _shanten.CalcSevenPairsShanten(after);
+        var retained = CountPairs(after) >= CountPairs(state.Hand18) && afterDistance <= beforeDistance;
+        return retained
+            ? new[] { "SEVEN_PAIRS_CONTINUATION_RETAINED", $"七对路线：具体弃牌后保留对子结构，七对向听 {afterDistance}" }
+            : new[] { "SEVEN_PAIRS_CONTINUATION_ABANDONED", $"具体弃牌后七对向听 {beforeDistance}→{afterDistance}，按实际后手比较，不声称保留七对" };
     }
 
     public static double PublicRobGangRisk(SichuanStateView state, SichuanBeliefSnapshot belief, int tileType)
@@ -319,7 +338,7 @@ public sealed class SichuanSelfActionDecisionEngine
     }
 
     private static int CountPairs(int[] hand18)
-        => hand18.Count(count => count >= 2);
+        => hand18.Sum(count => count / 2);
 
     private static int[] RemoveCopies(int[] hand18, int tileType, int removeCount)
     {

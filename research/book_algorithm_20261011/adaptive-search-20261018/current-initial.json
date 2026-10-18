@@ -1,0 +1,212 @@
+{
+  "progressCache": {
+    "lookups": 4465,
+    "fullHits": 3102,
+    "computedTiles": 15721,
+    "entries": 1033,
+    "capacity": 8192
+  },
+  "variant": "current",
+  "elapsedMs": 1018.2157,
+  "Action": {
+    "ActionType": "Peng",
+    "TileType": 26,
+    "Score": 1001,
+    "Reason": "\u78B0\u540E\u6700\u4F73\u5411\u542C 0"
+  },
+  "ActionScores": {
+    "pass": 106,
+    "peng": 1001,
+    "gang": 512
+  },
+  "Reasons": [
+    "\u78B0\u540E\u6700\u4F73\u5411\u542C 0",
+    "\u78B0\u540E\u6D3B\u5F20 7",
+    "\u78B0\u540E\u9996\u6253\u5371\u9669 28",
+    "CONTINUATION_LEGAL_READY_CONTEXT",
+    "\u78B0\u540E\u53EF\u76F4\u63A5\u6210\u53EB",
+    "\u78B0\u724C\u660E\u663E\u63D0\u901F",
+    "\u78B0\u540E\u5BF9\u5B50\u5197\u4F59\u4E0B\u964D\uFF0C\u724C\u578B\u66F4\u5229\u4E8E\u65E9\u542C",
+    "\u5BF9\u5B50\u591A\u4E14\u4E03\u5BF9\u8DEF\u7EBF\u4E0D\u7A33\uFF0C\u8001\u624B\u4E3B\u52A8\u78B0\u724C\u62A2\u542C",
+    "\u7EDF\u4E00\u52A8\u4F5C\u51C0\u503C 10.01",
+    "\u65E7\u542F\u53D1\u5F0F\u4EC5\u4F5C\u8BCA\u65AD \u002B40\uFF0C\u4E0D\u53C2\u4E0E\u9009\u62E9",
+    "COUNTERFACTUAL_SHANTEN_0",
+    "COUNTERFACTUAL_LIVE_7",
+    "COUNTERFACTUAL_EV_10.01",
+    "CONTINUATION_MODEL_rounded_followup_legacy",
+    "MODEL_REACH_READY_0.000000",
+    "MODEL_FUTURE_SELF_DRAW_0.467650",
+    "PENG_DISTANCE_IMPROVES",
+    "PENG_FUTURE_ADDED_GANG_NO_GREED",
+    "PENG_OWN_DRAW_BUDGET_9_9",
+    "PENG_HELD_FOURTH_DEFERRED_NO_GANG_SCORE",
+    "REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION",
+    "\u7EDF\u4E00\u53CD\u4E8B\u5B9E\u5C42\u5DF2\u53C2\u4E0E\u5168\u5019\u9009\u6392\u5E8F\uFF0C\u6700\u7EC8\u52A8\u4F5C\u670D\u4ECE\u89C4\u5219\u3001\u771F\u5B9E\u65F6\u5E8F\u548C\u8FDE\u7EED\u5927\u8111\u95F8\u95E8",
+    "SEARCH_BUDGET_FAST",
+    "QUICK_READY_EXACT_VALUE_TIE_PREFERENCE"
+  ],
+  "timings": [
+    {
+      "Name": "belief",
+      "TotalMs": 198.514579,
+      "SelfMs": 198.514579,
+      "Calls": 85
+    },
+    {
+      "Name": "terminal_readiness_compute",
+      "TotalMs": 173.481166,
+      "SelfMs": 173.481166,
+      "Calls": 13
+    },
+    {
+      "Name": "discard",
+      "TotalMs": 686.645292,
+      "SelfMs": 141.487582,
+      "Calls": 23
+    },
+    {
+      "Name": "improvement",
+      "TotalMs": 117.161213,
+      "SelfMs": 117.161213,
+      "Calls": 116
+    },
+    {
+      "Name": "qing",
+      "TotalMs": 97.333749,
+      "SelfMs": 51.916993,
+      "Calls": 14
+    },
+    {
+      "Name": "brain",
+      "TotalMs": 242.595333,
+      "SelfMs": 50.303003,
+      "Calls": 24
+    },
+    {
+      "Name": "flush",
+      "TotalMs": 45.908714,
+      "SelfMs": 45.908714,
+      "Calls": 236
+    },
+    {
+      "Name": "single_lane",
+      "TotalMs": 41.461373,
+      "SelfMs": 41.461373,
+      "Calls": 14
+    },
+    {
+      "Name": "chance_dp",
+      "TotalMs": 38.061291,
+      "SelfMs": 38.061291,
+      "Calls": 25
+    },
+    {
+      "Name": "shape_compute",
+      "TotalMs": 134.302421,
+      "SelfMs": 24.913792,
+      "Calls": 114
+    },
+    {
+      "Name": "ready_pricing",
+      "TotalMs": 21.191505,
+      "SelfMs": 21.191505,
+      "Calls": 165
+    },
+    {
+      "Name": "unified_discard",
+      "TotalMs": 412.42129,
+      "SelfMs": 14.717831,
+      "Calls": 14
+    },
+    {
+      "Name": "meld_post_discard",
+      "TotalMs": 585.914583,
+      "SelfMs": 8.464502,
+      "Calls": 23
+    },
+    {
+      "Name": "context/HandEvaluator",
+      "TotalMs": 8.350293,
+      "SelfMs": 8.350293,
+      "Calls": 14
+    },
+    {
+      "Name": "context/TileDangerEvaluator",
+      "TotalMs": 6.589335,
+      "SelfMs": 6.589335,
+      "Calls": 14
+    },
+    {
+      "Name": "meld_core",
+      "TotalMs": 601.384416,
+      "SelfMs": 5.609874,
+      "Calls": 3
+    },
+    {
+      "Name": "terminal_readiness",
+      "TotalMs": 178.526709,
+      "SelfMs": 5.045543,
+      "Calls": 13
+    },
+    {
+      "Name": "meld_replacement",
+      "TotalMs": 583.248167,
+      "SelfMs": 4.299125,
+      "Calls": 1
+    },
+    {
+      "Name": "context/LongTermEVPolicy",
+      "TotalMs": 2.480501,
+      "SelfMs": 2.480501,
+      "Calls": 14
+    },
+    {
+      "Name": "route_continuation",
+      "TotalMs": 2.542372,
+      "SelfMs": 2.050414,
+      "Calls": 118
+    },
+    {
+      "Name": "chance_model",
+      "TotalMs": 40.093758,
+      "SelfMs": 2.032467,
+      "Calls": 122
+    },
+    {
+      "Name": "shape",
+      "TotalMs": 135.802788,
+      "SelfMs": 1.500367,
+      "Calls": 236
+    },
+    {
+      "Name": "context/OpponentDangerEvaluator",
+      "TotalMs": 0.778748,
+      "SelfMs": 0.778748,
+      "Calls": 14
+    },
+    {
+      "Name": "context/AttackEligibilityEvaluator",
+      "TotalMs": 0.702209,
+      "SelfMs": 0.702209,
+      "Calls": 14
+    },
+    {
+      "Name": "context/StrategyModeStateMachine",
+      "TotalMs": 0.422916,
+      "SelfMs": 0.422916,
+      "Calls": 14
+    },
+    {
+      "Name": "context/StageEvaluator",
+      "TotalMs": 0.244248,
+      "SelfMs": 0.244248,
+      "Calls": 14
+    },
+    {
+      "Name": "meld_waiting",
+      "TotalMs": 0.110792,
+      "SelfMs": 0.110792,
+      "Calls": 1
+    }
+  ]
+}

@@ -4,9 +4,17 @@ namespace SichuanMahjong.AI.Core.Decision;
 /// is forbidden while choosing an action. AsyncLocal isolates requests.</summary>
 public sealed class SichuanPolicyExecutionScope : IDisposable
 {
-    public const string PolicyDescription = "production_strategy_local_analysis_v2";
+    public const string PolicyDescription = "production_strategy_adaptive_budget_v3";
     private static readonly AsyncLocal<int> Depth = new();
     private static readonly AsyncLocal<int> DecisionDepth = new();
+    private static readonly AsyncLocal<System.Collections.Concurrent.ConcurrentDictionary<(string Key,object? Context),object>?> DecisionValues = new();
+    internal static T Memoize<T>(string key, object? context, Func<T> compute) where T : class
+    {
+        var values=DecisionValues.Value;
+        if(values is null)return compute();
+        if(values.TryGetValue((key,context),out var saved))return (T)saved;
+        var result=compute();values[(key,context)]=result;return result;
+    }
     public static bool IsSimulation => Depth.Value > 0;
     public static IDisposable EnterDecision() => new DecisionScope();
     public static void RequireResearchContext()
@@ -16,8 +24,16 @@ public sealed class SichuanPolicyExecutionScope : IDisposable
     }
     private sealed class DecisionScope : IDisposable
     {
-        public DecisionScope() { DecisionDepth.Value++; }
-        public void Dispose() { DecisionDepth.Value--; }
+        public DecisionScope()
+        {
+            if(DecisionDepth.Value==0)DecisionValues.Value=new();
+            DecisionDepth.Value++;
+        }
+        public void Dispose()
+        {
+            DecisionDepth.Value--;
+            if(DecisionDepth.Value==0)DecisionValues.Value=null;
+        }
     }
     private static readonly AsyncLocal<SichuanMahjong.AI.Core.Models.SichuanRoundBrainSnapshot?> Memory = new();
     public static SichuanMahjong.AI.Core.Models.SichuanRoundBrainSnapshot? OwnPlan => Memory.Value;

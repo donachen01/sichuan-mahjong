@@ -23,8 +23,6 @@ public sealed record SichuanQingPlanCandidate(
 
 public sealed class SichuanQingYiSePlanner
 {
-    private readonly SichuanExactHandAnalyzer _analyzer = new();
-    private readonly SichuanShantenEngine _shanten = new();
     private readonly SichuanFlushStructureEngine _flushStructure = new();
 	private readonly SichuanWallAvailabilityEngine _wall = new();
 	private readonly SichuanBeliefEngine _belief = new();
@@ -171,6 +169,7 @@ public sealed class SichuanQingYiSePlanner
         int drawnTile,
         int missingSuit = -1)
     {
+        var cursor=new SichuanHandDistanceCursor(drawnHand,meldCount);
         var bestDiscard = -1;
         var bestShanten = 8;
         var bestLive = -1;
@@ -180,7 +179,9 @@ public sealed class SichuanQingYiSePlanner
         {
             if (drawnHand[discard] <= 0) continue;
             if (missingCount > 0 && discard / 9 != missingSuit) continue;
-            var shanten = _shanten.CalcShantenAfterDiscard(drawnHand, discard, meldCount, meldCount == 0);
+            cursor.Change(discard,-1);
+            var shanten = cursor.Best(meldCount == 0);
+            cursor.Change(discard,1);
             // A structurally complete/tight hand still carrying the missing
             // suit is not ready under Sichuan rules.
             if (missingCount > 1) shanten = Math.Max(1, shanten);
@@ -188,16 +189,24 @@ public sealed class SichuanQingYiSePlanner
             var liveWaits = 0;
             if (shanten == 0)
             {
-                drawnHand[discard]--;
-                var adjustedRemaining = remaining.ToArray();
-                if (drawnTile is >= 0 and < 27) adjustedRemaining[drawnTile] = Math.Max(0, adjustedRemaining[drawnTile] - 1);
-                // The discarded tile becomes public; it does not return to
-                // the wall or unknown supply. Only consume the simulated draw.
-                var legalWaits = _analyzer.EnumerateWaits(drawnHand, null, meldCount)
-                    .Where(wait => wait.TileType / 9 != missingSuit).ToArray();
-                liveWaits = legalWaits.Sum(wait => adjustedRemaining[wait.TileType]);
-                if (legalWaits.Length == 0) shanten = Math.Max(1, shanten);
-                drawnHand[discard]++;
+                cursor.Change(discard,-1);
+                // Only wait membership and copies are needed here, not fan
+                // decompositions. This uses the same exact winning-distance
+                // solver and the same physical four-copy/missing-suit checks.
+                bool hasLegalWait=false;
+                for(int tile=0;tile<27;tile++)
+                {
+                    if(tile/9==missingSuit||drawnHand[tile]>=4)continue;
+                    cursor.Change(tile,1);
+                    bool wins=cursor.Best()<0;
+                    cursor.Change(tile,-1);
+                    if(!wins)continue;
+                    hasLegalWait=true;
+                    // Discards stay public. Only consume the simulated draw.
+                    liveWaits+=tile==drawnTile?Math.Max(0,remaining[tile]-1):remaining[tile];
+                }
+                if(!hasLegalWait)shanten=Math.Max(1,shanten);
+                cursor.Change(discard,1);
             }
             if (shanten < bestShanten || liveWaits > bestLive)
             {

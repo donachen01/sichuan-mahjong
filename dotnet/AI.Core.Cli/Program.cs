@@ -811,6 +811,9 @@ static object BuildReactionObject(SichuanAiFacade facade, ReactionPayload payloa
         ukeireAfter = result.UkeireAfter,
         liveUkeireAfter = result.LiveUkeireAfter,
         plannedDiscardTile = result.PlannedDiscardTile,
+        plannedSelfAction = result.PlannedSelfAction,
+        plannedSelfActionTile = result.PlannedSelfActionTile,
+        decisionCommand = result.Command?.ToWire() ?? string.Empty,
         currentShanten = result.CurrentShanten,
         currentLiveUkeire = result.CurrentLiveUkeire,
         threatLevel = result.ThreatLevel,
@@ -848,6 +851,8 @@ static object BuildSelfActionObject(SichuanAiFacade facade, SelfActionPayload pa
         reason = result.Action.Reason,
         shantenAfter = result.ShantenAfter,
         liveUkeireAfter = result.LiveUkeireAfter,
+        continuationDiscardTile = result.ContinuationDiscardTile,
+        decisionCommand = result.Command?.ToWire() ?? string.Empty,
         reasons = result.Reasons,
         actionScores = result.ActionScores,
         backendMode = "csharp_self_action"

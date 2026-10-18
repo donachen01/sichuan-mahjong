@@ -1,0 +1,10 @@
+  bash arg: -p
+  bash arg: com.chendong.sichuanmahjong
+  bash arg: 1
+args: [-p, com.chendong.sichuanmahjong, 1]
+ arg: "-p"
+ arg: "com.chendong.sichuanmahjong"
+ arg: "1"
+data="com.chendong.sichuanmahjong"
+Events injected: 1
+## Network stats: elapsed time=14ms (0ms mobile, 0ms wifi, 14ms not connected)

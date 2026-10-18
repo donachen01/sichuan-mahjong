@@ -1,0 +1,37 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "install",
+      "app",
+      "--device",
+      "516E99D2-18B6-5DD8-94E1-6993510A036D",
+      "--json-output",
+      "evidence/2.6.88_release_20261018/ios-install.json",
+      "build/ios/SichuanMahjong-2.6.88-adaptive-20261018-ios-xcode/DerivedData-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app"
+    ],
+    "commandType" : "devicectl.device.install.app",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 3,
+    "outcome" : "success",
+    "version" : "518.33"
+  },
+  "result" : {
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "installedApplications" : [
+      {
+        "bundleID" : "com.chendong.sichuanmahjong.iosdev",
+        "databaseSequenceNumber" : 3124,
+        "databaseUUID" : "17F212F3-2714-4F0E-A5E2-321D5D80FCE8",
+        "installationURL" : "file:///private/var/containers/Bundle/Application/8A5E6D53-74D9-48CC-8843-D3ABFC7DB54D/SichuanMahjongIOS.app/",
+        "launchServicesIdentifier" : "unknown",
+        "options" : {
+
+        }
+      }
+    ]
+  }
+}

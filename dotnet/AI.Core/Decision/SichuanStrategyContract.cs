@@ -12,7 +12,7 @@ public sealed record SichuanStrategyAssessment(string Version, string Objective,
 
 public static class SichuanStrategyContract
 {
-    public const string Version = "strategy-contract-v29-flying-gang-route";
+    public const string Version = "strategy-contract-v30-unified-seat-decision";
     public const string Objective = "own_expected_terminal_net_with_rule_costs";
 
     public static SichuanStrategyAssessment Assess(SichuanStateView state)

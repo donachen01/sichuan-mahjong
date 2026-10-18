@@ -56,7 +56,13 @@ public sealed class SichuanUnifiedDecisionEngine
             return new SichuanShantenEngine().LegalImprovingTiles(hand, state.Remaining18, meldCount, state.OwnDingQueSuit);
         }
         var minimumLegalDistance = analyses.Count > 0 ? analyses.Min(LegalDistance) : 8;
-        var terminalReadiness = readyProfiles.Values.Any(r => r is not null)
+        // Full endgame projection is a late/high-threat calculation. Early
+        // ready hands use their exact live waits and leave cha-jiao payer
+        // estimation to the current terminal model only when it can change
+        // the decision materially.
+        var needsTerminalReadiness = state.WallCount <= 24
+            || belief.SeatReadyPosterior.Values.Any(v => v >= 0.55);
+        var terminalReadiness = needsTerminalReadiness && readyProfiles.Values.Any(r => r is not null)
             ? new SichuanTerminalReadinessProjection().Evaluate(state, belief) : null;
 		foreach (var analysis in analyses)
 		{
@@ -255,7 +261,8 @@ public sealed class SichuanUnifiedDecisionEngine
 			candidates.Add(FromCounterfactual(_melds.Evaluate(state, "peng", tileType, 2, meldCount + 1, routeLoss, risk, 0, belief, pengDiscardTile, gangSourceSeat), new SichuanAction(SichuanActionType.Peng, tileType)));
 		if (canGang && state.Hand18[tileType] >= 3)
 			candidates.Add(FromCounterfactual(_melds.Evaluate(state, "melded_gang", tileType, 3, meldCount + 1, routeLoss, risk, 0, belief, gangSourceSeat:gangSourceSeat), new SichuanAction(SichuanActionType.Gang, tileType)));
-		var ordered = candidates.OrderByDescending(candidate => candidate.ExpectedNetScore).ToArray();
+		var ordered = candidates.OrderByDescending(candidate => candidate.ExpectedNetScore)
+            .ThenByDescending(candidate => candidate.QuickReadyTiePreferred).ToArray();
 		return new SichuanDecisionExplanation(ordered[0].Action.ActionType, $"反事实净分选择 {ordered[0].Action.ActionType}", ordered[0].ReasonCodes, ordered);
 	}
 
@@ -435,7 +442,7 @@ public sealed class SichuanUnifiedDecisionEngine
             var hand = (int[])state.Hand18.Clone(); hand[winningTileType] -= 2;
             var projected = ProjectPengContinuation(state, hand, winningTileType, sourceSeat);
             // Price the discard the live production policy will actually choose.
-            pengDiscard = new SichuanDecisionEngine().DecideDiscard(projected, false, roundBrain).Action.TileType;
+            pengDiscard = SichuanDiscardPolicy.Select(projected, roundBrain, state).Action.TileType;
         }
         var seed = 20261002 ^ state.RoundIndex * 7919 ^ state.TurnIndex * 104729 ^ (state.SeatIndex << 16);
         var discovery = _publicEndgame.AnalyzeHuContinuation(state, winningTileType, sourceSeat, reactionType,
@@ -493,32 +500,9 @@ public sealed class SichuanUnifiedDecisionEngine
 
 	internal static SichuanStateView ProjectPengContinuation(SichuanStateView state, int[] hand, int tileType, int sourceSeat)
 	{
-		var projected = new SichuanStateView
-		{
-			SeatIndex = state.SeatIndex, DealerSeat = state.DealerSeat, CurrentSeat = state.SeatIndex,
-			WallCount = state.WallCount, TurnIndex = state.TurnIndex, Phase = 5, // GameState.RoundPhase.DISCARD
-			RoundIndex = state.RoundIndex, TotalRounds = state.TotalRounds, RemainingRounds = state.RemainingRounds,
-			VisibleVersion = state.VisibleVersion + 1, HandVersion = state.HandVersion + 1,
-			StrategyContextVersion = state.StrategyContextVersion, EventVersion = state.EventVersion + 1,
-			InformationMode = state.InformationMode, PolicyVariant = state.PolicyVariant,
-			ExchangeThreeEnabled = state.ExchangeThreeEnabled, Hand18 = hand,
-			Visible18 = (int[])state.Visible18.Clone(), Remaining18 = (int[])state.Remaining18.Clone(),
-			Scores = (int[])state.Scores.Clone(), DingQueSuits = (int[])state.DingQueSuits.Clone(),
-			WonScores = (int[])state.WonScores.Clone(),
-			HandCounts = (int[])state.HandCounts.Clone(), LockedFans = (int[])state.LockedFans.Clone(),
-			LockTurns = (int[])state.LockTurns.Clone(), UnlockOnOwnDraw = (bool[])state.UnlockOnOwnDraw.Clone(),
-			ActiveSeats = (bool[])state.ActiveSeats.Clone(), HasHu = (bool[])state.HasHu.Clone(),
-			IsReady = (bool[])state.IsReady.Clone(), IsCalled = (bool[])state.IsCalled.Clone(),
-			Discards18 = state.Discards18.Select(tiles => new List<int>(tiles)).ToArray(),
-			Melds18 = state.Melds18.Select(tiles => new List<int>(tiles)).ToArray(),
-			PassedHu18 = state.PassedHu18.Select(counts => (int[])counts.Clone()).ToArray(),
-			PassedPeng18 = state.PassedPeng18.Select(counts => (int[])counts.Clone()).ToArray(),
-			PassedGang18 = state.PassedGang18.Select(counts => (int[])counts.Clone()).ToArray(),
-			LastDrawTileType = -1, LastDrawOrigin = SichuanTileOrigin.Unknown,
-			LastGangSeat = state.LastGangSeat, LastGangTileType = state.LastGangTileType, LastGangType = state.LastGangType,
-            LastGangScoreEligible = state.LastGangScoreEligible, LastGangSourceSeat = state.LastGangSourceSeat
-		};
-		for (var seat = 0; seat < 4; seat++) projected.MeldViews[seat].AddRange(state.MeldViews[seat]);
+        var projected = SichuanBranchState.Copy(state, hand, currentSeat: state.SeatIndex);
+        projected.Phase=5; projected.VisibleVersion++; projected.HandVersion++; projected.EventVersion++;
+        projected.LastDrawTileType=-1; projected.LastDrawOrigin=SichuanTileOrigin.Unknown;
 		if (projected.MeldViews[state.SeatIndex].Count == 0)
 			projected.MeldViews[state.SeatIndex].AddRange(InferMeldViews(state, state.SeatIndex));
 		projected.MeldViews[state.SeatIndex].Add(new SichuanMeldView(SichuanMeldType.Peng, tileType, sourceSeat, projected.EventVersion) { AddedGangBlockedUntilOwnDraw = true });
@@ -530,7 +514,6 @@ public sealed class SichuanUnifiedDecisionEngine
         }
 		projected.Visible18[tileType] += 2; // The incoming discard was already public.
 		projected.HandCounts[state.SeatIndex] = hand.Sum();
-		projected.PublicEvents.AddRange(state.PublicEvents);
 		projected.PublicEvents.Add(new SichuanPublicEvent(projected.EventVersion, state.TurnIndex, state.SeatIndex,
 			SichuanPublicEventType.Peng, tileType, SourceSeat: sourceSeat, WallCountAfter: state.WallCount));
 		return projected;
@@ -559,6 +542,9 @@ public sealed class SichuanUnifiedDecisionEngine
 	private static SichuanDecisionCandidate FromCounterfactual(SichuanMeldCounterfactual value, SichuanAction action)
 		=> new(action, value.Value, 0, value.ImmediateGangGain, 0, value.Risk, 0, -value.RouteLoss, 0,
 			new[] { $"COUNTERFACTUAL_SHANTEN_{value.Shanten}", $"COUNTERFACTUAL_LIVE_{value.LiveUkeire}", $"COUNTERFACTUAL_EV_{value.Value:F2}" }
+                .Concat(new[]{ $"CONTINUATION_MODEL_{value.ContinuationModel}",
+                    $"MODEL_REACH_READY_{value.ReachReadyProbability:F6}",
+                    $"MODEL_FUTURE_SELF_DRAW_{value.FutureSelfDrawProbability:F6}" })
                 .Concat(action.ActionType==SichuanActionType.Gang ? new[]{"GANG_RULE_CASHFLOW",$"GANG_IMMEDIATE_RULE_GAIN_{value.ImmediateGangGain}"} : Array.Empty<string>())
                 .Concat(value.ImmediateGangGain > 0 ? new[]{$"GANG_REFUND_EXPECTED_LOSS_{value.ExpectedGangRefundLoss:F4}","GANG_REFUND_PUBLIC_PROGRESS_APPROXIMATION",$"GANG_DISCARD_EXTRA_LOSS_PUBLIC_APPROX_{value.ExpectedGangDiscardExtraLoss:F4}"} : Array.Empty<string>())
                 .Concat(value.ReplacementWallConstraintsRebuilt ? new[]{"GANG_REPLACEMENT_PUBLIC_WALL_REBUILT"} : Array.Empty<string>())
@@ -566,5 +552,8 @@ public sealed class SichuanUnifiedDecisionEngine
                 .Concat(value.ImmediateSelfAction.Length > 0
                     ? new[] { $"PENG_IMMEDIATE_{value.ImmediateSelfAction.ToUpperInvariant()}_{value.ImmediateSelfActionTile}", value.Transition }
                     : Array.Empty<string>())
-                .Concat(value.BranchReadyValueApplied ? new[]{"GANG_BRANCH_READY_VALUE_WEIGHTED_BEFORE_ROUNDING"} : Array.Empty<string>()).ToArray());
+                .Concat(value.BranchReadyValueApplied ? new[]{"GANG_BRANCH_READY_VALUE_WEIGHTED_BEFORE_ROUNDING"} : Array.Empty<string>()).ToArray())
+        { QuickReadyTiePreferred = action.ActionType == SichuanActionType.Peng && value.Shanten == 0
+            && value.LiveUkeire > 0 && value.ImmediateSelfAction.Length == 0,
+          ContinuationDiscardRisk = value.ExpectedDiscardRisk };
 }

@@ -2,15 +2,16 @@ namespace SichuanMahjong.AI.Core.Models;
 
 public sealed class SichuanDecisionResult
 {
+    public SichuanDecisionCommand? Command { get; set; }
     public IReadOnlyList<Decision.SichuanArbitrationStep> Arbitration { get; init; } = Array.Empty<Decision.SichuanArbitrationStep>();
     public IReadOnlyList<Inference.SichuanOpeningObservation> OpeningObservations { get; init; } = Array.Empty<Inference.SichuanOpeningObservation>();
-    public SichuanAction Action { get; init; } = new(SichuanActionType.Pass);
+    public SichuanAction Action { get; set; } = new(SichuanActionType.Pass);
     public int Shanten { get; init; }
     public int Ukeire { get; init; }
     public int LiveUkeire { get; init; }
     public double WinProbability { get; init; }
     public double DealInProbability { get; init; }
-    public string GangSubtype { get; init; } = "";
+    public string GangSubtype { get; set; } = "";
     public bool SearchUsed { get; init; }
     public int SearchSimulations { get; init; }
     public SichuanRoutePlanResult RoutePlan { get; init; } = new();

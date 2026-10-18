@@ -36,6 +36,7 @@ public sealed class SichuanReadyWaitPricing
     public SichuanReadyPrice? Build(SichuanStateView state, IReadOnlyList<int> hand,
         IReadOnlyList<double> publicWallCounts, IReadOnlyList<SichuanMeldView>? projectedMelds = null)
     {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("ready_pricing");
         if(hand.Count!=27 || publicWallCounts.Count!=27)throw new ArgumentException("Expected27 counts");
         if(state.OwnDingQueSuit>=0 && hand.Skip(state.OwnDingQueSuit*9).Take(9).Any(n=>n>0))return null;
         var melds=projectedMelds?.ToArray() ?? (state.MeldViews[state.SeatIndex].Count>0?state.MeldViews[state.SeatIndex].ToArray():

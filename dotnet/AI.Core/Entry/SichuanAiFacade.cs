@@ -53,6 +53,11 @@ public sealed class SichuanAiFacade
         => new Decision.SichuanPublicEndgameEvaluator().AnalyzeHuContinuation(
             state, tile, sourceSeat, reactionType, samples, seed, pengDiscard, canGang);
 
+    // Legacy discard APIs are analysis-only. Executable own-turn actions are
+    // issued solely through DecideSelfAction, including turns with no Gang/Hu.
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Round,long Generation,int Seat), Decision.SichuanDecisionAuthority> _authorities = new();
+    private Decision.SichuanDecisionAuthority Authority(SichuanStateView s)
+        => _authorities.GetOrAdd((s.RoundId,s.HostGeneration,s.SeatIndex), _ => new());
     private readonly SichuanDecisionEngine _decisionEngine = new();
     private readonly SichuanReactionDecisionEngine _reactionDecisionEngine = new();
     private readonly SichuanSelfActionDecisionEngine _selfActionDecisionEngine = new();
@@ -63,17 +68,17 @@ public sealed class SichuanAiFacade
     public SichuanDecisionResult DecideDiscard(SichuanStateView state)
     {
         if (!_seatWorker && state.RoundId.Length > 0)
-            return Agents.Run(state, "discard", engine => engine.DecideDiscard(state), r => r.Action);
+            return Agents.Run(state, "discard_analysis", engine => engine.DecideDiscard(state), r => r.Action);
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
-        var result = _decisionEngine.DecideDiscard(state, false, brain);
+        var result = Decision.SichuanDiscardPolicy.Select(state, brain);
         return result;
     }
 
     public SichuanDecisionResult DecideDiscardCached(SichuanStateView state, bool preferCsharp = true, bool forceLightweight = false)
     {
         if (!_seatWorker && state.RoundId.Length > 0)
-            return Agents.Run(state, "discard", engine => engine.DecideDiscardCached(state, preferCsharp, forceLightweight), r => r.Action);
+            return Agents.Run(state, "discard_analysis", engine => engine.DecideDiscardCached(state, preferCsharp, forceLightweight), r => r.Action);
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
         var key = SichuanStateFingerprint.BuildTurnKey(state, preferCsharp, forceLightweight) + $"|brain={brain.Revision}";
@@ -82,7 +87,7 @@ public sealed class SichuanAiFacade
             return cached;
         }
 
-        var result = _decisionEngine.DecideDiscard(state, forceLightweight, brain);
+        var result = Decision.SichuanDiscardPolicy.Select(state, brain);
         _turnCache.Put(key, result);
         return result;
     }
@@ -102,8 +107,16 @@ public sealed class SichuanAiFacade
             return Agents.Run(state, "reaction", engine => engine.DecideReaction(state, reactionTileType, canHu, canPeng, canGang, sourceSeat, reactionType, forceLightweight, mandatoryGang), r => r.Action);
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
-        var result = _reactionDecisionEngine.DecideReaction(state, reactionTileType, canHu, canPeng, canGang, sourceSeat, reactionType, forceLightweight, mandatoryGang, brain);
+        var result = Authority(state).Reaction(state, brain, reactionTileType, canHu, canPeng, canGang, sourceSeat, reactionType, mandatoryGang);
         return result;
+    }
+
+    // Book replay and live own-turn windows share the same authority. Research
+    // callers must not silently disable Hu/Gang to force a discard answer.
+    public SichuanSelfActionDecisionResult DecideTurn(SichuanStateView state)
+    {
+        var legal = Rules.SichuanOwnTurnActions.FromState(state);
+        return DecideSelfAction(state, legal.CanHu, legal.Concealed, legal.Added);
     }
 
     public SichuanSelfActionDecisionResult DecideSelfAction(
@@ -115,10 +128,13 @@ public sealed class SichuanAiFacade
         IReadOnlyList<int>? mandatoryGangTileTypes = null)
     {
         if (!_seatWorker && state.RoundId.Length > 0)
-            return Agents.Run(state, "self", engine => engine.DecideSelfAction(state, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes), r => r.Action);
+            return Agents.Run(state, "self", engine => engine.DecideSelfAction(state, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes),
+                r => r.Action.ActionType == SichuanActionType.Pass && r.ContinuationDiscardTile >= 0
+                    ? r.Action with { ActionType = SichuanActionType.Discard, TileType = r.ContinuationDiscardTile }
+                    : r.Action);
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
-        var result = _selfActionDecisionEngine.DecideSelfAction(state, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes, brain);
+        var result = Authority(state).Turn(state, brain, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes);
         return result;
     }
 

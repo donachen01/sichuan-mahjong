@@ -21,22 +21,26 @@ public sealed class SichuanShantenEngine
                 if (tile < 21) low |= (ulong)hand18[tile] << (tile * 3);
                 else high |= (ulong)hand18[tile] << ((tile - 21) * 3);
             }
-        var key = (low, high, meldCount);
-        if (cacheable && StandardCache.TryGetValue(key, out var cached)) return cached;
-        int result;
-        if (cacheable) result = new SichuanStructuralDistance().Best(hand18, meldCount, false);
-        else
+        if(cacheable)return CalcStandardCached(hand18,meldCount,low,high);
+        var counts = (int[])hand18.Clone(); var best=8;
+        Search(counts,0,meldCount,0,0,ref best);
+        return Math.Max(-1,best);
+    }
+
+    // The incremental cursor has already validated and encoded this exact hand.
+    // Both entry points use the same cache and the same structural solver.
+    internal static int CalcStandardCached(int[] hand, int meldCount, ulong low, ulong high,
+        int suit0=-1,int suit1=0,int suit2=0,int quads=0)
+    {
+        var key=(low,high,meldCount);
+        if(StandardCache.TryGetValue(key,out var cached))return cached;
+        var solver=new SichuanStructuralDistance();
+        int result=suit0<0?solver.Best(hand,meldCount,false)
+            :solver.BestEncoded(hand,meldCount,suit0,suit1,suit2,quads>0);
+        if (StandardCache.TryAdd(key, result) && Interlocked.Increment(ref _cacheEntries) >= CacheCapacity)
         {
-            var counts = (int[])hand18.Clone(); var best=8;
-            Search(counts,0,meldCount,0,0,ref best); result=Math.Max(-1,best);
-        }
-        if (cacheable)
-        {
-            if (StandardCache.TryAdd(key, result) && Interlocked.Increment(ref _cacheEntries) >= CacheCapacity)
-            {
-                StandardCache.Clear();
-                Interlocked.Exchange(ref _cacheEntries, 0);
-            }
+            StandardCache.Clear();
+            Interlocked.Exchange(ref _cacheEntries, 0);
         }
         return result;
     }

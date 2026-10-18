@@ -1,0 +1,47 @@
+{
+  "checks": 4045,
+  "tests": [
+    {
+      "name": "ordinary_close",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "clear_winner",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "ready_speed",
+      "expected": "SEARCH_DEEP_READY_SPEED_CONFLICT",
+      "actual": "SEARCH_DEEP_READY_SPEED_CONFLICT"
+    },
+    {
+      "name": "thin_wait",
+      "expected": "SEARCH_DEEP_THIN_WAIT_CONFLICT",
+      "actual": "SEARCH_DEEP_THIN_WAIT_CONFLICT"
+    },
+    {
+      "name": "public_risk",
+      "expected": "SEARCH_DEEP_PUBLIC_RISK_CONFLICT",
+      "actual": "SEARCH_DEEP_PUBLIC_RISK_CONFLICT"
+    },
+    {
+      "name": "no_public_threat",
+      "expected": null,
+      "actual": null
+    },
+    {
+      "name": "refund",
+      "expected": "SEARCH_DEEP_TERMINAL_GANG_REFUND",
+      "actual": "SEARCH_DEEP_TERMINAL_GANG_REFUND"
+    },
+    {
+      "name": "exhausted",
+      "expected": null,
+      "actual": null
+    }
+  ],
+  "independentSeats": 4,
+  "errors": 0
+}

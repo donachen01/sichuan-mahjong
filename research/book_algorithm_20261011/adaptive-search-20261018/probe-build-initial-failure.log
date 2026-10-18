@@ -1,0 +1,22 @@
+  AI.Core -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(26,19): error CS0119: “AdaptiveSearchProbe.Math(string)”是一个 方法，这在给定的上下文中无效 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(32,13): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(53,9): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(57,57): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(59,57): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.SeatIndex"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(65,50): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.SeatIndex"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(98,60): error CS0117: “SichuanUnifiedDecisionEngine”未包含“ProjectPengContinuation”的定义 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(26,19): error CS0119: “AdaptiveSearchProbe.Math(string)”是一个 方法，这在给定的上下文中无效 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(32,13): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(53,9): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(57,57): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(59,57): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.SeatIndex"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(65,50): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.SeatIndex"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs(98,60): error CS0117: “SichuanUnifiedDecisionEngine”未包含“ProjectPengContinuation”的定义 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Probe.csproj]
+    0 个警告
+    7 个错误
+
+已用时间 00:00:05.09

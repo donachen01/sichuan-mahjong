@@ -26,6 +26,7 @@ public sealed class SichuanRouteContinuationEvaluator
     public SichuanRouteContinuation[] Evaluate(SichuanStateView state, int[] handAfterDiscard,
         SichuanWallAvailability wall)
     {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("route_continuation");
         var exposed = new int[27];
         var meldViews = state.MeldViews[state.SeatIndex];
         var meldCount = meldViews.Count > 0 ? meldViews.Count : state.MeldCount(state.SeatIndex);

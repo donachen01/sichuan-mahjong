@@ -16,14 +16,21 @@ internal sealed class SichuanStructuralDistance
         // must reject targets that complete a quad using a fifth copy.
         if (hand.Contains(4))
             return IncludeSevenPairs(SichuanPhysicalTargetDistance.Best(hand, exposed), hand, exposed, allowSevenPairs);
-        if (SuitCache.Count > 131072) SuitCache.Clear();
-        var profiles = new int[3][];
+        var keys=new int[3];
         for (var suit = 0; suit < 3; suit++)
         {
             var key = 0;
             for (var rank = 0; rank < 9; rank++) key += hand[suit * 9 + rank] * Powers[rank];
-            profiles[suit] = Profile(key);
+            keys[suit]=key;
         }
+        return IncludeSevenPairs(BestEncoded(hand,exposed,keys[0],keys[1],keys[2],false),hand,exposed,allowSevenPairs);
+    }
+
+    internal int BestEncoded(int[] hand,int exposed,int suit0,int suit1,int suit2,bool hasQuad)
+    {
+        if(hasQuad)return Math.Max(-1,SichuanPhysicalTargetDistance.BestEncoded(hand,exposed,suit0,suit1,suit2));
+        if (SuitCache.Count > 131072) SuitCache.Clear();
+        var profiles = new[]{Profile(suit0),Profile(suit1),Profile(suit2)};
         var best = 8;
         for (var a = 0; a < 10; a++)
         {
@@ -42,7 +49,7 @@ internal sealed class SichuanStructuralDistance
         }
         }
         }
-        return IncludeSevenPairs(best, hand, exposed, allowSevenPairs);
+        return Math.Max(-1,best);
     }
 
     private static int IncludeSevenPairs(int best, int[] hand, int exposed, bool allowSevenPairs)

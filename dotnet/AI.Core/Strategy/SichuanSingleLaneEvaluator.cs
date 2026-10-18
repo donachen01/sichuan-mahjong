@@ -32,6 +32,7 @@ public sealed class SichuanSingleLaneEvaluator
     public IReadOnlyDictionary<int, SichuanSingleLaneValue> EvaluateDiscards(
         SichuanStateView state, SichuanBeliefSnapshot belief, SichuanWallAvailability wall)
     {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("single_lane");
         var suit = ResolveSuit(state);
         if (suit < 0 || state.WallCount <= 0) return new Dictionary<int, SichuanSingleLaneValue>();
         // The compulsory missing-suit discard is a legality constraint, not a

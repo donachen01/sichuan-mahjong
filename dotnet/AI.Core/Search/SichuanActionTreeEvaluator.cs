@@ -16,6 +16,7 @@ public sealed record SichuanExpectedValueBreakdown(
 
 public sealed class SichuanActionTreeEvaluator
 {
+    private sealed record ChanceValue(SichuanBloodBattleChanceModel.Value Value);
 	public sealed record ChanceSearchRequest(
 		double LiveTiles,
 		int WallTiles,
@@ -73,7 +74,11 @@ public sealed class SichuanActionTreeEvaluator
     {
         using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_model");
         var watch = Stopwatch.StartNew();
-        var value = new SichuanBloodBattleChanceModel().Evaluate(request);
+        // Only the immutable numerical request enters this small model.
+        // Identical requests inside one decision need one DP, irrespective of
+        // which discard proposed them. Never cache a policy or seat plan here.
+        var value = SichuanMahjong.AI.Core.Decision.SichuanPolicyExecutionScope.Memoize(
+            "blood-battle-chance", request, () => SolveChance(request)).Value;
         watch.Stop();
         return new ChanceSearchResult(value.Net, value.Win, value.OpponentWin,
             value.Draw, value.Gang, 0, watch.Elapsed.TotalMilliseconds, value.Horizon)
@@ -84,5 +89,11 @@ public sealed class SichuanActionTreeEvaluator
             ExpectedContinuationValue = value.Continuation,
             BattleEndProbability = value.BattleEnd
         };
+    }
+
+    private static ChanceValue SolveChance(ChanceSearchRequest request)
+    {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_dp");
+        return new(new SichuanBloodBattleChanceModel().Evaluate(request));
     }
 }

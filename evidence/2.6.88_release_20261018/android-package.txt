@@ -1,0 +1,4 @@
+    versionCode=349 minSdk=24 targetSdk=35
+    versionName=2.6.88
+    firstInstallTime=2026-10-18 12:07:55
+    lastUpdateTime=2026-10-18 21:43:55

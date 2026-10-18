@@ -4,6 +4,7 @@ namespace SichuanMahjong.AI.Core.Models;
 
 public sealed class SichuanReactionDecisionResult
 {
+    public SichuanDecisionCommand? Command { get; set; }
     internal bool OpponentWideBedDefenseAllowed { get; init; } = true;
     public IReadOnlyList<Decision.SichuanDecisionCandidate> ValueCandidates { get; set; } = Array.Empty<Decision.SichuanDecisionCandidate>();
     public SichuanAction Action { get; set; } = new(SichuanActionType.Pass, -1, 0, "");

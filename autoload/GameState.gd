@@ -90,6 +90,7 @@ var shun_he_locks: Dictionary = {}
 var debug_last_message: String = "GameState initialized."
 var round_index: int = 1
 var ai_agent_round_id: String = ""
+var ai_executed_decision_ids: Dictionary = {}
 var ai_agent_generation: int = 0
 var ai_agent_seats: Array[int] = []
 var ai_agents_started: bool = false
@@ -1271,7 +1272,18 @@ func _build_ai_turn_gang_decision_from_analysis(base: Dictionary, seat: int, ana
 	return {}
 
 
+# Every ordinary own turn uses this entry, even without Hu/Gang options.
+# An empty/error response is a blocked decision, never a request to another selector.
 func _build_ai_self_action_decision(seat: int, player_state: Dictionary, table_state: Dictionary) -> Dictionary:
+	var decision := _map_ai_self_action_decision(seat, player_state, table_state)
+	if not _is_hell_challenge_mode():
+		if decision.is_empty():
+			decision = {"action": "blocked_ai_decision", "error": "missing_or_invalid_turn_command"}
+		decision["state_signature"] = _ai_turn_state_signature(seat)
+	return decision
+
+
+func _map_ai_self_action_decision(seat: int, player_state: Dictionary, table_state: Dictionary) -> Dictionary:
 	if ai_manager == null:
 		return {}
 	var an_options := _find_all_an_gang_options(seat)
@@ -1280,13 +1292,31 @@ func _build_ai_self_action_decision(seat: int, player_state: Dictionary, table_s
 	var add_types := _tile_types_from_options(add_options, "tile")
 	var add_qiang_counts := _add_gang_qiang_counts_by_tile_type(seat, add_options)
 	var can_self_hu := _can_seat_self_hu_now(seat)
-	if not can_self_hu and an_types.is_empty() and add_types.is_empty():
+	if _is_hell_challenge_mode() and not can_self_hu and an_types.is_empty() and add_types.is_empty():
 		return {}
 	var csharp_decision: Dictionary = ai_manager.analyze_self_action(player_state, table_state, rules, can_self_hu, an_types, add_types, add_qiang_counts, [])
 	if csharp_decision.is_empty():
 		debug_last_message = "C# AI 未返回有效自摸动作结果，当前等待重试。"
 		return {}
+	if not _is_hell_challenge_mode() and not _is_explicit_frozen_policy(seat) and not _valid_ai_command(csharp_decision, seat, "turn", player_state, table_state):
+		debug_last_message = "AI 决策合同缺失或与当前状态不符，等待重新决策。"
+		return {}
 	var action := str(csharp_decision.get("action", "pass")).strip_edges().to_lower()
+	# Execute the exact continuation priced against Gang. Do not silently
+	# replace it with a second discard policy after declining the Gang.
+	if action == "pass":
+		var discard_type := int(csharp_decision.get("continuation_discard_tile", -1))
+		if discard_type >= 0:
+			var discard_tile := _find_hand_tile_by_tile_type(seat, discard_type)
+			var forced_suit := _get_forced_discard_suit(players[seat])
+			if not discard_tile.is_empty() and (forced_suit == "" or str(discard_tile.get("suit", "")) == forced_suit):
+				return {
+					"action": "discard",
+					"tile_id": int(discard_tile.get("id", -1)),
+					"analysis": csharp_decision.duplicate(true),
+				}
+			debug_last_message = "C# 不杠后手无法映射为合法弃牌，等待重新决策。"
+			return {"action": "invalid_self_continuation", "analysis": csharp_decision.duplicate(true)}
 	if action == "hu" and can_self_hu:
 		return {
 			"action": "self_hu",
@@ -1331,6 +1361,43 @@ func _build_ai_turn_forced_decision() -> Dictionary:
 
 
 func _execute_ai_turn_decision(decision: Dictionary) -> bool:
+	if not _is_hell_challenge_mode():
+		var seat := int(decision.get("seat", -1))
+		if seat < 0 or seat >= players.size() or str(decision.get("state_signature", "")) != _ai_turn_state_signature(seat):
+			debug_last_message = "AI 决策已过期，等待重新决策。"
+			return false
+		var analysis: Dictionary = decision.get("analysis", {})
+		if not _is_explicit_frozen_policy(seat) and not _valid_ai_command(analysis, seat, "turn", _build_player_state(seat), _build_table_state()):
+			debug_last_message = "AI 执行合同缺失或失效，等待重新决策。"
+			return false
+		var command: Dictionary = analysis.get("decision_command", {})
+		var expected := str(command.get("action", ""))
+		var requested := str(decision.get("action", ""))
+		if expected == "hu":
+			expected = "self_hu"
+		elif expected == "gang":
+			expected = str(command.get("gangSubtype", ""))
+		if requested != expected:
+			debug_last_message = "AI 执行动作与决策合同不一致。"
+			return false
+		var actual_type := -1
+		if requested == "discard":
+			actual_type = _sichuan_tile_type(_tile_by_id_in_hand(seat, int(decision.get("tile_id", -1))))
+		elif requested == "an_gang" or requested == "add_gang":
+			var option: Dictionary = decision.get("gang_option", {})
+			var tiles: Array = option.get("tiles", [])
+			var tile: Dictionary = option.get("tile", tiles[0] if not tiles.is_empty() else {})
+			actual_type = _sichuan_tile_type(tile)
+		if requested != "self_hu" and actual_type != int(command.get("tile", -1)):
+			debug_last_message = "AI 执行牌张与决策合同不一致。"
+			return false
+	var executed := _apply_ai_turn_decision(decision)
+	if executed and not _is_hell_challenge_mode():
+		_mark_ai_command_executed(decision.get("analysis", {}))
+	return executed
+
+
+func _apply_ai_turn_decision(decision: Dictionary) -> bool:
 	if not is_ai_turn_ready():
 		_record_ai_chain_debug("turn_execute_skip_not_ready decision=%s phase=%s turn=%s" % [
 			JSON.stringify(decision).left(500),
@@ -1506,8 +1573,20 @@ func run_ai_reaction() -> bool:
 		return false
 	pending_ai_reaction_decision.clear()
 	_clear_pending_ai_reaction_request()
+	if not _is_hell_challenge_mode() and not _is_explicit_frozen_policy(seat) and not _valid_ai_command(decision, seat, "reaction", _build_player_state(seat), _build_table_state()):
+		debug_last_message = "AI 响应合同缺失或失效，等待重新决策。"
+		return false
 	var requested_action := str(decision.get("action", "pass")).strip_edges().to_lower()
 	var resolved_action := _resolve_ai_reaction_action(seat, candidate, requested_action)
+	if resolved_action.is_empty():
+		debug_last_message = "AI 响应已不满足当前合法条件，等待重新决策。"
+		return false
+	if not _is_hell_challenge_mode():
+		var command: Dictionary = decision.get("decision_command", {})
+		if requested_action != str(command.get("action", "")) or int(command.get("tile", -1)) != _sichuan_tile_type(current_discard_context.get("tile", {})):
+			debug_last_message = "AI 响应与决策合同不一致。"
+			return false
+
 	_record_ai_metric("reaction_total")
 	_record_ai_metric("reaction_" + resolved_action)
 	_record_ai_reaction_review(seat, candidate, decision, requested_action, resolved_action)
@@ -1521,6 +1600,8 @@ func run_ai_reaction() -> bool:
 		executed = _execute_peng(seat)
 	else:
 		var pass_executed := _pass_ai_reaction(seat)
+		if pass_executed:
+			_mark_ai_command_executed(decision)
 		_record_ai_analysis_event("reaction_action_executed", {
 			"seat": seat,
 			"candidate": candidate.duplicate(true),
@@ -1543,6 +1624,7 @@ func run_ai_reaction() -> bool:
 		})
 		return pass_executed
 	if executed:
+		_mark_ai_command_executed(decision)
 		_record_ai_analysis_event("reaction_action_executed", {
 			"seat": seat,
 			"candidate": candidate.duplicate(true),
@@ -1706,7 +1788,7 @@ func _build_ai_reaction_decision(force_lightweight: bool = false) -> Dictionary:
 func _start_ai_turn_background_request() -> bool:
 	if not is_ai_turn_ready():
 		return false
-	if _has_native_csharp_runtime():
+	if not _is_hell_challenge_mode() or _has_native_csharp_runtime():
 		var native_seat: int = current_turn_seat
 		var native_player_state := _build_player_state(native_seat)
 		var native_table_state := _build_table_state()
@@ -2791,6 +2873,7 @@ func _begin_round_agents() -> bool:
 		return true
 	ai_agent_generation += 1
 	ai_agent_round_id = Crypto.new().generate_random_bytes(16).hex_encode()
+	ai_executed_decision_ids.clear()
 	ai_agent_seats.clear()
 	for player in players:
 		if bool(player.get("is_ai", false)):
@@ -3668,7 +3751,7 @@ func _resolve_ai_reaction_action(seat: int, candidate: Dictionary, requested_act
 		return "gang"
 	if requested_action == "peng" and bool(candidate.get("can_peng", false)) and not _has_higher_priority_candidate_than(seat, "peng"):
 		return "peng"
-	return "pass"
+	return "pass" if requested_action == "pass" else ""
 
 
 func _record_ai_reaction_review(seat: int, candidate: Dictionary, decision: Dictionary, requested_action: String, resolved_action: String) -> void:
@@ -6614,3 +6697,29 @@ func _create_player_stub(seat: int, nickname: String, is_ai: bool) -> Dictionary
 
 func _exit_tree() -> void:
 	_end_round_agents()
+
+
+func _valid_ai_command(analysis: Dictionary, seat: int, window: String, player_state: Dictionary, table_state: Dictionary) -> bool:
+	var command: Dictionary = analysis.get("decision_command", {})
+	if int(command.get("schema", -1)) != 1 or str(command.get("policy", "")) != "unified-seat-policy-v2-adaptive-budget":
+		return false
+	var id := str(command.get("id", ""))
+	if id.length() != 64 or ai_executed_decision_ids.has(id) or str(command.get("stateKey", "")).length() != 64:
+		return false
+	if int(command.get("seat", -1)) != seat or str(command.get("window", "")) != window or ai_manager == null:
+		return false
+	var payload: Dictionary = ai_manager.csharp_bridge.build_discard_transport_payload(player_state, table_state, rules)
+	return str(command.get("roundId", "")) == str(payload.get("roundId", "")) and int(command.get("generation", 0)) == int(payload.get("hostGeneration", 0)) and int(command.get("viewVersion", 0)) == int(payload.get("viewVersion", 0))
+
+
+func _is_explicit_frozen_policy(seat: int) -> bool:
+	if not OS.is_debug_build() or seat < 0:
+		return false
+	var variant := str(test_ai_policy_variants_by_seat.get(seat, test_ai_policy_variants_by_seat.get(str(seat), "current")))
+	return variant.begins_with("frozen_")
+
+
+func _mark_ai_command_executed(analysis: Dictionary) -> void:
+	var id := str(analysis.get("decision_command", {}).get("id", ""))
+	if not id.is_empty():
+		ai_executed_decision_ids[id] = true

@@ -1,0 +1,9 @@
+{
+  "dotnet/AI.Core/Decision/SichuanMeldCounterfactualEvaluator.cs": "2e484f47514402421f1c348dc67b8e629de035a61d401280bd8cb4ed89ed7a5f",
+  "dotnet/AI.Core/Decision/SichuanUnifiedDecisionEngine.cs": "1b205196f6e74540bb80f06493841aa9c4a798ed635503137daf8b3dbc420ba9",
+  "dotnet/AI.Core/Inference/SichuanTerminalReadinessProjection.cs": "ab736df39fe29e38351d89c3c5963aae6c8454e3d7021cf7aec5e8659263d7bf",
+  "dotnet/AI.Core/Engines/SichuanReactionDecisionEngine.cs": "4ccd76e7a4c97890481fde43ad1836d9f20483c6c17656559bf46f08ba681339",
+  "dotnet/AI.Core/Engines/SichuanSelfActionDecisionEngine.cs": "306b9791955b44435bff77596fa63225099e59a10b1c2343c1628e56866100c4",
+  "dotnet/AI.Core/Engines/SichuanDecisionEngine.cs": "70b33676369e8d9bea4475dbab029eb85b64bf6b85b39d981877f379aaf6e113",
+  "dotnet/AI.Core/Models/SichuanDecisionCommand.cs": "06d80088a2e65e4a386954c1ef90fd869eddfdc6f13754296e2872abef2a5598"
+}

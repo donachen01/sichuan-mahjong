@@ -52,11 +52,11 @@ public sealed class SichuanHandDevelopmentEngine
         var key = $"{meldCount}:{missingSuit}:" + string.Join(',', hand) + "/" + string.Join(',', remaining)
             + "/" + (melds is null ? "unknown-fixed" : string.Join(';', melds.Select(m => $"{m.Type}:{m.TileType}")));
         if (Cache.TryGetValue(key, out var saved)) return saved;
-        var shanten = new SichuanShantenEngine();
+        var cursor = new SichuanHandDistanceCursor(hand,meldCount);
         (int Standard, int? Seven, int Best) Distances()
         {
-            var std = shanten.CalcStandardShanten(hand, meldCount);
-            int? qi = meldCount == 0 ? shanten.CalcSevenPairsShanten(hand) : null;
+            var std = cursor.Standard();
+            int? qi = meldCount == 0 ? cursor.SevenPairs() : null;
             return (std, qi, qi.HasValue ? Math.Min(std, qi.Value) : std);
         }
         (SichuanDevelopmentRoute[] Routes, int[] Outs, int Live) Profile()
@@ -65,7 +65,7 @@ public sealed class SichuanHandDevelopmentEngine
             for (var t = 0; t < 27; t++)
             {
                 if (t / 9 == missingSuit || remaining[t] <= 0 || hand[t] + fixedCopies[t] >= 4) continue;
-                hand[t]++;var after = Distances();hand[t]--;
+                cursor.Change(t,1);var after = Distances();cursor.Change(t,-1);
                 if (after.Standard < d.Standard) normal.Add(t);
                 if (d.Seven.HasValue && after.Seven < d.Seven) pairs.Add(t);
                 if (after.Best < d.Best) combined.Add(t);
@@ -83,7 +83,7 @@ public sealed class SichuanHandDevelopmentEngine
         for (var draw = 0; draw < 27; draw++)
         {
             if (draw / 9 == missingSuit || remaining[draw] <= 0 || hand[draw] + fixedCopies[draw] >= 4) continue;
-            var copies = remaining[draw];hand[draw]++;remaining[draw]--;
+            var copies = remaining[draw];cursor.Change(draw,1);remaining[draw]--;
             var drawnDistance = Distances();var completes = drawnDistance.Best < 0;
             var branches = new List<SichuanDevelopmentBranch>();var widths = new List<SichuanHandImprovement>();
             var progress = new HashSet<string>();
@@ -96,7 +96,7 @@ public sealed class SichuanHandDevelopmentEngine
                 for (var discard = 0; discard < 27; discard++)
                 {
                     if (hand[discard] <= 0 || discard / 9 == missingSuit) continue;
-                    hand[discard]--;var afterDistance = Distances();var after = Profile();
+                    cursor.Change(discard,-1);var afterDistance = Distances();var after = Profile();
                     var advanced = new List<string>();
                     if (afterDistance.Standard < beforeDistance.Standard) advanced.Add("standard");
                     if (beforeDistance.Seven.HasValue && afterDistance.Seven < beforeDistance.Seven) advanced.Add("seven_pairs");
@@ -105,14 +105,14 @@ public sealed class SichuanHandDevelopmentEngine
                         after.Outs, after.Live, advanced.ToArray()));
                     if (afterDistance.Best == beforeDistance.Best && after.Live > before.Live)
                         widths.Add(new(draw, copies, discard, before.Live, after.Live));
-                    hand[discard]++;
+                    cursor.Change(discard,1);
                 }
             var effective = completes || branches.Any(b => b.BestDistance < beforeDistance.Best);
             var values = priced.Where(p => p.DrawTile == draw).ToArray();
             draws.Add(new(draw, copies, completes, effective, !effective && widths.Count > 0,
                 !effective && values.Length > 0, progress.OrderBy(r => r == "standard" ? 0 : 1).ToArray(),
                 branches.ToArray(), widths.ToArray(), values));
-            remaining[draw]++;hand[draw]--;
+            remaining[draw]++;cursor.Change(draw,-1);
         }
         var improvementDraws = draws.Where(d => !d.Effective && (d.StructuralImprovement || d.ValueImprovement)).ToArray();
         var preferred = improvementDraws.Select(d => d.WidthOptions.Concat(d.ValueOptions)

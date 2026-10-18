@@ -1,0 +1,7 @@
+saved-own-gang: Peng, deep=0, 1051ms
+Unhandled exception. System.InvalidOperationException: inactive_or_stale_round
+   at SichuanMahjong.AI.Core.Agents.SichuanRoundAgentHost.Resolve(SichuanStateView state) in /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Agents/SichuanRoundAgentHost.cs:line 111
+   at SichuanMahjong.AI.Core.Agents.SichuanRoundAgentHost.Run[T](SichuanStateView view, String kind, Func`2 compute, Func`2 action) in /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Agents/SichuanRoundAgentHost.cs:line 125
+   at SichuanMahjong.AI.Core.Entry.SichuanAiFacade.DecideReaction(SichuanStateView state, Int32 reactionTileType, Boolean canHu, Boolean canPeng, Boolean canGang, Int32 sourceSeat, String reactionType, Boolean forceLightweight, Boolean mandatoryGang) in /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Entry/SichuanAiFacade.cs:line 107
+   at AdaptiveSearchProbe.Decisions(String input, String output, String variant) in /Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/AdaptiveSearchProbe.cs:line 89
+   at Program.<Main>$(String[] args) in /Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/Probe/Program.cs:line 6

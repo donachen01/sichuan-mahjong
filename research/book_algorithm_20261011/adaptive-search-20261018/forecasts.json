@@ -1,0 +1,1190 @@
+[
+  {
+    "draw": 0,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8077647777734908,
+        0.8062070428566994,
+        0.6876259390432695
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 19
+    }
+  },
+  {
+    "draw": 0,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8796817741433354,
+        0.8000798653520632
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 12
+    }
+  },
+  {
+    "draw": 0,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9464887970022833
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 1,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8179354992515194,
+        0.7711471475078695,
+        0.6839081747987455
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 1,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8535426941781215,
+        0.7770041564568753
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 1,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.8903930211168598
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 2,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8606514537660483,
+        0.8045873577301762,
+        0.7130841303739914
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 2,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8563210600722357,
+        0.8029713591558235
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 2,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9200053094120579
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 3,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8364262666467761,
+        0.7895232556133734,
+        0.7440116264752379
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 3,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8592865834235409,
+        0.8656132277060702
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 3,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9402860868956404
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 4,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.822745039846108,
+        0.7801637855381776,
+        0.7365722329233371
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 4,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8301077244379008,
+        0.8602780155656631
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 12
+    }
+  },
+  {
+    "draw": 4,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9389558174715773
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 5,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8364262666467761,
+        0.7895232556133734,
+        0.7440116264752379
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 5,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8592865834235409,
+        0.8656132277060702
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 5,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9402860868956404
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 6,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8606514537660483,
+        0.8045873577301762,
+        0.7130841303739914
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 6,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8563210600722357,
+        0.8029713591558235
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 6,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9200053094120579
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 7,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8179354992515194,
+        0.7711471475078695,
+        0.6839081747987455
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 7,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8535426941781215,
+        0.7770041564568753
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 13
+    }
+  },
+  {
+    "draw": 7,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.8903930211168598
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 8,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8077647777734908,
+        0.8062070428566994,
+        0.6876259390432695
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 19
+    }
+  },
+  {
+    "draw": 8,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8796817741433354,
+        0.8000798653520632
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 12
+    }
+  },
+  {
+    "draw": 8,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9464887970022833
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 9,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.8049351520544796,
+        0.7343798921019329,
+        0.870238150060846
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 21
+    }
+  },
+  {
+    "draw": 9,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8862524609467526,
+        0.7872989761614443
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 14
+    }
+  },
+  {
+    "draw": 9,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.8969395396490559
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 10,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.905507263904942,
+        0.7689583598003686,
+        0.7534886491571366
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 19
+    }
+  },
+  {
+    "draw": 10,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.902029106554892,
+        0.8245039793189002
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 14
+    }
+  },
+  {
+    "draw": 10,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9632562322804922
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 7
+    }
+  },
+  {
+    "draw": 11,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.915936783229965,
+        0.7978867099172775,
+        0.7736757341869702
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 19
+    }
+  },
+  {
+    "draw": 11,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.9207077315523131,
+        0.8586202332541563
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 14
+    }
+  },
+  {
+    "draw": 11,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9770828528638497
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 12,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.824078432360994,
+        0.7873518419122039,
+        0.7820349309272175
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 12,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.9354895524200462,
+        0.8641074895244428
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 14
+    }
+  },
+  {
+    "draw": 12,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9781308526890345
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 13,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7800002093004017,
+        0.7685348523891798,
+        0.7777383553972192
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 20
+    }
+  },
+  {
+    "draw": 13,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.9222144170349438,
+        0.8535255926584652
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 14
+    }
+  },
+  {
+    "draw": 13,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.9733944786203134
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 6
+    }
+  },
+  {
+    "draw": 18,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 18,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 18,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 19,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 19,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 19,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 20,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 20,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 20,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 21,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 21,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 21,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 22,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 22,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 22,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 23,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 23,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 23,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 24,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 24,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 24,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  },
+  {
+    "draw": 25,
+    "exits": 0,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0.7270965954281728,
+        0.7316762752170343,
+        0.750423312581024
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 24,
+      "TailEstimates": 22
+    }
+  },
+  {
+    "draw": 25,
+    "exits": 1,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0.8923196573340838,
+        0.7987724695777809
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 16,
+      "TailEstimates": 15
+    }
+  },
+  {
+    "draw": 25,
+    "exits": 2,
+    "result": {
+      "Supported": true,
+      "ReadyProbabilities": [
+        0,
+        0,
+        0,
+        0.93108321681735
+      ],
+      "Samples": 8,
+      "EffectiveSampleSize": 8,
+      "Reason": "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL",
+      "ConcreteOpponentDraws": 8,
+      "TailEstimates": 4
+    }
+  }
+]

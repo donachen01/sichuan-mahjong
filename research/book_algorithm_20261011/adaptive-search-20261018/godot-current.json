@@ -1,0 +1,125 @@
+{
+  "answer": {
+    "action": "peng",
+    "actionScores": {
+      "gang": 512.0,
+      "pass": 106.0,
+      "peng": 1001.0
+    },
+    "backendMode": "hybrid_csharp_native",
+    "beliefMetrics": {
+      "buildMs": 193.0,
+      "builds": 25.0,
+      "cacheHits": 60.0,
+      "cacheMisses": 25.0,
+      "cacheSize": 25.0,
+      "calls": 85.0
+    },
+    "currentLiveUkeire": 27.0,
+    "currentShanten": 1.0,
+    "decisionCommand": "{\"schema\":1,\"id\":\"2876ea9d757c1cb0122074ed3fa2492c99c4f125a4c2e1baa8a6f53194096484\",\"window\":\"reaction\",\"roundId\":\"\",\"generation\":1,\"viewVersion\":4,\"seat\":0,\"stateKey\":\"1e75a192b41076bc1d6209178bb5f11927c12b1bab8a31cdd44c5bcfa191e6a5\",\"policy\":\"unified-seat-policy-v2-adaptive-budget\",\"planRevision\":1,\"action\":\"peng\",\"tile\":26,\"gangSubtype\":\"\",\"parentId\":\"\",\"continuationAction\":\"discard\",\"continuationTile\":10,\"continuationState\":\"1fcecfeb2d3fef692130c47761da8056bbb20438341daa4b7bbafbbb39b5abb7\"}",
+    "elapsedMs": 990.0,
+    "futureSummary": [
+      "碰后最快向听 0",
+      "碰后活张 7",
+      "碰后墙内进张偏强 0%",
+      "碰后被捏风险 0%",
+      "碰后首打风险 28%",
+      "PENG_PLANNED_DISCARD_10"
+    ],
+    "liveUkeireAfter": 7.0,
+    "maxReadyPosterior": 0.276900495401598,
+    "mobileSpeedMode": false,
+    "ok": true,
+    "pengStructure": {
+      "Pass": {
+        "BestShanten": 1.0,
+        "ClaimedTileCopies": 0.0,
+        "FlushPossible": true,
+        "ImprovementCopies": 0.0,
+        "ImprovingTiles": [
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          18.0,
+          19.0,
+          20.0,
+          21.0,
+          22.0,
+          23.0,
+          24.0,
+          25.0
+        ],
+        "LiveCopies": 37.0,
+        "MissingTiles": 0.0,
+        "SevenPairsShanten": 4.0,
+        "StandardShanten": 1.0
+      },
+      "Peng": {
+        "BestShanten": 0.0,
+        "ClaimedTileCopies": 0.0,
+        "FlushPossible": true,
+        "ImprovementCopies": 0.0,
+        "ImprovingTiles": [
+          21.0,
+          24.0
+        ],
+        "LiveCopies": 7.0,
+        "MissingTiles": 0.0,
+        "SevenPairsShanten": null,
+        "StandardShanten": 0.0
+      },
+      "PlannedDiscard": 10.0
+    },
+    "plannedDiscardTile": 10.0,
+    "plannedSelfAction": "",
+    "plannedSelfActionTile": -1.0,
+    "posteriorSummary": [
+      "牌墙后验 0%",
+      "他家持张后验 0%",
+      "首打危险 28%",
+      "最高听牌后验 28%",
+      "桌面威胁 0"
+    ],
+    "reason": "碰后最佳向听 0",
+    "reasons": [
+      "碰后最佳向听 0",
+      "碰后活张 7",
+      "碰后首打危险 28",
+      "CONTINUATION_LEGAL_READY_CONTEXT",
+      "碰后可直接成叫",
+      "碰牌明显提速",
+      "碰后对子冗余下降，牌型更利于早听",
+      "对子多且七对路线不稳，老手主动碰牌抢听",
+      "统一动作净值 10.01",
+      "旧启发式仅作诊断 +40，不参与选择",
+      "COUNTERFACTUAL_SHANTEN_0",
+      "COUNTERFACTUAL_LIVE_7",
+      "COUNTERFACTUAL_EV_10.01",
+      "CONTINUATION_MODEL_rounded_followup_legacy",
+      "MODEL_REACH_READY_0.000000",
+      "MODEL_FUTURE_SELF_DRAW_0.467650",
+      "PENG_DISTANCE_IMPROVES",
+      "PENG_FUTURE_ADDED_GANG_NO_GREED",
+      "PENG_OWN_DRAW_BUDGET_9_9",
+      "PENG_HELD_FOURTH_DEFERRED_NO_GANG_SCORE",
+      "REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION",
+      "统一反事实层已参与全候选排序，最终动作服从规则、真实时序和连续大脑闸门",
+      "SEARCH_BUDGET_FAST",
+      "QUICK_READY_EXACT_VALUE_TIE_PREFERENCE"
+    ],
+    "roundStage": 0.0,
+    "roundStageLabel": "前段",
+    "score": 1001.0,
+    "searchBonus": 0.0,
+    "searchSimulations": 0.0,
+    "searchUsed": false,
+    "shantenAfter": 0.0,
+    "threatLevel": 0.0,
+    "tileType": 26.0,
+    "ukeireAfter": 7.0
+  },
+  "elapsedMs": 1061.289,
+  "variant": "current"
+}

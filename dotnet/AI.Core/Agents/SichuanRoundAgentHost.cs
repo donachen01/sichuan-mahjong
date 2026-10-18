@@ -51,7 +51,7 @@ public sealed record AgentSnapshot(string RoundId, long Generation, int Seat, st
 /// <summary>Round owner. Only filtered per-seat views enter the worker; no joint playing objective.</summary>
 public sealed class SichuanRoundAgentHost
 {
-    public const string AlgorithmVersion = "round-agents-v29-flying-gang-route";
+    public const string AlgorithmVersion = "round-agents-v31-adaptive-search-budget";
     private readonly object _gate = new();
     private Dictionary<int, SeatAgent> _seats = new();
     private string _roundId = "";
@@ -132,7 +132,7 @@ public sealed class SichuanRoundAgentHost
             var result = compute(agent.Engine);
             agent.EnsureOpen(); // EndRound can invalidate an in-flight calculation without waiting for it.
             var selected = action(result);
-            agent.Propose(kind, selected.ActionType.ToString(), selected.TileType);
+            if (kind != "discard_analysis") agent.Propose(kind, selected.ActionType.ToString(), selected.TileType);
             agent.RecordDecision(view, result!);
             return result;
         }

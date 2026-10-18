@@ -94,6 +94,7 @@ public sealed class SichuanAiContextCache
 
     private static T Measure<T>(string module, List<SichuanModulePerfSample> samples, Func<T> action)
     {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("context/"+module);
         var stopwatch = Stopwatch.StartNew();
         var result = action();
         stopwatch.Stop();

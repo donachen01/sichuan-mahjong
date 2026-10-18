@@ -63,6 +63,7 @@ public sealed class SichuanDecisionEngine
         bool forceLightweight = false,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        using var searchBudget = SichuanSearchBudget.Enter(state);
         using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("discard");
         using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
         var missing = state.OwnDingQueSuit;
@@ -476,7 +477,14 @@ public sealed class SichuanDecisionEngine
         }
 
 		string? finalSelectionReason = null;
-		var useSearch = !forceLightweight && ShouldUseDiscardSearch(candidates, state.WallCount);
+		var qualifiesForSearch = ShouldUseDiscardSearch(candidates, state.WallCount);
+        var budgetReason = qualifiesForSearch ? SichuanSearchBudget.Qualify(state,
+            candidates.Select(c => new SichuanSearchBudget.Option($"discard:{c.TileType}", c.Score,
+                c.Shanten, c.LiveUkeire, c.ExpectedDealInLoss)).ToArray(), maxReadyPosterior >= 0.55) : null;
+        using var allocatedSearch = !forceLightweight && !SichuanDiscardPolicy.AtSearchLeaf
+            ? SichuanSearchBudget.TryDeep(state, budgetReason) : null;
+		var useSearch = !forceLightweight && !SichuanDiscardPolicy.AtSearchLeaf && qualifiesForSearch
+            && (!SichuanSearchBudget.Adaptive || allocatedSearch is not null);
         var searchResult = useSearch
 			? _search.EvaluateTopCandidates(
 				state,
@@ -498,88 +506,33 @@ public sealed class SichuanDecisionEngine
             bestLive = bestCandidate.LiveUkeire;
             bestSearchBonus = bestCandidate.SearchBonus;
             reasons = bestCandidate.Reasons
-                .Concat(new[] { $"限时搜索 {searchResult.Simulations} 次" })
+                .Concat(new[] { $"定额搜索 {searchResult.Simulations} 次" })
                 .ToList();
         }
 
-        var arbiter = new SichuanDiscardArbiter(candidates.Select(c => c.TileType), bestTile);
+        var arbiter = new SichuanDiscardArbiter(candidates, bestTile);
         var extremeDangerOverride = SelectExtremeDangerSameSpeedOverride(candidates, bestTile, state);
-        if (extremeDangerOverride is not null && arbiter.TrySelect(extremeDangerOverride.TileType, SichuanDiscardArbiter.ExtremeSafety, "EXTREME_DANGER_SAME_SPEED_OVERRIDE"))
-        {
-			finalSelectionReason = "EXTREME_DANGER_SAME_SPEED_OVERRIDE";
-            bestTile = extremeDangerOverride.TileType;
-            bestScore = extremeDangerOverride.Score;
-            bestShanten = extremeDangerOverride.Shanten;
-            bestUkeire = extremeDangerOverride.Ukeire;
-            bestLive = extremeDangerOverride.LiveUkeire;
-            bestSearchBonus = extremeDangerOverride.SearchBonus;
-            reasons = extremeDangerOverride.Reasons
-				.Concat(new[] { "同速避险：对成叫压力下避开更危险生张" })
-                .ToList();
-        }
+        if (extremeDangerOverride is not null)
+            arbiter.Propose(extremeDangerOverride.TileType, SichuanDiscardArbiter.ExtremeSafety, "EXTREME_DANGER_SAME_SPEED_OVERRIDE");
 
         var lateWallDefense = SelectLateWallDefenseOverride(candidates, bestTile, state, maxReadyPosterior);
-        if (lateWallDefense is not null && arbiter.TrySelect(lateWallDefense.TileType, SichuanDiscardArbiter.LateDefense, "LATE_WALL_DEFENSE_OVERRIDE"))
-        {
-			finalSelectionReason = "LATE_WALL_DEFENSE_OVERRIDE";
-            bestTile = lateWallDefense.TileType;
-            bestScore = lateWallDefense.Score;
-            bestShanten = lateWallDefense.Shanten;
-            bestUkeire = lateWallDefense.Ukeire;
-            bestLive = lateWallDefense.LiveUkeire;
-            bestSearchBonus = lateWallDefense.SearchBonus;
-            reasons = lateWallDefense.Reasons
-                .Concat(new[] { "尾盘硬防守：牌墙极少时优先避开证据不牢的抢听风险" })
-                .ToList();
-        }
+        if (lateWallDefense is not null)
+            arbiter.Propose(lateWallDefense.TileType, SichuanDiscardArbiter.LateDefense, "LATE_WALL_DEFENSE_OVERRIDE");
 
 		var lateWallTempo = SelectLateWallSafeTempoOverride(candidates, bestTile, state);
-		if (lateWallTempo is not null && arbiter.TrySelect(lateWallTempo.TileType, SichuanDiscardArbiter.SafeTempo, "LATE_WALL_SAFE_TEMPO_OVERRIDE"))
-		{
-			finalSelectionReason = "LATE_WALL_SAFE_TEMPO_OVERRIDE";
-			bestTile = lateWallTempo.TileType;
-			bestScore = lateWallTempo.Score;
-			bestShanten = lateWallTempo.Shanten;
-			bestUkeire = lateWallTempo.Ukeire;
-			bestLive = lateWallTempo.LiveUkeire;
-			bestSearchBonus = lateWallTempo.SearchBonus;
-			reasons = lateWallTempo.Reasons
-				.Concat(new[] { "尾盘安全降向听：不点炮的更快成叫路线优先" })
-				.ToList();
-		}
+		if (lateWallTempo is not null)
+            arbiter.Propose(lateWallTempo.TileType, SichuanDiscardArbiter.SafeTempo, "LATE_WALL_SAFE_TEMPO_OVERRIDE");
 
 		var unifiedNearTie = SelectUnifiedActionValueOverride(candidates, bestTile);
-		if (unifiedNearTie is not null && arbiter.TrySelect(unifiedNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "UNIFIED_NEAR_TIE_OVERRIDE"))
-		{
-			finalSelectionReason = "UNIFIED_NEAR_TIE_OVERRIDE";
-			bestTile = unifiedNearTie.TileType;
-			bestScore = unifiedNearTie.Score;
-			bestShanten = unifiedNearTie.Shanten;
-			bestUkeire = unifiedNearTie.Ukeire;
-			bestLive = unifiedNearTie.LiveUkeire;
-			bestSearchBonus = unifiedNearTie.SearchBonus;
-			reasons = unifiedNearTie.Reasons
-				.Concat(new[] { "统一净值校正：近分候选不让策略残差压过真实活张与净收益" })
-				.ToList();
-		}
+		if (unifiedNearTie is not null)
+            arbiter.Propose(unifiedNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "UNIFIED_NEAR_TIE_OVERRIDE");
 
 		// With no wall, live structural improvement cannot occur. Keep the
 		// settlement-priced action instead of promoting a prettier hand shape.
 		var exactStructureNearTie = state.WallCount > 0
 			? SelectExactStructureNearTieOverride(candidates, bestTile) : null;
-        if (exactStructureNearTie is not null && arbiter.TrySelect(exactStructureNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE"))
-        {
-			finalSelectionReason = "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE";
-            bestTile = exactStructureNearTie.TileType;
-            bestScore = exactStructureNearTie.Score;
-            bestShanten = exactStructureNearTie.Shanten;
-            bestUkeire = exactStructureNearTie.Ukeire;
-            bestLive = exactStructureNearTie.LiveUkeire;
-            bestSearchBonus = exactStructureNearTie.SearchBonus;
-            reasons = exactStructureNearTie.Reasons
-                .Concat(new[] { "精确牌形近分裁决：同速候选优先互斥分解的最低结构损失" })
-                .ToList();
-		}
+        if (exactStructureNearTie is not null)
+            arbiter.Propose(exactStructureNearTie.TileType, SichuanDiscardArbiter.CandidateValue, "EXACT_STRUCTURE_NEAR_TIE_OVERRIDE");
 
         if (!forceLightweight && state.InformationMode == "public"
             && state.PolicyVariant != "bucket_disabled" && state.WallCount >= 8 && !committedQing
@@ -594,13 +547,8 @@ public sealed class SichuanDecisionEngine
                 candidate.BucketContinuationStatus = "structural_evidence_only";
             var bucketChoice = state.PolicyVariant == "bucket_local_candidate_v1"
                 ? SichuanDiscardArbiter.SelectBucketDominance(candidates, bestTile) : null;
-            if (bucketChoice is not null && arbiter.TrySelect(bucketChoice.TileType, SichuanDiscardArbiter.CandidateValue, "BUCKET_LOCAL_DOMINANCE"))
-            {
-                bestTile = bucketChoice.TileType; bestScore = bucketChoice.Score; bestShanten = bucketChoice.Shanten;
-                bestUkeire = bucketChoice.Ukeire; bestLive = bucketChoice.LiveUkeire; bestSearchBonus = bucketChoice.SearchBonus;
-                finalSelectionReason = "BUCKET_LOCAL_DOMINANCE";
-                reasons = bucketChoice.Reasons.Prepend("同速、风险与路线约束下，公开木桶供给逐项不劣且至少一项更优；未换算成终局期望收益").ToList();
-            }
+            if (bucketChoice is not null)
+                arbiter.Propose(bucketChoice.TileType, SichuanDiscardArbiter.CandidateValue, "BUCKET_LOCAL_DOMINANCE");
             var structuralEvidence = candidates.First(c => c.TileType == bestTile);
             if (structuralEvidence.BucketSupported)
                 reasons = reasons.Concat(new[] {
@@ -629,60 +577,17 @@ public sealed class SichuanDecisionEngine
 			: string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase)
 				? SelectTwoMeldPositiveEvPublicRouteOverride(candidates, bestTile, meldCount)
 			: null;
-		if (twoPlyReadyChoice is not null && arbiter.TrySelect(twoPlyReadyChoice.TileType, SichuanDiscardArbiter.CandidateValue, "POLICY_VARIANT_OVERRIDE"))
-		{
-			finalSelectionReason = "POLICY_VARIANT_OVERRIDE";
-			bestTile = twoPlyReadyChoice.TileType;
-			bestScore = twoPlyReadyChoice.Score;
-			bestShanten = twoPlyReadyChoice.Shanten;
-			bestUkeire = twoPlyReadyChoice.Ukeire;
-			bestLive = twoPlyReadyChoice.LiveUkeire;
-			bestSearchBonus = twoPlyReadyChoice.SearchBonus;
-			var reasonCode = string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v3_exposed_hand", StringComparison.OrdinalIgnoreCase)
-				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v4_guarded", StringComparison.OrdinalIgnoreCase)
-				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v5_robust_exposed", StringComparison.OrdinalIgnoreCase)
-				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v6_late_open_shape", StringComparison.OrdinalIgnoreCase)
-				|| string.Equals(state.PolicyVariant, "public_route_frontier_candidate_v7_two_meld_positive_ev", StringComparison.OrdinalIgnoreCase)
-				? "PUBLIC_ROUTE_FRONTIER_OVERRIDE"
-				: "TWO_PLY_READY_OVERRIDE";
-			reasons = new[]
-				{
-					reasonCode,
-					$"两次摸牌路线代理值：逐个进张后重算听口，未校准完成概率 {twoPlyReadyChoice.TwoPlyReadyProbability:F5}"
-				}
-				.Concat(twoPlyReadyChoice.Reasons)
-				.ToList();
-		}
+		if (twoPlyReadyChoice is not null)
+            arbiter.Propose(twoPlyReadyChoice.TileType, SichuanDiscardArbiter.CandidateValue, "POLICY_VARIANT_OVERRIDE");
 
         var lateWallKeepReady = SelectLateWallKeepReadyOverride(candidates, bestTile, state);
-        if (lateWallKeepReady is not null && arbiter.TrySelect(lateWallKeepReady.TileType, SichuanDiscardArbiter.SafeReadySettlement, "LATE_WALL_KEEP_READY_OVERRIDE"))
-        {
-			finalSelectionReason = "LATE_WALL_KEEP_READY_OVERRIDE";
-            bestTile = lateWallKeepReady.TileType;
-            bestScore = lateWallKeepReady.Score;
-            bestShanten = lateWallKeepReady.Shanten;
-            bestUkeire = lateWallKeepReady.Ukeire;
-            bestLive = lateWallKeepReady.LiveUkeire;
-            bestSearchBonus = lateWallKeepReady.SearchBonus;
-            reasons = lateWallKeepReady.Reasons
-                .Concat(new[] { "尾盘守叫：存在安全听牌时，查叫资格硬优先于普通综合分" })
-                .ToList();
-        }
+        if (lateWallKeepReady is not null)
+            arbiter.Propose(lateWallKeepReady.TileType, SichuanDiscardArbiter.SafeReadySettlement, "LATE_WALL_KEEP_READY_OVERRIDE");
 
         var clearTile = maxReadyPosterior < 0.55
             ? SichuanOpeningClearPolicy.Select(state, roundStage, candidates) : -1;
-        if (clearTile >= 0 && arbiter.TrySelect(clearTile, SichuanDiscardArbiter.GlobalPlan, "OPENING_CLEAR_PUBLIC_ORDER"))
-        {
-            var chosen = candidates.First(c => c.TileType == clearTile);
-            bestTile = chosen.TileType;
-            bestScore = chosen.Score;
-            bestShanten = chosen.Shanten;
-            bestUkeire = chosen.Ukeire;
-            bestLive = chosen.LiveUkeire;
-            bestSearchBonus = chosen.SearchBonus;
-            finalSelectionReason = "OPENING_CLEAR_PUBLIC_ORDER";
-            reasons = chosen.Reasons.Prepend("洗脸：公开生张优先；同类先释放碰杠结构损失较小的牌；幺九、偏张、中张分层").ToList();
-        }
+        if (clearTile >= 0)
+            arbiter.Propose(clearTile, SichuanDiscardArbiter.GlobalPlan, "OPENING_CLEAR_PUBLIC_ORDER");
         var openingObservations = Enumerable.Range(0,4).Where(s => s != state.SeatIndex)
             .Select(s => Inference.SichuanOpeningObservation.Build(state, s)).ToArray();
         // Early-clear alone is not a threat. Require a deliberate suit trend,
@@ -690,26 +595,14 @@ public sealed class SichuanDecisionEngine
         // Prefer speed only when it does not raise the existing danger metric.
         var faster = SichuanOpeningClearPolicy.SelectRaceTempo(state, roundStage, routePlan.TargetSuit,
             openingObservations, candidates, bestTile);
-        if (faster is not null && arbiter.TrySelect(faster.TileType, SichuanDiscardArbiter.GlobalPlan, "OPENING_PUBLIC_RACE_TEMPO"))
-        {
-            bestTile = faster.TileType; bestScore = faster.Score; bestShanten = faster.Shanten;
-            bestUkeire = faster.Ukeire; bestLive = faster.LiveUkeire; bestSearchBonus = faster.SearchBonus;
-            finalSelectionReason = "OPENING_PUBLIC_RACE_TEMPO";
-            reasons = faster.Reasons.Prepend("独收对手早清缺且持续手打另一门，本家目标门全桌竞争：采用不增加危险度的更快路线").ToList();
-        }
+        if (faster is not null)
+            arbiter.Propose(faster.TileType, SichuanDiscardArbiter.GlobalPlan, "OPENING_PUBLIC_RACE_TEMPO");
         var developmentTile=new SichuanDevelopmentPolicy().SelectLiveDiscard(state,bestTile);
         var developmentCandidate=candidates.FirstOrDefault(c=>c.TileType==developmentTile);
         var developmentIncumbent=candidates.FirstOrDefault(c=>c.TileType==bestTile);
-        if(developmentTile!=bestTile && developmentCandidate is not null && developmentIncumbent is not null
-            && developmentCandidate.Danger<=developmentIncumbent.Danger
-            && arbiter.TrySelect(developmentTile, SichuanDiscardArbiter.GlobalPlan, "PUBLIC_DEVELOPMENT_DISCARD"))
-        {
-            bestTile=developmentTile;bestScore=developmentCandidate.Score;bestShanten=developmentCandidate.Shanten;
-            bestUkeire=developmentCandidate.Ukeire;bestLive=developmentCandidate.LiveUkeire;
-            bestSearchBonus=developmentCandidate.SearchBonus;
-            finalSelectionReason="PUBLIC_DEVELOPMENT_DISCARD";
-            reasons=developmentCandidate.Reasons.Prepend("公开供给证明换听或有条件重建更优，且首打危险不增加").ToList();
-        }
+        if (developmentTile!=bestTile && developmentCandidate is not null && developmentIncumbent is not null
+            && developmentCandidate.Danger<=developmentIncumbent.Danger)
+            arbiter.Propose(developmentTile, SichuanDiscardArbiter.GlobalPlan, "PUBLIC_DEVELOPMENT_DISCARD");
         // A publicly supplied single lane is a strategic decision, not an
         // unconditional minimum-shanten tie-break. Keep hard safety authority.
         if (aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
@@ -717,14 +610,9 @@ public sealed class SichuanDecisionEngine
         {
             var investment = new SichuanSingleLaneReadyInvestment().Select(state, candidates, bestTile,
                 wallAvailability, unifiedDiscardCandidates.GetValueOrDefault(bestTile)?.ChaJiaoValue ?? 0);
-            if (investment is not null && arbiter.TrySelect(investment.Tile,
-                SichuanDiscardArbiter.GlobalPlan, investment.Code))
-            {
-                var chosen = candidates.First(c => c.TileType == investment.Tile);
-                bestTile = chosen.TileType; bestScore = chosen.Score; bestShanten = chosen.Shanten;
-                bestUkeire = chosen.Ukeire; bestLive = chosen.LiveUkeire; bestSearchBonus = chosen.SearchBonus;
-                finalSelectionReason = investment.Code; reasons = investment.Reasons.Concat(chosen.Reasons).ToList();
-            }
+            if (investment is not null)
+                arbiter.Propose(investment.Tile,
+                SichuanDiscardArbiter.GlobalPlan, investment.Code);
         }
         // Basic hand development is shared by normal and lightweight play.
         // It may not undo a hard safety exit or an explicit strategic plan.
@@ -739,15 +627,9 @@ public sealed class SichuanDecisionEngine
             continuationPerf.Add(new SichuanModulePerfSample { Module = "CourseTempoStructure",
                 ElapsedMs = tempoWatch.Elapsed.TotalMilliseconds,
                 Warning = tempoWatch.Elapsed.TotalMilliseconds >= 100 });
-            if (choice is not null && arbiter.TrySelect(choice.Tile,
-                SichuanDiscardArbiter.CandidateValue, choice.Code))
-            {
-                var selected = candidates.First(c => c.TileType == choice.Tile);
-                bestTile = selected.TileType; bestScore = selected.Score; bestShanten = selected.Shanten;
-                bestUkeire = selected.Ukeire; bestLive = selected.LiveUkeire; bestSearchBonus = selected.SearchBonus;
-                finalSelectionReason = choice.Code;
-                reasons = choice.Reasons.Concat(selected.Reasons).ToList();
-            }
+            if (choice is not null)
+                arbiter.Propose(choice.Tile,
+                SichuanDiscardArbiter.CandidateValue, choice.Code);
         }
         if(state.InformationMode=="public"&&!committedQing
             &&aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
@@ -756,33 +638,33 @@ public sealed class SichuanDecisionEngine
             var triplet=new SichuanNewConcealedTripletPolicy().Evaluate(state,bestTile,candidates);
             var proposed=candidates.FirstOrDefault(c=>c.TileType==triplet.SelectedDiscard);
             var incumbent=candidates.First(c=>c.TileType==bestTile);
-            if(proposed is not null&&proposed.TileType!=bestTile
-                &&proposed.Shanten==incumbent.Shanten
-                &&arbiter.TrySelect(proposed.TileType,SichuanDiscardArbiter.GlobalPlan,triplet.Status))
-            {
-                bestTile=proposed.TileType;bestScore=proposed.Score;bestShanten=proposed.Shanten;
-                bestUkeire=proposed.Ukeire;bestLive=proposed.LiveUkeire;bestSearchBonus=proposed.SearchBonus;
-                finalSelectionReason=triplet.Status;
-                reasons=new[]{"新摸暗刻：逐舍牌比较听口与公开有限墙的一杠局部机会；保刻不增加拒胡额度",
-                    "NEW_TRIPLET_LOCAL_MODEL_UNCALIBRATED_NO_OPPONENT_EXITS_OR_FULL_WAITING_LOSSES"}
-                    .Concat(proposed.Reasons).ToList();
-            }
+            if (proposed is not null&&proposed.TileType!=bestTile
+                &&proposed.Shanten==incumbent.Shanten)
+            arbiter.Propose(proposed.TileType,SichuanDiscardArbiter.GlobalPlan,triplet.Status);
         }
         if (SichuanOpponentWideBedDefense.Applies(state))
         {
             var safer = SichuanOpponentWideBedDefense.SaferDiscard(state,candidates,bestTile);
-            if(safer is not null && arbiter.TrySelect(safer.TileType,SichuanDiscardArbiter.OpponentWideBedDefense,
-                "OPPONENT_WIDE_BED_SAFER_DISCARD"))
-            {
-                bestTile=safer.TileType;bestScore=safer.Score;bestShanten=safer.Shanten;
-                bestUkeire=safer.Ukeire;bestLive=safer.LiveUkeire;bestSearchBonus=safer.SearchBonus;
-                finalSelectionReason="OPPONENT_WIDE_BED_SAFER_DISCARD";reasons=safer.Reasons.ToList();
-            }
+            if (safer is not null)
+            arbiter.Propose(safer.TileType,SichuanDiscardArbiter.OpponentWideBedDefense,
+                "OPPONENT_WIDE_BED_SAFER_DISCARD");
             reasons.Insert(0,SichuanOpponentWideBedDefense.ActiveCode);
         }
+        var resolved = arbiter.Resolve();
+        if (resolved != bestTile)
+        {
+            var chosen = candidates.First(c => c.TileType == resolved);
+            bestTile = chosen.TileType; bestScore = chosen.Score; bestShanten = chosen.Shanten;
+            bestUkeire = chosen.Ukeire; bestLive = chosen.LiveUkeire; bestSearchBonus = chosen.SearchBonus;
+            finalSelectionReason = arbiter.Steps.First(s => s.Accepted).Module;
+            reasons = chosen.Reasons.Prepend("CENTRAL_DISCARD_PROPOSAL_SELECTION").ToList();
+        }
+        if (SichuanOpponentWideBedDefense.Applies(state)
+            && !reasons.Contains(SichuanOpponentWideBedDefense.ActiveCode))
+            reasons.Insert(0, SichuanOpponentWideBedDefense.ActiveCode);
         if (bestTile != arbiter.SelectedTile) throw new InvalidOperationException("arbitration_selection_desynchronized");
         reasons = new[] { "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
-            $"裁决过程：{arbiter.Steps.Count} 条建议，{arbiter.Steps.Count(x => !x.Accepted)} 条因合法性或更高优先级拒绝" }.Concat(reasons).ToList();
+            $"裁决过程：{arbiter.Steps.Count} 条建议，{arbiter.Steps.Count(x => !x.Accepted)} 条由合法性、优先级及同级统一评价裁决" }.Concat(reasons).ToList();
         var bestCandidateSnapshot = candidates.FirstOrDefault(item => item.TileType == bestTile);
         var finalDanger = bestTile >= 0 ? _danger.EvaluateDetail(bestTile, state, belief) : new SichuanDangerEvaluation { Risk = 0, RiskLabel = "低危" };
         var finalDealInProbability = SichuanRiskCalibration.ToDealInProbability(finalDanger.Risk, roundStage, maxReadyPosterior);
@@ -799,6 +681,7 @@ public sealed class SichuanDecisionEngine
             .Distinct()
             .Take(wallAvailability.KnownWallCounts18.Sum()>0?11:12)
             .Concat(wallAvailability.KnownWallCounts18.Sum()>0?new[]{"PUBLIC_WALL_KNOWN_COPIES"}:Array.Empty<string>())
+            .Append(SichuanSearchBudget.Reason)
             .ToArray();
 
         return new SichuanDecisionResult

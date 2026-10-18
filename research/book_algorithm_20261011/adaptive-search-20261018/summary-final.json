@@ -1,0 +1,39 @@
+{
+  "scope": "approved adaptive search budget; focused validation only",
+  "policyVersion": "unified-seat-policy-v2-adaptive-budget",
+  "trigger": {
+    "rows": 23,
+    "deepRows": 6,
+    "averageMs": 792.4511086956522,
+    "medianMs": 490.9797,
+    "maxMs": 2135.8607,
+    "fastMaxMs": 891.3829
+  },
+  "forecast": {
+    "states": 66,
+    "samples": [
+      8
+    ],
+    "concreteDrawContract": "one active-seat cycle"
+  },
+  "checks": {
+    "adaptiveMath": 4047,
+    "forecasts": 66,
+    "focusedScenarios": 23,
+    "upperFollowup": 5,
+    "twoStageMath": 26
+  },
+  "artifacts": {
+    "math-gates-final2.json": "5cceb8465c479876bb92cc6ca5c6b32e4671648ce1fd3e39e6a31986d5d510e7",
+    "forecasts-final.json": "29cb50eb3b67e670e150da79cfc79d79429fae4be9f283da8311a46f10c926d3",
+    "focused-current-final2.json": "afa77ed97584d1aca760cff71008ebad58ed6966768ecc01e351ba1c2321915b",
+    "upper-followup-final.json": "341bdde7a99f739e738872170925acea161bc7446225e50e5f2e44272154282d",
+    "two-stage-math-final.json": "8421f2492a280fb572d34dda47bde4f42f7d767739f0770bb9762a6cd58e259a",
+    "godot-current-final.json": "1f957f00089c7eed1d83b5ecdd7d94889ce08cad302ba142dc5ff8b7bf3e56b7"
+  },
+  "limitations": [
+    "mixed strategic scores remain uncalibrated EV",
+    "no mobile package/install in this turn",
+    "fast tail omits later shape changes, claims, exits"
+  ]
+}

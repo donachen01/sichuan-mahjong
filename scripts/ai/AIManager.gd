@@ -297,6 +297,8 @@ func _build_csharp_self_action_analysis(csharp_result: Dictionary, default_backe
 		"tile_type": int(csharp_result.get("tileType", -1)),
 		"gang_subtype": gang_subtype,
 		"gangSubtype": gang_subtype,
+		"continuation_discard_tile": int(csharp_result.get("continuationDiscardTile", -1)),
+		"decision_command": _decode_decision_command(csharp_result),
 		"score": int(csharp_result.get("score", 0)),
 		"reason": str(csharp_result.get("reason", "")),
 		"reasons": csharp_result.get("reasons", []).duplicate(true),
@@ -501,6 +503,10 @@ func _parse_aot_reaction_result(raw: String) -> Dictionary:
 		return {"ok": false, "error": "incomplete_aot_reaction_result"}
 	return {
 		"ok": true,
+		"plannedDiscardTile": int(parts[12]) if parts.size() > 12 else -1,
+		"plannedSelfAction": parts[13] if parts.size() > 13 else "",
+		"plannedSelfActionTile": int(parts[14]) if parts.size() > 14 else -1,
+		"decisionCommand": parts[15] if parts.size() > 15 else "",
 		"action": parts[1],
 		"tileType": int(parts[2]),
 		"score": int(parts[3]),
@@ -531,6 +537,8 @@ func _parse_aot_self_action_result(raw: String) -> Dictionary:
 		"liveUkeireAfter": int(parts[6]),
 		"backendMode": parts[7],
 		"reasons": [parts[8]] if parts.size() > 8 and not parts[8].is_empty() else ["iOS NativeAOT C# 自摸与杠决策"],
+		"continuationDiscardTile": int(parts[9]) if parts.size() > 9 else -1,
+		"decisionCommand": parts[10] if parts.size() > 10 else "",
 	}
 
 
@@ -844,6 +852,10 @@ func _deliver_native_reaction_payload(request_id: int, request: Dictionary, nati
 
 func _build_csharp_reaction_analysis(csharp_result: Dictionary, default_backend: String) -> Dictionary:
 	return {
+		"planned_discard_tile": int(csharp_result.get("plannedDiscardTile", -1)),
+		"planned_self_action": str(csharp_result.get("plannedSelfAction", "")),
+		"planned_self_action_tile": int(csharp_result.get("plannedSelfActionTile", -1)),
+		"decision_command": _decode_decision_command(csharp_result),
 		"action": str(csharp_result.get("action", "pass")),
 		"score": int(csharp_result.get("score", 0)),
 		"reasons": csharp_result.get("reasons", []).duplicate(true),
@@ -1874,3 +1886,11 @@ func _store_turn_analysis_cache(cache_key: String, result: Dictionary) -> void:
 func _touch_turn_cache_key(cache_key: String) -> void:
 	turn_cache_order.erase(cache_key)
 	turn_cache_order.append(cache_key)
+
+
+func _decode_decision_command(result: Dictionary) -> Dictionary:
+	var raw = result.get("decisionCommand", "")
+	if raw is Dictionary:
+		return raw.duplicate(true)
+	var parsed = JSON.parse_string(str(raw)) if not str(raw).is_empty() else null
+	return parsed if parsed is Dictionary else {}

@@ -23,7 +23,7 @@ export PATH="$DOTNET_ROOT:$DOTNET_ROOT/sdk:$JAVA_HOME/bin:/opt/homebrew/opt/dotn
 export GODOT_ANDROID_EXPORT_MODE=release
 # Use Godot's embedded Android template by default; this avoids requiring a locally cached AGP.
 export GODOT_ANDROID_USE_GRADLE="${GODOT_ANDROID_USE_GRADLE:-0}"
-export GODOT_ANDROID_VERSION_CODE=348
+export GODOT_ANDROID_VERSION_CODE=349
 PROJECT_DIR="${0:A:h:h}"
 APP_VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' "$PROJECT_DIR/project.godot" | head -n 1)"
 if [[ -z "$APP_VERSION" ]]; then

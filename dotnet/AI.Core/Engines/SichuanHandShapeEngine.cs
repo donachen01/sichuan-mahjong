@@ -15,6 +15,14 @@ public sealed class SichuanHandShapeEngine
         int? publicMissingSuit = null)
     {
         using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("shape");
+        return SichuanMahjong.AI.Core.Decision.SichuanPolicyExecutionScope.Memoize(
+            $"hand-shape/{meldCount}/{shanten}/{publicMissingSuit}/{string.Join(',',hand18)}/{string.Join(',',remaining18)}",
+            null,()=>EvaluateCore(hand18,remaining18,meldCount,shanten,publicMissingSuit));
+    }
+
+    private SichuanHandShapeSummary EvaluateCore(int[] hand18,int[] remaining18,int meldCount,int shanten,int? publicMissingSuit)
+    {
+        using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("shape_compute");
         var profiles = EnumerateMutuallyExclusiveProfiles(hand18, meldCount);
         var best = profiles.FirstOrDefault() ?? ShapeProfile.Empty;
         var goodShapeCount = best.Ryanmen;
