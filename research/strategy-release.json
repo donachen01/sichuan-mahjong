@@ -27,21 +27,23 @@
     }
   ],
   "release_inputs": {
-    "export_presets.cfg": "1f4bbc00bb197318b4538e7c6fdddedd98fe51b3b2008ce2ad000ccd45396066",
+    "export_presets.cfg": "8363c9f96575f5f332936788bec6cf34a7e971c27c338f3c0cb2ccf063178713",
     "tools/validate_strategy_release.py": "b6aa1e623adc55c4cd80848f8be9fdec8cb057a7a5cd9192bfbff230f69dbe47",
     "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
     "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
-    "tools/export_android_release.sh": "299dd0fc56963dcc6266be5ba28c03f0ff6a6717875c52e55c06906a3056ff1f",
-    "tools/export_android_debug.sh": "6ba263fde8eba7c62829cc8f967c0bbcf11a841351fdda6e2419684b2e3764ae",
+    "tools/export_android_release.sh": "51df797232f9a94eeb2b5a4bb726e9f1a2bf71c6168e942142695c4cdeecbf47",
+    "tools/export_android_debug.sh": "50e337413d1ab5aa576bc1825d2e00e8cc77254ece2508e9aa501fda1d256476",
     "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
     "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
-    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489"
+    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
+    "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
+    "project.godot": "af27e1ff67274b5a29de2c173f208c390c0fbc2fb18c00a63ce0dbc4dcdc7522"
   },
-  "notes": "AI/rules source binding unchanged. 2.6.86 Sensor=6 rotation claim withdrawn after portrait/in-game user failure. 2.6.87 restores landscape-only orientation and adds a native iOS CoreMotion/root-controller geometry bridge. Signed and installed on dona; multiple live sensor requests match both actual landscape orientations. Android APK signed. On 2026-10-18 the user confirmed in-game landscape switching and retaining landscape while holding portrait on dona iPhone.",
+  "notes": "AI/rules source binding unchanged. 2.6.86 Sensor=6 rotation claim withdrawn after portrait/in-game user failure. 2.6.87 restores landscape-only orientation and adds a native iOS CoreMotion/root-controller geometry bridge. Signed and installed on dona; multiple live sensor requests match both actual landscape orientations. Android APK signed. On 2026-10-18 the user confirmed in-game landscape switching and retaining landscape while holding portrait on dona iPhone. Android build348 fixes system-rotation-lock dependence through an Android-only Activity SENSOR_LANDSCAPE request. Eight injected-gravity emulator checks, background resume and post-rotation discard passed; not physical-phone evidence.",
   "limitations": [
     "8 current-source natural full-game arms: one seed per seat/opponent; completeness and settlement evidence, not strength calibration.",
     "No full five-book strategy strength claim.",
-    "2.6.87 real runtime sensor geometry verified; user in-game landscape-only acceptance passed on dona iPhone. Android packaged and signed; no Android physical install."
+    "2.6.87 real runtime sensor geometry verified; user in-game landscape-only acceptance passed on dona iPhone. Android build348 emulator runtime rotation/interaction verified; no Android physical install."
   ],
-  "validation_stage": "2.6.87_ios_landscape_only_user_accepted_android_apk_signed"
+  "validation_stage": "2.6.87_ios_user_accepted_android_build348_emulator_rotation_verified"
 }

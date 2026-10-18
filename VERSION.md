@@ -2,6 +2,8 @@
 
 当前应用版本：`2.6.87`
 
+`2.6.87` 的 Android 构建 348 通过原生 Activity 请求 SENSOR_LANDSCAPE，让系统关闭自动旋转时游戏仍能左右横屏翻转。iOS 已验收版本保持不变。
+
 `2.6.87` 仅保留左右横屏，增加 iOS 原生重力采样与窗口方向请求，修复 4.6.2 SwiftUI 容器旋转问题。
 
 `2.6.86` 的 Sensor=6 配置错误地开放了竖屏，且未解决游戏内翻转；由 2.6.87 修订。
@@ -131,7 +133,7 @@
 ## 版本维护规则
 
 - 每次正式发布同步更新 `project.godot`、`export_presets.cfg`、`VERSION.md` 与 `README.md`。
-- Android 当前配置使用 `version/name=2.6.87`、`version/code=347`，产物文件名包含版本号。
+- Android 当前配置使用 `version/name=2.6.87`、`version/code=348`，产物文件名包含版本号。
 - iOS 当前配置使用短版本号和构建版本 `2.6.87`；设备安装、启动与真机牌局验证必须和构建证据分层记录。
 - 构建产物保留在 `build/android/` 与 `build/ios/`，验证证据保留在 `evidence/`。
 - 版本完成标准区分源码测试、构建、签名、安装、启动和真机完整流程，不以其中一层替代另一层。

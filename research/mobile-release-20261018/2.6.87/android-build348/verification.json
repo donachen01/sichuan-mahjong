@@ -1,0 +1,105 @@
+{
+  "device": "Android emulator yyb_mac / NP05J arm64-v8a",
+  "build": 348,
+  "initial_system_settings": {
+    "accelerometer_rotation": "0",
+    "user_rotation": "0"
+  },
+  "rows": [
+    {
+      "automatic_rotation": 0,
+      "pose": "left",
+      "expected_rotation": 1,
+      "rotation": 1,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 0,
+      "pose": "right",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 0,
+      "pose": "portrait",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 0,
+      "pose": "flat",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "left",
+      "expected_rotation": 1,
+      "rotation": 1,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "right",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "portrait",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "flat",
+      "expected_rotation": 3,
+      "rotation": 3,
+      "requested_orientation": 6,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12670",
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "apk_sha256": "5f6697f92ab6e97b510d9cb6f44fdef7d0b90c6bbc9e0843c1f5eec3a316e8e6",
+  "resume_requested_orientation": 6,
+  "resume_display_rotation": 3,
+  "touch_after_rotation": "Double-tap discarded the visible drawn 8-wan; river shows 8-wan and wall count advanced from 54 to 53.",
+  "application_errors": [],
+  "validation_scope": "Actual arm64 Android emulator runtime with injected accelerometer signals. No physical Android phone validation."
+}

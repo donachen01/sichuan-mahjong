@@ -1,0 +1,61 @@
+{
+  "build": 347,
+  "device_kind": "emulator",
+  "rows": [
+    {
+      "automatic_rotation": 0,
+      "pose": "left",
+      "acceleration": "9.81:0:0",
+      "rotation": 1,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    },
+    {
+      "automatic_rotation": 0,
+      "pose": "right",
+      "acceleration": "-9.81:0:0",
+      "rotation": 1,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    },
+    {
+      "automatic_rotation": 0,
+      "pose": "portrait",
+      "acceleration": "0:9.81:0",
+      "rotation": 1,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "left",
+      "acceleration": "9.81:0:0",
+      "rotation": 1,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "right",
+      "acceleration": "-9.81:0:0",
+      "rotation": 3,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    },
+    {
+      "automatic_rotation": 1,
+      "pose": "portrait",
+      "acceleration": "0:9.81:0",
+      "rotation": 3,
+      "width": 2560,
+      "height": 1440,
+      "pid": "12494"
+    }
+  ],
+  "finding": "With system automatic rotation disabled, left/right gravity changes both remain ROTATION_90; with it enabled, both landscape sides work."
+}
