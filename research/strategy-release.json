@@ -27,19 +27,21 @@
     }
   ],
   "release_inputs": {
-    "export_presets.cfg": "2ea134b64fa6b4bc64aad9e11b827c6d3878c1b7f54ed4e6430bcaa162cb5e83",
+    "export_presets.cfg": "1f4bbc00bb197318b4538e7c6fdddedd98fe51b3b2008ce2ad000ccd45396066",
     "tools/validate_strategy_release.py": "b6aa1e623adc55c4cd80848f8be9fdec8cb057a7a5cd9192bfbff230f69dbe47",
     "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
-    "tools/export_ios_xcode_project.sh": "d31b597f9b774128d309087822565d91231629def75a7ae9773c00c8aac8c0c2",
-    "tools/export_android_release.sh": "ac921b16c64a7f3d39d78cfddfeb2ee88346e05879f6e9c5710563c9fcbf8d37",
-    "tools/export_android_debug.sh": "dbe56e8ffca2071664efc31217af626d3b0950e66f62bbfbddb9505b56e7cb36",
-    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c"
+    "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
+    "tools/export_android_release.sh": "299dd0fc56963dcc6266be5ba28c03f0ff6a6717875c52e55c06906a3056ff1f",
+    "tools/export_android_debug.sh": "6ba263fde8eba7c62829cc8f967c0bbcf11a841351fdda6e2419684b2e3764ae",
+    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
+    "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
+    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489"
   },
-  "notes": "Current latest source full-game integrity and settlement validation completed for two frozen opponents and four seats each. iOS SensorLandscape export was built, installed, and launched on dona; Android Release was generated with the embedded Godot template because the local Gradle/AGP cache is unavailable. No strength promotion or probability claim.",
+  "notes": "AI/rules source binding unchanged. 2.6.86 Sensor=6 rotation claim withdrawn after portrait/in-game user failure. 2.6.87 restores landscape-only orientation and adds a native iOS CoreMotion/root-controller geometry bridge. Signed and installed on dona; multiple live sensor requests match both actual landscape orientations. Android APK signed; gameplay visual feedback pending.",
   "limitations": [
     "8 current-source natural full-game arms: one seed per seat/opponent; completeness and settlement evidence, not strength calibration.",
-    "Android was packaged with GODOT_ANDROID_USE_GRADLE=0 using the verified embedded template; no Android physical device named dona was connected for install.",
-    "No full five-book strategy strength claim."
+    "No full five-book strategy strength claim.",
+    "2.6.87 real runtime sensor geometry verified; user confirmation of in-game visual interaction remains pending. Android packaged and signed; no Android physical install."
   ],
-  "validation_stage": "current_source_desktop_correctness_verified_ios_installed_android_signed_apk"
+  "validation_stage": "2.6.87_ios_installed_runtime_sensor_geometry_verified_android_apk_signed"
 }

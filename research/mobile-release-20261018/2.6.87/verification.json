@@ -1,0 +1,57 @@
+{
+  "version": "2.6.87",
+  "android_version_code": 347,
+  "ios_build": "succeeded",
+  "ios_installed": "dona iPhone",
+  "ios_launch": "succeeded",
+  "ios_allowed_orientations": [
+    "UIInterfaceOrientationLandscapeLeft",
+    "UIInterfaceOrientationLandscapeRight"
+  ],
+  "native_sensor_requests": [
+    {
+      "requested_mask": 16,
+      "actual_orientation": 4,
+      "matched": true
+    },
+    {
+      "requested_mask": 8,
+      "actual_orientation": 3,
+      "matched": true
+    },
+    {
+      "requested_mask": 16,
+      "actual_orientation": 4,
+      "matched": true
+    },
+    {
+      "requested_mask": 8,
+      "actual_orientation": 3,
+      "matched": true
+    },
+    {
+      "requested_mask": 16,
+      "actual_orientation": 4,
+      "matched": true
+    },
+    {
+      "requested_mask": 8,
+      "actual_orientation": 3,
+      "matched": true
+    },
+    {
+      "requested_mask": 16,
+      "actual_orientation": 4,
+      "matched": true
+    },
+    {
+      "requested_mask": 8,
+      "actual_orientation": 3,
+      "matched": true
+    }
+  ],
+  "android_apk_sha256": "7a8b6bd183403f0fa05fd47679c951d493c847e69b0c667f94374ddb203b3f22",
+  "android_bytes": 253268763,
+  "android_signature": "v2/v3 verified",
+  "validation_boundary": "Real on-device sensor requests reached matching landscape geometry after launch. In-game visual confirmation remains pending user feedback; no Android physical installation this turn."
+}

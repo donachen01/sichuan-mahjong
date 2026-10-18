@@ -116,6 +116,8 @@ if [[ ! -f "$EXPORT_DIR/SichuanMahjongIOS.xcodeproj/project.pbxproj" ]]; then
   exit 1
 fi
 
+python3 "$PROJECT_DIR/tools/ios/configure_landscape_rotation.py" "$EXPORT_DIR"
+
 AOT_XCFRAMEWORK_SRC="$PROJECT_DIR/.godot/mono/temp/bin/$EXPORT_CONFIG/SichuanMahjong.Godot_aot.xcframework"
 AOT_DEVICE_DYLIB="$PROJECT_DIR/.godot/mono/temp/bin/$EXPORT_CONFIG/ios-arm64/native/SichuanMahjong.Godot.dylib"
 if [[ ! -f "$AOT_DEVICE_DYLIB" ]]; then

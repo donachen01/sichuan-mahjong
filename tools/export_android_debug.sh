@@ -8,7 +8,7 @@ export PATH="$JAVA_HOME/bin:/opt/homebrew/bin:/Users/chendong/Library/Android/sd
 export GODOT_ANDROID_EXPORT_MODE=debug
 # Use Godot's embedded Android template by default; this avoids requiring a locally cached AGP.
 export GODOT_ANDROID_USE_GRADLE="${GODOT_ANDROID_USE_GRADLE:-0}"
-export GODOT_ANDROID_VERSION_CODE=346
+export GODOT_ANDROID_VERSION_CODE=347
 PROJECT_DIR="/Volumes/AI/Codex/四川麻将工程_20260701_v2"
 export GODOT_ANDROID_GRADLE_BUILD_DIR="${GODOT_ANDROID_GRADLE_BUILD_DIR:-/tmp/sichuan_mahjong_android_gradle_build_debug}"
 ANDROID_SOURCE_TEMPLATE="/Users/chendong/Library/Application Support/Godot/export_templates/4.6.2.stable.mono/templates/android_source.zip"
