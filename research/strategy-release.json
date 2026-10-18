@@ -37,11 +37,11 @@
     "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
     "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489"
   },
-  "notes": "AI/rules source binding unchanged. 2.6.86 Sensor=6 rotation claim withdrawn after portrait/in-game user failure. 2.6.87 restores landscape-only orientation and adds a native iOS CoreMotion/root-controller geometry bridge. Signed and installed on dona; multiple live sensor requests match both actual landscape orientations. Android APK signed; gameplay visual feedback pending.",
+  "notes": "AI/rules source binding unchanged. 2.6.86 Sensor=6 rotation claim withdrawn after portrait/in-game user failure. 2.6.87 restores landscape-only orientation and adds a native iOS CoreMotion/root-controller geometry bridge. Signed and installed on dona; multiple live sensor requests match both actual landscape orientations. Android APK signed. On 2026-10-18 the user confirmed in-game landscape switching and retaining landscape while holding portrait on dona iPhone.",
   "limitations": [
     "8 current-source natural full-game arms: one seed per seat/opponent; completeness and settlement evidence, not strength calibration.",
     "No full five-book strategy strength claim.",
-    "2.6.87 real runtime sensor geometry verified; user confirmation of in-game visual interaction remains pending. Android packaged and signed; no Android physical install."
+    "2.6.87 real runtime sensor geometry verified; user in-game landscape-only acceptance passed on dona iPhone. Android packaged and signed; no Android physical install."
   ],
-  "validation_stage": "2.6.87_ios_installed_runtime_sensor_geometry_verified_android_apk_signed"
+  "validation_stage": "2.6.87_ios_landscape_only_user_accepted_android_apk_signed"
 }

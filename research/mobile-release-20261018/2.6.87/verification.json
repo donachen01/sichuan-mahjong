@@ -53,5 +53,15 @@
   "android_apk_sha256": "7a8b6bd183403f0fa05fd47679c951d493c847e69b0c667f94374ddb203b3f22",
   "android_bytes": 253268763,
   "android_signature": "v2/v3 verified",
-  "validation_boundary": "Real on-device sensor requests reached matching landscape geometry after launch. In-game visual confirmation remains pending user feedback; no Android physical installation this turn."
+  "validation_boundary": "iOS on-device sensor geometry and user in-game landscape-only acceptance passed. Android APK signed; no Android physical installation this turn.",
+  "user_acceptance": {
+    "date": "2026-10-18",
+    "device": "dona iPhone",
+    "response": "可以了。",
+    "scope": [
+      "in-game left/right landscape switching",
+      "portrait holding retains landscape"
+    ],
+    "status": "passed"
+  }
 }
