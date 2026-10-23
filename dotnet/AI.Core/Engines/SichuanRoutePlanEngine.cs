@@ -26,7 +26,15 @@ public sealed class SichuanRoutePlanEngine
         SichuanRoundBrainSnapshot? brain = null)
     {
         var features = BuildFeatures(state, hand18, meldCount);
-        var weights = BuildWeights(features);
+        var seven = Decision.SichuanSevenPairsDevelopment.Assess(state,hand18);
+        var weights = BuildWeights(features,seven.Applies);
+        if(seven.Applies&&!seven.MayInvest&&features.SevenPairsShanten>0
+            &&features.StandardShanten<=features.SevenPairsShanten)
+        {
+            var ordinary=weights.GetValueOrDefault("平胡",1);
+            foreach(var route in weights.Keys.Where(IsSevenPairsRoute).ToArray())
+                weights[route]=Math.Min(weights[route],Math.Max(0,ordinary-1));
+        }
         var flushSuit = brain is not null && IsFlushRoute(brain.PrimaryRoute) && brain.TargetSuit >= 0
             ? brain.TargetSuit : features.TargetSuit;
         var capacity = SichuanFlushCopyCapacity.Assess(state, hand18, flushSuit);
@@ -40,6 +48,8 @@ public sealed class SichuanRoutePlanEngine
             .ThenBy(item => RouteTieBreakRank(item.Key))
             .ToArray();
         var primary = brain is not null && weights.ContainsKey(brain.PrimaryRoute)
+            && !(seven.Applies&&!seven.MayInvest&&IsSevenPairsRoute(brain.PrimaryRoute)
+                &&features.SevenPairsShanten>0&&features.StandardShanten<=features.SevenPairsShanten)
             ? brain.PrimaryRoute
             : ordered.FirstOrDefault().Key ?? "平胡";
         var secondary = ordered
@@ -51,8 +61,12 @@ public sealed class SichuanRoutePlanEngine
         var targetSuit = brain is not null && IsFlushRoute(primary) && brain.TargetSuit is >= 0 and < 3
             ? brain.TargetSuit
             : features.TargetSuit;
-        var constraints = BuildConstraints(primary, targetSuit);
+        var constraints = BuildConstraints(primary, targetSuit, !seven.Applies||features.SevenPairsShanten<=0);
         var reasons = BuildReasons(primary, secondary, features)
+            .Concat(seven.Applies ? new[] {
+                $"SEVEN_PAIRS_PUBLIC_GATES：早盘{seven.Early}，定缺有利{seven.Favorable}，供牌受限对子{seven.DifficultPairs}，安全{seven.Safe}；仅为主攻资格，动作仍比较共同收益",
+                features.SevenPairsShanten>0 ? "SEVEN_PAIRS_COMPATIBILITY：未听七对保留碰回普通胡的合法候选，不以路线记忆禁碰杠" : "SEVEN_PAIRS_READY：保留已成七对叫的真实资格成本"
+              } : Array.Empty<string>())
             .Concat(capacity.Admissible ? Array.Empty<string>() : new[] {
                 capacity.Reason switch {
                     "FLUSH_READY_COPY_CAPACITY" => $"{capacity.Reason}：{flushSuit}门可取得张数上限{capacity.AvailableCopies}，成叫至少{capacity.MinimumReadyCopies}；退出清色目标",
@@ -85,21 +99,21 @@ public sealed class SichuanRoutePlanEngine
     public static bool IsPungRoute(string route)
         => route is "大对子" or "清对";
 
-    private Dictionary<string, int> BuildWeights(RouteFeatures features)
+    private Dictionary<string, int> BuildWeights(RouteFeatures features,bool ordinarySeven=false)
     {
         var weights = new Dictionary<string, int>
         {
-            ["平胡"] = ScorePingHu(features),
+            ["平胡"] = ScorePingHu(features,ordinarySeven),
             ["大对子"] = ScoreDaDuiZi(features),
             ["清一色"] = ScoreQingYiSe(features)
         };
 
         if (features.MeldCount == 0)
         {
-            weights["暗七对"] = ScoreQiDui(features);
-            weights["龙七对"] = ScoreLongQiDui(features);
-            weights["清七对"] = ScoreQingQiDui(features);
-            weights["青龙七对"] = ScoreQingLongQiDui(features);
+            weights["暗七对"] = ScoreQiDui(features,ordinarySeven);
+            weights["龙七对"] = ScoreLongQiDui(features,ordinarySeven);
+            weights["清七对"] = ScoreQingQiDui(features,ordinarySeven);
+            weights["青龙七对"] = ScoreQingLongQiDui(features,ordinarySeven);
         }
         else
         {
@@ -115,7 +129,7 @@ public sealed class SichuanRoutePlanEngine
             .ToDictionary(item => item.Key, item => Math.Clamp(item.Value, 0, 100));
     }
 
-    private static int ScorePingHu(RouteFeatures features)
+    private static int ScorePingHu(RouteFeatures features,bool ordinarySeven=false)
     {
         var score = 50
             - Math.Max(0, features.StandardShanten) * 7
@@ -132,7 +146,7 @@ public sealed class SichuanRoutePlanEngine
             score += 10;
         if (features.WallCount <= 10)
             score += 8;
-        if (features.PairLikeCount >= 5 && features.MeldCount == 0)
+        if (!ordinarySeven && features.PairLikeCount >= 5 && features.MeldCount == 0)
             score -= 16;
         if (features.MaxOpponentBigHandThreat >= 45)
             score += features.StandardShanten <= 2 ? 18 : 8;
@@ -141,7 +155,7 @@ public sealed class SichuanRoutePlanEngine
         return score;
     }
 
-    private static int ScoreQiDui(RouteFeatures features)
+    private static int ScoreQiDui(RouteFeatures features,bool ordinarySeven=false)
     {
         if (features.MeldCount > 0)
             return 0;
@@ -153,7 +167,7 @@ public sealed class SichuanRoutePlanEngine
             + features.TripletCount * 3
             - Math.Max(0, features.SevenPairsShanten) * 10
             - features.SequencePotential * 2;
-        if (features.PairLikeCount >= 5)
+        if (!ordinarySeven && features.PairLikeCount >= 5)
             score += 52;
         else if (features.PairLikeCount == 4)
             score += features.SevenPairsShanten <= 2 ? 8 : -10;
@@ -166,11 +180,11 @@ public sealed class SichuanRoutePlanEngine
         return score;
     }
 
-    private static int ScoreLongQiDui(RouteFeatures features)
+    private static int ScoreLongQiDui(RouteFeatures features,bool ordinarySeven=false)
     {
         if (features.MeldCount > 0)
             return 0;
-        var score = ScoreQiDui(features) - 10 + features.GenPotential * 18;
+        var score = ScoreQiDui(features,ordinarySeven) - 10 + features.GenPotential * 18;
         if (features.PairLikeCount >= 5 && features.GenPotential > 0)
             score += 14;
         return score;
@@ -209,18 +223,18 @@ public sealed class SichuanRoutePlanEngine
         return score;
     }
 
-    private static int ScoreQingQiDui(RouteFeatures features)
+    private static int ScoreQingQiDui(RouteFeatures features,bool ordinarySeven=false)
     {
         if (features.MeldCount > 0)
             return 0;
-        return ScoreQiDui(features) + ScoreQingYiSe(features) / 2 - 12;
+        return ScoreQiDui(features,ordinarySeven) + ScoreQingYiSe(features) / 2 - 12;
     }
 
-    private static int ScoreQingLongQiDui(RouteFeatures features)
+    private static int ScoreQingLongQiDui(RouteFeatures features,bool ordinarySeven=false)
     {
         if (features.MeldCount > 0)
             return 0;
-        return ScoreQingQiDui(features) + features.GenPotential * 16 - 8;
+        return ScoreQingQiDui(features,ordinarySeven) + features.GenPotential * 16 - 8;
     }
 
     private static int ScoreDaDuiZi(RouteFeatures features)
@@ -241,13 +255,12 @@ public sealed class SichuanRoutePlanEngine
     private static int ScoreQingDui(RouteFeatures features)
         => ScoreDaDuiZi(features) + ScoreQingYiSe(features) / 2 - 8;
 
-    private static IReadOnlyList<string> BuildConstraints(string primary, int targetSuit)
+    private static IReadOnlyList<string> BuildConstraints(string primary, int targetSuit,bool hardSeven=true)
     {
         var constraints = new List<string>();
         if (IsSevenPairsRoute(primary))
         {
-            constraints.Add("forbid_melds");
-            constraints.Add("forbid_gangs");
+            if(hardSeven){constraints.Add("forbid_melds");constraints.Add("forbid_gangs");}
             constraints.Add("preserve_pairs");
         }
         if (IsFlushRoute(primary))

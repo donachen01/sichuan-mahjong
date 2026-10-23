@@ -32,11 +32,12 @@ public sealed class SichuanReactionDecisionEngine
     {
         using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
+        using var developmentComparison=SichuanReadyDevelopmentEvaluator.EnterReactionComparison(state,canPeng&&!canHu&&!canGang);
         if (canHu)
         {
 			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain, canGang);
 			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
-			var actionScores = comparison.Candidates.ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),
+			var actionScores = comparison.Candidates.Where(candidate => candidate.IsAdmissible).ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),
 				candidate => (int)Math.Round(candidate.ExpectedNetScore * 1000.0));
 			var selectedScore = actionScores[selected.Action.ActionType.ToString().ToLowerInvariant()];
             if (comparison.LocalReaction is { } claim)
@@ -296,6 +297,23 @@ public sealed class SichuanReactionDecisionEngine
         if (pengDevelopment is not null && finalPengCandidate.result is not null)
             finalPengCandidate.result.Reasons = finalPengCandidate.result.Reasons.Concat(pengDevelopment.Reasons).ToArray();
         var passCandidate = candidates.First(item => item.action == "pass").result;
+        if(finalPengCandidate.result is {PlannedDiscardTile:>=0}&&SichuanRoutePlanEngine.IsFlushRoute(currentPlan.PrimaryRoute)
+            &&SichuanFlushDevelopmentPolicy.CreatesNewBottleneck(state,reactionTileType,sourceSeat,finalPengCandidate.result.PlannedDiscardTile))
+        {
+            excluded.Add(SichuanActionType.Peng);
+            passCandidate.Reasons=passCandidate.Reasons.Append("FLUSH_SECOND_CLAIM_CREATES_LAST_COPY_BOTTLENECK").ToArray();
+            proposals.Add((passCandidate,80,"FLUSH_LAST_COPY_BOTTLENECK_PRESERVE"));
+        }
+        var flushClaim = !currentPlan.ForbidsMelds && finalPengCandidate.result is {PlannedDiscardTile:>=0}
+            && finalPengCandidate.result.PlannedSelfAction.Length==0
+            && SichuanFlushDevelopmentPolicy.SupportsClaim(state,reactionTileType,sourceSeat,finalPengCandidate.result.PlannedDiscardTile);
+        if(flushClaim)
+        {
+            finalPengCandidate.result!.Reasons=finalPengCandidate.result.Reasons.Concat(new[]{
+                "FLUSH_CLAIM_SUPPORTED_DISJOINT_BLOCKS_AND_PUBLIC_PROGRESS",
+                "清色碰后进展或五搭结构成立，未制造只剩一张的必经牌眼；执行已比较的首打"}).ToArray();
+            proposals.Add((finalPengCandidate.result,30,"FLUSH_NEXT_READY_SUPPLY"));
+        }
         if (best.Action.ActionType == SichuanActionType.Peng && finalPengCandidate.result is not null
             && finalPengCandidate.result.PlannedSelfAction.Length == 0)
         {
@@ -321,7 +339,7 @@ public sealed class SichuanReactionDecisionEngine
 				&& currentFollowUp.LiveUkeire > 0;
 			var passWithinDecisionMargin = passCandidate.Action.Score >= peng.Action.Score - 45;
 			if (deadReadyAfterPeng
-				|| passWithinDecisionMargin && pengDevelopment?.Improves != true
+				|| !flushClaim && passWithinDecisionMargin && pengDevelopment?.Improves != true
                     && (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady))
             {
                 passCandidate.Reasons = passCandidate.Reasons

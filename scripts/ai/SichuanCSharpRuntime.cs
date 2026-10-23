@@ -126,6 +126,21 @@ public partial class SichuanCSharpRuntime : Node
 
     public bool IsRuntimeReady() => true;
 
+    public bool ValidateDecisionCommand(string stateJson, string commandJson)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(commandJson);
+            if (doc.RootElement.GetProperty("schema").GetInt32() != SichuanDecisionCommand.SchemaVersion)
+                return false;
+            var command = JsonSerializer.Deserialize(commandJson, RuntimeJsonContext.Default.SichuanDecisionCommand);
+            var payload = JsonSerializer.Deserialize(stateJson, RuntimeJsonContext.Default.DiscardPayload);
+            return command is not null && payload is not null
+                && _facade.ValidateDecisionCommand(BuildState(payload), command);
+        }
+        catch (Exception) { return false; }
+    }
+
     public override void _Ready()
     {
         GD.Print("[SichuanCSharpRuntime] ready");
@@ -1751,6 +1766,7 @@ public partial class SichuanCSharpRuntime : Node
     [JsonSerializable(typeof(DiscardPayload))]
     [JsonSerializable(typeof(ReactionPayload))]
     [JsonSerializable(typeof(SelfActionPayload))]
+    [JsonSerializable(typeof(SichuanDecisionCommand))]
     [JsonSerializable(typeof(HellChallengePayload))]
     [JsonSerializable(typeof(HellChallengeReactionPayload))]
     private partial class RuntimeJsonContext : JsonSerializerContext

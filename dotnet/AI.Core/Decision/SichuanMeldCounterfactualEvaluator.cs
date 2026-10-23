@@ -45,6 +45,7 @@ public sealed record SichuanMeldCounterfactual(
     public double ReachReadyProbability { get; init; }
     public double FutureSelfDrawProbability { get; init; }
     public double ExpectedFutureSelfDrawGain { get; init; }
+    public SichuanDevelopmentTrajectoryModel.Estimate? ReadyDevelopmentEstimate {get;init;}
 }
 
 public sealed class SichuanMeldCounterfactualEvaluator
@@ -158,7 +159,13 @@ public sealed class SichuanMeldCounterfactualEvaluator
 		var ownTurnOffset = isPass
 			? SichuanTurnOrder.DrawsBeforeSeatAfterDiscard(state, state.CurrentSeat, state.SeatIndex)
 			: SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state);
-        var chance = _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
+        var continuationPrice = isReady && followUp.Continuation is { } liveContinuation
+            ? _readyPrices.Build(liveContinuation,liveContinuation.Hand18,wallAvailability.ExpectedCounts18) : null;
+        var readyGroups = continuationPrice is null || followUp.Continuation is null ? null
+            : SichuanReadyRaceSupply.Build(followUp.Continuation,continuationPrice);
+        var rootSupply = isContinue ? SichuanOpponentSupplyStep.RootReport(state) : null;
+        var chance = rootSupply?.Chances.GetValueOrDefault(followUp.BestDiscardTile)
+            ?? _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
             isReady ? followUp.LiveUkeire : 0,
 			continuationWallCount,
             activePlayers,
@@ -171,7 +178,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
 			ChaJiaoValue: followUp.Shanten == 0 ? 0.35 : 0,
 			MaxDraws: Math.Min(12, Math.Max(4, continuationWallCount)),
 			Simulations: 256,
-			Seed: 20260809 ^ state.RoundIndex ^ tileType ^ (int)(state.EventVersion % int.MaxValue)));
+			Seed: 20260809 ^ state.RoundIndex ^ tileType ^ (int)(state.EventVersion % int.MaxValue),
+            ReadyGroups: readyGroups));
 		var futureOwnDraws = Math.Max(0, (continuationWallCount - ownTurnOffset + activePlayers - 1) / activePlayers);
 		var refundLoss = 0.0;
         if (isGang && SichuanRuleSnapshot.Frozen.EnableGangRefund)
@@ -194,7 +202,9 @@ public sealed class SichuanMeldCounterfactualEvaluator
         // Candidate is deliberately explicit until independent node checks and
         // latency checks support promotion. Never turn a rounded mean shanten
         // into a categorical ready/not-ready probability.
-        bool twoStage = UseTwoStage(state) && (!SichuanSearchBudget.Adaptive
+        var developmentHolding=!isGang&&followUp.Continuation is { } holding
+            ?new SichuanReadyDevelopmentEvaluator().Holding(state,holding,ownTurnOffset):null;
+        bool twoStage = developmentHolding is null&&UseTwoStage(state) && (!SichuanSearchBudget.Adaptive
             || (followUp.Branches.Count > 0 ? followUp.Branches.All(b => b.ImmediateWin || b.Shanten <= 1) : followUp.Shanten <= 1));
         var staged = twoStage ? followUp.StageChance ?? EvaluateFollowUpChance(
             followUp, belief, ownTurnOffset) : null;
@@ -242,6 +252,19 @@ public sealed class SichuanMeldCounterfactualEvaluator
 			branchReadyApplied=true;
 			value += followUp.Branches.Sum(b => b.Weight * b.TerminalReadyValue) - EvaluateTerminalReadyValue(continuationWallCount, followUp);
 		}
+        if(developmentHolding is { } dev)
+        {
+            var c=dev.Estimate.Chance;
+            value=new SichuanMultiPlayerUtilityEngine().Evaluate(new(c.ExpectedOwnWinGain,0,c.ExpectedChaJiaoValue,
+                followUp.DiscardRisk,c.ExpectedOpponentLoss,0,0,.18,activePlayers,.78)).NetUtility;
+        }
+        if (followUp.SharedReadyValue is { } commonReady)
+        {
+            // The shared child value already prices its legal waits, payer
+            // count, public risk and terminal readiness. Add only new Gang cash
+            // and its refund liability; do not charge the discard risk twice.
+            value = commonReady + immediateGangGain - refundLoss - routeLoss - risk;
+        }
         // Do not reward a Peng for its speculative future added Gang. Its
         // structural progress is already measured; real later Gang events keep
         // their rule cash, roots and replacement transitions.
@@ -250,12 +273,15 @@ public sealed class SichuanMeldCounterfactualEvaluator
             ReplacementBranches = followUp.Branches,
             BranchReadyValueApplied = branchReadyApplied,
             BestDiscardTile = followUp.BestDiscardTile,
+            ReadyDevelopmentEstimate=developmentHolding?.Estimate,
             StructuralValue = followUp.BaseValue,
             ImmediateGangGain = immediateGangGain,
-            ContinuationModel = twoStage ? "enumerated_ready_then_fixed_wait_public_model" : "rounded_followup_legacy",
-            ReachReadyProbability = staged?.ReadyProbability ?? 0,
-            FutureSelfDrawProbability = staged?.SelfDrawProbability ?? chance.OwnWinProbability,
-            ExpectedFutureSelfDrawGain = staged?.ExpectedSelfDrawGain ?? chance.ExpectedOwnWinGain,
+            ContinuationModel = followUp.SharedReadyValue is not null ? "shared_executable_ready_action_value" : developmentHolding is not null?"common_ordinary_seven_pairs_ready_endpoint_trajectory":rootSupply?.Chances.ContainsKey(followUp.BestDiscardTile) == true
+                ? "shared_public_first_opponent_step_then_fixed_wait"
+                : twoStage ? "enumerated_ready_then_fixed_wait_public_model" : "rounded_followup_legacy",
+            ReachReadyProbability = developmentHolding?.Estimate.ReadyProbability??staged?.ReadyProbability ?? 0,
+            FutureSelfDrawProbability = developmentHolding?.Estimate.Chance.SelfDrawWinProbability??staged?.SelfDrawProbability ?? chance.SelfDrawWinProbability,
+            ExpectedFutureSelfDrawGain = developmentHolding?.Estimate.Chance.ExpectedSelfDrawGain??staged?.ExpectedSelfDrawGain ?? chance.ExpectedSelfDrawGain,
             ExpectedGangRefundLoss = refundLoss,
             ExpectedGangDiscardExtraLoss = followUp.GangDiscardExtraLoss,
             ExpectedDiscardRisk = followUp.DiscardRisk,
@@ -369,9 +395,21 @@ public sealed class SichuanMeldCounterfactualEvaluator
             && Enumerable.Range(state.OwnDingQueSuit*9,9).Any(t=>hand[t]>0) ? state.OwnDingQueSuit : -1;
 		var analyses = _hands.AnalyzeDiscards(hand, state.Remaining18, meldCount, meldCount == 0, forcedSuit);
         var projected = SichuanBranchState.Continuation(state, hand, melds, wallAvailability.WallCount, projectedGangCash);
+        SichuanDecisionResult? selectedPolicy = null;
         if (plannedDiscardTile < 0)
-            plannedDiscardTile = SichuanDiscardPolicy.Select(projected, source: state,
-                rootContinuation: SichuanSearchBudget.RootDiscardOnly && SichuanSearchBudget.IsRoot(projected)).Action.TileType;
+        {
+            selectedPolicy = SichuanDiscardPolicy.Select(projected, source: state,
+                rootContinuation: SichuanSearchBudget.RootDiscardOnly && SichuanSearchBudget.IsRoot(projected));
+            plannedDiscardTile = selectedPolicy.Action.TileType;
+        }
+        // Keep the price of the executable ready continuation. Selecting it
+        // with the shared ranker and then repricing it with a rounded distance
+        // formula made the Gang/continue comparison disagree with actual play.
+        var selectedValue = selectedPolicy?.Candidates.FirstOrDefault(c => c.TileType == plannedDiscardTile);
+        var readyCommonValue = selectedValue is { Shanten: 0 } ? selectedValue.UnifiedActionValue : (double?)null;
+        if (selectedPolicy is null && analyses.Any(a => a.DiscardTileType == plannedDiscardTile && a.Shanten == 0))
+            readyCommonValue = new SichuanUnifiedDecisionEngine().RankDiscards(projected, belief, analyses,
+                allowBoundedDevelopment: false).Candidates.First(c => c.Action.TileType == plannedDiscardTile).ExpectedNetScore;
         var projectedBelief = _belief.Build(projected);
         FollowUpEvaluation? best = null;
         foreach (var analysis in analyses)
@@ -401,6 +439,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
                 0,
                 0,
                 baseValue) { GangDiscardExtraLoss = gangDiscardExtra, DiscardRisk = discardRisk,
+                    SharedReadyValue = ready is not null ? readyCommonValue : null,
                     Continuation = SichuanBranchState.AfterDiscard(projected, analysis.DiscardTileType) };
             if (best is null || candidate.BaseValue > best.BaseValue)
                 best = candidate;
@@ -432,6 +471,8 @@ public sealed class SichuanMeldCounterfactualEvaluator
         var gangBonus = 0.0;
         var replacementWin = 0.0;
         var baseValue = 0.0;
+        var sharedReadyValue = 0.0;
+        var allReadyValuesShared = true;
         var gangDiscardExtraLoss = 0.0;
         var discardRisk = 0.0;
         var discardWeights = new Dictionary<int, double>();
@@ -480,12 +521,16 @@ public sealed class SichuanMeldCounterfactualEvaluator
                 staged.ReadyProbability+weight*branchChance.ReadyProbability,
                 staged.SelfDrawProbability+weight*branchChance.SelfDrawProbability,
                 staged.ExpectedSelfDrawGain+weight*branchChance.ExpectedSelfDrawGain,
-                staged.ExpectedOpponentLoss+weight*branchChance.ExpectedOpponentLoss);
+                staged.ExpectedOpponentLoss+weight*branchChance.ExpectedOpponentLoss)
+                {DiscardHuProbability=staged.DiscardHuProbability+weight*branchChance.DiscardHuProbability,
+                 ExpectedDiscardHuGain=staged.ExpectedDiscardHuGain+weight*branchChance.ExpectedDiscardHuGain};
             shanten += branch.Shanten * weight;
             live += branch.LiveUkeire * weight;
             expectedFan += branch.ExpectedFan * weight;
             expectedGain += branch.ExpectedSelfDrawGain * weight;
             baseValue += branch.BaseValue * weight;
+            if (branch.SharedReadyValue is { } shared) sharedReadyValue += shared * weight;
+            else allReadyValuesShared = false;
             gangDiscardExtraLoss += branch.GangDiscardExtraLoss * weight;
             discardRisk += branch.DiscardRisk * weight;
             branches.Add(new(draw,weight,branch.Shanten,branch.LiveUkeire,branch.BestDiscardTile,
@@ -507,6 +552,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
             gangBonus,
             replacementWin,
             baseValue) { Branches = branches.ToArray(), WallConstraintsRebuilt = wallRebuilt, GangDiscardExtraLoss = gangDiscardExtraLoss, DiscardRisk = discardRisk,
+                SharedReadyValue = allReadyValuesShared ? sharedReadyValue + gangBonus : null,
                 StageChance = UseTwoStage(state) ? staged : null };
     }
 
@@ -529,8 +575,9 @@ public sealed class SichuanMeldCounterfactualEvaluator
             var ready = _readyPrices.Build(s,s.Hand18,wall.ExpectedCounts18);
             if(ready is null || !ready.HasDrawableWait)return new(1,0,0,0);
             var chance = _tree.SearchChanceNodes(new(ready.PublicDrawableMass,s.WallCount,players,offset,
-                ready.WeightedSelfDrawPerPayer*(players-1),hazard,2.4,MaxDraws:s.WallCount));
-            return new(1,chance.OwnWinProbability,chance.ExpectedOwnWinGain,chance.ExpectedOpponentLoss);
+                ready.WeightedSelfDrawPerPayer*(players-1),hazard,2.4,MaxDraws:s.WallCount,ReadyGroups:SichuanReadyRaceSupply.Build(s,ready)));
+            return new(1,chance.SelfDrawWinProbability,chance.ExpectedSelfDrawGain,chance.ExpectedOpponentLoss)
+                { DiscardHuProbability=chance.DiscardHuProbability,ExpectedDiscardHuGain=chance.ExpectedDiscardHuGain };
         }
         if(followUp.Shanten != 1) return new(0,0,0,0);
         var transitions = new List<SichuanReadyTransition>();
@@ -635,6 +682,7 @@ public sealed class SichuanMeldCounterfactualEvaluator
         public double DiscardRisk { get; init; }
         public SichuanStateView? Continuation { get; init; }
         public SichuanTwoStageEstimate? StageChance { get; init; }
+        public double? SharedReadyValue { get; init; }
     }
 
     private sealed record WaitPricing(double ExpectedFan, double ExpectedSelfDrawGain);

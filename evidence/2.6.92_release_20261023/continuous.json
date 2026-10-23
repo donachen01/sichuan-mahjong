@@ -1,0 +1,92 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "actions": {
+        "discard": 61,
+        "pass": 4,
+        "peng": 5
+      },
+      "blocked": {
+
+      },
+      "blood_continues": false,
+      "compact": false,
+      "contract_validation_avg_us": 2621.51428571429,
+      "contract_validation_max_us": 5985,
+      "executed_actions": 70,
+      "run": 0,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": []
+    },
+    {
+      "actions": {
+        "discard": 56,
+        "gang": 1,
+        "hu": 2,
+        "pass": 2,
+        "peng": 1
+      },
+      "blocked": {
+
+      },
+      "blood_continues": true,
+      "compact": false,
+      "contract_validation_avg_us": 2017.91935483871,
+      "contract_validation_max_us": 3571,
+      "executed_actions": 62,
+      "run": 1,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": [
+        2,
+        1
+      ]
+    },
+    {
+      "actions": {
+        "discard": 59,
+        "pass": 4,
+        "peng": 3
+      },
+      "blocked": {
+
+      },
+      "blood_continues": false,
+      "compact": true,
+      "contract_validation_avg_us": 1952.21212121212,
+      "contract_validation_max_us": 4473,
+      "executed_actions": 66,
+      "run": 2,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": []
+    },
+    {
+      "actions": {
+        "discard": 59,
+        "gang": 1,
+        "hu": 2,
+        "pass": 3,
+        "peng": 4
+      },
+      "blocked": {
+
+      },
+      "blood_continues": true,
+      "compact": true,
+      "contract_validation_avg_us": 1914.14492753623,
+      "contract_validation_max_us": 4163,
+      "executed_actions": 69,
+      "run": 3,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": [
+        2,
+        3
+      ]
+    }
+  ],
+  "scope": "four bounded natural rounds with real native runtime and physical GameState actions; desktop, including compact transport"
+}

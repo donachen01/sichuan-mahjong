@@ -15,6 +15,8 @@ public sealed class SichuanPolicyExecutionScope : IDisposable
         if(values.TryGetValue((key,context),out var saved))return (T)saved;
         var result=compute();values[(key,context)]=result;return result;
     }
+    internal static T? ReadMemoized<T>(string key, object? context) where T : class
+        => DecisionValues.Value?.TryGetValue((key, context), out var value) == true ? (T)value : null;
     public static bool IsSimulation => Depth.Value > 0;
     public static IDisposable EnterDecision() => new DecisionScope();
     public static void RequireResearchContext()

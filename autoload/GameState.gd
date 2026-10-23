@@ -4385,7 +4385,7 @@ func _upgrade_peng_to_gang(seat: int, meld_index: int, extra_tile: Dictionary) -
 
 
 func _execute_peng(seat: int) -> bool:
-	if current_discard_context.is_empty():
+	if not _discard_available_for_meld():
 		return false
 
 	_clear_pending_ai_async_state()
@@ -4437,7 +4437,7 @@ func _execute_peng(seat: int) -> bool:
 func _execute_gang(seat: int) -> bool:
 	if wall_count <= 0 or wall.is_empty():
 		return false
-	if current_discard_context.is_empty():
+	if not _discard_available_for_meld():
 		return false
 
 	_clear_pending_ai_async_state()
@@ -4826,10 +4826,29 @@ func _filter_pending_reactions_after_hu() -> void:
 			continue
 		if players[candidate["seat"]]["has_won"]:
 			continue
-		filtered.append(candidate)
+		# Multi-Hu keeps the Hu option, never the same candidate's old meld flags.
+		var hu_only: Dictionary = candidate.duplicate(true)
+		hu_only["can_peng"] = false
+		hu_only["can_gang"] = false
+		hu_only["mandatory_gang"] = false
+		filtered.append(hu_only)
 	pending_reactions = filtered
 	if not rules.allow_multi_win_on_discard:
 		pending_reactions.clear()
+
+
+func _discard_available_for_meld() -> bool:
+	if current_discard_context.is_empty() \
+		or not current_discard_context.get("winner_seats", []).is_empty() \
+		or str(current_discard_context.get("reaction_type", "discard")) != "discard":
+		return false
+	var source: int = int(current_discard_context.get("source_seat", -1))
+	var tile_id: int = int(current_discard_context.get("tile", {}).get("id", -1))
+	if source < 0 or source >= players.size() or tile_id < 0:
+		return false
+	# A stale context must not remove hand tiles before discovering that the
+	# physical source discard was already claimed by Hu, Peng or Gang.
+	return players[source].get("discards", []).any(func(t):return int(t.get("id", -2)) == tile_id)
 
 
 func _should_enter_battle_end_settlement() -> bool:
@@ -6709,7 +6728,19 @@ func _valid_ai_command(analysis: Dictionary, seat: int, window: String, player_s
 	if int(command.get("seat", -1)) != seat or str(command.get("window", "")) != window or ai_manager == null:
 		return false
 	var payload: Dictionary = ai_manager.csharp_bridge.build_discard_transport_payload(player_state, table_state, rules)
-	return str(command.get("roundId", "")) == str(payload.get("roundId", "")) and int(command.get("generation", 0)) == int(payload.get("hostGeneration", 0)) and int(command.get("viewVersion", 0)) == int(payload.get("viewVersion", 0))
+	if str(command.get("roundId", "")) != str(payload.get("roundId", "")) or int(command.get("generation", 0)) != int(payload.get("hostGeneration", 0)) or int(command.get("viewVersion", 0)) != int(payload.get("viewVersion", 0)):
+		return false
+	if not ai_manager.has_native_csharp_runtime() or not ai_manager.native_csharp_runtime.has_method("ValidateDecisionCommand"):
+		return false
+	# Godot parses JSON numbers as floats. Preserve integer fields when sending
+	# the submitted contract back to its C# issuer; never re-run selection here.
+	var wire := command.duplicate(true)
+	for field in ["schema", "generation", "viewVersion", "seat", "planRevision", "tile", "continuationTile"]:
+		var value = wire.get(field)
+		if (typeof(value) != TYPE_INT and typeof(value) != TYPE_FLOAT) or float(value) != float(int(value)):
+			return false
+		wire[field] = int(value)
+	return bool(ai_manager.native_csharp_runtime.call("ValidateDecisionCommand", JSON.stringify(payload), JSON.stringify(wire)))
 
 
 func _is_explicit_frozen_policy(seat: int) -> bool:

@@ -81,11 +81,11 @@ public sealed class SichuanQingYiSePlanner
                 if (live <= 0 || hand[draw] >= 4) continue;
                 var probability = live / Math.Max(1, wall.WallCount);
                 hand[draw]++;
-                var best = EvaluateBestFutureDiscard(hand, wall.RepresentativeCounts18, meldCount, draw, state.OwnDingQueSuit);
+                var best = EvaluateBestFutureDiscard(hand, wall.RepresentativeCounts18, meldCount, draw, state.OwnDingQueSuit, targetSuit);
                 if (best.DiscardTileType >= 0)
                 {
                     bestFutureShanten = Math.Min(bestFutureShanten, best.Shanten);
-                    if (best.Shanten == 0)
+                    if (best.Shanten == 0 && best.LiveWaits > 0)
                     {
                         tenpaiProbability += probability;
                         expectedWaits += probability * best.LiveWaits;
@@ -116,7 +116,7 @@ public sealed class SichuanQingYiSePlanner
             var reasons = new List<string>
             {
                 $"清色合法成牌至少还需 {structure.MinimumAdditionalTiles} 张；公开未见副本仅作供应上界",
-                $"两层前瞻下轮成叫率 {tenpaiProbability:P1}",
+                $"两层前瞻下轮清一色成叫率 {tenpaiProbability:P1}",
                 $"期望听口活张 {expectedWaits:F1}",
 				$"公开墙模型下次摸牌清色结构进展 {progressChance:P1}；直接成胡 {immediateWinChance:P1}，路线远期完成率未校准",
 				$"清色基础及已成根按封顶计 {expectedFan:F0} 番",
@@ -167,7 +167,7 @@ public sealed class SichuanQingYiSePlanner
         IReadOnlyList<int> remaining,
         int meldCount,
         int drawnTile,
-        int missingSuit = -1)
+        int missingSuit = -1, int targetSuit = -1)
     {
         var cursor=new SichuanHandDistanceCursor(drawnHand,meldCount);
         var bestDiscard = -1;
@@ -207,8 +207,14 @@ public sealed class SichuanQingYiSePlanner
                 }
                 if(!hasLegalWait)shanten=Math.Max(1,shanten);
                 cursor.Change(discard,1);
+                // Ordinary fallback may be ready while an off-suit pair is
+                // still present. Its waits are not flush progress and must not
+                // become a bonus for committing to the flush route.
+                if (targetSuit >= 0 && Enumerable.Range(0,27).Any(t =>
+                    t / 9 != targetSuit && drawnHand[t] - (t == discard ? 1 : 0) > 0))
+                    liveWaits = 0;
             }
-            if (shanten < bestShanten || liveWaits > bestLive)
+            if (shanten < bestShanten || shanten == bestShanten && liveWaits > bestLive)
             {
                 bestDiscard = discard;
                 bestShanten = shanten;

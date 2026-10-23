@@ -6,14 +6,14 @@ namespace SichuanMahjong.AI.Core.Decision;
 /// <summary>Owned branch snapshots only. No live seat brain or other agent is mutated.</summary>
 public static class SichuanBranchState
 {
-    public static SichuanStateView Copy(SichuanStateView source, int[]? hand = null, int? wallCount = null, int? currentSeat = null)
+    public static SichuanStateView Copy(SichuanStateView source, int[]? hand = null, int? wallCount = null, int? currentSeat = null, int? seatIndex = null)
     {
         var result = new SichuanStateView
         {
             RoundId = source.RoundId,
             HostGeneration = source.HostGeneration,
             ViewVersion = source.ViewVersion,
-            SeatIndex = source.SeatIndex,
+            SeatIndex = seatIndex ?? source.SeatIndex,
             DealerSeat = source.DealerSeat,
             CurrentSeat = currentSeat ?? source.CurrentSeat,
             WallCount = wallCount ?? source.WallCount,
@@ -122,14 +122,14 @@ public static class SichuanBranchState
                 result.EventVersion++;
                 var eventType=changed.Type==SichuanMeldType.ConcealedGang?SichuanPublicEventType.ConcealedGang
                     :changed.Type==SichuanMeldType.AddedGang?SichuanPublicEventType.AddedGang:SichuanPublicEventType.MeldedGang;
-                result.PublicEvents.Add(new(result.EventVersion,source.TurnIndex,own,eventType,changed.TileType,
+                result.PublicEvents.Add(new(result.PublicEvents.Select(e=>e.EventIndex).DefaultIfEmpty(0).Max()+1,source.TurnIndex,own,eventType,changed.TileType,
                     SourceSeat:changed.SourceSeat,WallCountAfter:source.WallCount,GangScoreEligible:result.LastGangScoreEligible));
             }
         }
         if(draw>=0)
         {
             result.EventVersion++;
-            result.PublicEvents.Add(new(result.EventVersion,source.TurnIndex,own,SichuanPublicEventType.Draw,draw,
+            result.PublicEvents.Add(new(result.PublicEvents.Select(e=>e.EventIndex).DefaultIfEmpty(0).Max()+1,source.TurnIndex,own,SichuanPublicEventType.Draw,draw,
                 SichuanTileOrigin.Draw,WallCountAfter:wallCount));
         }
         return result;
@@ -141,7 +141,8 @@ public static class SichuanBranchState
         var result=Copy(source,hand); result.Visible18[tile]++;
         result.Discards18[source.SeatIndex].Add(tile); result.HandCounts[source.SeatIndex]=hand.Sum();
         result.TurnIndex++; result.EventVersion++;
-        result.PublicEvents.Add(new(result.EventVersion,result.TurnIndex,source.SeatIndex,SichuanPublicEventType.Discard,tile,
+        var ordinal=source.PublicEvents.Select(e=>e.EventIndex).DefaultIfEmpty(0).Max()+1;
+        result.PublicEvents.Add(new(ordinal,result.TurnIndex,source.SeatIndex,SichuanPublicEventType.Discard,tile,
             tile==source.LastDrawTileType?SichuanTileOrigin.Draw:SichuanTileOrigin.Hand,WallCountAfter:source.WallCount));
         return result;
     }
@@ -155,7 +156,8 @@ public static class SichuanBranchState
         result.LockedFans[source.SeatIndex]=-1;result.LockTurns[source.SeatIndex]=-1;result.UnlockOnOwnDraw[source.SeatIndex]=false;
         Array.Clear(result.PassedHu18[source.SeatIndex]); Array.Clear(result.PassedPeng18[source.SeatIndex]);Array.Clear(result.PassedGang18[source.SeatIndex]);
         for(var i=0;i<result.MeldViews[source.SeatIndex].Count;i++) result.MeldViews[source.SeatIndex][i]=result.MeldViews[source.SeatIndex][i] with {AddedGangBlockedUntilOwnDraw=false};
-        result.PublicEvents.Add(new(result.EventVersion,source.TurnIndex,source.SeatIndex,SichuanPublicEventType.Draw,draw,
+        var ordinal=source.PublicEvents.Select(e=>e.EventIndex).DefaultIfEmpty(0).Max()+1;
+        result.PublicEvents.Add(new(ordinal,source.TurnIndex,source.SeatIndex,SichuanPublicEventType.Draw,draw,
             SichuanTileOrigin.Draw,WallCountAfter:result.WallCount));
         return result;
     }

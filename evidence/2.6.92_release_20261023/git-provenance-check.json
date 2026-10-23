@@ -1,0 +1,7 @@
+{
+  "scope": "minimal checkout reconstructed from Git index, not working-tree fallback",
+  "source_sha256": "1fbf5a24b09be8f3b7143686a8986c37074ee92afbbc564249b051b83c246278",
+  "indexed_source_files": 286,
+  "all_input_and_evidence_hashes_match": true,
+  "release_gate_passed": true
+}

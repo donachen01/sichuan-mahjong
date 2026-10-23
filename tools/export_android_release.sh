@@ -23,11 +23,17 @@ export PATH="$DOTNET_ROOT:$DOTNET_ROOT/sdk:$JAVA_HOME/bin:/opt/homebrew/opt/dotn
 export GODOT_ANDROID_EXPORT_MODE=release
 # Use Godot's embedded Android template by default; this avoids requiring a locally cached AGP.
 export GODOT_ANDROID_USE_GRADLE="${GODOT_ANDROID_USE_GRADLE:-0}"
-export GODOT_ANDROID_VERSION_CODE=350
 PROJECT_DIR="${0:A:h:h}"
 APP_VERSION="$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' "$PROJECT_DIR/project.godot" | head -n 1)"
 if [[ -z "$APP_VERSION" ]]; then
   echo "Could not read application/config/version from project.godot"
+  exit 1
+fi
+# Keep the APK code aligned with the reviewed Android export preset.
+ANDROID_PRESET_VERSION_CODE="$(sed -n 's/^version\/code=//p' "$PROJECT_DIR/export_presets.cfg" | head -n 1)"
+export GODOT_ANDROID_VERSION_CODE="${GODOT_ANDROID_VERSION_CODE:-$ANDROID_PRESET_VERSION_CODE}"
+if [[ "$GODOT_ANDROID_VERSION_CODE" != <-> ]] || (( GODOT_ANDROID_VERSION_CODE <= 0 )); then
+  echo "Missing or invalid Android version code in export_presets.cfg"
   exit 1
 fi
 RELEASE_BASENAME="SichuanMahjong-${APP_VERSION}-release"

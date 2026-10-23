@@ -15,6 +15,17 @@ internal sealed class SichuanDecisionAuthority
     private SichuanReactionDecisionResult? _reaction;
     private (SichuanStateView Source, SichuanDecisionCommand Command)? _pendingPeng;
 
+    internal bool IsIssuedFor(SichuanStateView state, SichuanDecisionCommand command)
+    {
+        lock (_gate)
+        {
+            var issued = command.Window == "turn" ? _turn?.Command
+                : command.Window == "reaction" ? _reaction?.Command : null;
+            return issued is not null && issued == command
+                && command.StateKey == SichuanDecisionCommand.Fingerprint(state);
+        }
+    }
+
     internal SichuanSelfActionDecisionResult Turn(SichuanStateView state, SichuanRoundBrainSnapshot brain,
         bool canHu, IReadOnlyList<int> concealed, IReadOnlyList<int> added,
         IReadOnlyDictionary<int,int>? robCounts, IReadOnlyList<int>? mandatory)
@@ -65,12 +76,25 @@ internal sealed class SichuanDecisionAuthority
     {
         lock (_gate)
         {
+            if (type != "discard" || SichuanMahjong.AI.Core.Rules.SichuanDiscardClaimWindow.HuAlreadyClaimed(state, source, tile))
+            {
+                peng = false;
+                gang = false;
+                mandatory = false;
+            }
             var key = SichuanDecisionCommand.Fingerprint(state) + $"/{brain.Revision}/{tile}/{hu}/{peng}/{gang}/{source}/{type}/{mandatory}";
             if (_reactionKey == key && _reaction is not null) return _reaction;
             using var scope = SichuanPolicyExecutionScope.UseOwnPlan(brain);
             var r = new SichuanReactionDecisionEngine().DecideReaction(state,tile,hu,peng,gang,source,type,false,mandatory,brain);
-            if (r.Action.ActionType switch { SichuanActionType.Pass => false, SichuanActionType.Hu => !hu,
-                SichuanActionType.Peng => !peng, SichuanActionType.Gang => !gang, _ => true })
+            var validTile = tile is >= 0 and < 27;
+            var missingTile = validTile && tile / 9 == state.OwnDingQueSuit;
+            // Caller option flags may be stale. The authority cannot sign a
+            // meld forbidden by the current hand, missing suit or empty wall.
+            if (r.Action.ActionType switch { SichuanActionType.Pass => false,
+                SichuanActionType.Hu => !hu || !validTile || missingTile,
+                SichuanActionType.Peng => !peng || !validTile || missingTile || state.Hand18[tile] < 2,
+                SichuanActionType.Gang => !gang || !validTile || missingTile || state.Hand18[tile] < 3 || state.WallCount <= 0,
+                _ => true })
                 throw new InvalidOperationException("unified_reaction_selected_illegal_action");
             var childAction = ""; var childTile = -1; var shape = "";
             if (r.Action.ActionType == SichuanActionType.Peng)
@@ -115,9 +139,15 @@ internal sealed class SichuanDecisionAuthority
     {
         if(actual.RoundId!=c.RoundId || actual.HostGeneration!=c.Generation || actual.SeatIndex!=c.Seat || actual.CurrentSeat!=c.Seat
             || actual.ViewVersion<c.ViewVersion || actual.WallCount!=source.WallCount) return false;
-        var later=actual.PublicEvents.Where(e=>e.EventIndex>source.EventVersion).ToArray();
+        // EventVersion is a content/cache stamp on the Godot bridge, not an
+        // event ordinal. Require the unchanged journal plus exactly one new
+        // Peng; comparing event indexes with that stamp rejects every live plan.
+        if (actual.PublicEvents.Count != source.PublicEvents.Count + 1
+            || !actual.PublicEvents.Take(source.PublicEvents.Count).SequenceEqual(source.PublicEvents)) return false;
+        var later=actual.PublicEvents.Skip(source.PublicEvents.Count).ToArray();
         // No new draw or other public fact may be concealed behind an old plan.
-        if(later.Length!=1 || later[0].Type!=SichuanPublicEventType.Peng || later[0].Seat!=c.Seat || later[0].TileType!=c.Tile) return false;
+        if(later.Length!=1 || later[0].Type!=SichuanPublicEventType.Peng || later[0].Seat!=c.Seat || later[0].TileType!=c.Tile
+            || later[0].SourceSeat!=source.CurrentSeat || later[0].WallCountAfter!=actual.WallCount) return false;
         return PengShape(actual)==c.ContinuationState;
     }
 

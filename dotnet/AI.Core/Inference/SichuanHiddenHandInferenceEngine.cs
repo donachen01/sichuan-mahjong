@@ -60,6 +60,8 @@ public sealed class SichuanHiddenHandInferenceEngine
         var publicEvidence = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
             ? Enumerable.Range(0, 4).Select(seat => PreparePublicLikelihood(state, seat)).ToArray()
             : null;
+        var wonMasks=Enumerable.Range(0,4).Select(seat=>proposal==SichuanHiddenHandProposal.PublicPriorThenLikelihood
+            ? PublicWonSingletonMask(state,seat):0u).ToArray();
         var samplingSeats = Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex)
             .OrderByDescending(seat => cleared[seat]).ToArray();
         for (var attempt = 0; attempt < particleCount * 4 && particles.Count < particleCount; attempt++)
@@ -78,17 +80,17 @@ public sealed class SichuanHiddenHandInferenceEngine
                     // particle weight; otherwise the same evidence enters both
                     // proposal and weight without an importance correction.
                     var forbiddenSuit = cleared[seat] ? state.DingQueSuits[seat] : -1;
-                    if (proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood && forbiddenSuit >= 0)
+                    if (proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood && (forbiddenSuit >= 0 || wonMasks[seat]!=0))
                     {
                         var total = remaining.Sum();
-                        var allowed = total - Enumerable.Range(forbiddenSuit*9, 9).Sum(t => remaining[t]);
+                        var allowed = Enumerable.Range(0,27).Where(t=>t/9!=forbiddenSuit && (wonMasks[seat]&(1u<<t))==0).Sum(t=>remaining[t]);
                         if (allowed <= 0) { valid = false; break; }
                         // Importance correction for drawing from the legal
                         // subset instead of rejecting whole completed hands.
                         logWeight += Math.Log(allowed/(double)total);
                     }
                     var tile = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
-                        ? PriorDraw(remaining, random, forbiddenSuit, publicTileOrder)
+                        ? PriorDrawExcluding(remaining, random, forbiddenSuit, publicTileOrder,wonMasks[seat])
                         : WeightedDraw(remaining, state, seat, random);
                     if (tile < 0) { valid = false; break; }
                     hands[seat][tile]++;
@@ -206,14 +208,41 @@ public sealed class SichuanHiddenHandInferenceEngine
         return Array.FindLastIndex(remaining, value => value > 0);
     }
 
-    internal static int PriorDraw(IReadOnlyList<int> remaining, Random random, int forbiddenSuit = -1, IReadOnlyList<int>? tileOrder = null)
+    // A completed winning hand cannot hide a lone tile that can form neither
+    // a pair/triplet nor any sequence. The public winning tile CAN supply a
+    // missing partner/neighbour: add it back only for a 13-equivalent hand.
+    // Unknown completion tiles never justify this exclusion. This is a sound
+    // zero constraint, not a full winning-hand conditional posterior.
+    internal static uint PublicWonSingletonMask(SichuanStateView state,int seat)
     {
-        var total = Enumerable.Range(0, remaining.Count).Where(t => t/9 != forbiddenSuit).Sum(t => remaining[t]);
+        if(!state.HasHu[seat])return 0;
+        var hu=state.PublicEvents.LastOrDefault(e=>e.Seat==seat && e.Type==SichuanPublicEventType.Hu && e.TileType is >=0 and <27);
+        if(hu is null)return 0;
+        var pool=state.Remaining18.ToArray();
+        if(state.HandCounts[seat]+3*state.MeldCount(seat)==13)pool[hu.TileType]++;
+        uint mask=0;
+        for(int t=0;t<27;t++)
+        {
+            if(state.Remaining18[t]!=1 || pool[t]>1)continue;
+            bool sequence=false;
+            for(int start=Math.Max(t/9*9,t-2);start<=Math.Min(t,t/9*9+6);start++)
+                if(Enumerable.Range(start,3).All(x=>pool[x]>0)){sequence=true;break;}
+            if(!sequence)mask|=1u<<t;
+        }
+        return mask;
+    }
+
+    internal static int PriorDraw(IReadOnlyList<int> remaining, Random random, int forbiddenSuit = -1,IReadOnlyList<int>? tileOrder=null)
+        => PriorDrawExcluding(remaining,random,forbiddenSuit,tileOrder,0);
+
+    private static int PriorDrawExcluding(IReadOnlyList<int> remaining, Random random, int forbiddenSuit,IReadOnlyList<int>? tileOrder,uint forbiddenTiles)
+    {
+        var total = Enumerable.Range(0, remaining.Count).Where(t => t/9 != forbiddenSuit && (forbiddenTiles&(1u<<t))==0).Sum(t => remaining[t]);
         if (total <= 0) return -1;
         var target = random.Next(total);
         foreach (var tile in tileOrder ?? Enumerable.Range(0,remaining.Count).ToArray())
         {
-            if (tile/9 == forbiddenSuit) continue;
+            if (tile/9 == forbiddenSuit || (forbiddenTiles&(1u<<tile))!=0) continue;
             if (target < remaining[tile]) return tile;
             target -= remaining[tile];
         }

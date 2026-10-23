@@ -1,0 +1,26 @@
+{
+  "version": "2.6.92",
+  "build": "2.6.92",
+  "bundle_identifier": "com.chendong.sichuanmahjong.iosdev",
+  "minimum_os": "15.0",
+  "profile_created_utc": "2026-10-23T02:05:03Z",
+  "profile_expires_utc": "2026-10-30T02:05:03Z",
+  "profile_device_match": {
+    "dona_iPhone15": true,
+    "iPhone15Pro": true,
+    "iPad": true
+  },
+  "codesign_deep_strict": true,
+  "landscape_only": true,
+  "signed_aot_sha256": "4a60911a701067a5adefe5f808e2725a70c96223fe24a9e041e1fa0d3510c788",
+  "latest_markers": {
+    "FLUSH_DISJOINT_BLOCKS_CONDITIONAL_INVESTMENT": true,
+    "FLUSH_SELF_DRAW_PUBLIC_SINGLE_LANE_BOUNDED_INVESTMENT": true,
+    "shared_executable_ready_action_value": true,
+    "ValidateDecisionCommand": true
+  },
+  "ipa": "build/ios/SichuanMahjong-2.6.92-personal.ipa",
+  "ipa_bytes": 176013766,
+  "ipa_sha256": "425dc768023899e75209f6a2dcbc13fd850385f7f138cf959ad66c9f1f629a71",
+  "ipa_signed_aot_matches_app": true
+}

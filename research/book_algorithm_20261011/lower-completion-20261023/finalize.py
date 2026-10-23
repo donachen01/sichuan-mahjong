@@ -1,0 +1,125 @@
+from pathlib import Path
+import json,hashlib,statistics,math,sys
+from collections import Counter
+ROOT=Path.cwd();D=Path(__file__).parent
+sys.path.insert(0,str(ROOT/'tools/research'));from strategy_delivery_validation import binding
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+source=binding(ROOT)
+models=json.loads((D/'model-validation.json').read_text());formal=json.loads((D/'final-all.json').read_text());game=json.loads((D/'execution.json').read_text());matrix=json.loads((D/'matrix.json').read_text());old44=json.loads((D/'affected-44/execution-full.json').read_text());comparisons=json.loads((D/'author-comparison.json').read_text());cases=json.loads((D/'cases.json').read_text())
+for name,data in [('models',models),('formal',formal),('game',game),('matrix',matrix),('affected44',old44)]:
+ if data['failures']:raise ValueError(name+' has failures')
+assert len(formal['rows'])==len(game['rows'])==len(cases)==174 and len(matrix['rows'])==72 and len(old44['rows'])==90
+assert len({r['source'] for r in cases})==100
+assert all(r['executed'] for r in game['rows']+matrix['rows'])
+paths=[ROOT/'dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll',ROOT/'.godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll',D/'probe/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll']
+dlls={str(p.relative_to(ROOT)):sha(p) for p in paths};assert len(set(dlls.values()))==1
+(D/'source-binding.json').write_text(json.dumps(source,ensure_ascii=False,indent=2))
+rows=game['rows']+matrix['rows'];lat=sorted(r['ms'] for r in rows);actions=Counter(r['action'] for r in rows)
+reference=[r for r in comparisons if r['reference']];differences=[r for r in reference if not r['author_direction_match']]
+summary=dict(status='current_requested_lower_volume_study_implementation_and_desktop_execution_complete_with_documented_author_differences',
+ source_sha256=source['sha256'],scope_sections=12,original_full_source_hands=92,partial_source_cores=8,
+ distinct_shape_sources=100,controlled_backgrounds=174,independent_model_checks=models['checks'],independent_full_wait_checks=484,
+ formal_authority_checks=formal['checks']-484,real_godot_execution_chains=len(rows),actual_root_actions=dict(actions),
+ actual_entity_actions=len(rows)+sum(actions[a] for a in ['peng','gang','an_gang','add_gang']),
+ matrix_representative_backgrounds=12,matrix_ai_seats=3,paired_protocol_choices=36,
+ focused_affected44_chains=90,explicit_reference_contexts=len(reference),author_direction_matches=len(reference)-len(differences),
+ author_direction_differences=len(differences),author_difference_ids=[r['id'] for r in differences],
+ latency_ms=dict(median=statistics.median(lat),p95_nearest_rank=lat[math.ceil(.95*len(lat))-1],maximum=max(lat)),
+ dlls=dlls,failures=[],platform='macOS Godot 4.6.2 real native C#; compact desktop transport, not iPhone/Android NativeAOT',
+ mobile_installed_version='2.6.91 previous delivery',new_mobile_delivery=False,new_github_delivery=False,
+ no_fixed_regression_checklist_created=True,
+ limits=['Controlled compatible reconstructions are not unique original histories or independent full-round strength samples.',
+        '25 explicit reference/background directions remain different; see per-case independent geometry and reasons.',
+        'Forward route and opponent costs remain bounded public approximations, not calibrated terminal equities.',
+        '6.4.3/6.4.4 repeat source families; source/execution rows are not counted twice.'])
+(D/'validation-summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2))
+artifacts=[dict(path=str((D/n).relative_to(ROOT)),sha256=sha(D/n)) for n in ['execution.json','matrix.json']]
+native=dict(source_sha256=source['sha256'],claim='execution_correctness_only',runtime='godot_real_native_csharp',failures=[],artifacts=artifacts,dlls=dlls,scope='current task selected source/condition/native execution, no strength or mobile delivery claim')
+(D/'native-validation.json').write_text(json.dumps(native,ensure_ascii=False,indent=2))
+manifest=ROOT/'research/strategy-release.json'
+if not (D/'previous-strategy-release.json').exists():(D/'previous-strategy-release.json').write_bytes(manifest.read_bytes())
+m=json.loads(manifest.read_text());m.update(created_at='2026-10-23',strategy_version='strategy-contract-v35-lower-source-conditional-development',source_sha256=source['sha256'],
+ evidence=[dict(kind='personal_execution',path=str((D/'native-validation.json').relative_to(ROOT)),sha256=sha(D/'native-validation.json'))],
+ notes='Lower 5.5-7.2 source study and bounded shared policy implementation, exact public geometry/model arithmetic, real C# and Godot authority/entity execution. Author direction differences remain explicit. Prior 5.4 closed by user; no new phone package/install or GitHub delivery; no strength claim.',
+ limitations=summary['limits']+['Installed dona remains earlier 2.6.91; desktop compact transport is not device AOT validation.'],validation_stage='lower_5_5_to_7_2_bounded_implementation_desktop_execution_verified_author_differences_documented')
+manifest.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+# Main finished report, with a linked discussion/decision/execution chain.
+report=f'''# 下部5.5—7.2：本轮学习、实施与验证结果
+
+2026-10-23。本轮按用户授权从5.5推进至7.2（85页正文结束）；5.4由用户决定结项，旧差异和证据保留。
+
+**12节已完成本轮原文学习、条件化策略接入、独立计算及桌面真实执行验证。** 这不是全部教材动作一致或长期棋力提升的声明。77个明确原文/边界参考背景中52个方向一致，25个差异逐项保留；未以捏造背景或固定加分凑答案。
+
+[讨论与授权](讨论与结论.md) · [逐节原文、结论与算法对应](逐节学习与算法.md) · [逐例对照和差异计算](逐例对照.md) · [机器可读结果](validation-summary.json)
+
+## 本轮落实的共享能力
+
+- 龙七对、普通胡及清色已听后手使用同一实际舍牌后的共同价值；开杠的全部已听补牌分支复用这些价格，再加本次杠现金、减退杠责任。移除自家回合±20的旧截断，避免高价动作被压成相同分数。
+- 清一色按互斥搭子、公开有效牌、瓶颈和普通胡退路提出条件化投资；修复把普通下叫误当清色下叫的前瞻值。顺子、刻子、对子及将牌的实体使用不重复。
+- 自摸发展新增公开单行道的有界、不放回进张/强制供刻计算，首个本家进张与首个对手第四张供牌互斥计入。只有模型净估计跨过确定自摸和拒胡门槛才允许放弃；6-9当前背景仍保守接胡，模型没有被当作完整未来收益。
+- 清色碰牌判断考虑首打后结构与是否新造最后一张的必经瓶颈；先碰与第二碰逐次重算。原有唯一签发权限及具体碰后首打合同保持。
+- “必杀”S/A/B按公开实体给出可被保留的方式；S仍允许单钓，A仍允许死叫，均不变成固定必胡概率。7-6可按根听提价与共享价值选择碰9打3；根听耗尽的对照背景直接胡。
+
+## 计算及真实执行
+
+|证据层|本轮范围|结果|
+|---|---|---|
+|原始牌图|92组完整牌面＋8组局部核心；89组完整牌面与内嵌单牌哈希字典匹配，3张整桌图另核|来源及重建前提单列|
+|独立数值模型|{models['checks']:,}项：有限墙枚举、首次供牌互斥、S/A/B保留方式、互斥搭子集合打包|0失败|
+|独立整手听口|100种来源结构、484个舍牌/听口状态|0失败|
+|正式C#权限|174个控制背景，从同一正式DecideTurn/DecideReaction签发当前命令|0失败|
+|Godot真实C#到实体动作|174条本轮背景＋72条三座位/普通与紧凑协议记录，共246条、{summary['actual_entity_actions']}个实体动作|0失败，108张守恒，签发与实际动作一致|
+|协议及座位|12个代表背景×3个AI座位×2种协议；36组协议对照|0差异|
+|直接受影响的4.4放飞|本轮选取旧五组形状×三花色×三座位×两协议，共90链|0失败|
+|桌面构建与DLL|构建0警告0错误；Godot、研究程序、Core三处DLL SHA256相同|已核对|
+
+246条记录包括重复座位和协议控制，不能当246个独立自然对局。验证范围是既定输入下的计算、决策和实际执行，不是完整牌局收益实验。
+
+本机决策延迟含初次运行：中位{summary['latency_ms']['median']:.2f}ms，P95最近秩{summary['latency_ms']['p95_nearest_rank']:.2f}ms，最大{summary['latency_ms']['maximum']:.2f}ms；不外推手机耗时。数据在`execution.json`、`matrix.json`，受影响4.4在`affected-44/execution-full.json`。
+
+## 原文差异与验证边界
+
+25个方向差异的独立整手距离及公开有效牌上界见[逐例对照](逐例对照.md)和`independent-difference-geometry.json`。主要涉及龙七对的兑现偏好、清色未来发展与当前普通胡进张的取舍、未知历史的供给/风险、封顶条件及模型覆盖范围。它们没有被登记为“作者错误”或“全部对齐”。
+
+6-28碰4万的差异还做了独立逆向成牌枚举：碰前最近成胡至少再进3张，有16种最近模式且无共同必经牌；碰后最近模式只需再进2张，但全部必经仅剩1张的2万。这是结构支持，仍不是终局净收益证明。原文6-13B的重复页拆分存在修订，也保留来源关系。当前项目4番封顶，作者明确3番封顶的分支不冒称同规则实战对照。
+
+公开未见副本是上界；数值墙、对手危险和供牌是带边界的公开模型。新增0.10底风险差、42危险阈值及有界准入是工程约束，不伪称经用户逐项认可或已校准的现实概率。新增提案进入既有裁决器，不新建前端选牌或超时动作入口。
+
+## 失败和纠正
+
+- 第一轮背景把中性未知牌河随机耗尽目标门关键牌，改变作者条件；旧结果保留。主要背景改为优先保留未声明的目标门损耗，额外公开损耗另列变体。
+- 第一轮游戏检查有22项异常：反应背景错误地把上一摸牌者记成本家，使碰后状态不同，权限端按设计作废旧计划，2条首打发生偏离。更正为实际舍牌者后，本轮全部碰后父子合同及实体首打通过。历史保留于`execution-first-invalid-draw-owner.json`，未放松权限校验。
+- 原页78/80/81整桌图墙量分别为40/31/19；读图补正，重新运行对应最新背景。其他未给定历史仍声明为兼容重建。
+- 研究程序编译、Unicode长行、初次日志路径和独立脚本环境错误均保留日志并修复；没有将研究调用错误冒称生产算法故障。Godot系统证书读取警告仍在日志中，本轮没有网络调用或策略执行失败，不将该系统警告说成已修复。
+
+## 当前交付状态
+
+共享算法源码及桌面运行已更新，来源绑定为`{source['sha256']}`，策略交付记录v35。发布门只登记本轮执行正确性，研究终局模拟与生产录制保持关闭。
+
+手机安装版仍是此前2.6.91。本轮未进行iOS/Android NativeAOT、重新签名、打包、安装或GitHub交付；桌面紧凑协议通过不代表手机端已更新。没有新增固定回归清单、CI或默认重复执行计划。
+'''
+(D/'执行结果.md').write_text(report)
+# Finish the discussion record without inventing user approval of individual numerical choices.
+p=D/'讨论与结论.md';s=p.read_text();s+='''
+## 本轮结论与执行状态
+
+本轮按连续授权采用[逐节执行方案v1](逐节学习与算法.md)，完成5.5至7.2的本轮学习、共享接入与桌面验证。用户认可的是连续学习方法和5.4结项；未虚构用户逐条认可本轮工程阈值。算法输入、条件、例外和有限模型边界与原文分别保存。
+
+原书“九面听”须扣除第五张；龙七对/清色杠牌需同口径后手价格；清色搭子必须互斥；“必杀”不等于知道暗手或保证供牌。相应代码已进入共享入口。77个参考背景52个方向一致、25个仍不同，差异的独立计算与处理在[逐例对照](逐例对照.md)，不以真实执行通过代替作者一致。
+
+[最终执行、失败和平台边界](执行结果.md) · [源码绑定](source-binding.json) · [发布执行证据](native-validation.json)。5.4历史未验收结果不因本轮而改写；手机仍此前2.6.91。本轮记录不是后续默认固定回归清单。
+''';p.write_text(s)
+# Mark completion only in current, dated navigation; preserve historical entries.
+p=ROOT/'research/book_algorithm_20261011/四川麻将算法提升必要学习路径.md';s=p.read_text();h='''## 2026-10-23 当前正式游标：下部5.5—7.2本轮学习、实施与桌面验证完成
+
+5.4由用户决定结项；按其连续授权完成5.5、六章各节、7.1及7.2，正文至85页结束。92组完整牌面与8组局部核心形成174个控制背景；12,826项模型及484项独立听口核对、174份正式签发、246条真实Godot/C#链和本轮选取的90条受影响4.4链通过。77个明确参考背景52个方向一致、25个差异逐项保留，不登记全部教材一致或棋力提升。
+
+三类记录见[讨论与结论](./lower-completion-20261023/讨论与结论.md)、[逐节来源与共享算法](./lower-completion-20261023/逐节学习与算法.md)、[执行结果及平台边界](./lower-completion-20261023/执行结果.md)、[逐例差异](./lower-completion-20261023/逐例对照.md)。当前源码交付记录v35，手机仍此前2.6.91。没有新打包/安装/GitHub交付或固定回归清单。以下旧游标为历史事实。
+
+''';s=s.replace('# 四川麻将算法提升必要学习路径\n','# 四川麻将算法提升必要学习路径\n\n'+h,1);p.write_text(s)
+p=ROOT/'research/book_algorithm_20261011/进度与边界.md';s=p.read_text();s='''# 2026-10-23 最新状态：下部续学本轮完成
+
+5.4用户结项，从5.5至7.2按原流程完成本轮共享接入、独立计算与桌面执行。246条本轮真实执行及选取的90条受影响4.4链通过；25个教材/参考方向差异保留，不声称全例对齐或棋力提升。见[讨论、结论、执行与差异](./lower-completion-20261023/执行结果.md)。手机仍此前2.6.91，源码交付记录v35。本节以下均保留历史状态。
+
+'''+s;p.write_text(s)
+print(json.dumps({k:summary[k] for k in ['scope_sections','controlled_backgrounds','real_godot_execution_chains','actual_entity_actions','author_direction_differences','latency_ms','source_sha256']},ensure_ascii=False))

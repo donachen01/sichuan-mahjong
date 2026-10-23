@@ -1,0 +1,2639 @@
+[
+  {
+    "id": "lower-36-5-12-base",
+    "source": "lower-36-5-12-base",
+    "section": "5.5",
+    "actual": "打2万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        13
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-36-5-13-base-A",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": {
+      "actions": [
+        "an_gang"
+      ],
+      "tiles": [
+        19
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-13-base-B",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        12,
+        14
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-13-base-C",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打6筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 14,
+    "child": 14
+  },
+  {
+    "id": "lower-36-5-13-base-D",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打6筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        12,
+        14
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 14,
+    "child": 14
+  },
+  {
+    "id": "lower-36-5-14-base",
+    "source": "lower-36-5-14-base",
+    "section": "5.5",
+    "actual": "打7筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 15,
+    "child": 15
+  },
+  {
+    "id": "lower-36-5-15-base",
+    "source": "lower-36-5-15-base",
+    "section": "5.5",
+    "actual": "打7筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        0
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 15,
+    "child": 15
+  },
+  {
+    "id": "lower-38-6-intro-nine_gates-declared-draw",
+    "source": "lower-38-6-intro-nine_gates",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-A-declared-draw",
+    "source": "lower-38-6-intro-A",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-B-declared-draw",
+    "source": "lower-38-6-intro-B",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-C-declared-draw",
+    "source": "lower-38-6-intro-C",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-D-declared-draw",
+    "source": "lower-38-6-intro-D",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-E-declared-draw",
+    "source": "lower-38-6-intro-E",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 0,
+    "child": -1
+  },
+  {
+    "id": "lower-38-6-intro-F-declared-draw",
+    "source": "lower-38-6-intro-F",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 0,
+    "child": -1
+  },
+  {
+    "id": "lower-39-6-3-base-declared-draw",
+    "source": "lower-39-6-3-base",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-41-6-4-base",
+    "source": "lower-41-6-4-base",
+    "section": "6.2",
+    "actual": "胡",
+    "reference": {
+      "actions": [
+        "Hu"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Hu",
+    "tile": 24,
+    "child": -1
+  },
+  {
+    "id": "lower-41-6-5-A",
+    "source": "lower-41-6-5-A",
+    "section": "6.2",
+    "actual": "打8筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        16
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 16,
+    "child": 16
+  },
+  {
+    "id": "lower-41-6-5-B",
+    "source": "lower-41-6-5-B",
+    "section": "6.2",
+    "actual": "打8筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        9,
+        11,
+        16
+      ],
+      "children": null,
+      "note": "原文列举不同供给下的1/3/8筒取舍，不声称唯一答案"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 16,
+    "child": 16
+  },
+  {
+    "id": "lower-42-6-5-C",
+    "source": "lower-42-6-5-C",
+    "section": "6.2",
+    "actual": "暗杠5条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        1
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "an_gang",
+    "tile": 4,
+    "child": -1
+  },
+  {
+    "id": "lower-42-6-5-D",
+    "source": "lower-42-6-5-D",
+    "section": "6.2",
+    "actual": "打7条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        2,
+        6
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 6,
+    "child": 6
+  },
+  {
+    "id": "lower-44-6-6-A",
+    "source": "lower-44-6-6-A",
+    "section": "6.3",
+    "actual": "打9万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 26,
+    "child": 26
+  },
+  {
+    "id": "lower-44-6-6-B",
+    "source": "lower-44-6-6-B",
+    "section": "6.3",
+    "actual": "打7筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        12,
+        13,
+        15,
+        17
+      ],
+      "children": null,
+      "note": "清理异门，具体首打由当前普通胡退路比较"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 15,
+    "child": 15
+  },
+  {
+    "id": "lower-45-6-7-1-declared-draw",
+    "source": "lower-45-6-7-1",
+    "section": "6.3",
+    "actual": "打1筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 9,
+    "child": 9
+  },
+  {
+    "id": "lower-45-6-7-2-declared-draw",
+    "source": "lower-45-6-7-2",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-45-6-7-3-declared-draw",
+    "source": "lower-45-6-7-3",
+    "section": "6.3",
+    "actual": "打4万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 21,
+    "child": 21
+  },
+  {
+    "id": "lower-45-6-7-4-declared-draw",
+    "source": "lower-45-6-7-4",
+    "section": "6.3",
+    "actual": "打8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 25,
+    "child": 25
+  },
+  {
+    "id": "lower-45-6-7-5-declared-draw",
+    "source": "lower-45-6-7-5",
+    "section": "6.3",
+    "actual": "打3条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 2,
+    "child": 2
+  },
+  {
+    "id": "lower-46-6-7-6-declared-draw",
+    "source": "lower-46-6-7-6",
+    "section": "6.3",
+    "actual": "打2万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-46-6-7-7-declared-draw",
+    "source": "lower-46-6-7-7",
+    "section": "6.3",
+    "actual": "打4万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 21,
+    "child": 21
+  },
+  {
+    "id": "lower-46-6-7-8-declared-draw",
+    "source": "lower-46-6-7-8",
+    "section": "6.3",
+    "actual": "打6条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 5,
+    "child": 5
+  },
+  {
+    "id": "lower-46-6-7-9-declared-draw",
+    "source": "lower-46-6-7-9",
+    "section": "6.3",
+    "actual": "打7万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 24,
+    "child": 24
+  },
+  {
+    "id": "lower-46-6-7-10-declared-draw",
+    "source": "lower-46-6-7-10",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-47-6-8-A",
+    "source": "lower-47-6-8-A",
+    "section": "6.4.1",
+    "actual": "打9万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 26,
+    "child": 26
+  },
+  {
+    "id": "lower-47-6-8-B",
+    "source": "lower-47-6-8-B",
+    "section": "6.4.1",
+    "actual": "打5筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        10
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 13,
+    "child": 13
+  },
+  {
+    "id": "lower-47-6-9-base",
+    "source": "lower-47-6-9-base",
+    "section": "6.4.1",
+    "actual": "胡",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        15
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Hu",
+    "tile": 15,
+    "child": -1
+  },
+  {
+    "id": "lower-47-6-10-base",
+    "source": "lower-47-6-10-base",
+    "section": "6.4.1",
+    "actual": "胡",
+    "reference": {
+      "actions": [
+        "Hu"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Hu",
+    "tile": 15,
+    "child": -1
+  },
+  {
+    "id": "lower-48-6-11-base-declared-draw",
+    "source": "lower-48-6-11-base",
+    "section": "6.4.1",
+    "actual": "胡",
+    "reference": {
+      "actions": [
+        "Hu"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "构造摸2筒，原文明确自摸2/8筒应胡"
+    },
+    "author_direction_match": true,
+    "action": "Hu",
+    "tile": 10,
+    "child": -1
+  },
+  {
+    "id": "lower-49-6-12-A",
+    "source": "lower-49-6-12-A",
+    "section": "6.4.1",
+    "actual": "打2条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        22
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 1,
+    "child": 1
+  },
+  {
+    "id": "lower-49-6-12-B",
+    "source": "lower-49-6-12-B",
+    "section": "6.4.1",
+    "actual": "打2条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        1,
+        3
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 1,
+    "child": 1
+  },
+  {
+    "id": "lower-49-6-12-C",
+    "source": "lower-49-6-12-C",
+    "section": "6.4.1",
+    "actual": "打2条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        1,
+        3
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 1,
+    "child": 1
+  },
+  {
+    "id": "lower-50-6-13-A",
+    "source": "lower-50-6-13-A",
+    "section": "6.4.1",
+    "actual": "打3筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        1
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  },
+  {
+    "id": "lower-50-6-13-B",
+    "source": "lower-50-6-13-B",
+    "section": "6.4.1",
+    "actual": "打2筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        0
+      ],
+      "children": null,
+      "note": "原图双7，后文拆解双6；原图保留，原文动作仅作参考"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 10,
+    "child": 10
+  },
+  {
+    "id": "lower-50-6-13-C",
+    "source": "lower-50-6-13-C",
+    "section": "6.4.1",
+    "actual": "打2筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        10,
+        11,
+        15,
+        16
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 10,
+    "child": 10
+  },
+  {
+    "id": "lower-50-6-13-D",
+    "source": "lower-50-6-13-D",
+    "section": "6.4.1",
+    "actual": "打2筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        10,
+        11,
+        15,
+        16
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 10,
+    "child": 10
+  },
+  {
+    "id": "lower-51-6-14-A",
+    "source": "lower-51-6-14-A",
+    "section": "6.4.1",
+    "actual": "打5万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        11,
+        12
+      ],
+      "children": null,
+      "note": "中性无明显危险背景下进攻/兼顾清色"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 22,
+    "child": 22
+  },
+  {
+    "id": "lower-51-6-14-B",
+    "source": "lower-51-6-14-B",
+    "section": "6.4.1",
+    "actual": "打9万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        11,
+        12
+      ],
+      "children": null,
+      "note": "中性无明显危险背景下进攻/兼顾清色"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 26,
+    "child": 26
+  },
+  {
+    "id": "lower-51-6-14-C",
+    "source": "lower-51-6-14-C",
+    "section": "6.4.1",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-51-6-14-D",
+    "source": "lower-51-6-14-D",
+    "section": "6.4.1",
+    "actual": "打4筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        11,
+        12
+      ],
+      "children": null,
+      "note": "中性无明显危险背景下进攻/兼顾清色"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-51-6-14-E",
+    "source": "lower-51-6-14-E",
+    "section": "6.4.1",
+    "actual": "打3筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        11,
+        12
+      ],
+      "children": null,
+      "note": "中性无明显危险背景下进攻/兼顾清色"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "source": "lower-53-6-15-A",
+    "section": "6.4.2",
+    "actual": "打8筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        15
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 16,
+    "child": 16
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "source": "lower-53-6-15-B",
+    "section": "6.4.2",
+    "actual": "打5条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        19
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 4,
+    "child": 4
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "source": "lower-53-6-15-C",
+    "section": "6.4.2",
+    "actual": "打5条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 4,
+    "child": 4
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "source": "lower-54-6-16-A",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        19,
+        20
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 20,
+    "child": 20
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "source": "lower-54-6-16-B",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 20,
+    "child": 20
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "source": "lower-54-6-16-C",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        20
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 20,
+    "child": 20
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "source": "lower-55-6-16-D",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        20
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 20,
+    "child": 20
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "source": "lower-55-6-16-E",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "source": "lower-55-6-17-A",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "source": "lower-55-6-17-B",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        19
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "source": "lower-55-6-17-C",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "source": "lower-56-6-18-A",
+    "section": "6.4.2",
+    "actual": "打1条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        11
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "source": "lower-56-6-18-B",
+    "section": "6.4.2",
+    "actual": "打1条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        0
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "source": "lower-57-6-18-C",
+    "section": "6.4.2",
+    "actual": "打1条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-67-6-19-A",
+    "source": "lower-67-6-19-A",
+    "section": "6.5.1",
+    "actual": "打1条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-67-6-19-B",
+    "source": "lower-67-6-19-B",
+    "section": "6.5.1",
+    "actual": "打5筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 13,
+    "child": 13
+  },
+  {
+    "id": "lower-68-6-19-C",
+    "source": "lower-68-6-19-C",
+    "section": "6.5.1",
+    "actual": "补杠4筒",
+    "reference": {
+      "actions": [
+        "add_gang"
+      ],
+      "tiles": [
+        12
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "add_gang",
+    "tile": 12,
+    "child": -1
+  },
+  {
+    "id": "lower-68-6-20-A",
+    "source": "lower-68-6-20-A",
+    "section": "6.5.1",
+    "actual": "打6条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 5,
+    "child": 5
+  },
+  {
+    "id": "lower-68-6-20-B",
+    "source": "lower-68-6-20-B",
+    "section": "6.5.1",
+    "actual": "打9条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 8,
+    "child": 8
+  },
+  {
+    "id": "lower-68-6-20-C",
+    "source": "lower-68-6-20-C",
+    "section": "6.5.1",
+    "actual": "补杠6条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "add_gang",
+    "tile": 5,
+    "child": -1
+  },
+  {
+    "id": "lower-68-6-20-D",
+    "source": "lower-68-6-20-D",
+    "section": "6.5.1",
+    "actual": "补杠6条",
+    "reference": {
+      "actions": [
+        "add_gang"
+      ],
+      "tiles": [
+        5
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "add_gang",
+    "tile": 5,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-A-offer-m2",
+    "source": "lower-69-6-21-A",
+    "section": "6.5.1",
+    "actual": "明杠2万",
+    "reference": {
+      "actions": [
+        "Gang"
+      ],
+      "tiles": [
+        19
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Gang",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-A-draw-25",
+    "source": "lower-69-6-21-A",
+    "section": "6.5.1",
+    "actual": "补杠8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-B-offer-m3",
+    "source": "lower-69-6-21-B",
+    "section": "6.5.1",
+    "actual": "碰3万 → 打6万",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": [
+        20
+      ],
+      "children": [
+        23
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 20,
+    "child": 23
+  },
+  {
+    "id": "lower-69-6-21-B-draw-25",
+    "source": "lower-69-6-21-B",
+    "section": "6.5.1",
+    "actual": "补杠8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-C-offer-m3",
+    "source": "lower-69-6-21-C",
+    "section": "6.5.1",
+    "actual": "碰3万 → 打6万",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": [
+        20
+      ],
+      "children": [
+        23
+      ],
+      "note": "当前4番封顶，对照作者4番分支"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 20,
+    "child": 23
+  },
+  {
+    "id": "lower-70-6-22-A",
+    "source": "lower-70-6-22-A",
+    "section": "6.5.1",
+    "actual": "打8筒",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        16
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 16,
+    "child": 16
+  },
+  {
+    "id": "lower-70-6-22-B",
+    "source": "lower-70-6-22-B",
+    "section": "6.5.1",
+    "actual": "暗杠2万",
+    "reference": {
+      "actions": [
+        "an_gang"
+      ],
+      "tiles": [
+        19
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "an_gang",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-70-6-22-C",
+    "source": "lower-70-6-22-C",
+    "section": "6.5.1",
+    "actual": "打6万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 23,
+    "child": 23
+  },
+  {
+    "id": "lower-72-6-23-base-offer-m4",
+    "source": "lower-72-6-23-base",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Pass",
+    "tile": 21,
+    "child": -1
+  },
+  {
+    "id": "lower-72-6-23-base-draw-18",
+    "source": "lower-72-6-23-base",
+    "section": "6.5.2",
+    "actual": "补杠1万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-72-6-24-A-offer-p3",
+    "source": "lower-72-6-24-A",
+    "section": "6.5.2",
+    "actual": "碰3筒 → 打6条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        4,
+        5
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 11,
+    "child": 5
+  },
+  {
+    "id": "lower-72-6-24-A-draw-16",
+    "source": "lower-72-6-24-A",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-24-B-offer-p3",
+    "source": "lower-73-6-24-B",
+    "section": "6.5.2",
+    "actual": "碰3筒 → 打6条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        4,
+        5
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 11,
+    "child": 5
+  },
+  {
+    "id": "lower-73-6-24-B-draw-16",
+    "source": "lower-73-6-24-B",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-24-C-offer-p3",
+    "source": "lower-73-6-24-C",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Pass",
+    "tile": 11,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-24-C-draw-16",
+    "source": "lower-73-6-24-C",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-25-base-offer-p2",
+    "source": "lower-73-6-25-base",
+    "section": "6.5.2",
+    "actual": "碰2筒 → 打7条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 10,
+    "child": 6
+  },
+  {
+    "id": "lower-73-6-25-base-offer-p5",
+    "source": "lower-73-6-25-base",
+    "section": "6.5.2",
+    "actual": "碰5筒 → 打7条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 13,
+    "child": 6
+  },
+  {
+    "id": "lower-73-6-25-base-offer-p9",
+    "source": "lower-73-6-25-base",
+    "section": "6.5.2",
+    "actual": "碰9筒 → 打7条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 17,
+    "child": 6
+  },
+  {
+    "id": "lower-74-6-25-both-declared-draw",
+    "source": "lower-74-6-25-both",
+    "section": "6.5.2",
+    "actual": "打6筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 14,
+    "child": 14
+  },
+  {
+    "id": "lower-74-6-25-p5_claimed-declared-draw",
+    "source": "lower-74-6-25-p5_claimed",
+    "section": "6.5.2",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-74-6-25-p2_claimed-declared-draw",
+    "source": "lower-74-6-25-p2_claimed",
+    "section": "6.5.2",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-75-6-26-base-offer-p3",
+    "source": "lower-75-6-26-base",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Pass",
+    "tile": 11,
+    "child": -1
+  },
+  {
+    "id": "lower-75-6-26-base-offer-p4",
+    "source": "lower-75-6-26-base",
+    "section": "6.5.2",
+    "actual": "碰4筒 → 打7条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 12,
+    "child": 6
+  },
+  {
+    "id": "lower-75-6-26-base-offer-p5",
+    "source": "lower-75-6-26-base",
+    "section": "6.5.2",
+    "actual": "碰5筒 → 打7条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 13,
+    "child": 6
+  },
+  {
+    "id": "lower-75-6-26-base-offer-p7",
+    "source": "lower-75-6-26-base",
+    "section": "6.5.2",
+    "actual": "碰7筒 → 打8条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        6,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 15,
+    "child": 7
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p3",
+    "source": "lower-75-6-27-base",
+    "section": "6.5.2",
+    "actual": "碰3筒 → 打5万",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Peng",
+    "tile": 11,
+    "child": 22
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p6",
+    "source": "lower-75-6-27-base",
+    "section": "6.5.2",
+    "actual": "碰6筒 → 打3筒",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        22,
+        23
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Peng",
+    "tile": 14,
+    "child": 11
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p8",
+    "source": "lower-75-6-27-base",
+    "section": "6.5.2",
+    "actual": "碰8筒 → 打3筒",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        22,
+        23
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Peng",
+    "tile": 16,
+    "child": 11
+  },
+  {
+    "id": "lower-76-6-27-p6_claimed-declared-draw",
+    "source": "lower-76-6-27-p6_claimed",
+    "section": "6.5.2",
+    "actual": "打5万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 22,
+    "child": 22
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m2",
+    "source": "lower-76-6-28-base",
+    "section": "6.5.2",
+    "actual": "碰2万 → 打8条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        5,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 19,
+    "child": 7
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4",
+    "source": "lower-76-6-28-base",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        5,
+        7
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Pass",
+    "tile": 21,
+    "child": -1
+  },
+  {
+    "id": "lower-76-6-28-base-draw-25",
+    "source": "lower-76-6-28-base",
+    "section": "6.5.2",
+    "actual": "补杠8万",
+    "reference": {
+      "actions": [
+        "add_gang"
+      ],
+      "tiles": [
+        25
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "source": "lower-78-7-1-base",
+    "section": "7.1",
+    "actual": "打1条",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        0
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "source": "lower-80-7-2-middle",
+    "section": "7.1",
+    "actual": "打3筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "source": "lower-81-7-2-late",
+    "section": "7.1",
+    "actual": "打1万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        16
+      ],
+      "children": null,
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 18,
+    "child": 18
+  },
+  {
+    "id": "lower-84-7-3-base-declared-draw",
+    "source": "lower-84-7-3-base",
+    "section": "7.2",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-84-7-4-base-declared-draw",
+    "source": "lower-84-7-4-base",
+    "section": "7.2",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-85-7-5-base-declared-draw",
+    "source": "lower-85-7-5-base",
+    "section": "7.2",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-85-7-6-base-offer-p9",
+    "source": "lower-85-7-6-base",
+    "section": "7.2",
+    "actual": "碰9筒 → 打3筒",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        11
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 17,
+    "child": 11
+  },
+  {
+    "id": "lower-85-7-6-base-draw-9",
+    "source": "lower-85-7-6-base",
+    "section": "7.2",
+    "actual": "补杠1筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-1-A1-declared-draw",
+    "source": "lower-core-6-1-A1",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 22,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-1-A2-declared-draw",
+    "source": "lower-core-6-1-A2",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-1-A3-declared-draw",
+    "source": "lower-core-6-1-A3",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-1-B1-declared-draw",
+    "source": "lower-core-6-1-B1",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-1-B2-declared-draw",
+    "source": "lower-core-6-1-B2",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 9,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-2-A1-declared-draw",
+    "source": "lower-core-6-2-A1",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-2-A2-declared-draw",
+    "source": "lower-core-6-2-A2",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-core-6-2-B-declared-draw",
+    "source": "lower-core-6-2-B",
+    "section": "6.1",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 11,
+    "child": -1
+  },
+  {
+    "id": "lower-41-6-5-B-source-waits-exhausted",
+    "source": "lower-41-6-5-B",
+    "section": "6.2",
+    "actual": "打3筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  },
+  {
+    "id": "lower-48-6-11-base-offer-10",
+    "source": "lower-48-6-11-base",
+    "section": "6.4.1",
+    "actual": "碰2筒 → 打1筒",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        23,
+        25
+      ],
+      "note": "原文方向；未知完整历史为声明的兼容背景"
+    },
+    "author_direction_match": false,
+    "action": "Peng",
+    "tile": 10,
+    "child": 9
+  },
+  {
+    "id": "lower-48-6-11-base-offer-16",
+    "source": "lower-48-6-11-base",
+    "section": "6.4.1",
+    "actual": "碰8筒 → 打1筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Peng",
+    "tile": 16,
+    "child": 9
+  },
+  {
+    "id": "lower-50-6-13-C-major-danger",
+    "source": "lower-50-6-13-C",
+    "section": "6.4.1",
+    "actual": "打9条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 8,
+    "child": 8
+  },
+  {
+    "id": "lower-54-6-16-B-middle-pair-loss",
+    "source": "lower-54-6-16-B",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "reference": {
+      "actions": [
+        "Discard"
+      ],
+      "tiles": [
+        9
+      ],
+      "children": null,
+      "note": "原文明确中张对子见一张时退出清色"
+    },
+    "author_direction_match": false,
+    "action": "Discard",
+    "tile": 20,
+    "child": 20
+  },
+  {
+    "id": "lower-74-6-25-p5_claimed-second-peng",
+    "source": "lower-74-6-25-p5_claimed",
+    "section": "6.5.2",
+    "actual": "碰2筒 → 打8条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        7
+      ],
+      "note": "相关关键张无额外公开损耗的第二次碰"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 10,
+    "child": 7
+  },
+  {
+    "id": "lower-74-6-25-p5_claimed-second-peng-public-loss",
+    "source": "lower-74-6-25-p5_claimed",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "当前这张碰牌已多见一张，碰后另一个关键张只剩最后一张"
+    },
+    "author_direction_match": true,
+    "action": "Pass",
+    "tile": 10,
+    "child": -1
+  },
+  {
+    "id": "lower-74-6-25-p2_claimed-second-peng",
+    "source": "lower-74-6-25-p2_claimed",
+    "section": "6.5.2",
+    "actual": "碰5筒 → 打8条",
+    "reference": {
+      "actions": [
+        "Peng"
+      ],
+      "tiles": null,
+      "children": [
+        7
+      ],
+      "note": "相关关键张无额外公开损耗的第二次碰"
+    },
+    "author_direction_match": true,
+    "action": "Peng",
+    "tile": 13,
+    "child": 7
+  },
+  {
+    "id": "lower-74-6-25-p2_claimed-second-peng-public-loss",
+    "source": "lower-74-6-25-p2_claimed",
+    "section": "6.5.2",
+    "actual": "过",
+    "reference": {
+      "actions": [
+        "Pass"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "当前这张碰牌已多见一张，碰后另一个关键张只剩最后一张"
+    },
+    "author_direction_match": true,
+    "action": "Pass",
+    "tile": 13,
+    "child": -1
+  },
+  {
+    "id": "lower-85-7-6-base-offer-p9-root-exhausted",
+    "source": "lower-85-7-6-base",
+    "section": "7.2",
+    "actual": "胡",
+    "reference": {
+      "actions": [
+        "Hu"
+      ],
+      "tiles": null,
+      "children": null,
+      "note": "最后根听已耗尽的边界，不是另一本书原例答案"
+    },
+    "author_direction_match": true,
+    "action": "Hu",
+    "tile": 17,
+    "child": -1
+  },
+  {
+    "id": "lower-36-5-12-base-public-loss",
+    "source": "lower-36-5-12-base",
+    "section": "5.5",
+    "actual": "打5筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 13,
+    "child": 13
+  },
+  {
+    "id": "lower-36-5-13-base-A-public-loss",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-13-base-B-public-loss",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-13-base-C-public-loss",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-13-base-D-public-loss",
+    "source": "lower-36-5-13-base",
+    "section": "5.5",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-36-5-14-base-public-loss",
+    "source": "lower-36-5-14-base",
+    "section": "5.5",
+    "actual": "打7筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 15,
+    "child": 15
+  },
+  {
+    "id": "lower-36-5-15-base-public-loss",
+    "source": "lower-36-5-15-base",
+    "section": "5.5",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-41-6-5-A-public-loss",
+    "source": "lower-41-6-5-A",
+    "section": "6.2",
+    "actual": "打6筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 14,
+    "child": 14
+  },
+  {
+    "id": "lower-41-6-5-B-public-loss",
+    "source": "lower-41-6-5-B",
+    "section": "6.2",
+    "actual": "打5筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 13,
+    "child": 13
+  },
+  {
+    "id": "lower-42-6-5-C-public-loss",
+    "source": "lower-42-6-5-C",
+    "section": "6.2",
+    "actual": "打2条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 1,
+    "child": 1
+  },
+  {
+    "id": "lower-42-6-5-D-public-loss",
+    "source": "lower-42-6-5-D",
+    "section": "6.2",
+    "actual": "打7条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 6,
+    "child": 6
+  },
+  {
+    "id": "lower-44-6-6-A-public-loss",
+    "source": "lower-44-6-6-A",
+    "section": "6.3",
+    "actual": "打9万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 26,
+    "child": 26
+  },
+  {
+    "id": "lower-44-6-6-B-public-loss",
+    "source": "lower-44-6-6-B",
+    "section": "6.3",
+    "actual": "打4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 12,
+    "child": 12
+  },
+  {
+    "id": "lower-45-6-7-1-declared-draw-public-loss",
+    "source": "lower-45-6-7-1",
+    "section": "6.3",
+    "actual": "打1筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 9,
+    "child": 9
+  },
+  {
+    "id": "lower-45-6-7-2-declared-draw-public-loss",
+    "source": "lower-45-6-7-2",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-45-6-7-3-declared-draw-public-loss",
+    "source": "lower-45-6-7-3",
+    "section": "6.3",
+    "actual": "打4万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 21,
+    "child": 21
+  },
+  {
+    "id": "lower-45-6-7-4-declared-draw-public-loss",
+    "source": "lower-45-6-7-4",
+    "section": "6.3",
+    "actual": "打8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 25,
+    "child": 25
+  },
+  {
+    "id": "lower-45-6-7-5-declared-draw-public-loss",
+    "source": "lower-45-6-7-5",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-46-6-7-6-declared-draw-public-loss",
+    "source": "lower-46-6-7-6",
+    "section": "6.3",
+    "actual": "打2万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 19,
+    "child": 19
+  },
+  {
+    "id": "lower-46-6-7-7-declared-draw-public-loss",
+    "source": "lower-46-6-7-7",
+    "section": "6.3",
+    "actual": "打4万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 21,
+    "child": 21
+  },
+  {
+    "id": "lower-46-6-7-8-declared-draw-public-loss",
+    "source": "lower-46-6-7-8",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-46-6-7-9-declared-draw-public-loss",
+    "source": "lower-46-6-7-9",
+    "section": "6.3",
+    "actual": "打6万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 23,
+    "child": 23
+  },
+  {
+    "id": "lower-46-6-7-10-declared-draw-public-loss",
+    "source": "lower-46-6-7-10",
+    "section": "6.3",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-67-6-19-A-public-loss",
+    "source": "lower-67-6-19-A",
+    "section": "6.5.1",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-67-6-19-B-public-loss",
+    "source": "lower-67-6-19-B",
+    "section": "6.5.1",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-68-6-19-C-public-loss",
+    "source": "lower-68-6-19-C",
+    "section": "6.5.1",
+    "actual": "补杠4筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 12,
+    "child": -1
+  },
+  {
+    "id": "lower-68-6-20-A-public-loss",
+    "source": "lower-68-6-20-A",
+    "section": "6.5.1",
+    "actual": "打6条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 5,
+    "child": 5
+  },
+  {
+    "id": "lower-68-6-20-C-public-loss",
+    "source": "lower-68-6-20-C",
+    "section": "6.5.1",
+    "actual": "补杠6条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 5,
+    "child": -1
+  },
+  {
+    "id": "lower-68-6-20-D-public-loss",
+    "source": "lower-68-6-20-D",
+    "section": "6.5.1",
+    "actual": "补杠6条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 5,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-A-draw-25-public-loss",
+    "source": "lower-69-6-21-A",
+    "section": "6.5.1",
+    "actual": "补杠8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-69-6-21-B-draw-25-public-loss",
+    "source": "lower-69-6-21-B",
+    "section": "6.5.1",
+    "actual": "补杠8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-70-6-22-A-public-loss",
+    "source": "lower-70-6-22-A",
+    "section": "6.5.1",
+    "actual": "打8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 16,
+    "child": 16
+  },
+  {
+    "id": "lower-70-6-22-B-public-loss",
+    "source": "lower-70-6-22-B",
+    "section": "6.5.1",
+    "actual": "暗杠2万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "an_gang",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-70-6-22-C-public-loss",
+    "source": "lower-70-6-22-C",
+    "section": "6.5.1",
+    "actual": "打6万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 23,
+    "child": 23
+  },
+  {
+    "id": "lower-72-6-23-base-draw-18-public-loss",
+    "source": "lower-72-6-23-base",
+    "section": "6.5.2",
+    "actual": "补杠1万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 18,
+    "child": -1
+  },
+  {
+    "id": "lower-72-6-24-A-draw-16-public-loss",
+    "source": "lower-72-6-24-A",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-24-B-draw-16-public-loss",
+    "source": "lower-73-6-24-B",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-73-6-24-C-draw-16-public-loss",
+    "source": "lower-73-6-24-C",
+    "section": "6.5.2",
+    "actual": "补杠8筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 16,
+    "child": -1
+  },
+  {
+    "id": "lower-74-6-25-both-declared-draw-public-loss",
+    "source": "lower-74-6-25-both",
+    "section": "6.5.2",
+    "actual": "打3筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  },
+  {
+    "id": "lower-74-6-25-p5_claimed-declared-draw-public-loss",
+    "source": "lower-74-6-25-p5_claimed",
+    "section": "6.5.2",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-74-6-25-p2_claimed-declared-draw-public-loss",
+    "source": "lower-74-6-25-p2_claimed",
+    "section": "6.5.2",
+    "actual": "打1条",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 0,
+    "child": 0
+  },
+  {
+    "id": "lower-76-6-27-p6_claimed-declared-draw-public-loss",
+    "source": "lower-76-6-27-p6_claimed",
+    "section": "6.5.2",
+    "actual": "打5万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 22,
+    "child": 22
+  },
+  {
+    "id": "lower-76-6-28-base-draw-25-public-loss",
+    "source": "lower-76-6-28-base",
+    "section": "6.5.2",
+    "actual": "补杠8万",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "add_gang",
+    "tile": 25,
+    "child": -1
+  },
+  {
+    "id": "lower-84-7-4-base-declared-draw-public-loss",
+    "source": "lower-84-7-4-base",
+    "section": "7.2",
+    "actual": "胡",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Hu",
+    "tile": 19,
+    "child": -1
+  },
+  {
+    "id": "lower-41-6-5-B-source-waits-exhausted-public-loss",
+    "source": "lower-41-6-5-B",
+    "section": "6.2",
+    "actual": "打3筒",
+    "reference": null,
+    "author_direction_match": null,
+    "action": "Discard",
+    "tile": 11,
+    "child": 11
+  }
+]

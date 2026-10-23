@@ -37,7 +37,9 @@ public sealed class SichuanSelfActionDecisionEngine
 			scores["pass"] = passEvScore;
             return new SichuanSelfActionDecisionResult
             {
-				Action = new SichuanAction(SichuanActionType.Hu, state.LastDrawTileType, huScore, confirmation.Summary),
+				Action = new SichuanAction(confirmation.SelectedAction, confirmation.SelectedAction == SichuanActionType.Hu ? state.LastDrawTileType : -1,
+                    confirmation.SelectedAction == SichuanActionType.Hu ? huScore : passEvScore, confirmation.Summary),
+                ContinuationDiscardTile = confirmation.SelectedAction == SichuanActionType.Pass ? passCandidate.Action.TileType : -1,
 				Reasons = confirmation.Reasons,
                 ActionScores = scores,
                 CandidateReasons = confirmation.Candidates.ToDictionary(c=>c.Action.ActionType.ToString().ToLowerInvariant(),c=>c.ReasonCodes.ToArray())
@@ -58,7 +60,7 @@ public sealed class SichuanSelfActionDecisionEngine
 			Array.Empty<int>());
 		var passDiscardRisk = current.BestDiscardTile >= 0
 			? _danger.EvaluateDetail(current.BestDiscardTile, state, belief).Risk : 0;
-		var passScore = (int)Math.Round(Math.Clamp(currentValue.Value, -20, 20) * 100.0);
+		var passScore = (int)Math.Round(Math.Clamp(currentValue.Value, -1000000, 1000000) * 100.0);
 		scores["pass"] = passScore;
 
         var best = new SichuanSelfActionDecisionResult
@@ -69,8 +71,9 @@ public sealed class SichuanSelfActionDecisionEngine
             LiveUkeireAfter = current.LiveUkeire,
 			Reasons = new[] { $"当前后手向听 {current.Shanten}", $"当前活张 {current.LiveUkeire}", $"继续出牌统一净值 {currentValue.Value:F2}", "CONTINUATION_LEGAL_READY_CONTEXT",
 					$"SELF_PASS_PLANNED_DISCARD_{current.BestDiscardTile}", $"当前后手弃牌风险已计价 {currentValue.ExpectedDiscardRisk:F4}",
-					"SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION" }
+					"SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION", $"CONTINUATION_MODEL_{currentValue.ContinuationModel}" }
 				.Concat(BuildContinuationRouteReasons(state, current.BestDiscardTile))
+                .Concat(SichuanOpponentSupplyStep.RootReasons(state, current.BestDiscardTile))
                 .ToArray(),
             ActionScores = scores
         };
@@ -187,7 +190,7 @@ public sealed class SichuanSelfActionDecisionEngine
             : 0;
         // The common evaluator already prices risk at every concrete child;
         // never charge only the representative Gang discard a second time.
-        var score = (int)Math.Round(Math.Clamp(counterfactual.Value, -20, 20) * 100.0);
+        var score = (int)Math.Round(Math.Clamp(counterfactual.Value, -1000000, 1000000) * 100.0);
 
         var robGangLoss = 0;
         if (subtype == "add_gang" && robGangRisk > 0)
@@ -204,6 +207,7 @@ public sealed class SichuanSelfActionDecisionEngine
         var maxBranchShanten = ongoingBranches.Select(b => b.Shanten).DefaultIfEmpty(-1).Max();
         var reasons = new List<string>
         {
+            $"CONTINUATION_MODEL_{counterfactual.ContinuationModel}",
             $"{label}后模型向听摘要 {followUp.Shanten}（补牌分支加权取整）",
             $"{label}后模型活张摘要 {followUp.LiveUkeire}",
             $"{label}后代表弃牌危险 {discardRisk}（补牌后重新决策）",

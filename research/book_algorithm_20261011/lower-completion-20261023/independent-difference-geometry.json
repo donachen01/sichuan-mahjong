@@ -1,0 +1,1127 @@
+[
+  {
+    "id": "lower-36-5-12-base",
+    "section": "5.5",
+    "actual": "打2万",
+    "independent_branches": [
+      {
+        "discard": 13,
+        "standard": 0,
+        "seven": 0,
+        "best": 0,
+        "public_improving_upper": 5,
+        "effective_tiles": [
+          10,
+          12,
+          19
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 19,
+        "standard": 1,
+        "seven": 0,
+        "best": 0,
+        "public_improving_upper": 3,
+        "effective_tiles": [
+          13
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "作者对龙七对的提价及放过普通胡更积极；本轮对当前合法听口按同口径价格和可获得性计价，取舍不同。拒绝恢复互相矛盾的续走估值来凑暗杠动作。"
+  },
+  {
+    "id": "lower-36-5-13-base-A",
+    "section": "5.5",
+    "actual": "打4筒",
+    "independent_branches": [
+      {
+        "discard": 12,
+        "standard": 1,
+        "seven": 0,
+        "best": 0,
+        "public_improving_upper": 3,
+        "effective_tiles": [
+          14
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 19,
+        "standard": 0,
+        "seven": 1,
+        "best": 0,
+        "public_improving_upper": 3,
+        "effective_tiles": [
+          13
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "作者对龙七对的提价及放过普通胡更积极；本轮对当前合法听口按同口径价格和可获得性计价，取舍不同。拒绝恢复互相矛盾的续走估值来凑暗杠动作。"
+  },
+  {
+    "id": "lower-36-5-15-base",
+    "section": "5.5",
+    "actual": "打7筒",
+    "independent_branches": [
+      {
+        "discard": 0,
+        "standard": 2,
+        "seven": 0,
+        "best": 0,
+        "public_improving_upper": 1,
+        "effective_tiles": [
+          15
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 15,
+        "standard": 3,
+        "seven": 0,
+        "best": 0,
+        "public_improving_upper": 3,
+        "effective_tiles": [
+          0
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "作者对龙七对的提价及放过普通胡更积极；本轮对当前合法听口按同口径价格和可获得性计价，取舍不同。拒绝恢复互相矛盾的续走估值来凑暗杠动作。"
+  },
+  {
+    "id": "lower-42-6-5-C",
+    "section": "6.2",
+    "actual": "暗杠5条",
+    "independent_branches": [],
+    "reason": "四张5条在手，必须排除第五张；同时比较根、听口上界及计分。原文理想化听面数不能直接替代当前逐听口计价。"
+  },
+  {
+    "id": "lower-47-6-8-B",
+    "section": "6.4.1",
+    "actual": "打5筒",
+    "independent_branches": [
+      {
+        "discard": 10,
+        "standard": 2,
+        "seven": 4,
+        "best": 2,
+        "public_improving_upper": 18,
+        "effective_tiles": [
+          14,
+          16,
+          20,
+          22,
+          24,
+          25
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 13,
+        "standard": 2,
+        "seven": 4,
+        "best": 2,
+        "public_improving_upper": 15,
+        "effective_tiles": [
+          16,
+          20,
+          22,
+          24,
+          25
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-47-6-9-base",
+    "section": "6.4.1",
+    "actual": "胡",
+    "independent_branches": [],
+    "reason": "有界自摸/强制碰刻模型已纳入比较，仍未覆盖任意连续碰杠和动态换目标；当前净估计未跨过确定6底自摸及拒胡门槛。"
+  },
+  {
+    "id": "lower-49-6-12-A",
+    "section": "6.4.1",
+    "actual": "打2条",
+    "independent_branches": [
+      {
+        "discard": 1,
+        "standard": 1,
+        "seven": 4,
+        "best": 1,
+        "public_improving_upper": 12,
+        "effective_tiles": [
+          5,
+          8,
+          25
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 22,
+        "standard": 2,
+        "seven": 4,
+        "best": 2,
+        "public_improving_upper": 46,
+        "effective_tiles": [
+          1,
+          2,
+          3,
+          5,
+          6,
+          7,
+          8,
+          18,
+          19,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-50-6-13-A",
+    "section": "6.4.1",
+    "actual": "打3筒",
+    "independent_branches": [
+      {
+        "discard": 1,
+        "standard": 1,
+        "seven": 5,
+        "best": 1,
+        "public_improving_upper": 15,
+        "effective_tiles": [
+          9,
+          12,
+          14,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 11,
+        "standard": 2,
+        "seven": 4,
+        "best": 2,
+        "public_improving_upper": 50,
+        "effective_tiles": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          14,
+          15,
+          16,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-50-6-13-B",
+    "section": "6.4.1",
+    "actual": "打2筒",
+    "independent_branches": [
+      {
+        "discard": 0,
+        "standard": 2,
+        "seven": 4,
+        "best": 2,
+        "public_improving_upper": 22,
+        "effective_tiles": [
+          2,
+          4,
+          9,
+          12,
+          14,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 10,
+        "standard": 2,
+        "seven": 3,
+        "best": 2,
+        "public_improving_upper": 19,
+        "effective_tiles": [
+          2,
+          4,
+          7,
+          14,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "原图双7，前段后文拆解出现双6，后段重复页修回双7；原图与当前整手枚举为准，未用改牌追随动作。"
+  },
+  {
+    "id": "lower-51-6-14-A",
+    "section": "6.4.1",
+    "actual": "打5万",
+    "independent_branches": [
+      {
+        "discard": 11,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 32,
+        "effective_tiles": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 12,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 30,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 22,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 4,
+        "effective_tiles": [
+          10,
+          13
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-51-6-14-B",
+    "section": "6.4.1",
+    "actual": "打9万",
+    "independent_branches": [
+      {
+        "discard": 11,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 28,
+        "effective_tiles": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          21,
+          22,
+          24,
+          25,
+          26
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 12,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 26,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          21,
+          22,
+          24,
+          25,
+          26
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 26,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 4,
+        "effective_tiles": [
+          10,
+          13
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "section": "6.4.2",
+    "actual": "打8筒",
+    "independent_branches": [
+      {
+        "discard": 15,
+        "standard": 1,
+        "seven": 2,
+        "best": 1,
+        "public_improving_upper": 17,
+        "effective_tiles": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          16
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 16,
+        "standard": 1,
+        "seven": 3,
+        "best": 1,
+        "public_improving_upper": 21,
+        "effective_tiles": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          14,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "section": "6.4.2",
+    "actual": "打5条",
+    "independent_branches": [
+      {
+        "discard": 4,
+        "standard": 2,
+        "seven": 3,
+        "best": 2,
+        "public_improving_upper": 33,
+        "effective_tiles": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6,
+          7,
+          8,
+          18,
+          19,
+          20,
+          21,
+          22
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 19,
+        "standard": 2,
+        "seven": 2,
+        "best": 2,
+        "public_improving_upper": 27,
+        "effective_tiles": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          20
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "independent_branches": [
+      {
+        "discard": 11,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 21,
+        "effective_tiles": [
+          12,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 13,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 35,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 14,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 5,
+        "effective_tiles": [
+          12,
+          16
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 15,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 35,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 17,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 26,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          16,
+          18,
+          19,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 19,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 24,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          15,
+          16,
+          17,
+          20
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "section": "6.4.2",
+    "actual": "打2万",
+    "independent_branches": [
+      {
+        "discard": 11,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 4,
+        "effective_tiles": [
+          15
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 14,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 36,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 16,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 34,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 17,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 36,
+        "effective_tiles": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 19,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 4,
+        "effective_tiles": [
+          15
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "section": "6.4.2",
+    "actual": "打1条",
+    "independent_branches": [
+      {
+        "discard": 0,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 7,
+        "effective_tiles": [
+          3,
+          11,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 11,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 10,
+        "effective_tiles": [
+          0,
+          3,
+          4,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "section": "6.4.2",
+    "actual": "打1条",
+    "independent_branches": [
+      {
+        "discard": 0,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 32,
+        "effective_tiles": [
+          2,
+          3,
+          4,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 11,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 34,
+        "effective_tiles": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 14,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 36,
+        "effective_tiles": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9,
+          10,
+          11,
+          12,
+          13,
+          15,
+          16,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 16,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 20,
+        "effective_tiles": [
+          0,
+          3,
+          4,
+          11,
+          14,
+          15,
+          17
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 17,
+        "standard": 2,
+        "seven": null,
+        "best": 2,
+        "public_improving_upper": 36,
+        "effective_tiles": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-68-6-20-C",
+    "section": "6.5.1",
+    "actual": "补杠6条",
+    "independent_branches": [],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p3",
+    "section": "6.5.2",
+    "actual": "碰3筒 → 打5万",
+    "independent_branches": [
+      {
+        "action": "Pass",
+        "standard": 1,
+        "seven": 3,
+        "best": 1,
+        "public_improving_upper": 19,
+        "effective_tiles": [
+          9,
+          12,
+          14,
+          15,
+          16,
+          21,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "action": "Peng",
+        "discard": 22,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 13,
+        "effective_tiles": [
+          10,
+          11,
+          14,
+          15,
+          16,
+          23
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p6",
+    "section": "6.5.2",
+    "actual": "碰6筒 → 打3筒",
+    "independent_branches": [
+      {
+        "action": "Pass",
+        "standard": 1,
+        "seven": 3,
+        "best": 1,
+        "public_improving_upper": 18,
+        "effective_tiles": [
+          9,
+          12,
+          15,
+          16,
+          21,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "action": "Peng",
+        "discard": 11,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 6,
+        "effective_tiles": [
+          21,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-75-6-27-base-offer-p8",
+    "section": "6.5.2",
+    "actual": "碰8筒 → 打3筒",
+    "independent_branches": [
+      {
+        "action": "Pass",
+        "standard": 1,
+        "seven": 3,
+        "best": 1,
+        "public_improving_upper": 18,
+        "effective_tiles": [
+          9,
+          12,
+          14,
+          15,
+          16,
+          21,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "action": "Peng",
+        "discard": 11,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 6,
+        "effective_tiles": [
+          21,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4",
+    "section": "6.5.2",
+    "actual": "过",
+    "independent_branches": [
+      {
+        "action": "Pass",
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 21,
+        "effective_tiles": [
+          5,
+          6,
+          7,
+          18,
+          19,
+          20,
+          21,
+          22,
+          24
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "原文明确公开损耗下，新最近路径必经仅剩1张的2万；独立逆向枚举见independent-key-bottleneck.json。保守留手，不把完整终局收益已证实作为结论。"
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "section": "7.1",
+    "actual": "打1万",
+    "independent_branches": [
+      {
+        "discard": 16,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 5,
+        "effective_tiles": [
+          18,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 18,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 6,
+        "effective_tiles": [
+          13,
+          16
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-48-6-11-base-offer-10",
+    "section": "6.4.1",
+    "actual": "碰2筒 → 打1筒",
+    "independent_branches": [
+      {
+        "action": "Pass",
+        "standard": 0,
+        "seven": 3,
+        "best": 0,
+        "public_improving_upper": 2,
+        "effective_tiles": [
+          16
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "action": "Peng",
+        "discard": 9,
+        "standard": 0,
+        "seven": null,
+        "best": 0,
+        "public_improving_upper": 6,
+        "effective_tiles": [
+          9,
+          12
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  },
+  {
+    "id": "lower-54-6-16-B-middle-pair-loss",
+    "section": "6.4.2",
+    "actual": "打3万",
+    "independent_branches": [
+      {
+        "discard": 9,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 10,
+        "effective_tiles": [
+          12,
+          13,
+          14,
+          18,
+          20,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      },
+      {
+        "discard": 20,
+        "standard": 1,
+        "seven": null,
+        "best": 1,
+        "public_improving_upper": 7,
+        "effective_tiles": [
+          12,
+          14,
+          18,
+          21
+        ],
+        "meaning": "structural distance and public unseen upper-bound supply; not calibrated game win rate"
+      }
+    ],
+    "reason": "本轮选择保留当前普通胡速度/公开进张；原文清色取舍涉及的完整多轮成牌收益仍非已校准概率，不能以此证明作者错误。"
+  }
+]

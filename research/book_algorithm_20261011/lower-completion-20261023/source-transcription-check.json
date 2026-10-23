@@ -1,0 +1,664 @@
+[
+  {
+    "id": "lower-36-5-12-base",
+    "matched_pages": [
+      36
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-36-5-13-base",
+    "matched_pages": [
+      36
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-36-5-14-base",
+    "matched_pages": [
+      36
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-36-5-15-base",
+    "matched_pages": [
+      36
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-nine_gates",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-A",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-B",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-C",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-D",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-E",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-38-6-intro-F",
+    "matched_pages": [
+      38
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-39-6-3-base",
+    "matched_pages": [
+      39
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-41-6-4-base",
+    "matched_pages": [
+      41
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-41-6-5-A",
+    "matched_pages": [
+      41
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-41-6-5-B",
+    "matched_pages": [
+      41
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-42-6-5-C",
+    "matched_pages": [
+      42
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-42-6-5-D",
+    "matched_pages": [
+      42
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-44-6-6-A",
+    "matched_pages": [
+      44
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-44-6-6-B",
+    "matched_pages": [
+      44
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-45-6-7-1",
+    "matched_pages": [
+      45
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-45-6-7-2",
+    "matched_pages": [
+      45
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-45-6-7-3",
+    "matched_pages": [
+      45
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-45-6-7-4",
+    "matched_pages": [
+      45
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-45-6-7-5",
+    "matched_pages": [
+      45
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-46-6-7-6",
+    "matched_pages": [
+      46
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-46-6-7-7",
+    "matched_pages": [
+      46
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-46-6-7-8",
+    "matched_pages": [
+      46
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-46-6-7-9",
+    "matched_pages": [
+      46
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-46-6-7-10",
+    "matched_pages": [
+      46
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-47-6-8-A",
+    "matched_pages": [
+      47
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-47-6-8-B",
+    "matched_pages": [
+      47
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-47-6-9-base",
+    "matched_pages": [
+      47
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-47-6-10-base",
+    "matched_pages": [
+      47
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-48-6-11-base",
+    "matched_pages": [
+      48
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-49-6-12-A",
+    "matched_pages": [
+      49,
+      58
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-49-6-12-B",
+    "matched_pages": [
+      49,
+      58
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-49-6-12-C",
+    "matched_pages": [
+      49,
+      58
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-50-6-13-A",
+    "matched_pages": [
+      50,
+      59
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-50-6-13-B",
+    "matched_pages": [
+      50,
+      59
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-50-6-13-C",
+    "matched_pages": [
+      50,
+      59
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-50-6-13-D",
+    "matched_pages": [
+      50,
+      59
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-51-6-14-A",
+    "matched_pages": [
+      51,
+      60
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-51-6-14-B",
+    "matched_pages": [
+      51,
+      60
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-51-6-14-C",
+    "matched_pages": [
+      51
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-51-6-14-D",
+    "matched_pages": [
+      51
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-51-6-14-E",
+    "matched_pages": [
+      51,
+      61
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "matched_pages": [
+      53,
+      62
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "matched_pages": [
+      53,
+      62
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "matched_pages": [
+      53,
+      62
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "matched_pages": [
+      54,
+      63
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "matched_pages": [
+      54,
+      63
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "matched_pages": [
+      54,
+      63
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "matched_pages": [
+      55,
+      64
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "matched_pages": [
+      55,
+      64
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "matched_pages": [
+      55,
+      64
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "matched_pages": [
+      55,
+      64
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "matched_pages": [
+      55,
+      64
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "matched_pages": [
+      56,
+      65
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "matched_pages": [
+      56,
+      65
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "matched_pages": [
+      57,
+      66
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-67-6-19-A",
+    "matched_pages": [
+      67
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-67-6-19-B",
+    "matched_pages": [
+      67
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-68-6-19-C",
+    "matched_pages": [
+      68
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-68-6-20-A",
+    "matched_pages": [
+      68
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-68-6-20-B",
+    "matched_pages": [
+      68
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-68-6-20-C",
+    "matched_pages": [
+      68
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-68-6-20-D",
+    "matched_pages": [
+      68
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-69-6-21-A",
+    "matched_pages": [
+      69
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-69-6-21-B",
+    "matched_pages": [
+      69
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-69-6-21-C",
+    "matched_pages": [
+      69
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-70-6-22-A",
+    "matched_pages": [
+      70
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-70-6-22-B",
+    "matched_pages": [
+      70
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-70-6-22-C",
+    "matched_pages": [
+      70
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-72-6-23-base",
+    "matched_pages": [
+      72
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-72-6-24-A",
+    "matched_pages": [
+      72
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-73-6-24-B",
+    "matched_pages": [
+      73
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-73-6-24-C",
+    "matched_pages": [
+      73
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-73-6-25-base",
+    "matched_pages": [
+      73
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-74-6-25-both",
+    "matched_pages": [
+      74
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-74-6-25-p5_claimed",
+    "matched_pages": [
+      74
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-74-6-25-p2_claimed",
+    "matched_pages": [
+      74
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-75-6-26-base",
+    "matched_pages": [
+      75
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-75-6-27-base",
+    "matched_pages": [
+      75
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-76-6-27-p6_claimed",
+    "matched_pages": [
+      76
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-76-6-28-base",
+    "matched_pages": [
+      76
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "matched_pages": [],
+    "status": "composite_table_or_transition_previously_reviewed_context"
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "matched_pages": [],
+    "status": "composite_table_or_transition_previously_reviewed_context"
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "matched_pages": [],
+    "status": "composite_table_or_transition_previously_reviewed_context"
+  },
+  {
+    "id": "lower-84-7-3-base",
+    "matched_pages": [
+      84
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-84-7-4-base",
+    "matched_pages": [
+      84
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-85-7-5-base",
+    "matched_pages": [
+      85
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  },
+  {
+    "id": "lower-85-7-6-base",
+    "matched_pages": [
+      85
+    ],
+    "status": "embedded_tile_hash_dictionary_match"
+  }
+]

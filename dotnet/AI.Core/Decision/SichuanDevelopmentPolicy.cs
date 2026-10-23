@@ -307,7 +307,7 @@ public sealed class SichuanDevelopmentPolicy
     internal bool ShouldRefuse(SichuanStateView s,int tile,SichuanWinType type)
         => AssessRefusal(s,tile,type).Refuse;
 
-    public SichuanHuRefusalAssessment AssessRefusal(SichuanStateView s,int tile,SichuanWinType type)
+    public SichuanHuRefusalAssessment AssessRefusal(SichuanStateView s,int tile,SichuanWinType type,bool evaluateWaiting=true)
     {
         // Transport can label a gang-following discard as plain "discard".
         // Preserve its rule premium from the actual public action sequence.
@@ -341,7 +341,7 @@ public sealed class SichuanDevelopmentPolicy
         var offerKnown=offer?.Type==SichuanPublicEventType.Discard && offer.TileType==tile
             && offer.Seat==s.CurrentSeat && offer.Seat!=s.SeatIndex;
         var strategyAllows=SichuanStrategyContract.CanRefuse(strategy,type);
-        var waiting=strategyAllows && offerKnown ? new SichuanHuWaitingModel().Estimate(s)
+        var waiting=evaluateWaiting && strategyAllows && offerKnown ? new SichuanHuWaitingModel().Estimate(s)
             : new SichuanHuWaitingEstimate(false,"strategy_exit_or_offer_unknown",0,0,0,0,0,0,0,0,0,0,0,0);
         var future=waiting.Supported ? waiting.SelfDrawGain : 0;
         var gangValue=plan.Goal is "wait_live_gang" or "two_viable_gangs"?plan.GangOpportunity*payers:0;

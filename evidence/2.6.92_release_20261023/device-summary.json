@@ -1,0 +1,30 @@
+{
+  "devices": [
+    {
+      "device": "dona_iPhone15",
+      "installed_version": "2.6.92",
+      "build": "2.6.92",
+      "in_place_install": "success",
+      "launch_after_trust": "success",
+      "process_running": true
+    },
+    {
+      "device": "iPhone15Pro",
+      "installed_version": "2.6.92",
+      "build": "2.6.92",
+      "in_place_install": "success",
+      "launch_after_trust": "success",
+      "process_running": true
+    },
+    {
+      "device": "iPad",
+      "installed_version": "2.6.92",
+      "build": "2.6.92",
+      "in_place_install": "success",
+      "launch_after_trust": "success",
+      "process_running": true
+    }
+  ],
+  "profile_expires_utc": "2026-10-30T02:05:03Z",
+  "scope": "Actual iOS installation, default launch and process survival. No claim of per-device interaction coverage of every game action. Raw trust-denial and startup-tool attempts retained locally."
+}

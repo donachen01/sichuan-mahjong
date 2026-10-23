@@ -1,0 +1,22 @@
+{
+  "source_sha256": "1fbf5a24b09be8f3b7143686a8986c37074ee92afbbc564249b051b83c246278",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "research/book_algorithm_20261011/lower-completion-20261023/execution.json",
+      "sha256": "c6b58e70f436c12e518c0d9ef7a84a2453ebd3252a73c825c9fe57dcab8d7e6c"
+    },
+    {
+      "path": "research/book_algorithm_20261011/lower-completion-20261023/matrix.json",
+      "sha256": "9f13beaf28ac16543cee7fee16701a2f0a584031a0f8750f3673475719a8fcc2"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "95aa84a31ab79c73973ab1e24c18484eb507f912034cf41488ec563cfe5b0c23",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "95aa84a31ab79c73973ab1e24c18484eb507f912034cf41488ec563cfe5b0c23",
+    "research/book_algorithm_20261011/lower-completion-20261023/probe/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "95aa84a31ab79c73973ab1e24c18484eb507f912034cf41488ec563cfe5b0c23"
+  },
+  "scope": "current task selected source/condition/native execution, no strength or mobile delivery claim"
+}

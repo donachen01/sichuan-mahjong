@@ -2,6 +2,7 @@ using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Domain;
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Rules;
+using SichuanMahjong.AI.Core.Search;
 
 namespace SichuanMahjong.AI.Core.Decision;
 
@@ -38,6 +39,7 @@ public sealed record SichuanFlyingDecision(
     IReadOnlyList<SichuanFlyingBranch> Branches,
     IReadOnlyList<string> Reasons)
 {
+    public SichuanExpectedValueBreakdown? Financial { get; init; }
     public static SichuanFlyingDecision Rejected(string reason, double hu = 0)
         => new(false, -1, double.NegativeInfinity, hu, Array.Empty<SichuanFlyingBranch>(), new[] { reason });
 }
@@ -78,6 +80,12 @@ public sealed class SichuanFlyingDecisionPolicy
         var routePlan = _routePlan.Evaluate(state);
         if (routePlan.ForbidsMelds)
             return SichuanFlyingDecision.Rejected("FLYING_ROUTE_FORBIDS_MELDS", evidence.ImmediateHuGain);
+
+        // Two concealed pairs and three exposed sets are the concrete 5.3
+        // Hu -> Peng -> split the OTHER pair -> single wait chain. Its price
+        // gain must not be vetoed by 4.4's wait-broadening requirement.
+        if (SichuanGoldenHookPolicy.Applies(state, winningTileType))
+            return new SichuanGoldenHookPolicy().Decide(state, winningTileType, sourceSeat, evidence);
 
         belief ??= _belief.Build(state);
         var wall = _wall.Build(state, belief);
@@ -120,6 +128,11 @@ public sealed class SichuanFlyingDecisionPolicy
             var massDelta = after.PublicDrawableMass - before.PublicDrawableMass;
             var weightedDelta = SichuanRootWeightedWaitPolicy.Compare(before, after).Delta;
             var broadens = waitDelta > 0 || massDelta >= 2.0 || weightedDelta >= 2.0;
+            var keyPriceUpgrade = after.Waits.Any(w => w.PublicWallWeight>0
+                && w.HandScore>evidence.ImmediateHuGain
+                && SichuanKeyTileRetention.Assess(state,w.TileType).Grade is "S" or "A")
+                && timing.ContinuationModel=="shared_executable_ready_action_value"
+                && SichuanDistinctDingQueHuPolicy.AssessDanger(state,new())<2;
 
             // Structural broadening is a source-derived signal. Exact
             // continuation value and danger remain independent terms; the
@@ -144,7 +157,7 @@ public sealed class SichuanFlyingDecisionPolicy
             // Danger is a variable cost of the forced first discard. Keep it
             // on the same small continuation-value scale rather than feeding
             // the integer diagnostic risk directly into an EV-like number.
-            var value = continuationValue + structuralPremium + futureRouteValue
+            var value = keyPriceUpgrade ? timing.Value : continuationValue + structuralPremium + futureRouteValue
                 - Math.Clamp(danger.Risk, 0, 100) * 0.03;
             var reasons = new List<string>
             {
@@ -160,6 +173,7 @@ public sealed class SichuanFlyingDecisionPolicy
                 "FLYING_NO_IMMEDIATE_ADDED_GANG"
             };
             reasons.AddRange(futureGang.Codes);
+            if(keyPriceUpgrade)reasons.Add("KEY_TILE_RETENTION_PRICE_UPGRADE_SHARED_READY_VALUE_NOT_GUARANTEED_RELEASE");
             if (waitDelta > 0) reasons.Add("FLYING_WAIT_WIDTH_GAIN");
             if (massDelta >= 2.0) reasons.Add("FLYING_DRAWABLE_SUPPLY_GAIN");
             if (after.RootWeightedDrawableMass > before.RootWeightedDrawableMass + 1e-9)
@@ -167,14 +181,15 @@ public sealed class SichuanFlyingDecisionPolicy
             if (after.WeightedSelfDrawPerPayer > before.WeightedSelfDrawPerPayer + 1e-9)
                 reasons.Add("FLYING_SELF_DRAW_PRICE_GAIN");
 
-            var admissible = (broadens || futureGang.Value >= 0.25)
+            var admissible = (broadens || futureGang.Value >= 0.25 || keyPriceUpgrade)
                 && danger.Risk < 78;
             if (stage.StageIndex >= 2 || maxReadyPosterior >= 0.72)
             {
                 // Late or strongly pressured tables require a larger gain and
                 // a clearly safe first discard. This is the source's “midgame
                 // preferred, late game conservative” boundary made explicit.
-                admissible = admissible && waitDelta >= 2 && massDelta >= 3.0 && danger.Risk < 42;
+                admissible = admissible && danger.Risk < 42
+                    && (waitDelta >= 2 && massDelta >= 3.0 || keyPriceUpgrade);
                 reasons.Add("FLYING_LATE_OR_HIGH_PRESSURE_GATE");
             }
             if (!broadens) reasons.Add("FLYING_NO_MATERIAL_WAIT_GAIN");
@@ -215,13 +230,14 @@ public sealed class SichuanFlyingDecisionPolicy
         var ownDrawOffset = SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state);
         var ownDraws = Math.Max(0,
             (state.WallCount - ownDrawOffset + activeSeats - 1) / activeSeats);
-        if (ownDraws <= 0 || activePayers <= 0)
+        if (state.WallCount <= 1 || activePayers <= 0)
             return new(0, 0, 0, new[] { "FLYING_NO_FUTURE_OWN_DRAW_FOR_GANG" });
 
         var probability = 0.0;
         var value = 0.0;
         var options = 0;
         var codes = new List<string>();
+        var expectedWall = _wall.Build(state, _belief.Build(state));
         for (var tile = 0; tile < 27; tile++)
         {
             if (tile / 9 == state.OwnDingQueSuit || state.Remaining18[tile] <= 0) continue;
@@ -229,16 +245,20 @@ public sealed class SichuanFlyingDecisionPolicy
             var isConcealedTriplet = !hasPeng && afterDiscard[tile] == 3;
             if (!hasPeng && !isConcealedTriplet) continue;
 
-            // This is a bounded public opportunity model. It only credits a
-            // later normal own draw of a live fourth copy. It does not assume
-            // a replacement draw, hidden tiles, or immediate post-Peng Gang.
-            var density = SichuanDevelopmentPolicy.Density(state, tile, state.Remaining18);
-            var chance = 1.0 - Math.Pow(1.0 - Math.Clamp(density, 0, 1), ownDraws);
+            // One fourth copy can arrive on a later own draw or via a forced
+            // missing-suit discard (only for a concealed triplet). These are
+            // disjoint wall positions, and the final tile cannot start a Gang.
+            // This fixed-turn opportunity is not a guarantee of survival.
+            var supply = expectedWall.ExpectedCounts18[tile];
+            var chances = SichuanNaturalGangSupply.FixedTurn(state,tile,supply,isConcealedTriplet);
+            if(chances.OwnDraw+chances.ForcedDiscard<=0)continue;
             var unit = isConcealedTriplet
                 ? SichuanSettlementProjectionEngine.GangUnit(SichuanMeldType.ConcealedGang)
                 : SichuanSettlementProjectionEngine.GangUnit(SichuanMeldType.AddedGang);
-            probability = Math.Max(probability, chance);
-            value += chance * unit * activePayers;
+            probability = Math.Max(probability, chances.OwnDraw + chances.ForcedDiscard);
+            value += chances.OwnDraw * unit * activePayers
+                + chances.ForcedDiscard * SichuanSettlementProjectionEngine.GangUnit(SichuanMeldType.MeldedGang);
+            if(chances.ForcedDiscard>0)codes.Add($"FLYING_FORCED_MELDED_GANG_OPTION_{tile}");
             options++;
             codes.Add(isConcealedTriplet
                 ? $"FLYING_FUTURE_CONCEALED_GANG_OPTION_{tile}"

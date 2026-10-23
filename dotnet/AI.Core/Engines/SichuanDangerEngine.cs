@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -9,6 +10,9 @@ public sealed class SichuanDangerEngine
 
     public SichuanDangerEvaluation EvaluateDetail(int tileType, SichuanStateView state, SichuanBeliefSnapshot belief)
     {
+        if (!SichuanPublicDiscardSafety.AnyMayRon(state, tileType))
+            return new() { Risk = 0, RiskLabel = "低危", TopThreatSeat = -1,
+                Reasons = new[] { "PUBLIC_COPY_LIMITS_RULE_OUT_RON", "公开副本与定缺排除所有对手接炮；统计危险不能覆盖合法性" } };
         var risk = 6.0;
         var topThreatSeat = -1;
         var topThreatScore = 0.0;
@@ -19,7 +23,8 @@ public sealed class SichuanDangerEngine
             // Legal public state outranks any statistical (or older) posterior.
             // A player cannot win on their ding-que suit or after exiting.
             if (seat is < 0 or >= 4 || seat == state.SeatIndex || !state.ActiveSeats[seat]
-                || state.HasHu[seat] || state.DingQueSuits[seat] == suit) continue;
+                || state.HasHu[seat] || state.DingQueSuits[seat] == suit
+                || !SichuanPublicDiscardSafety.MayRon(state, seat, tileType)) continue;
             var tileDanger = 0.22;
             if (belief.SeatTileDanger.TryGetValue(seat, out var perTile) && perTile.TryGetValue(tileType, out var dangerValue))
                 tileDanger = dangerValue;
@@ -104,11 +109,8 @@ public sealed class SichuanDangerEngine
 				reasons.Add($"座位{seat}已有副露");
 			}
 
-            if (HasExposedPung(state.Melds18[seat], tileType))
-            {
-                seatRisk += 18.0;
-                reasons.Add($"座位{seat}已碰此张，需防点杠");
-            }
+            // An exposed Peng cannot be upgraded using another player's discard.
+            // A later own draw can add Gang, which is a different future event.
 
             if (readyPosterior >= 0.56)
                 reasons.Add($"座位{seat}听牌后验高");
@@ -154,13 +156,4 @@ public sealed class SichuanDangerEngine
         return "低危";
     }
 
-    private static bool HasExposedPung(IReadOnlyList<int> meldTiles, int tileType)
-    {
-        for (var index = 0; index + 2 < meldTiles.Count; index += 3)
-        {
-            if (meldTiles[index] == tileType && meldTiles[index + 1] == tileType && meldTiles[index + 2] == tileType)
-                return true;
-        }
-        return false;
-    }
 }

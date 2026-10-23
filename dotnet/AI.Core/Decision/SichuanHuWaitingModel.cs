@@ -33,6 +33,13 @@ public sealed class SichuanHuWaitingModel
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanFanProjectionEngine _fans = new();
     private readonly Engines.SichuanShantenEngine _shanten = new();
+    internal static double GangDiscardPrice(double score) => SichuanRuleSnapshot.Frozen.FanCap>0
+        ? Math.Min(SichuanRuleSnapshot.Frozen.BaseScore*Math.Pow(2,SichuanRuleSnapshot.Frozen.FanCap),2*score):2*score;
+
+    internal static IReadOnlyList<SichuanHiddenHandParticle> SharedPublicParticles(SichuanStateView s)
+        => SichuanPolicyExecutionScope.Memoize("hu_public_posterior",SichuanDecisionCommand.Fingerprint(s),
+            ()=>new SichuanHiddenHandInferenceEngine().SampleParticles(s,32,20261017,
+                SichuanHiddenHandProposal.PublicPriorThenLikelihood));
 
     public SichuanHuWaitingEstimate Estimate(SichuanStateView state)
     {
@@ -44,8 +51,7 @@ public sealed class SichuanHuWaitingModel
         if (prices is null) return Empty("not_a_legal_ready_hand");
         // No private flags, pass matrices, hidden draws or runtime-only version
         // counter participates in this seed or in the projected allocations.
-        var particles = new SichuanHiddenHandInferenceEngine().SampleParticles(s, 32, 20261017,
-            SichuanHiddenHandProposal.PublicPriorThenLikelihood);
+        var particles = SharedPublicParticles(s);
         if (particles.Count != 32 || particles.Any(p => !SichuanPublicInferenceBoundary.ParticleConserves(s, p)))
             return Empty("waiting_model_conservation_failed");
         var total = particles.Sum(p => p.Weight);
@@ -66,9 +72,15 @@ public sealed class SichuanHuWaitingModel
     {
         public double[] DevelopedRonChance { get; init; } = new double[27];
         public double[] DevelopedSelfChance { get; init; } = new double[27];
+        public double[] DevelopedGangDiscardPrice { get; init; } = new double[27];
     }
 
-    private SeatHazard Hazard(SichuanStateView s, SichuanHiddenHandParticle p, int seat)
+    internal SeatHazard Hazard(SichuanStateView s, SichuanHiddenHandParticle p, int seat)
+        => SichuanPolicyExecutionScope.Memoize("hu_public_seat_hazard",
+            (p,seat,s.DingQueSuits[seat],string.Join("/",SichuanDevelopmentPolicy.Melds(s,seat).Select(m=>$"{m.Type}:{m.TileType}"))),
+            ()=>BuildHazard(s,p,seat));
+
+    private SeatHazard BuildHazard(SichuanStateView s,SichuanHiddenHandParticle p,int seat)
     {
         var hand = p.Hands27[seat];
         var melds = SichuanDevelopmentPolicy.Melds(s, seat);
@@ -76,6 +88,7 @@ public sealed class SichuanHuWaitingModel
         var ron = new double[27]; var self = new double[27];
         var developedRon = new double[27]; var developedSelf = new double[27];
         var developedRonChance = new double[27]; var developedSelfChance = new double[27];
+        var developedGangRon = new double[27];
         var drawGang = new double[27]; var discardGang = new double[27];
         var wall = p.Wall27; var size = wall.Sum();
         bool LegalReady(int[] h, IReadOnlyList<SichuanMeldView> m) =>
@@ -117,6 +130,7 @@ public sealed class SichuanHuWaitingModel
                 for (int t = 0; t < 27; t++)
                 {
                     developedRon[t] += weight * bestRon[t];
+                    developedGangRon[t] += weight * GangDiscardPrice(bestRon[t]);
                     developedSelf[t] += weight * bestSelf![t];
                     if (bestRon[t] > 0) developedRonChance[t] += weight;
                     if (bestSelf[t] > 0) developedSelfChance[t] += weight;
@@ -125,6 +139,7 @@ public sealed class SichuanHuWaitingModel
             if (transition > 0) for (int t = 0; t < 27; t++)
             {
                 developedRon[t] /= transition; developedSelf[t] /= transition;
+                developedGangRon[t] /= transition;
                 developedRonChance[t] /= transition; developedSelfChance[t] /= transition;
             }
         }
@@ -148,7 +163,8 @@ public sealed class SichuanHuWaitingModel
             if (!peng) discardGang[t] = 2 * SichuanRuleSnapshot.Frozen.BaseScore;
         }
         return new(ron, self, transition, developedRon, developedSelf, drawGang, discardGang)
-        { DevelopedRonChance = developedRonChance, DevelopedSelfChance = developedSelfChance };
+        { DevelopedRonChance = developedRonChance, DevelopedSelfChance = developedSelfChance,
+            DevelopedGangDiscardPrice = developedGangRon };
     }
 
     private bool Wins(int[] hand, int meldCount, int tile)

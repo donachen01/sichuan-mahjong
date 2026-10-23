@@ -120,6 +120,19 @@ public sealed class SichuanRoundAgentHost
         lock (agent.Gate) { agent.EnsureOpen(); agent.Observe(view); }
     }
 
+    public bool ValidateDecisionCommand(SichuanStateView view, SichuanDecisionCommand command)
+    {
+        var agent = Resolve(view);
+        lock (agent.Gate)
+        {
+            agent.EnsureOpen();
+            // Verification is read-only: it cannot observe a new state, select
+            // another action, refresh a plan or create a new authority.
+            return agent.IsCurrentView(view) && !view.HasHu[view.SeatIndex]
+                && agent.Engine.ValidateDecisionCommand(view, command);
+        }
+    }
+
     public T Run<T>(SichuanStateView view, string kind, Func<SichuanAiFacade, T> compute, Func<T, SichuanAction> action)
     {
         var agent = Resolve(view);
@@ -262,6 +275,7 @@ public sealed class SichuanRoundAgentHost
             RefreshPlan(initial);
         }
         private static string Fingerprint(SichuanStateView v) => SichuanStateFingerprint.BuildTurnKey(v, true, false);
+        public bool IsCurrentView(SichuanStateView v) => v.ViewVersion == _viewVersion && Fingerprint(v) == _fingerprint;
         public bool SameInitial(SichuanStateView v) => _initial == Fingerprint(v);
         public void EnsureOpen() { if (Closed) throw new InvalidOperationException("disposed_agent"); }
         public void Observe(SichuanStateView view)

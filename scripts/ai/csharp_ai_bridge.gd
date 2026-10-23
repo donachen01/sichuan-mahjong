@@ -465,9 +465,10 @@ func _build_reaction_payload(candidate: Dictionary, player_state: Dictionary, ta
 	payload["sourceSeat"] = int(discard_context.get("source_seat", int(candidate.get("source_seat", -1))))
 	payload["reactionType"] = str(discard_context.get("reaction_type", "discard"))
 	payload["canHu"] = bool(candidate.get("can_hu", false))
-	payload["canPeng"] = bool(candidate.get("can_peng", false))
-	payload["canGang"] = bool(candidate.get("can_gang", false))
-	payload["mandatoryGang"] = bool(candidate.get("mandatory_gang", false))
+	var meld_open: bool = discard_context.get("winner_seats", []).is_empty() and str(discard_context.get("reaction_type", "discard")) == "discard"
+	payload["canPeng"] = meld_open and bool(candidate.get("can_peng", false))
+	payload["canGang"] = meld_open and bool(candidate.get("can_gang", false))
+	payload["mandatoryGang"] = meld_open and bool(candidate.get("mandatory_gang", false))
 	return payload
 
 

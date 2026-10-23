@@ -6,7 +6,9 @@ public sealed record SichuanReadyTransition(double DrawMass, double WaitMass, do
 public sealed record SichuanTwoStageEstimate(double ReadyProbability, double SelfDrawProbability,
     double ExpectedSelfDrawGain, double ExpectedOpponentLoss)
 {
-    public double Net => ExpectedSelfDrawGain - ExpectedOpponentLoss;
+    public double DiscardHuProbability { get; init; }
+    public double ExpectedDiscardHuGain { get; init; }
+    public double Net => ExpectedSelfDrawGain + ExpectedDiscardHuGain - ExpectedOpponentLoss;
 }
 
 /// <summary>Conditional public model: keep the non-ready hand on misses, enter

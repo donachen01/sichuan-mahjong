@@ -1,0 +1,21 @@
+{
+  "files": {
+    "/Volumes/other/四川麻将技巧/四川麻将技术论（下部）.pdf": "13ca0eab5f17dcba1d8f2d3edfb65c682044e723f5b73ed9ff351f2cdb2fc72d",
+    "tmp/pdfs/technical-theory/lower-with-tiles.json": "ed2fdee39afaf9073c43072f32ce5ed35b8f23bdc259aa17fa5a66beb786d025",
+    "research/technical_theory_20260928/tile-dictionary.json": "9eec1c0f3a294cb8ed9082f180f508ab833f58e4a332514145ce9ad18467acb9",
+    "research/technical_theory_20260928/reviewed-hands.json": "b35f92ec22d89bc8f802e0d507fc3fda24129e53b8ccea24f53b70d8ca1633a0"
+  },
+  "visual_checked_pages_this_round": [
+    36,
+    78,
+    80,
+    81
+  ],
+  "tile_transcription_basis": "original embedded image hash dictionary and previously reviewed source hands; no OCR guesses used as tile actions",
+  "remaining_table_history": "7.1 full table unknown details remain explicitly reconstructed; key published losses preserved",
+  "table_page_wall_counts": {
+    "78": 40,
+    "80": 31,
+    "81": 19
+  }
+}

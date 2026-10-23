@@ -30,7 +30,7 @@ public sealed class SichuanRoundBrainEngine
                 brain = BrainState.Create(state, rawPlan, stage);
                 _brains[key] = brain;
             }
-            else if (!brain.IsSameObservation(state) || brain.HasInadmissibleFlushGoal(state))
+            else if (!brain.IsSameObservation(state) || brain.HasInadmissibleFlushGoal(state)||brain.HasInadmissibleSevenGoal(state))
             {
                 brain.Observe(state, rawPlan, stage);
             }
@@ -145,6 +145,8 @@ public sealed class SichuanRoundBrainEngine
             Stage = stage;
             RouteWeights = new Dictionary<string, int>(rawPlan.RouteWeights);
             var currentWeight = RouteWeights.GetValueOrDefault(PrimaryRoute, 0);
+            if(HasInadmissibleSevenGoal(state))
+            {currentWeight=0;_history.Add("SEVEN_PAIRS_EXIT_TO_ORDINARY_CURRENT_GATES");}
             if (HasInadmissibleFlushGoal(state))
             {
                 var capacity = SichuanFlushCopyCapacity.Assess(state, state.Hand18, TargetSuit);
@@ -207,6 +209,13 @@ public sealed class SichuanRoundBrainEngine
         }
 
         public bool IsSameObservation(SichuanStateView state) => string.Equals(_lastObservationKey, BuildObservationKey(state), StringComparison.Ordinal);
+        public bool HasInadmissibleSevenGoal(SichuanStateView state)
+        {
+            if(!SichuanRoutePlanEngine.IsSevenPairsRoute(PrimaryRoute))return false;
+            var gate=Decision.SichuanSevenPairsDevelopment.Assess(state);var d=new SichuanShantenEngine();
+            return gate.Applies&&!gate.MayInvest&&d.CalcSevenPairsShanten(state.Hand18)>0
+                &&d.CalcStandardShanten(state.Hand18,state.OwnMeldCount)<=d.CalcSevenPairsShanten(state.Hand18);
+        }
 
         public bool HasInadmissibleFlushGoal(SichuanStateView state) =>
             SichuanRoutePlanEngine.IsFlushRoute(PrimaryRoute) &&

@@ -30,7 +30,10 @@ public sealed class SichuanActionTreeEvaluator
 		double ChaJiaoValue = 0,
 		int MaxDraws = 24,
 		int Simulations = 2048,
-		int Seed = 20260713);
+		int Seed = 20260713,
+        IReadOnlyList<SichuanReadyRaceGroup>? ReadyGroups = null,
+        IReadOnlyList<SichuanReadyRaceOpponent>? ReadyOpponents = null,
+        SichuanReadyRaceGang? ReadyGang = null);
 
 	public sealed record ChanceSearchResult(
 		double ExpectedNetScore,
@@ -43,6 +46,14 @@ public sealed class SichuanActionTreeEvaluator
 		double HorizonProbability)
 	{
 		public double ExpectedOwnWinGain { get; init; }
+        public double SelfDrawWinProbability { get; init; }
+        public double DiscardHuProbability { get; init; }
+        public double ExpectedSelfDrawGain { get; init; }
+        public double ExpectedDiscardHuGain { get; init; }
+        public double NaturalGangProbability { get; init; }
+        public double ExpectedDealInLoss { get; init; }
+        public double ExpectedOpponentSelfDrawLoss { get; init; }
+        public double ExpectedGangPaymentLoss { get; init; }
 		public double ExpectedOpponentLoss { get; init; }
 		public double ExpectedChaJiaoValue { get; init; }
 		public double ExpectedContinuationValue { get; init; }
@@ -70,6 +81,24 @@ public sealed class SichuanActionTreeEvaluator
     public double CompareImmediateHuWithPass(double immediateHuScore, SichuanExpectedValueBreakdown passRoute, double shunHuLockCost)
         => passRoute.Net - shunHuLockCost - immediateHuScore;
 
+    public static ChanceSearchResult MixChanceResults(IReadOnlyList<(ChanceSearchResult Value,double Weight)> rows)
+    {
+        var mass=rows.Sum(r=>r.Weight);
+        if(!(mass>0))throw new ArgumentException("empty chance mixture",nameof(rows));
+        double Mean(Func<ChanceSearchResult,double> f)=>rows.Sum(r=>r.Weight*f(r.Value))/mass;
+        return new(Mean(v=>v.ExpectedNetScore),Mean(v=>v.OwnWinProbability),Mean(v=>v.OpponentWinProbability),
+            Mean(v=>v.DrawProbability),Mean(v=>v.ExpectedGangGain),0,rows.Sum(r=>r.Value.ElapsedMilliseconds),Mean(v=>v.HorizonProbability))
+        {
+            ExpectedOwnWinGain=Mean(v=>v.ExpectedOwnWinGain),SelfDrawWinProbability=Mean(v=>v.SelfDrawWinProbability),
+            DiscardHuProbability=Mean(v=>v.DiscardHuProbability),ExpectedSelfDrawGain=Mean(v=>v.ExpectedSelfDrawGain),
+            ExpectedDiscardHuGain=Mean(v=>v.ExpectedDiscardHuGain),ExpectedOpponentLoss=Mean(v=>v.ExpectedOpponentLoss),
+            ExpectedChaJiaoValue=Mean(v=>v.ExpectedChaJiaoValue),ExpectedContinuationValue=Mean(v=>v.ExpectedContinuationValue),
+            BattleEndProbability=Mean(v=>v.BattleEndProbability),NaturalGangProbability=Mean(v=>v.NaturalGangProbability),
+            ExpectedDealInLoss=Mean(v=>v.ExpectedDealInLoss),ExpectedOpponentSelfDrawLoss=Mean(v=>v.ExpectedOpponentSelfDrawLoss),
+            ExpectedGangPaymentLoss=Mean(v=>v.ExpectedGangPaymentLoss)
+        };
+    }
+
     public ChanceSearchResult SearchChanceNodes(ChanceSearchRequest request)
     {
         using var policyTimer = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_model");
@@ -84,6 +113,12 @@ public sealed class SichuanActionTreeEvaluator
             value.Draw, value.Gang, 0, watch.Elapsed.TotalMilliseconds, value.Horizon)
         {
             ExpectedOwnWinGain = value.WinGain,
+            SelfDrawWinProbability = UsesReadyRace(request) ? value.SelfDrawWin : value.Win,
+            DiscardHuProbability = value.RonWin,
+            ExpectedSelfDrawGain = UsesReadyRace(request) ? value.SelfDrawGain : value.WinGain,
+            NaturalGangProbability = value.NaturalGang,
+            ExpectedDealInLoss = value.RonLoss,ExpectedOpponentSelfDrawLoss = value.SelfLoss,ExpectedGangPaymentLoss = value.GangLoss,
+            ExpectedDiscardHuGain = value.RonGain,
             ExpectedOpponentLoss = value.Loss,
             ExpectedChaJiaoValue = value.ChaJiao,
             ExpectedContinuationValue = value.Continuation,
@@ -91,9 +126,13 @@ public sealed class SichuanActionTreeEvaluator
         };
     }
 
+    private static bool UsesReadyRace(ChanceSearchRequest r) => r.ReadyGroups is { Count: > 0 and <= 2 } && r.GangOpportunityProbability == 0;
+
     private static ChanceValue SolveChance(ChanceSearchRequest request)
     {
         using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_dp");
-        return new(new SichuanBloodBattleChanceModel().Evaluate(request));
+        return new(UsesReadyRace(request)
+            ? SichuanReadyRaceModel.Evaluate(request)
+            : new SichuanBloodBattleChanceModel().Evaluate(request));
     }
 }

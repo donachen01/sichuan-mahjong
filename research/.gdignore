@@ -1,0 +1,2 @@
+# Research evidence is processed by external tooling and must never be imported
+# or packaged as part of the Godot game.

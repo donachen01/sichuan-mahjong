@@ -58,6 +58,13 @@ public sealed class SichuanAiFacade
     private readonly System.Collections.Concurrent.ConcurrentDictionary<(string Round,long Generation,int Seat), Decision.SichuanDecisionAuthority> _authorities = new();
     private Decision.SichuanDecisionAuthority Authority(SichuanStateView s)
         => _authorities.GetOrAdd((s.RoundId,s.HostGeneration,s.SeatIndex), _ => new());
+    public bool ValidateDecisionCommand(SichuanStateView state, SichuanDecisionCommand command)
+    {
+        if (!_seatWorker && state.RoundId.Length > 0)
+            return Agents.ValidateDecisionCommand(state, command);
+        return _authorities.TryGetValue((state.RoundId,state.HostGeneration,state.SeatIndex), out var authority)
+            && authority.IsIssuedFor(state, command);
+    }
     private readonly SichuanDecisionEngine _decisionEngine = new();
     private readonly SichuanReactionDecisionEngine _reactionDecisionEngine = new();
     private readonly SichuanSelfActionDecisionEngine _selfActionDecisionEngine = new();

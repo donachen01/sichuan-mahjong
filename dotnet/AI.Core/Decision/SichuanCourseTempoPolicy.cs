@@ -84,7 +84,9 @@ public sealed class SichuanCourseTempoPolicy
             var price = _prices.Build(state, hand, wall);
             if (price is null || !price.HasDrawableWait) continue;
             var rootComparison = SichuanRootWeightedWaitPolicy.Compare(bestPrice, price);
-            var rootWeightedGain = rootComparison.Improves;
+            // 4.3 is a root-bearing wait change, not an unconditional
+            // "more outs" override between two ordinary ready hands.
+            var rootWeightedGain = rootComparison.Improves && rootComparison.AfterRootCopies > 1e-9;
             // The book's 4.3 rule permits a ready-hand wait change when the
             // root=2 / ordinary=1 weighted supply improves.  Keep the same
             // caller-side danger and deal-in gates, and leave exact fan and

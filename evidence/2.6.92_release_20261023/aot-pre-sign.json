@@ -1,0 +1,13 @@
+[
+  {
+    "path": "build/ios/SichuanMahjong-2.6.92-ios-xcode/SichuanMahjongIOS/dylibs/ExportRelease/SichuanMahjong.Godot_aot.xcframework/ios-arm64/SichuanMahjong.Godot.framework/SichuanMahjong.Godot",
+    "bytes": 24972032,
+    "sha256": "6302140d98ee122322e171472fe1bbc02431939b820eb63a5a98ed9f8433d15b",
+    "latest_markers": {
+      "FLUSH_DISJOINT_BLOCKS_CONDITIONAL_INVESTMENT": true,
+      "FLUSH_SELF_DRAW_PUBLIC_SINGLE_LANE_BOUNDED_INVESTMENT": true,
+      "shared_executable_ready_action_value": true,
+      "ValidateDecisionCommand": true
+    }
+  }
+]

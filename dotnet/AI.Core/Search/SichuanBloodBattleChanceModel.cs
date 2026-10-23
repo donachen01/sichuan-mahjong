@@ -13,13 +13,25 @@ internal sealed class SichuanBloodBattleChanceModel
         double BattleEnd = 0, double Horizon = 0, double WinGain = 0, double Loss = 0, double Gang = 0,
         double ChaJiao = 0, double Continuation = 0)
     {
+        public double SelfDrawWin { get; init; }
+        public double RonWin { get; init; }
+        public double SelfDrawGain { get; init; }
+        public double RonGain { get; init; }
+        public double NaturalGang { get; init; }
+        public double RonLoss { get; init; }
+        public double SelfLoss { get; init; }
+        public double GangLoss { get; init; }
         public double Net => WinGain + Gang + ChaJiao + Continuation - Loss;
         public static Value Mix(Value a, Value b, double p) => new(
             a.Win*p+b.Win*(1-p), a.OpponentWin*p+b.OpponentWin*(1-p),
             a.Draw*p+b.Draw*(1-p), a.BattleEnd*p+b.BattleEnd*(1-p),
             a.Horizon*p+b.Horizon*(1-p), a.WinGain*p+b.WinGain*(1-p),
             a.Loss*p+b.Loss*(1-p), a.Gang*p+b.Gang*(1-p),
-            a.ChaJiao*p+b.ChaJiao*(1-p), a.Continuation*p+b.Continuation*(1-p));
+            a.ChaJiao*p+b.ChaJiao*(1-p), a.Continuation*p+b.Continuation*(1-p))
+            { SelfDrawWin=a.SelfDrawWin*p+b.SelfDrawWin*(1-p), RonWin=a.RonWin*p+b.RonWin*(1-p),
+              SelfDrawGain=a.SelfDrawGain*p+b.SelfDrawGain*(1-p), RonGain=a.RonGain*p+b.RonGain*(1-p),
+              NaturalGang=a.NaturalGang*p+b.NaturalGang*(1-p),RonLoss=a.RonLoss*p+b.RonLoss*(1-p),
+              SelfLoss=a.SelfLoss*p+b.SelfLoss*(1-p),GangLoss=a.GangLoss*p+b.GangLoss*(1-p) };
     }
 
     public Value Evaluate(SichuanActionTreeEvaluator.ChanceSearchRequest request)

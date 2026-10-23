@@ -11,10 +11,10 @@ namespace SichuanMahjong.AI.Core.Decision;
 /// </summary>
 internal static class SichuanPublicInferenceBoundary
 {
-    public static bool TryProject(SichuanStateView state, out SichuanStateView projection, out string reason, bool reaction = false, int sourceSeat = -1, bool robGang = false)
+    public static bool TryProject(SichuanStateView state, out SichuanStateView projection, out string reason, bool reaction = false, int sourceSeat = -1, bool robGang = false, bool waiting = false)
     {
         projection = new SichuanStateView();
-        reason = Validate(state, reaction, sourceSeat, robGang) ?? string.Empty;
+        reason = Validate(state, reaction, sourceSeat, robGang, waiting) ?? string.Empty;
         if (reason.Length > 0) return false;
 
         projection = new SichuanStateView {
@@ -43,8 +43,9 @@ internal static class SichuanPublicInferenceBoundary
 
         for (var seat = 0; seat < 4; seat++)
             projection.MeldViews[seat].AddRange(state.MeldViews[seat]);
-        // Draw events reveal no tile identity to opponents. Hu and meld timing
-        // are not likelihood features yet. A Pass is retained only when its
+        // Keep public Hu/meld facts even though their timing has no hand-
+        // strength likelihood model yet: they consume rivers and constrain
+        // completed hands. Draw identities remain private. A Pass is retained only when its
         // own legal alternatives were explicitly recorded. Opponent passes
         // expose private legality and are never inference inputs.
         foreach (var item in state.PublicEvents.Where(IsInferenceEvent)
@@ -59,9 +60,9 @@ internal static class SichuanPublicInferenceBoundary
                 item.Type == SichuanPublicEventType.Discard ? item.Origin : SichuanTileOrigin.Unknown,
                 item.SourceSeat,
                 item.WallCountAfter,
-                item.CanHu,
-                item.CanPeng,
-                item.CanGang,
+                item.Seat==state.SeatIndex && item.CanHu,
+                item.Seat==state.SeatIndex && item.CanPeng,
+                item.Seat==state.SeatIndex && item.CanGang,
                 item.GangScoreEligible));
         }
         return true;
@@ -88,9 +89,11 @@ internal static class SichuanPublicInferenceBoundary
 
     private static bool IsInferenceEvent(SichuanPublicEvent item)
         => item.Type == SichuanPublicEventType.Discard
+            || item.Type is SichuanPublicEventType.Peng or SichuanPublicEventType.MeldedGang
+                or SichuanPublicEventType.ConcealedGang or SichuanPublicEventType.AddedGang or SichuanPublicEventType.Hu
             || item.Type == SichuanPublicEventType.Pass && (item.CanHu || item.CanPeng || item.CanGang);
 
-    private static string? Validate(SichuanStateView state, bool reaction, int sourceSeat, bool robGang)
+    private static string? Validate(SichuanStateView state, bool reaction, int sourceSeat, bool robGang, bool waiting)
     {
         if (state.InformationMode != "public") return "public_mode_required";
         if (state.SeatIndex is < 0 or > 3 || (!reaction && state.CurrentSeat != state.SeatIndex))
@@ -115,16 +118,20 @@ internal static class SichuanPublicInferenceBoundary
 
         var publicCounts = new int[27];
         var recordedDiscards = Enumerable.Range(0, 4).Select(_ => new List<int>()).ToArray();
-        var claimedDiscardEvents = new HashSet<(int Turn, int Source, int Tile)>();
-        var externalHuTiles = new HashSet<(int Turn, int Source, int Tile)>();
+        var claimedDiscardEvents = new HashSet<long>();
+        var externalHuTiles = new HashSet<(long Origin, int Source, int Tile)>();
+        SichuanPublicEvent? offer=null;
         foreach (var item in state.PublicEvents)
         {
             if (item.Seat is < 0 or > 3) continue;
             if (item.Type == SichuanPublicEventType.Discard && item.TileType is >= 0 and < 27)
             {
                 recordedDiscards[item.Seat].Add(item.TileType);
+                offer=item;
                 continue;
             }
+            if(item.Type is SichuanPublicEventType.AddedGang or SichuanPublicEventType.ConcealedGang)
+            { offer=item; continue; }
             if (item.Type is not (SichuanPublicEventType.Peng or SichuanPublicEventType.MeldedGang or SichuanPublicEventType.Hu)
                 || item.SourceSeat is < 0 or > 3 || item.SourceSeat == item.Seat
                 || item.TileType is < 0 or > 26) continue;
@@ -134,9 +141,18 @@ internal static class SichuanPublicInferenceBoundary
             // source does not mean the winning tile came from that seat.
             if (item.Type == SichuanPublicEventType.Hu && state.HandCounts[item.Seat] != concealedBase)
                 continue;
-            var claim = (Turn: item.TurnIndex, Source: item.SourceSeat, Tile: item.TileType);
+            // River count/TurnIndex can repeat after Hu consumes a discard.
+            // Distinct discards use their stable event IDs; multiple winners
+            // on the SAME discard share one origin. Added-Gang Hu has no river
+            // tile to remove. Missing old source events never justify deleting
+            // an unrelated earlier same-type river tile.
+            var origin=offer is not null && offer.Seat==item.SourceSeat && offer.TileType==item.TileType?offer:null;
+            var claim = (Origin:origin?.EventIndex??-(long)item.TurnIndex-1, Source: item.SourceSeat, Tile: item.TileType);
             if (item.Type == SichuanPublicEventType.Hu) externalHuTiles.Add(claim);
-            if (!claimedDiscardEvents.Add(claim)) continue;
+            if(item.Type!=SichuanPublicEventType.Hu && origin?.Type==SichuanPublicEventType.Discard
+                && claimedDiscardEvents.Contains(origin.EventIndex))return "public_discard_claim_reused_after_hu";
+            if(item.Type!=SichuanPublicEventType.Hu)offer=null;
+            if(origin?.Type!=SichuanPublicEventType.Discard || !claimedDiscardEvents.Add(origin.EventIndex))continue;
             var history = recordedDiscards[item.SourceSeat];
             var index = history.FindLastIndex(tile => tile == item.TileType);
             if (index >= 0) history.RemoveAt(index);
@@ -151,7 +167,7 @@ internal static class SichuanPublicInferenceBoundary
                 return "illegal_public_melds";
             var baseHandSize = 13 - 3 * meldGroups.Length;
             var handSizeValid = seat == state.SeatIndex
-                ? state.HandCounts[seat] == baseHandSize + (reaction ? 0 : 1) && state.Hand18.Sum() == baseHandSize + (reaction ? 0 : 1)
+                ? state.HandCounts[seat] == baseHandSize + (reaction || waiting ? 0 : 1) && state.Hand18.Sum() == baseHandSize + (reaction || waiting ? 0 : 1)
                 : state.HandCounts[seat] == baseHandSize
                     || (state.HasHu[seat] || reaction && robGang && seat == sourceSeat) && state.HandCounts[seat] == baseHandSize + 1;
             if (!handSizeValid) return "public_hand_size_failed";

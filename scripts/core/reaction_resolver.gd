@@ -14,6 +14,7 @@ func build_reaction_candidates(players: Array, discard_context: Dictionary, rule
 
 	var source_seat: int = discard_context["source_seat"]
 	var discarded_tile: Dictionary = discard_context["tile"]
+	var already_hu: bool = not discard_context.get("winner_seats", []).is_empty()
 
 	for player in players:
 		var seat: int = player["seat"]
@@ -26,8 +27,8 @@ func build_reaction_candidates(players: Array, discard_context: Dictionary, rule
 			"seat": seat,
 			"nickname": str(player.get("nickname", "")),
 			"can_hu": _can_hu_on_discard_placeholder(player, discarded_tile, rules_config),
-			"can_gang": _can_gang_on_discard(player, discarded_tile, rules_config),
-			"can_peng": _can_peng_on_discard(player, discarded_tile, rules_config),
+			"can_gang": not already_hu and _can_gang_on_discard(player, discarded_tile, rules_config),
+			"can_peng": not already_hu and _can_peng_on_discard(player, discarded_tile, rules_config),
 		}
 
 		if candidate["can_hu"] or candidate["can_gang"] or candidate["can_peng"]:

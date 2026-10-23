@@ -135,7 +135,9 @@ public sealed class SichuanDecisionEngine
             _shanten.CalcLegalShanten(RemoveOne(state.Hand18,tile),meldCount,state.OwnDingQueSuit,meldCount==0))
             .DefaultIfEmpty(8).Min();
         var rankingWatch = Stopwatch.StartNew();
-        var unifiedDiscardCandidates = _unified.RankDiscards(state, belief, exactDiscardAnalyses.Values.ToArray())
+        var unifiedDiscardCandidates = _unified.RankDiscards(state, belief, exactDiscardAnalyses.Values.ToArray(),
+            allowBoundedDevelopment:aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+                &&aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
             .Candidates.ToDictionary(item => item.Action.TileType);
         rankingWatch.Stop();
         continuationPerf.Add(new SichuanModulePerfSample { Module = "UnifiedDiscardRanking", ElapsedMs = rankingWatch.Elapsed.TotalMilliseconds, Warning = rankingWatch.Elapsed.TotalMilliseconds >= 100 });
@@ -222,10 +224,19 @@ public sealed class SichuanDecisionEngine
             var defenseTempo = _defenseTempo.Evaluate(state, belief, tileType, danger);
             var fastTingPriority = EvaluateFastTingPriorityAdjustment(currentShanten, effectiveShanten, effectiveLiveUkeire, waitCount, roundStage, danger);
             var wallDrawPosterior = EstimateWallDrawPosterior(effectiveImprovingTiles, belief);
-            var tenpaiProbability = EstimateTenpaiProbability(effectiveShanten, effectiveLiveUkeire);
-            var selfDrawProbability = _selfDraw.Estimate(state, effectiveImprovingTiles, waitCount, effectiveLiveUkeire, effectiveShanten, danger, belief);
-            var dealInProbability = SichuanRiskCalibration.ToDealInProbability(danger, roundStage, maxReadyPosterior);
-            var winProbability = Math.Clamp(tenpaiProbability * 0.58 + selfDrawProbability * 0.42, 0.01, 0.95);
+            // Legal readiness is an observed exact state, not a 94% shape
+            // heuristic. It remains certain for a dead wait; future Hu does not.
+            var tenpaiProbability = exactReadyPrice is not null ? 1.0
+                : state.WallCount <= 0 ? 0 : EstimateTenpaiProbability(effectiveShanten, effectiveLiveUkeire);
+            var probabilityCandidate = unifiedDiscardCandidates.GetValueOrDefault(tileType);
+            var selfDrawProbability = state.WallCount <= 0 ? 0
+                : probabilityCandidate?.ModeledSelfDrawProbability
+                    ?? _selfDraw.Estimate(state, effectiveImprovingTiles, waitCount, effectiveLiveUkeire, effectiveShanten, danger, belief);
+            var dealInProbability = SichuanPublicDiscardSafety.AnyMayRon(state, tileType)
+                ? SichuanRiskCalibration.ToDealInProbability(danger, roundStage, maxReadyPosterior) : 0;
+            var winProbability = state.WallCount <= 0 ? 0
+                : probabilityCandidate?.ModeledOwnWinProbability
+                    ?? Math.Clamp(tenpaiProbability * 0.58 + selfDrawProbability * 0.42, 0.01, 0.95);
             var expectedFan = exactReadyPrice?.WeightedFan ?? Math.Clamp(EstimateExpectedFan(routesAfter, qingPlans.GetValueOrDefault(tileType), waitCount),0,SichuanRuleSnapshot.Frozen.FanCap);
             var posteriorAdjustment = EstimatePosteriorDefensePenalty(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage);
             var expectedScore = _expectedScore.EvaluateDiscardCandidate(
@@ -326,7 +337,7 @@ public sealed class SichuanDecisionEngine
             var posteriorReasons = BuildPosteriorReasons(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage, posteriorAdjustment);
             var riskReasons = BuildRiskReasons(danger, riskLabel, state.WallCount, roundStage, effectiveLiveUkeire, dangerEval);
             var candidateReasons = BuildReasons(effectiveShanten, effectiveLiveUkeire, danger, riskLabel, strategyTag, waitCount, roundStage, posteriorReasons, expectedScore);
-            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SINGLE_LANE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
+            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SEVEN_PAIRS_") || reason.StartsWith("SINGLE_LANE_") || reason.StartsWith("PUBLIC_SUPPLY_") || reason.StartsWith("PUBLIC_KEY_TILE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
                 .Concat(structuralReadyRejected ? new[] { "STRUCTURAL_READY_NOT_LEGAL" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is not null ? new[] { "LEGAL_READY_ALL_WAIT_PRICING" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is { HasDrawableWait: false } ? new[] { "LEGAL_READY_DEAD_WAIT_CHA_JIAO" } : Array.Empty<string>())
@@ -511,6 +522,40 @@ public sealed class SichuanDecisionEngine
         }
 
         var arbiter = new SichuanDiscardArbiter(candidates, bestTile);
+        if (aiContext.StrategyMode.Mode is not ("fold" or "defense" or "chase")
+            && aiContext.RoundGoal.Goal is not ("protect_lead" or "chase_score"))
+        {
+            var flushChoice=SichuanFlushDevelopmentPolicy.Select(state,candidates,bestTile);
+            if(flushChoice is not null)
+            {
+                arbiter.Propose(flushChoice.Tile,SichuanDiscardArbiter.GlobalPlan,flushChoice.Code);
+            }
+        }
+        // An exhausted ordinary wait has no drawable winning opportunity.
+        // For a reachable near-flush, an off-suit pair must not be protected
+        // solely by the ordinary shanten ordering. This limited development
+        // rule remains below every defense constraint and never prices the
+        // planner's heuristic as full-game expected income.
+        var deadReady = candidates.FirstOrDefault(c => c.TileType == bestTile);
+        if (state.InformationMode == "public" && state.WallCount >= 24
+            && maxReadyPosterior < 0.55 && !mustClearDingQue
+            && deadReady is { Shanten: 0, LiveUkeire: 0, WaitCount: > 0 }
+            && deadReady.ImprovingTiles.Count > 0
+            && deadReady.ImprovingTiles.All(t => state.Remaining18[t] == 0))
+        {
+            var flushDevelopment = candidates.Where(c => c.Shanten == 1
+                && c.Danger <= deadReady.Danger && c.Danger < 56
+                && qingPlans.TryGetValue(c.TileType, out var plan)
+                && c.TileType / 9 != plan.TargetSuit
+                && state.Hand18[c.TileType] == 2
+                && Enumerable.Range(0, 27).Where(t => t / 9 != plan.TargetSuit).Sum(t => state.Hand18[t]) == 2
+                && plan.TenpaiProbabilityNextDraw > 0 && plan.ExpectedLiveWaits > 0)
+                .OrderByDescending(c => qingPlans[c.TileType].ExpectedLiveWaits)
+                .ThenBy(c => c.Danger).ThenBy(c => c.TileType).FirstOrDefault();
+            if (flushDevelopment is not null)
+                arbiter.Propose(flushDevelopment.TileType, SichuanDiscardArbiter.GlobalPlan,
+                    "LIVE_FLUSH_DEVELOPMENT_FROM_PUBLICLY_EXHAUSTED_READY");
+        }
         var extremeDangerOverride = SelectExtremeDangerSameSpeedOverride(candidates, bestTile, state);
         if (extremeDangerOverride is not null)
             arbiter.Propose(extremeDangerOverride.TileType, SichuanDiscardArbiter.ExtremeSafety, "EXTREME_DANGER_SAME_SPEED_OVERRIDE");
@@ -601,7 +646,11 @@ public sealed class SichuanDecisionEngine
         var developmentCandidate=candidates.FirstOrDefault(c=>c.TileType==developmentTile);
         var developmentIncumbent=candidates.FirstOrDefault(c=>c.TileType==bestTile);
         if (developmentTile!=bestTile && developmentCandidate is not null && developmentIncumbent is not null
-            && developmentCandidate.Danger<=developmentIncumbent.Danger)
+            && developmentCandidate.Danger<=developmentIncumbent.Danger
+            // A local development rate is not the common priced value.
+            // It cannot override a ready exit with a lower-valued branch.
+            && (developmentIncumbent.Shanten>0
+                || developmentCandidate.UnifiedActionValue>=developmentIncumbent.UnifiedActionValue))
             arbiter.Propose(developmentTile, SichuanDiscardArbiter.GlobalPlan, "PUBLIC_DEVELOPMENT_DISCARD");
         // A publicly supplied single lane is a strategic decision, not an
         // unconditional minimum-shanten tie-break. Keep hard safety authority.
@@ -650,7 +699,8 @@ public sealed class SichuanDecisionEngine
                 "OPPONENT_WIDE_BED_SAFER_DISCARD");
             reasons.Insert(0,SichuanOpponentWideBedDefense.ActiveCode);
         }
-        var resolved = arbiter.Resolve();
+        var resolved = arbiter.Resolve(settleNow: state.WallCount <= 0,
+            readyValues: unifiedDiscardCandidates);
         if (resolved != bestTile)
         {
             var chosen = candidates.First(c => c.TileType == resolved);
@@ -1102,15 +1152,26 @@ public sealed class SichuanDecisionEngine
                 .ToList();
         }
 
+        // A complete bounded monetary comparison already prices the delay
+        // and supply of ordinary/Seven Pairs development. Reapplying an
+        // unconditional minimum-shanten order would silently erase it.
+        if(candidates.Count>0&&candidates.All(c=>c.Reasons.Contains("SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS")))
+            return candidates.OrderByDescending(c=>c.UnifiedActionValue)
+                .ThenBy(c=>c.Danger).ThenByDescending(c=>c.ExpectedValue)
+                .ThenBy(c=>c.TileType).ToList();
+
         return candidates
             // Course speed contract for ordinary attack/balanced play:
             // 1) never let a blended heuristic hide a worse shanten result;
-            // 2) at equal shanten maximize strict live ukeire: only draws that
-            //    reduce shanten count, after deducting visible/owned copies;
-            // 3) only then compare EV, shape, fan route and danger residuals.
+            // 2) ready hands compare common priced value, then width;
+            // 3) non-ready hands retain strict live-ukeire development ordering.
             // Explicit defense/fold/protect-lead and chase-score branches above
             // retain their separate table-state objectives.
             .OrderBy(item => StrategicShantenRank(item, roundStage))
+            // Once both hands are ready, width and exact wait prices are
+            // already in the common value. A second hard width ordering
+            // would erase priced Ron, payer and survival differences.
+            .ThenByDescending(item => item.Shanten == 0 ? item.UnifiedActionValue : 0)
             .ThenByDescending(item => item.LiveUkeire)
             // These are course tie-breakers, not substitutes for speed: only
             // compare them after shanten and strict live ukeire are identical.

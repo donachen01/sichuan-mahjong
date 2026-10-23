@@ -1,0 +1,20 @@
+{
+  "version": "2.6.92",
+  "version_code": 353,
+  "package": "com.chendong.sichuanmahjong",
+  "apk": "build/android/SichuanMahjong-2.6.92-release.apk",
+  "bytes": 253359080,
+  "sha256": "e89870c13ba7fef8e0b1b2e3d57b0cc9ed5aa5b80054d5737220226901418edf",
+  "signature_verified": true,
+  "ai_core_path": "assets/.godot/mono/publish/arm64/SichuanMahjong.AI.Core.dll",
+  "ai_core_sha256": "5872993960653089dc6785bc730fcf1dfd1e31e4a8e86a7bd7da6f007c887fa3",
+  "latest_markers": {
+    "FLUSH_DISJOINT_BLOCKS_CONDITIONAL_INVESTMENT": true,
+    "FLUSH_SELF_DRAW_PUBLIC_SINGLE_LANE_BOUNDED_INVESTMENT": true,
+    "shared_executable_ready_action_value": true
+  },
+  "mono_native_sha256": "9da745177c364666278250a8912d43869166998a277ab8eebfb9f7322a064b6a",
+  "research_cache_entries": [],
+  "renderer": "gl_compatibility",
+  "device_test": "No Android device attached"
+}

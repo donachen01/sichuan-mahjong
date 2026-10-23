@@ -501,17 +501,7 @@ public sealed class SichuanBeliefEngine
 
     private static double EstimateSequenceAffinity(SichuanStateView state, int seat, int tileType)
     {
-        var suitStart = (tileType / 9) * 9;
-        var rank = tileType % 9;
-        var affinity = 0.0;
-        if (rank - 2 >= 0)
-            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank - 2] / 4.0) * 0.18;
-        if (rank - 1 >= 0)
-            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank - 1] / 4.0) * 0.26;
-        if (rank + 1 < 9)
-            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank + 1] / 4.0) * 0.26;
-        if (rank + 2 < 9)
-            affinity += Math.Max(0.0, state.Remaining18[suitStart + rank + 2] / 4.0) * 0.18;
+        var affinity = SichuanMahjong.AI.Core.Rules.SichuanPublicSequenceSupply.Affinity(state.Remaining18, tileType);
         if (state.IsCalled[seat] || state.IsReady[seat])
             affinity *= 1.06;
         return Math.Clamp(affinity, 0.0, 1.0);
