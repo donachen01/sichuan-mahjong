@@ -171,7 +171,7 @@ public sealed class SichuanGoldenHookPolicy
             return new(false,discard,double.NegativeInfinity,evidence.ImmediateHuGain,[],reasons);
         }
         var release=new double[order.Count];var forced=0;
-        for(int actor=1;actor<order.Count;actor++)if(s.DingQueSuits[order[actor]]==wait.TileType/9)forced|=1<<actor;
+        for(int actor=1;actor<order.Count;actor++)if(SichuanOpponentTimeline.MustOfferDraw(s,order[actor],wait.TileType))forced|=1<<actor;
         var releases=EstimateReleases(s,particles,order,wait.TileType,forced,release);
         // Preserve joint allocation: a target held by a first-discard winner
         // cannot simultaneously remain in the wall. Likewise do not round two

@@ -62,17 +62,31 @@ public sealed class SichuanUnifiedDecisionEngine
         // estimation to the current terminal model only when it can change
         // the decision materially.
         var needsTerminalReadiness = state.WallCount <= 24
+            || state.WallCount is > SichuanLateWallDiscardEvaluator.MaximumWall and <= SichuanLateWallDiscardEvaluator.MaximumWiderWall
+                && forcedSuit < 0 && readyProfiles.Values.Any(r => r is null) && readyProfiles.Values.Any(r => r is not null)
             || belief.SeatReadyPosterior.Values.Any(v => v >= 0.55);
+        var shortWallComparison=state.InformationMode=="public"&&state.WallCount<=SichuanLateWallDiscardEvaluator.MaximumWall
+            &&forcedSuit<0&&readyProfiles.Values.Any(r=>r is null)&&readyProfiles.Values.Any(r=>r is not null)
+            &&SichuanSearchBudget.IsRoot(state)&&!SichuanDiscardPolicy.AtSearchLeaf;
+        // Between the short-wall exact settlement model and the ordinary
+        // early model, retain a bounded signed terminal liability. The
+        // projection supplies joint public hypotheses for opponent readiness;
+        // own future readiness remains an explicit conservative floor below.
+        var widerSettlementComparison=state.InformationMode=="public"
+            &&state.WallCount is > SichuanLateWallDiscardEvaluator.MaximumWall and <= SichuanLateWallDiscardEvaluator.MaximumWiderWall
+            &&forcedSuit<0&&readyProfiles.Values.Any(r=>r is null)&&readyProfiles.Values.Any(r=>r is not null)
+            &&SichuanSearchBudget.IsRoot(state)&&!SichuanDiscardPolicy.AtSearchLeaf;
         var terminalReadiness = needsTerminalReadiness && readyProfiles.Values.Any(r => r is not null)
-            ? new SichuanTerminalReadinessProjection().Evaluate(state, belief) : null;
+            ? new SichuanTerminalReadinessProjection().Evaluate(state, belief,samples:shortWallComparison?64:32,
+                includeWorlds:shortWallComparison||widerSettlementComparison) : null;
         var opponentWinPerDraw = EstimateOpponentWinPerDraw(state, belief, wallAvailability);
         var readyChoices = readyProfiles.Where(p => p.Value is not null)
             .ToDictionary(p => p.Key, p => p.Value!);
         var readyRequests = readyChoices.ToDictionary(p => p.Key, p =>
             new SichuanActionTreeEvaluator.ChanceSearchRequest(p.Value.PublicDrawableMass,
-                Math.Max(0, state.WallCount), Math.Max(2, state.ActiveSeats.Count(a => a)),
+                Math.Max(0, state.WallCount), Math.Max(2, Enumerable.Range(0,4).Count(seat=>state.ActiveSeats[seat]&&!state.HasHu[seat])),
                 SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state),
-                p.Value.HasDrawableWait ? p.Value.WeightedSelfDrawPerPayer * (state.ActiveSeats.Count(a => a) - 1) : 0,
+                p.Value.HasDrawableWait ? p.Value.WeightedSelfDrawPerPayer * (Enumerable.Range(0,4).Count(seat=>state.ActiveSeats[seat]&&!state.HasHu[seat]) - 1) : 0,
                 opponentWinPerDraw, 2.5,
                 ChaJiaoValue: EstimateChaJiaoScore(state, p.Value, belief, terminalReadiness),
                 MaxDraws: Math.Max(0, state.WallCount), Simulations: 512,
@@ -81,7 +95,7 @@ public sealed class SichuanUnifiedDecisionEngine
         var supply = new SichuanOpponentSupplyStep().Refine(state, readyChoices, readyRequests);
 		foreach (var analysis in analyses)
 		{
-			var activePlayers = Math.Max(2, state.ActiveSeats.Count(value => value));
+			var activePlayers = Math.Max(2, Enumerable.Range(0,4).Count(seat=>state.ActiveSeats[seat]&&!state.HasHu[seat]));
 			var ready = readyProfiles[analysis.DiscardTileType];
             var legalDistance = LegalDistance(analysis);
 			var relevantTiles = ready is not null
@@ -89,11 +103,14 @@ public sealed class SichuanUnifiedDecisionEngine
 				: forcedSuit >= 0 ? LegalDrawsAfterDiscard(analysis.DiscardTileType) : analysis.ImprovingTiles;
 			var liveWaits = wallAvailability.SumExpected(relevantTiles);
 			var isReady = ready is not null;
+			var futureOwnDraws = Math.Max(0, (state.WallCount - SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)
+				+ activePlayers - 1) / activePlayers);
 			var opponentLoss = 2.5;
 			var handAfterDiscard = (int[])state.Hand18.Clone();
 			handAfterDiscard[analysis.DiscardTileType]--;
 			var winScore = ready is { HasDrawableWait: true } ? ready.WeightedSelfDrawPerPayer * (activePlayers - 1) : 0.0;
-			var chaJiaoScore = EstimateChaJiaoScore(state, ready, belief, terminalReadiness);
+			var chaJiaoScore = EstimateSignedChaJiaoScore(state, analysis, ready, belief,
+				terminalReadiness, liveWaits, futureOwnDraws);
 			var readyRaceGroups = ready is null ? null : SichuanReadyRaceSupply.Build(state,ready);
             var chance = supply.Chances.TryGetValue(analysis.DiscardTileType, out var refinedChance)
                 ? refinedChance : _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
@@ -151,8 +168,6 @@ public sealed class SichuanUnifiedDecisionEngine
 				bestSpecialRoute.ComparableOpportunity - ordinaryOpportunity, 0, 0.45);
 			var lane = laneValues.GetValueOrDefault(analysis.DiscardTileType);
 			var exclusiveSuitRouteValue = lane?.Value ?? 0;
-			var futureOwnDraws = Math.Max(0, (state.WallCount - SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state)
-				+ activePlayers - 1) / activePlayers);
 			var progressChance = isReady || state.WallCount <= 0 ? 0.0
 				: 1.0 - Math.Pow(1.0 - Math.Clamp(liveWaits / state.WallCount, 0.0, 1.0), futureOwnDraws);
 			var routeValue = Math.Max(0, 1.2 - legalDistance * 0.4)
@@ -177,6 +192,8 @@ public sealed class SichuanUnifiedDecisionEngine
                 reasons.Add($"GANG_DISCARD_EXTRA_LOSS_PUBLIC_APPROX_{gangDiscardExtraLoss:F4}");
             if (ready is not null) { reasons.Add("LEGAL_READY_ALL_WAIT_PRICING"); reasons.Add(readyRaceGroups is {Count:>0} ? "READY_RACE_SELF_DRAW_AND_FORCED_DISCARD" : "READY_RACE_CONSERVATIVE_SELF_DRAW"); }
             if (ready is not null && terminalReadiness is not null) reasons.Add(terminalReadiness.Reason);
+			if (!isReady && chaJiaoScore < 0)
+				reasons.Add($"CHA_JIAO_UNREADY_LIABILITY_FLOOR_{chaJiaoScore:F2}");
             if (ready is not null && supply.Status != "outside_conditional_supply_scope")
                 reasons.Add(SichuanOpponentSupplyStep.Reason(supply, analysis.DiscardTileType));
             if (ready is not null)
@@ -246,6 +263,24 @@ public sealed class SichuanUnifiedDecisionEngine
                         $"SEVEN_PAIRS_DEVELOPMENT_NUMERICAL_CHANGE_NOT_CONFIRMED_SE{error:F4}"}).ToArray()}).ToList();
             }
         }
+        if(shortWallComparison)
+        {
+            var tail=new SichuanLateWallDiscardEvaluator().Evaluate(state,belief,wallAvailability,candidates,terminalReadiness);
+            if(tail.Values.Count==candidates.Count&&candidates.Count>0)
+                candidates=candidates.Select(c=>
+                {
+                    var v=tail.Values[c.Action.TileType];
+                    return c with {ExpectedNetScore=v.Net,WinGain=v.Gain,GangGain=v.Refund,ChaJiaoValue=v.Cha,
+                        DealInLoss=v.InitialLoss,OpponentFutureLoss=v.FutureLoss,RouteContinuationValue=0,
+                        UncertaintyPenalty=v.RiskUncertainty,ModeledOwnWinProbability=v.WinProbability,
+                        ModeledSelfDrawProbability=v.SelfDrawProbability,
+                        ReasonCodes=new[]{SichuanLateWallDiscardEvaluator.Applied,
+                            $"SHORT_WALL_NET_{v.Net:F5}_WIN_{v.Gain:F5}_RON_{v.InitialLoss:F5}_FUTURE_LOSS_{v.FutureLoss:F5}_CHA_{v.Cha:F5}_REFUND_{v.Refund:F5}_UNCERTAINTY_{v.RiskUncertainty:F5}",
+                            $"SHORT_WALL_PLAN_{v.Plan}",
+                            $"SHORT_WALL_READY_AT_END_{v.ReadyProbability:F5}_SE_{v.StandardError:F5}_CONFIRMATION_{tail.Samples}",
+                            "SHORT_WALL_JOINT_PUBLIC_HYPOTHESES_FIXED_ENDPOINTS_NOT_CALIBRATED_POLICY_ROLLOUT"}.Concat(c.ReasonCodes).ToArray()};
+                }).ToList();
+        }
 		var ordered = candidates
             .OrderByDescending(candidate => candidate.ExpectedNetScore).ThenBy(candidate => candidate.Action.TileType).ToArray();
 		var selected = ordered.FirstOrDefault();
@@ -307,9 +342,63 @@ public sealed class SichuanUnifiedDecisionEngine
 		var bestPerPayer = ready.Waits.Max(wait => wait.HandScore);
 		var expectedPayers = state.ActiveSeats
 			.Select((active, seat) => (active, seat))
-			.Where(item => item.active && item.seat != state.SeatIndex)
+			.Where(item => item.active && item.seat != state.SeatIndex && !state.HasHu[item.seat])
 			.Sum(item => 1.0 - terminalReadiness.ReadyProbabilities[item.seat]);
 		return bestPerPayer * expectedPayers;
+	}
+
+	private double EstimateSignedChaJiaoScore(
+		SichuanStateView state,
+		SichuanDiscardAnalysis analysis,
+		SichuanReadyPrice? ready,
+		SichuanBeliefSnapshot belief,
+		SichuanTerminalReadinessEstimate? terminalReadiness,
+		double liveWaits,
+		int futureOwnDraws)
+	{
+		if (ready is not null)
+			return EstimateChaJiaoScore(state, ready, belief, terminalReadiness);
+		if (!SichuanRuleSnapshot.Frozen.EnableChaJiao
+			|| terminalReadiness is not { Supported: true }
+			|| state.WallCount > SichuanLateWallDiscardEvaluator.MaximumWiderWall)
+			return 0.0;
+
+		var opponents = Enumerable.Range(0, 4)
+			.Where(seat => seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
+			.ToArray();
+		if (opponents.Length == 0) return 0.0;
+
+		// If joint worlds are available, price each opponent's own terminal
+		// readiness score inside that same wall hypothesis. Otherwise use the
+		// base score as a lower bound. This is a liability floor, not a claim
+		// that the current unready route will definitely stay unready.
+		double opponentCharge = 0;
+		if (terminalReadiness.Worlds.Count > 0)
+		{
+			var mass = terminalReadiness.Worlds.Sum(world => world.Weight);
+			if (mass > 0)
+			{
+				foreach (var world in terminalReadiness.Worlds)
+				{
+					foreach (var seat in opponents)
+					{
+						var score = world.ReadyScores.ElementAtOrDefault(seat);
+						if (score > 0) opponentCharge += world.Weight * score;
+					}
+				}
+				opponentCharge /= mass;
+			}
+		}
+		if (opponentCharge <= 0)
+			opponentCharge = opponents.Sum(seat =>
+				terminalReadiness.ReadyProbabilities.ElementAtOrDefault(seat)
+				* SichuanRuleSnapshot.Frozen.BaseScore);
+
+		var drawRate = state.WallCount > 0
+			? Math.Clamp(liveWaits / state.WallCount, 0.0, 1.0)
+			: 0.0;
+		var residualUnready = Math.Clamp(Math.Pow(1.0 - drawRate, Math.Max(1, futureOwnDraws)), 0.25, 1.0);
+		return -opponentCharge * residualUnready;
 	}
 
 	public SichuanDecisionExplanation RankMeldActions(

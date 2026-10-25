@@ -1,0 +1,57 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "process",
+      "launch",
+      "--device",
+      "00008120-000915803A90A01E",
+      "--terminate-existing",
+      "com.chendong.sichuanmahjong.iosdev",
+      "--json-output",
+      "evidence/2.6.93_release_20261024/dona-launch.json"
+    ],
+    "commandType" : "devicectl.device.process.launch",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "651.13.5"
+  },
+  "result" : {
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "launchOptions" : {
+      "activatedWhenStarted" : true,
+      "arguments" : [
+
+      ],
+      "environmentVariables" : {
+        "TERM" : "dumb"
+      },
+      "platformSpecificOptions" : {
+
+      },
+      "startStopped" : false,
+      "terminateExistingInstances" : true,
+      "user" : {
+        "active" : true
+      }
+    },
+    "process" : {
+      "auditToken" : [
+        4294967295,
+        501,
+        501,
+        501,
+        501,
+        74139,
+        0,
+        199852
+      ],
+      "executable" : "file:///private/var/containers/Bundle/Application/E7334C2B-59BA-4B7E-BE79-8E2364B78613/SichuanMahjongIOS.app/SichuanMahjongIOS",
+      "processIdentifier" : 74139
+    }
+  }
+}

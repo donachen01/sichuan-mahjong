@@ -1,4 +1,6 @@
 using SichuanMahjong.AI.Core.Decision;
+using SichuanMahjong.AI.Core.Rules;
+using SichuanMahjong.AI.Core.Domain;
 
 namespace SichuanMahjong.AI.Core.Search;
 
@@ -9,22 +11,29 @@ namespace SichuanMahjong.AI.Core.Search;
 public static class SichuanDevelopmentTrajectoryModel
 {
     public sealed record Stage(double[] Ron,double[] Self,int[] OwnNext,int[] PengNext,
-        int SpareDiscard,bool Ready,int[]? Hand=null,int[]? PengTiles=null);
+        int SpareDiscard,bool Ready,int[]? Hand=null,int[]? PengTiles=null)
+    {public double ChaJiaoScore {get;init;}}
     public sealed record Plan(string Id,Stage[] Stages,int Initial=0);
-    public sealed record World(int[] Wall,double[] SelfUniform,double[] RonUniform,double[]? ClaimRonUniform=null);
+    public sealed record World(int[] Wall,double[] SelfUniform,double[] RonUniform,double[]? ClaimRonUniform=null)
+    {public int[]? TerminalReadyScores {get;init;}public bool[]? TerminalFlowerPigs {get;init;}}
     public sealed record Environment(int OwnSeat,int[] Order,int[] Missing,double[] SelfHazard,
         double[][] RonHazard,double[] SelfPayment,double[] RonPayment,double[] UnreadyCharge,
-        int FirstActor,bool[]? ForcedOffers=null);
+        int FirstActor,bool[]? ForcedOffers=null)
+    {
+        public IReadOnlyList<SichuanPublicEvent>? GangHistory {get;init;}
+        public int? InitialLiveMask {get;init;}
+        public double[][]? RonPaymentByTile {get;init;}
+    }
     public readonly record struct Outcome(double Gain,double Loss,double Cha,bool Win,bool Self,bool ReadyAtEnd,
         bool Peng,bool BattleEnd)
-    {public double Net=>Gain-Loss+Cha;public bool OpponentWin{get;init;}}
+    {public double Refund {get;init;}public double Net=>Gain-Loss+Cha+Refund;public bool OpponentWin{get;init;}}
     public sealed record Estimate(SichuanActionTreeEvaluator.ChanceSearchResult Chance,
         double[] Nets,double ReadyProbability,double PengProbability)
     {public double[] Gains{get;init;}=[];public double[] Losses{get;init;}=[];public double[] ChaValues{get;init;}=[];}
 
     public static Outcome Run(Plan plan,World world,Environment e)
     {
-        int own=e.OwnSeat,live=e.Order.Aggregate(0,(a,s)=>a|(1<<s)),actor=e.FirstActor,stage=plan.Initial;
+        int own=e.OwnSeat,live=e.InitialLiveMask??e.Order.Aggregate(0,(a,s)=>a|(1<<s)),actor=e.FirstActor,stage=plan.Initial;
         double loss=0;bool peng=false,reached=plan.Stages[stage].Ready,opponentWin=false;
         Outcome Finish(double gain,double cost,double cha,bool win,bool self,bool ready,bool claim,bool battle)
             =>new(gain,cost,cha,win,self,ready,claim,battle){OpponentWin=opponentWin};
@@ -36,7 +45,7 @@ public static class SichuanDevelopmentTrajectoryModel
             var uniform=afterClaim?world.ClaimRonUniform??world.RonUniform:world.RonUniform;
             foreach(int seat in e.Order)if(seat!=own&&(live&(1<<seat))!=0
                 &&e.Missing[seat]!=tile/9&&uniform[position*4+seat]<e.RonHazard[seat][tile])
-            {loss+=e.RonPayment[seat];live&=~(1<<seat);opponentWin=true;}
+            {loss+=e.RonPaymentByTile?[seat][tile]??e.RonPayment[seat];live&=~(1<<seat);opponentWin=true;}
         }
         bool RivalRon(int tile,int position,int source)
         {
@@ -82,6 +91,19 @@ public static class SichuanDevelopmentTrajectoryModel
         }
         if(Payers()==0)return Finish(0,loss,0,false,false,reached,peng,true);
         double cha=0;
+        if(world.TerminalReadyScores is not null)
+        {
+            // The wall and all terminal opponent assessments belong to the
+            // SAME public hypothesis. No product of marginal ready rates.
+            var assessments=e.Order.Where(seat=>(live&(1<<seat))!=0).Select(seat=>
+                new SichuanDrawAssessment(seat,seat==own?plan.Stages[stage].Ready:world.TerminalReadyScores[seat]>0,
+                    seat!=own&&(world.TerminalFlowerPigs?[seat]??false),
+                    (int)(seat==own?plan.Stages[stage].ChaJiaoScore:world.TerminalReadyScores[seat]))).ToArray();
+            var settlement=new SichuanSettlementProjectionEngine().ProjectScenario(new(DrawAssessments:assessments,
+                GangRefunds:SichuanPublicGangRefunds.Build(e.GangHistory??[],assessments)));
+            cha=settlement.ChaJiaoChanges[own]+settlement.HuaZhuChanges[own];
+            return Finish(0,loss,cha,false,false,plan.Stages[stage].Ready,peng,false) with {Refund=settlement.RefundChanges[own]};
+        }
         // No speculative future cha-jiao income. Charge the same public
         // current-readiness exposure to every unready terminal route.
         if(!plan.Stages[stage].Ready)foreach(int seat in e.Order)
@@ -91,18 +113,18 @@ public static class SichuanDevelopmentTrajectoryModel
 
     public static Estimate Evaluate(Plan plan,IReadOnlyList<World> worlds,Environment e)
     {
-        double gain=0,loss=0,cha=0,win=0,self=0,ron=0,selfGain=0,ronGain=0,ready=0,peng=0,battle=0,opponent=0;
+        double refund=0,gain=0,loss=0,cha=0,win=0,self=0,ron=0,selfGain=0,ronGain=0,ready=0,peng=0,battle=0,opponent=0;
         var nets=new double[worlds.Count];
         var gains=new double[worlds.Count];var losses=new double[worlds.Count];var charges=new double[worlds.Count];
         for(int i=0;i<worlds.Count;i++)
         {
-            var v=Run(plan,worlds[i],e);nets[i]=v.Net;gains[i]=v.Gain;losses[i]=v.Loss;charges[i]=v.Cha;gain+=v.Gain;loss+=v.Loss;cha+=v.Cha;
+            var v=Run(plan,worlds[i],e);nets[i]=v.Net;gains[i]=v.Gain;losses[i]=v.Loss;charges[i]=v.Cha;gain+=v.Gain;loss+=v.Loss;cha+=v.Cha;refund+=v.Refund;
             if(v.Win){win++;if(v.Self){self++;selfGain+=v.Gain;}else{ron++;ronGain+=v.Gain;}}
             if(v.ReadyAtEnd)ready++;if(v.Peng)peng++;if(v.BattleEnd)battle++;
             if(v.OpponentWin)opponent++;
         }
         double n=worlds.Count;
-        return new(new((gain-loss+cha)/n,win/n,opponent/n,(n-win-battle)/n,0,worlds.Count,0,0)
+        return new(new((gain-loss+cha+refund)/n,win/n,opponent/n,(n-win-battle)/n,refund/n,worlds.Count,0,0)
             {ExpectedOwnWinGain=gain/n,ExpectedOpponentLoss=loss/n,ExpectedChaJiaoValue=cha/n,
                 SelfDrawWinProbability=self/n,DiscardHuProbability=ron/n,ExpectedSelfDrawGain=selfGain/n,
                 ExpectedDiscardHuGain=ronGain/n,BattleEndProbability=battle/n},nets,ready/n,peng/n)

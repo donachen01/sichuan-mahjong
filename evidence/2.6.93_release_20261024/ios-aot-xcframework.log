@@ -1,0 +1,20 @@
+2026-10-25 09:22:06.137 xcodebuild[33584:970538]  DVTFilePathFSEvents: Failed to start fs event stream.
+2026-10-25 09:22:06.137 xcodebuild[33584:970538]  DVTFilePathFSEvents: Failed to start fs event stream.
+2026-10-25 09:22:06.390 xcodebuild[33584:970537] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+2026-10-25 09:22:06.806 xcodebuild[33584:970539] CoreSimulatorService connection became invalid.  Simulator services will no longer be available.
+2026-10-25 09:22:06.976 xcodebuild[33584:970554] Logging connecton invalid: <OS_xpc_error: <dictionary: 0x1f8660b60> { count = 1, transaction: 0, voucher = 0x0, contents =
+	"XPCErrorDescription" => <string: 0x1f8660ca0> { string cache = 0x0, length = 18, contents = "Connection invalid" }
+}>
+2026-10-25 09:22:06.976 xcodebuild[33584:970554] Error opening log file (/Users/chendong/Library/Logs/CoreSimulator/CoreSimulator.com.apple.dt.xcodebuild.log): Operation not permitted
+[-[SimServiceContext initWithDeveloperDir:connectionType:error:]:499] WARN  : Unable to discover any Simulator runtimes. Developer Directory is /Volumes/AI/AI工具/Xcode/Xcode.app/Contents/Developer.
+[-[SimDiskImageManager init]:226] ERROR : Could not kickstart simdiskimaged; SimDiskImageManager services will not be available: Error Domain=NSPOSIXErrorDomain Code=53 "Software caused connection abort" UserInfo={NSLocalizedDescription=Error returned in reply from CoreSimulatorService: Connection invalid}
+[-[SimServiceContext initWithDeveloperDir:connectionType:error:]_block_invoke:556] ERROR : Could not get list of trusted mount directories: Error Domain=com.apple.CoreSimulator.SimError Code=409 "Cannot talk to the service used to manage runtime disk images (simdiskimaged) because its launchd job is not registered or was unloaded" UserInfo={NSLocalizedDescription=Cannot talk to the service used to manage runtime disk images (simdiskimaged) because its launchd job is not registered or was unloaded}
+[-[SimDiskImageManager _onQueue_checkConnection:]:270] ERROR : simdiskimaged connection is currently unavailable because connection became invalid
+[-[SimDiskImageManager _onQueue_checkConnection:]:290] ERROR : simdiskimaged returned error (invalid), marking disconnected.
+[-[SimServiceContext sendRequest:reply:error:]:2074] ERROR : Unable to deliver request ({
+    request = "notification_subscription";
+    "set_path" = "/Volumes/AI/AI\U5de5\U5177/Xcode/CoreSimulator-Devices";
+}) because we are not connected to CoreSimulatorService.
+2026-10-25 09:22:06.977 xcodebuild[33584:970538] Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}
+2026-10-25 09:22:06.978 xcodebuild[33584:970538]  IDESimulatorAvailability: startObservingSimulatorUpdates() FAILED to register SimDeviceSet observer
+xcframework successfully written out to: /Volumes/AI/Codex/四川麻将工程_20260701_v2/.godot/mono/temp/bin/ExportRelease/SichuanMahjong.Godot_aot.xcframework

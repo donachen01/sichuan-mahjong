@@ -1,0 +1,7 @@
+Name                    Hostname   Identifier                                    State                Model                                              Reality  
+---------------------   --------   -------------------------------------------   ------------------   ------------------------------------------------   ---------
+dona‘s iPhone                      00008120-000915803A90A01E (UDID)              available (paired)   iPhone 15 (iPhone15,4)                             physical 
+iPad                               00008103-001928E421A0801E (UDID)              available (paired)   iPad Pro (12.9-inch) (5th generation) (iPad13,8)   physical 
+iPad Pro 13-inch (M5)              DE88FA7F-19C0-4CC6-A712-E66349DE734C (UDID)   shutdown             iPad Pro 13-inch (M5) (iPad17,4)                   simulated
+iPhone                             00008130-001C41AA26D1001C (UDID)              available (paired)   iPhone 15 Pro (iPhone16,1)                         physical 
+iPhone 17 Pro                      E0E7169D-C628-4340-AACE-E3C1330BCE7C (UDID)   shutdown             iPhone 17 Pro (iPhone18,1)                         simulated

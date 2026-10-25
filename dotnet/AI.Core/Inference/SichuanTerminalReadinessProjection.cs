@@ -2,6 +2,7 @@ using SichuanMahjong.AI.Core.Engines;
 using SichuanMahjong.AI.Core.Models;
 using System.Numerics;
 using SichuanMahjong.AI.Core.Decision;
+using SichuanMahjong.AI.Core.Rules;
 
 namespace SichuanMahjong.AI.Core.Inference;
 
@@ -10,7 +11,12 @@ public sealed record SichuanTerminalReadinessEstimate(bool Supported, double[] R
 {
     public int ConcreteOpponentDraws { get; init; }
     public int TailEstimates { get; init; }
+    public IReadOnlyList<SichuanTerminalReadinessWorld> Worlds { get; init; } = [];
 }
+
+public sealed record SichuanTerminalReadinessWorld(int[] Wall, int[] ReadyScores,
+    double[][] CurrentRonScores, double[] CurrentSelfScores, double Weight)
+{public bool[] FlowerPigs {get;init;}=new bool[4];}
 
 /// <summary>
 /// Projects development to wall exhaustion instead of treating today's
@@ -22,28 +28,32 @@ public sealed record SichuanTerminalReadinessEstimate(bool Supported, double[] R
 public sealed class SichuanTerminalReadinessProjection
 {
     public SichuanTerminalReadinessEstimate Evaluate(SichuanStateView state,
-        SichuanBeliefSnapshot belief, int samples = 32, int seed = 20261011)
+        SichuanBeliefSnapshot belief, int samples = 32, int seed = 20261011,bool includeWorlds=false)
     {
         using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("terminal_readiness");
-        bool fast = SichuanSearchBudget.FastTerminal;
+        bool fast = SichuanSearchBudget.FastTerminal&&!includeWorlds;
         if (fast) samples = Math.Min(samples, 8);
         var ready=Enumerable.Range(0,4).Select(s=>belief.SeatReadyPosterior.GetValueOrDefault(s)).ToArray();
         var value=SichuanPolicyExecutionScope.Memoize(
-            $"terminal-readiness/{SichuanDecisionCommand.Fingerprint(state)}/{samples}/{seed}/{fast}",
-            (ready[0],ready[1],ready[2],ready[3]),()=>EvaluateCore(state,belief,samples,seed,fast));
+            $"terminal-readiness/{SichuanDecisionCommand.Fingerprint(state)}/{samples}/{seed}/{fast}/{includeWorlds}",
+            (ready[0],ready[1],ready[2],ready[3]),()=>EvaluateCore(state,belief,samples,seed,fast,includeWorlds));
         // Keep the public result independently owned even when the underlying
         // exact-input calculation is reused within this decision.
-        return value with { ReadyProbabilities=value.ReadyProbabilities.ToArray() };
+        return value with { ReadyProbabilities=value.ReadyProbabilities.ToArray(),Worlds=value.Worlds.Select(w=>w with
+            {Wall=w.Wall.ToArray(),ReadyScores=w.ReadyScores.ToArray(),CurrentRonScores=w.CurrentRonScores.Select(x=>x.ToArray()).ToArray(),
+                CurrentSelfScores=w.CurrentSelfScores.ToArray(),FlowerPigs=w.FlowerPigs.ToArray()}).ToArray() };
     }
 
     private SichuanTerminalReadinessEstimate EvaluateCore(SichuanStateView state,
-        SichuanBeliefSnapshot belief,int samples,int seed,bool fast)
+        SichuanBeliefSnapshot belief,int samples,int seed,bool fast,bool includeWorlds)
     {
         using var timing=SichuanPolicyTiming.Measure("terminal_readiness_compute");
         var baseline = Enumerable.Range(0, 4).Select(s =>
             Math.Clamp(belief.SeatReadyPosterior.GetValueOrDefault(s), 0, 1)).ToArray();
-        if (state.WallCount == 0) return new(true, baseline, 0, 0, "TERMINAL_READINESS_CURRENT_AT_EXHAUSTION");
+        if (state.WallCount == 0&&!includeWorlds) return new(true, baseline, 0, 0, "TERMINAL_READINESS_CURRENT_AT_EXHAUSTION");
         var seats = Enumerable.Range(0, 4).Where(s => state.ActiveSeats[s] && !state.HasHu[s]).ToArray();
+        if(includeWorlds&&seats.Any(s=>SichuanDevelopmentPolicy.Melds(state,s).Any(m=>m.TileType is <0 or >26)))
+            return new(false,baseline,0,0,"TERMINAL_READINESS_UNKNOWN_MELD_PRICE");
         if (state.SeatIndex is < 0 or > 3 || state.CurrentSeat != state.SeatIndex
             || !seats.Contains(state.SeatIndex) || seats.Length < 2
             || state.HandCounts[state.SeatIndex] != state.Hand18.Sum()
@@ -62,18 +72,31 @@ public sealed class SichuanTerminalReadinessProjection
         // and physical four-copy constraints. Use its shared mathematical cache
         // while updating only the tile changed in each hypothetical step.
         var before = new double[4]; var after = new double[4];
-        var seatOrder = Enumerable.Range(1, 4).Select(n => (state.SeatIndex + n) % 4)
+        var seatOrder = Enumerable.Range(1, 4).Select(n => (state.SeatIndex - n + 4) % 4)
             .Where(seats.Contains).ToArray();
         var random = new Random(seed);
         var discardDistances = new int[27];
         var drawCopies = new int[27];
         int concreteDraws = 0, tails = 0;
+        var worlds=new List<SichuanTerminalReadinessWorld>();
+        var pricing=new SichuanReadyWaitPricing();
         foreach (var particle in particles)
         {
             var wall = order.SelectMany(t => Enumerable.Repeat(t, particle.Wall27[t])).ToArray();
             for (var i = wall.Length - 1; i > 0; i--)
             { var j = random.Next(i + 1); (wall[i], wall[j]) = (wall[j], wall[i]); }
             var hands = particle.Hands27.Select(h => h.ToArray()).ToArray();
+            SichuanReadyPrice? Price(int seat)=>pricing.Build(SichuanBranchState.Copy(state,hand:hands[seat],seatIndex:seat),
+                hands[seat],particle.Wall27.Select(n=>(double)n).ToArray());
+            var ron=Enumerable.Range(0,4).Select(_=>new double[27]).ToArray();
+            var self=new double[4];
+            if(includeWorlds)foreach(int seat in seats.Where(s=>s!=state.SeatIndex))
+            {
+                var price=Price(seat);
+                if(price is null)continue;
+                foreach(var wait in price.Waits)ron[seat][wait.TileType]=wait.HandScore;
+                self[seat]=price.WeightedSelfDrawPerPayer;
+            }
             var cursors=Enumerable.Range(0,4).Select(s=>new SichuanHandDistanceCursor(hands[s],state.MeldCount(s))).ToArray();
             var seen = state.Visible18.ToArray();
             bool Ready(int s) => !Enumerable.Range(0, 27).Any(t => t / 9 == state.DingQueSuits[s] && hands[s][t] > 0)
@@ -158,6 +181,15 @@ public sealed class SichuanTerminalReadinessProjection
                 }
                 after[s] += probability * particle.Weight;
             }
+            if(includeWorlds)
+            {
+                var scores=new int[4];
+                foreach(int seat in seats.Where(s=>s!=state.SeatIndex))
+                    scores[seat]=Price(seat)?.Waits.Max(w=>w.HandScore)??0;
+                worlds.Add(new(wall.ToArray(),scores,ron,self,particle.Weight)
+                    {FlowerPigs=Enumerable.Range(0,4).Select(seat=>seat!=state.SeatIndex&&state.DingQueSuits[seat]>=0
+                        &&hands[seat].Skip(state.DingQueSuits[seat]*9).Take(9).Any(n=>n>0)).ToArray()});
+            }
         }
         // Keep the existing current-readiness estimate; apply only the sampled
         // conditional transition from non-ready to ready during the remaining
@@ -173,7 +205,7 @@ public sealed class SichuanTerminalReadinessProjection
             1 / particles.Sum(p => p.Weight * p.Weight), fast
                 ? "TERMINAL_READINESS_ONE_ROUND_FIXED_PROGRESS_TAIL"
                 : "TERMINAL_READINESS_PUBLIC_DEVELOPMENT_MODEL")
-            { ConcreteOpponentDraws = concreteDraws, TailEstimates = tails };
+            { ConcreteOpponentDraws = concreteDraws, TailEstimates = tails,Worlds=worlds };
     }
     /// <summary>Without-replacement probability of at least required useful
     /// draws from a fixed progress set. Exact for that simplified model only.</summary>

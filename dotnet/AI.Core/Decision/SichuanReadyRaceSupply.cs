@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Inference;
 using SichuanMahjong.AI.Core.Rules;
 using SichuanMahjong.AI.Core.Search;
 
@@ -24,7 +25,7 @@ public static class SichuanReadyRaceSupply
         return ready.Waits.Where(w=>w.PublicWallWeight>0).GroupBy(w=>w.TileType/9).Select(g=>
         {
             var mass=g.Sum(w=>w.PublicWallWeight);var mask=0;
-            for(int actor=1;actor<order.Count;actor++)if(s.DingQueSuits[order[actor]]==g.Key)mask|=1<<actor;
+            for(int actor=1;actor<order.Count;actor++)if(SichuanOpponentTimeline.MustOfferDraw(s,order[actor],g.Key*9))mask|=1<<actor;
             return new SichuanReadyRaceGroup(mass,g.Sum(w=>w.PublicWallWeight*w.SelfDrawPerPayer)/mass,
                 g.Sum(w=>w.PublicWallWeight*w.HandScore)/mass,mask);
         }).ToArray();

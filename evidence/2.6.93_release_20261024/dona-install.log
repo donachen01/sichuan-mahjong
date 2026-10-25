@@ -1,0 +1,3 @@
+Error: Unknown option '--path'
+Usage: devicectl device install app --device <uuid|ecid|serial_number|udid|name|dns_name> <path> [--columns <columns> ...] [--hide-default-columns] [--hide-headers] [--verbose] [--quiet] [--timeout <seconds>] [--json-output <path>] [--omit-deprecated-fields-in-json] [--log-output <path>]
+  See 'devicectl device install app --help' for more information.

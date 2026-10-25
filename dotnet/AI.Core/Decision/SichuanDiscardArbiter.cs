@@ -36,9 +36,11 @@ public sealed class SichuanDiscardArbiter
     public int Resolve(bool settleNow = false,
         IReadOnlyDictionary<int, SichuanDecisionCandidate>? readyValues = null)
     {
-        if (settleNow && _candidates.Count > 0)
+        var commonTail=readyValues is not null&&_legal.All(t=>readyValues.TryGetValue(t,out var c)
+            &&c.IsAdmissible&&c.ReasonCodes.Contains(SichuanLateWallDiscardEvaluator.Applied));
+        if ((settleNow||commonTail) && _candidates.Count > 0)
         {
-            // No future draw remains. Compare every legal, already-priced
+            // Exhausted or fully priced short wall: compare every legal, already-priced
             // candidate; arbitrary danger tiers cannot override the common
             // settlement value. A costly live deal-in may still justify folding.
             var terminalWinner = _candidates.Values.OrderByDescending(c => c.UnifiedActionValue)
@@ -46,8 +48,9 @@ public sealed class SichuanDiscardArbiter
             var terminalPrevious = SelectedTile;
             _steps.Clear();
             foreach (var p in _proposals)
-                _steps.Add(new(p.Module, p.Tile, p.Priority, false, terminalPrevious, "wall_empty_common_value_required"));
-            _steps.Add(new("WALL_EMPTY_COMMON_SETTLEMENT_VALUE", terminalWinner.TileType, int.MaxValue,
+                _steps.Add(new(p.Module, p.Tile, p.Priority, false, terminalPrevious,
+                    commonTail?"short_wall_common_value_required":"wall_empty_common_value_required"));
+            _steps.Add(new(commonTail?SichuanLateWallDiscardEvaluator.Applied:"WALL_EMPTY_COMMON_SETTLEMENT_VALUE", terminalWinner.TileType, int.MaxValue,
                 true, terminalPrevious, "all_legal_candidates_common_value_comparison"));
             SelectedTile = terminalWinner.TileType;
             return SelectedTile;

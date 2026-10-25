@@ -1,0 +1,59 @@
+2026-10-25 09:23:03.961 xcodebuild[33638:971252]  DVTFilePathFSEvents: Failed to start fs event stream.
+2026-10-25 09:23:03.961 xcodebuild[33638:971252]  DVTFilePathFSEvents: Failed to start fs event stream.
+2026-10-25 09:23:04.217 xcodebuild[33638:971251] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+2026-10-25 09:23:04.624 xcodebuild[33638:971253] CoreSimulatorService connection became invalid.  Simulator services will no longer be available.
+Command line invocation:
+    /Volumes/AI/AI工具/Xcode/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj -scheme SichuanMahjongIOS -configuration Release -sdk iphoneos -destination id=00008120-000915803A90A01E -derivedDataPath build/ios/SichuanMahjong-2.6.93-device -allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=FCB4ZVWWD CODE_SIGN_STYLE=Automatic "CODE_SIGN_IDENTITY=Apple Development" IPHONEOS_DEPLOYMENT_TARGET=15.0 build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = Apple Development
+    CODE_SIGN_STYLE = Automatic
+    DEVELOPMENT_TEAM = FCB4ZVWWD
+    IPHONEOS_DEPLOYMENT_TARGET = 15.0
+    SDKROOT = iphoneos26.5
+
+2026-10-25 09:23:04.691 xcodebuild[33638:971280] Logging connecton invalid: <OS_xpc_error: <dictionary: 0x1f8660b60> { count = 1, transaction: 0, voucher = 0x0, contents =
+	"XPCErrorDescription" => <string: 0x1f8660ca0> { string cache = 0x0, length = 18, contents = "Connection invalid" }
+}>
+2026-10-25 09:23:04.691 xcodebuild[33638:971273] Error opening log file (/Users/chendong/Library/Logs/CoreSimulator/CoreSimulator.com.apple.dt.xcodebuild.log): Operation not permitted
+[-[SimDiskImageManager _onQueue_checkConnection:]:290] ERROR : simdiskimaged returned error (invalid), marking disconnected.
+[-[SimDiskImageManager init]:226] ERROR : Could not kickstart simdiskimaged; SimDiskImageManager services will not be available: Error Domain=NSPOSIXErrorDomain Code=53 "Software caused connection abort" UserInfo={NSLocalizedDescription=Error returned in reply from CoreSimulatorService: Connection invalid}
+[-[SimServiceContext initWithDeveloperDir:connectionType:error:]:499] WARN  : Unable to discover any Simulator runtimes. Developer Directory is /Volumes/AI/AI工具/Xcode/Xcode.app/Contents/Developer.
+[-[SimServiceContext initWithDeveloperDir:connectionType:error:]_block_invoke:556] ERROR : Could not get list of trusted mount directories: Error Domain=com.apple.CoreSimulator.SimError Code=409 "Cannot talk to the service used to manage runtime disk images (simdiskimaged) because its launchd job is not registered or was unloaded" UserInfo={NSLocalizedDescription=Cannot talk to the service used to manage runtime disk images (simdiskimaged) because its launchd job is not registered or was unloaded}
+[-[SimDiskImageManager _onQueue_checkConnection:]:270] ERROR : simdiskimaged connection is currently unavailable because connection became invalid
+[-[SimServiceContext sendRequest:reply:error:]:2074] ERROR : Unable to deliver request ({
+    request = "notification_subscription";
+    "set_path" = "/Volumes/AI/AI\U5de5\U5177/Xcode/CoreSimulator-Devices";
+}) because we are not connected to CoreSimulatorService.
+2026-10-25 09:23:04.692 xcodebuild[33638:971276] Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}
+[-[SimServiceContext sendRequest:reply:error:]:2074] ERROR : Unable to deliver request ({
+    request = "notification_subscription";
+    "set_path" = "/Volumes/AI/AI\U5de5\U5177/Xcode/CoreSimulator-Devices";
+}) because we are not connected to CoreSimulatorService.
+2026-10-25 09:23:04.692 xcodebuild[33638:971276]  iOSSimulator: [SimServiceContext defaultDeviceSetWithError:] returned nil (Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedFailureReason=Failed to subscribe to notifications from CoreSimulatorService., NSLocalizedDescription=Failed to initialize simulator device set., NSUnderlyingError=0x782ff08660 {Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}}}). Simulator device support disabled.
+2026-10-25 09:23:04.692 xcodebuild[33638:971252] Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}
+2026-10-25 09:23:04.693 xcodebuild[33638:971252]  IDESimulatorAvailability: startObservingSimulatorUpdates() FAILED to register SimDeviceSet observer
+2026-10-25 09:23:04.749 xcodebuild[33638:971251] [MT] DVTAssertions: Warning in DVTFrameworks/DVTFoundation/FileTypes/DVTFileDataTypeDetection.m:80
+Details:  detectedTypeIdentifier (com.apple.xml-property-list) does not conform to matchedTypeIdentifier in MagicFileDataTypeDetector extenson com.apple.property-list. When both are specified, this conformance is required unless overridden by setting allowNonInheritance. extension.identifier:Xcode.MagicFileDataTypeDetector.XMLPlist
+Object:   <DVTFileDataTypeDetectionMagicCache: 0x782ff09950>
+Method:   -initWithExtension:
+Thread:   <_NSMainThread: 0x104de1650>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-10-25 09:23:04.751 xcodebuild[33638:971251] [MT] DVTAssertions: Warning in DVTFrameworks/DVTFoundation/FileTypes/DVTFileDataTypeDetection.m:80
+Details:  detectedTypeIdentifier (com.apple.binary-property-list) does not conform to matchedTypeIdentifier in MagicFileDataTypeDetector extenson com.apple.property-list. When both are specified, this conformance is required unless overridden by setting allowNonInheritance. extension.identifier:Xcode.MagicFileDataTypeDetector.BinaryPlist
+Object:   <DVTFileDataTypeDetectionMagicCache: 0x782ff0a910>
+Method:   -initWithExtension:
+Thread:   <_NSMainThread: 0x104de1650>{number = 1, name = main}
+Please file a bug at https://feedbackassistant.apple.com with this warning message and any useful information you can provide.
+2026-10-25 09:23:04.850 xcodebuild[33638:971284]  DVTDeveloperAccountManager: Failed to load credentials for E5CC0977-EF0E-4A6C-BBE3-D82E1E3D377B: Error Domain=DVTDeveloperAccountCredentialsError Code=0 "Invalid credentials in keychain for E5CC0977-EF0E-4A6C-BBE3-D82E1E3D377B, missing Xcode-Username" UserInfo={NSLocalizedDescription=Invalid credentials in keychain for E5CC0977-EF0E-4A6C-BBE3-D82E1E3D377B, missing Xcode-Username}
+2026-10-25 09:23:04.854 xcodebuild[33638:971253]  DVTProvisioningProfileManager: Failed to load profile "/Users/chendong/Library/Developer/Xcode/UserData/Provisioning Profiles/f42b0510-7af9-47a4-96c9-8c2340d1ace3.mobileprovision" (Error Domain=DVTProvisioningProfileProviderErrorDomain Code=1 "Failed to load profile." UserInfo={NSLocalizedDescription=Failed to load profile., NSLocalizedRecoverySuggestion=Profile is missing the required UUID property.})
+2026-10-25 09:24:05.065 xcodebuild[33638:971251] Writing error result bundle to /var/folders/6c/gv_4p9j12894mjtz85xtq1q00000gn/T/ResultBundle_2026-25-10_09-24-0005.xcresult
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ id:00008120-000915803A90A01E }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Available destinations for the "SichuanMahjongIOS" scheme:
+		{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00006000-000445D21191801E, name:My Mac }
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }

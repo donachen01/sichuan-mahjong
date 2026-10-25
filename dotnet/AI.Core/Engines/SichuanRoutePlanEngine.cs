@@ -28,6 +28,8 @@ public sealed class SichuanRoutePlanEngine
         var features = BuildFeatures(state, hand18, meldCount);
         var seven = Decision.SichuanSevenPairsDevelopment.Assess(state,hand18);
         var weights = BuildWeights(features,seven.Applies);
+        if(Decision.SichuanSevenPairsDevelopment.LostOrdinaryMainPrerequisite(state,hand18))
+            weights.Remove("暗七对");
         if(seven.Applies&&!seven.MayInvest&&features.SevenPairsShanten>0
             &&features.StandardShanten<=features.SevenPairsShanten)
         {

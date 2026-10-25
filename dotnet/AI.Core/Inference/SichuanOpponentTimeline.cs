@@ -22,6 +22,13 @@ public sealed record SichuanOpponentTimeline(int TurnsSinceNonMissingDiscard,
             discards[^1].TileType / 9 == missing);
     }
 
+    // A missing-suit draw is a guaranteed offer only after public evidence
+    // proves the waiting hand was cleared. Otherwise another retained missing
+    // tile may legally be discarded instead.
+    public static bool MustOfferDraw(SichuanStateView state,int seat,int tile)
+        =>tile is >=0 and <27&&seat is >=0 and <4
+            &&state.DingQueSuits[seat]==tile/9&&MustHaveClearedMissing(state,seat);
+
     // At the post-discard / waiting boundary, once a player has legally
     // discarded a non-missing tile they cannot retain missing-suit tiles:
     // subsequent missing draws must be discarded immediately. Do not apply

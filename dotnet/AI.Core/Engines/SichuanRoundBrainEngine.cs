@@ -212,6 +212,7 @@ public sealed class SichuanRoundBrainEngine
         public bool HasInadmissibleSevenGoal(SichuanStateView state)
         {
             if(!SichuanRoutePlanEngine.IsSevenPairsRoute(PrimaryRoute))return false;
+            if(PrimaryRoute=="暗七对"&&Decision.SichuanSevenPairsDevelopment.LostOrdinaryMainPrerequisite(state))return true;
             var gate=Decision.SichuanSevenPairsDevelopment.Assess(state);var d=new SichuanShantenEngine();
             return gate.Applies&&!gate.MayInvest&&d.CalcSevenPairsShanten(state.Hand18)>0
                 &&d.CalcStandardShanten(state.Hand18,state.OwnMeldCount)<=d.CalcSevenPairsShanten(state.Hand18);

@@ -1,0 +1,17 @@
+{
+  "version": "2.6.93",
+  "version_code": 354,
+  "package": "com.chendong.sichuanmahjong",
+  "apk": "build/android/SichuanMahjong-2.6.93-release.apk",
+  "bytes": 176209717,
+  "sha256": "9a10aec2c44cef5a815aba4d075aff668b1edd4b686fd70091b3f45bdf005558",
+  "signature_verified": true,
+  "signature_schemes": {
+    "v2": true,
+    "v3": true,
+    "v1": false
+  },
+  "device_test": "No Android device attached",
+  "source_sha256": "3f7decc2534a0353ec1a52bf439f3e6ca8ed219e4810f2ef779da9326836be12",
+  "scope": "Android Release packaging and static signature/version verification; no Android device install claim."
+}

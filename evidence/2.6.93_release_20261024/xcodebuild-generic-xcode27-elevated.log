@@ -1,0 +1,529 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj -scheme SichuanMahjongIOS -configuration Release -sdk iphoneos -destination generic/platform=iOS -derivedDataPath build/ios/SichuanMahjong-2.6.93-device27 -allowProvisioningUpdates -allowProvisioningDeviceRegistration DEVELOPMENT_TEAM=FCB4ZVWWD8 CODE_SIGN_STYLE=Automatic "CODE_SIGN_IDENTITY=Apple Development" IPHONEOS_DEPLOYMENT_TARGET=15.0 build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = Apple Development
+    CODE_SIGN_STYLE = Automatic
+    DEVELOPMENT_TEAM = FCB4ZVWWD8
+    IPHONEOS_DEPLOYMENT_TARGET = 15.0
+    SDKROOT = iphoneos27.1
+
+note: Using codesigning identity override: Apple Development
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'SichuanMahjongIOS' in project 'SichuanMahjongIOS' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -x objective-c++ -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: e8b0af6aa8d07559f8e14a7a6911164b
+Build description path: /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/XCBuildData/e8b0af6aa8d07559f8e14a7a6911164b.xcbuilddata
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/CompilationCache.noindex
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/CompilationCache.noindex
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/PrecompiledHeaders
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/PrecompiledHeaders
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/ExplicitPrecompiledModules
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+CreateBuildDirectory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-create-build-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS-11fbfacb149a6c262b524149f197adf1-VFS-iphoneos/all-product-headers.yaml
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS-11fbfacb149a6c262b524149f197adf1-VFS-iphoneos/all-product-headers.yaml
+
+ProcessXCFramework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjong.Godot_aot.xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjong.Godot.dylib ios
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-process-xcframework --xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjong.Godot_aot.xcframework --platform ios --target-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos
+
+ProcessXCFramework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/MoltenVK.xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/libMoltenVK.a ios
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-process-xcframework --xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/MoltenVK.xcframework --platform ios --target-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos
+
+ProcessXCFramework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/libgodot.a ios
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj
+    builtin-process-xcframework --xcframework /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcframework --platform ios --target-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyMetadataFileList (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-non-framework-target-headers.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyStaticMetadataFileList (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp
+'-std=gnu++11' '-stdlib=libc++' -fobjc-arc -fmodules -fno-cxx-modules -gmodules '-fmodules-cache-path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex' -fpascal-strings -Os '-DNS_BLOCK_ASSERTIONS=1' '-DOBJC_OLD_DISPATCH_PROTOTYPES=1' -g '-fvisibility=hidden' -fvisibility-inlines-hidden -iquote /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap -iquote /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/include -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources-normal/arm64 -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/arm64 -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources -F/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F. -FMoltenVK.xcframework -FSichuanMahjong.Godot_aot.xcframework -FSichuanMahjongIOS -FSichuanMahjongIOS.xcframework -Flibgodot.visionos.debug.xcframework -Flibgodot.visionos.release.xcframework -FMoltenVK.xcframework/ios-arm64 -FMoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -FMoltenVK.xcframework/ios-arm64_x86_64-simulator -FSichuanMahjong.Godot_aot.xcframework/ios-arm64 -FSichuanMahjongIOS/dylibs -FSichuanMahjongIOS.xcframework/ios-arm64 -FSichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -Flibgodot.visionos.debug.xcframework/xros-arm64 -Flibgodot.visionos.debug.xcframework/xros-arm64-simulator -Flibgodot.visionos.release.xcframework/xros-arm64 -Flibgodot.visionos.release.xcframework/xros-arm64-simulator
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_const_extract_protocols.json (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_const_extract_protocols.json
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftConstValuesFileList (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.LinkFileList (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.LinkFileList
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-OutputFileMap.json (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-OutputFileMap.json
+
+WriteAuxiliaryFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/Entitlements.plist (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    write-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/Entitlements.plist
+
+MkDir /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /bin/mkdir -p /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+MkDir /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /bin/mkdir -p /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks
+
+ProcessProductPackaging /Users/chendong/Library/Developer/Xcode/UserData/Provisioning\ Profiles/f42b0510-7af9-47a4-96c9-8c2340d1ace3.mobileprovision /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/embedded.mobileprovision (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-productPackagingUtility /Users/chendong/Library/Developer/Xcode/UserData/Provisioning\ Profiles/f42b0510-7af9-47a4-96c9-8c2340d1ace3.mobileprovision -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/embedded.mobileprovision
+
+ProcessProductPackaging /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/SichuanMahjongIOS.entitlements /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "FCB4ZVWWD8.com.chendong.sichuanmahjong.iosdev";
+    "com.apple.developer.team-identifier" = FCB4ZVWWD8;
+    "get-task-allow" = 1;
+}
+    
+    builtin-productPackagingUtility /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/SichuanMahjongIOS.entitlements -entitlements -format xml -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent
+
+ProcessProductPackagingDER /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent.der (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /usr/bin/derq query -f xml -i /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent.der --raw
+
+MkDir /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /bin/mkdir -p /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets --compile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app --output-format human-readable-text --notices --warnings --export-dependency-info /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_dependencies --output-partial-info-plist /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --platform iphoneos --bundle-identifier com.chendong.sichuanmahjong.iosdev --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.h
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+MkDir /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/unthinned (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /bin/mkdir -p /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/unthinned
+
+CpResource /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS.pck /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.pck (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.pck /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+CpResource /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/PrivacyInfo.xcprivacy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/PrivacyInfo.xcprivacy (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/PrivacyInfo.xcprivacy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+CompileStoryboard /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Launch\ Screen.storyboard (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --errors --warnings --notices --module SichuanMahjongIOS --output-partial-info-plist /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Launch\ Screen-SBPartialInfo.plist --auto-activate-custom-fonts --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --output-format human-readable-text /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Launch\ Screen.storyboard --compilation-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build
+
+CopyStringsFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/en.lproj/InfoPlist.strings /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/en.lproj/InfoPlist.strings (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copyStrings --validate --outputencoding binary --outfilename InfoPlist.strings --outdir /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/en.lproj -- /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/en.lproj/InfoPlist.strings
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/en.lproj/InfoPlist.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+CompileAssetCatalogVariant thinned /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets --compile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --platform iphoneos
+/* com.apple.actool.compilation-results */
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist_thinned
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned/Assets.car
+
+
+LinkStoryboards (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --errors --warnings --notices --module SichuanMahjongIOS --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --output-format human-readable-text --link /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Launch\ Screen.storyboardc
+
+SwiftDriver SichuanMahjongIOS normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SichuanMahjongIOS -O @/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F . -F MoltenVK.xcframework -F SichuanMahjong.Godot_aot.xcframework -F SichuanMahjongIOS -F SichuanMahjongIOS.xcframework -F libgodot.visionos.debug.xcframework -F libgodot.visionos.release.xcframework -F MoltenVK.xcframework/ios-arm64 -F MoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -F MoltenVK.xcframework/ios-arm64_x86_64-simulator -F SichuanMahjong.Godot_aot.xcframework/ios-arm64 -F SichuanMahjongIOS/dylibs -F SichuanMahjongIOS.xcframework/ios-arm64 -F SichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -F libgodot.visionos.debug.xcframework/xros-arm64 -F libgodot.visionos.debug.xcframework/xros-arm64-simulator -F libgodot.visionos.release.xcframework/xros-arm64 -F libgodot.visionos.release.xcframework/xros-arm64-simulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache -output-file-map /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -sdk-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_const_extract_protocols.json -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/include -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources-normal/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources -emit-objc-header -emit-objc-header-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-Swift.h -import-objc-header /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.h -working-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_AvailabilityInternal-5RUS0YF2WSBMC1ZVLD2T7HSV8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_stddef-7YDUO2PFGTNDCUC3JS5BPG5FQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_stdarg-CPH7YY2YNCNHVHO2I657VD1IA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/SwiftShims-CI0Q47ORPILQL3PRFONHOEXIG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_stdbool-BP6UPULXZMZDRG2CST904VIG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/DeveloperToolsSupport-2WK0Y1HKBMTY91VWEQYGRYT9I.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/ptrauth-EBS6AJUUIM246HNH47NRDZYD5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_SwiftConcurrencyShims-BHVDCZB4N0CH0IO4XZ7M99IYQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/ptrcheck-CA8HA6L4NXHPMJL47KJDYBCK3.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_float-VEIY2YKACTET926FFCBEM02G.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_DarwinFoundation1-5PG4RZIWMH3UJLFJ7FR3SWV3Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_limits-6GOZ0AOODYEBGWPQNFWQ9WIEX.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_DarwinFoundation2-ATZ4RFQ7UFA7OF1VXAJ9CCPLI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_stdint-923WEV5ZQMVLGQ7UH3FFR24UI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/sys_types-3PTVHR10EUGHOB4HPXQDHXOY8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_tgmath-XOHDCQ78DO6PVUIBISP4TTCF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/string_h-DTW1DJ0H5MJ86AUWO0K2K6PTL.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_DarwinFoundation3-8VYC8E9MDC728H1SNPD27ENOF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_stdatomic-EA46RSUFSNRUP30JKYBLALSBU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_intrinsics-EF8P38ROGD33QSRZTZ5K4RGM6.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_Builtin_inttypes-BWOUNG3WQIO94HOUADQDR1UT8.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Darwin-A7CSY0KCHWQ6GHVA6RWZGVVJP.pcm
+
+LinkAssetCatalog /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/Images.xcassets (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-linkAssetCatalog --thinned /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/thinned --thinned-dependencies /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist_thinned --unthinned /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_output/unthinned --unthinned-dependencies /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist_unthinned --output /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app --plist-output /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist
+note: Emplaced /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Assets.car (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+note: Emplaced /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/AppIcon76x76@2x~ipad.png (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+note: Emplaced /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/AppIcon60x60@2x.png (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+ProcessInfoPlistFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Info.plist /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/SichuanMahjongIOS-Info.plist (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-infoPlistUtility /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/SichuanMahjongIOS-Info.plist -producttype com.apple.product-type.application -genpkginfo /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/PkgInfo -expandbuildsettings -format binary -platform iphoneos -additionalcontentfile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Launch\ Screen-SBPartialInfo.plist -additionalcontentfile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/assetcatalog_generated_info.plist -requiredArchitecture arm64 -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Info.plist
+warning: The value for NSPhotoLibraryUsageDescription must be a non-empty string. (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+warning: The value for NSMicrophoneUsageDescription must be a non-empty string. (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+warning: The value for NSCameraUsageDescription must be a non-empty string. (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/simd-BURT4RH8G2TRPV6OI7HXGM2L.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/MachO-D6K4PLVWXHJ8TOAISMCM9TBWF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/ObjectiveC-6K00J2I70YAXZIN8XGBGYYOE0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/os_object-D6G9UAOO4HIU2W1J9NCF2N2H7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/os_workgroup-1LWSO07463L6X1K0YZZSC4L3J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Spatial-953Z1C0AZA8NJ61NQ2HDB8S34.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Dispatch-2C1T161FVBGNENCO0Z1HLD2R5.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/XPC-6EWBYBNWA3RWWP6BVGYQ4NI7J.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreFoundation-8TOFB3D41LGGRX4YKK9EZPFOP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/os-A1WYZJ8QYU071E8MMMD7YHAOY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Security-XLKUTARO20CA9N1791EOVDK9.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CFNetwork-D5529QORDFC1VFF0RUAW4MJ0W.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreGraphics-CF37GSW1QQT1Y6AAH09CCZ2EP.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreAudioTypes-9IWP8KBV4ZK0VRBPOXELPK8YY.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreAudio-CJSAZ8959M75HSRKCP7J92OZ0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Foundation-CQE2QUYMV03GAASZOZA2GIQ3A.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/ImageIO-A1R6Z1IF480MIPTDU9HHTZWRG.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreText-503VKR0AQ3AU3GBEW3YLYHX9Z.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/IOSurface-2M9V9F17ASZEQ406MD1YGZG08.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/FileProvider-APZ17XRSMMAJ3K59MKMJBAD9T.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreTransferable-F4ZHPS2DPTHS1J9TT4WM6JJM4.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Symbols-9N4DJL1PCSJ4T2V0AJEY39Q19.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/UniformTypeIdentifiers-EDZD6H4MBCSU7357YZDP09PKA.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/OSLog-EDSB8N3KVA7R493JQAOFCM4UI.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/DataDetection-BLDLUN8RQGAC4ON1MGJZBOEY0.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreData-978ESIPZRO4UV61MDCNI1XOXE.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/UserNotifications-3NT9HBQFT41IC3A1DV4V6NBR2.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/_LocationEssentials-E1FYVH40C3XYTV0ESRGFY8J2Q.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/UIUtilities-5PZ56TD6RRPWY7LS4KF4HQJQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Accessibility-3L9BCVAVMNVYMLDBWWAQ0444V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/OpenGLES-755KXLTDRW8QIZP3UKF0J3W7.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/Metal-EHSRR20R6KDP4IIIRERXQFOCB.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreLocation-EVWJ7AY2ZRYFJHCN8ZYYGI9PQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreMotion-5OX7FPQV9H3XZ5H1ZLHC3SACF.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreVideo-56D00D4DH1VA3I0C0TZQ6DLNR.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreMedia-1KGVKQZOTIU85RJ3YE8842V2C.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/CoreImage-CHJ07N9VJS57NY2RW9NUJJX0S.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/QuartzCore-1T9QMLIO6OFLU7OPJ6PZ3PULU.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/SwiftUICore-2IOX50AN7WWQC66IKLHLCPRQ.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/UIKit-4BRCNICIWHA4ZC8HEHR8LKZ0V.pcm
+
+SwiftExplicitDependencyGeneratePcm arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules/SwiftUI-CO6ZV8YYVU4IYQ90MVO5NACVP.pcm
+
+SwiftGeneratePch normal arm64 Compiling\ bridging\ header (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+1 warning generated.
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.h:31:9: warning: #pragma once in main file
+29 | /**************************************************************************/
+30 | 
+31 | #pragma once
+   |         `- warning: #pragma once in main file
+32 | 
+33 | // #import <Foundation/Foundation.h>
+
+SwiftDriverJobDiscovery normal arm64 Compiling bridging header (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ SichuanMahjongIOS (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftCompile normal arm64 (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+
+SwiftCompile normal arm64 Compiling\ dummy.swift /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.swift (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftCompile normal arm64 (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftCompile normal arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftDriverJobDiscovery normal arm64 Compiling dummy.swift (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for SichuanMahjongIOS (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftDriver\ Compilation\ Requirements SichuanMahjongIOS normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SichuanMahjongIOS -O @/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F . -F MoltenVK.xcframework -F SichuanMahjong.Godot_aot.xcframework -F SichuanMahjongIOS -F SichuanMahjongIOS.xcframework -F libgodot.visionos.debug.xcframework -F libgodot.visionos.release.xcframework -F MoltenVK.xcframework/ios-arm64 -F MoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -F MoltenVK.xcframework/ios-arm64_x86_64-simulator -F SichuanMahjong.Godot_aot.xcframework/ios-arm64 -F SichuanMahjongIOS/dylibs -F SichuanMahjongIOS.xcframework/ios-arm64 -F SichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -F libgodot.visionos.debug.xcframework/xros-arm64 -F libgodot.visionos.debug.xcframework/xros-arm64-simulator -F libgodot.visionos.release.xcframework/xros-arm64 -F libgodot.visionos.release.xcframework/xros-arm64-simulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache -output-file-map /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -sdk-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_const_extract_protocols.json -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/include -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources-normal/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources -emit-objc-header -emit-objc-header-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-Swift.h -import-objc-header /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.h -working-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode -experimental-emit-module-separately -disable-cmo
+
+SwiftMergeGeneratedHeaders /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/SichuanMahjongIOS-Swift.h /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-Swift.h (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-swiftHeaderTool -arch arm64 /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-Swift.h -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/SichuanMahjongIOS-Swift.h
+
+Copy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.swiftdoc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftdoc (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftdoc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.swiftmodule /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.abi.json /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.abi.json (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.abi.json /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftsourceinfo (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -strip-unsigned-binaries -strip-deterministic -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -rename /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftsourceinfo /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+CompileC /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/dummy-6ab96fdb281dac33eb938845b4bc814c.o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.mm normal arm64 objective-c++ com.apple.compilers.llvm.clang.1_0.compiler (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+    Using response file: /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c++ -ivfsstatcache /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache -target arm64-apple-ios15.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wno-non-virtual-dtor -Wno-overloaded-virtual -Wno-exit-time-destructors -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wno-deprecated-implementations -Wno-c++11-extensions -Wno-implicit-fallthrough -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Winvalid-offsetof -Wno-sign-conversion -Wno-infinite-recursion -Wno-move -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-range-loop-analysis -Wno-semicolon-before-method-body @/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/af3fcb34312c57c0f52879cdce924b91-common-args.resp -MMD -MT dependencies -MF /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/dummy-6ab96fdb281dac33eb938845b4bc814c.d --serialize-diagnostics /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/dummy-6ab96fdb281dac33eb938845b4bc814c.dia -c /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.mm -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/dummy-6ab96fdb281dac33eb938845b4bc814c.o
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+
+SwiftDriver\ Compilation SichuanMahjongIOS normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SichuanMahjongIOS -O @/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F . -F MoltenVK.xcframework -F SichuanMahjong.Godot_aot.xcframework -F SichuanMahjongIOS -F SichuanMahjongIOS.xcframework -F libgodot.visionos.debug.xcframework -F libgodot.visionos.release.xcframework -F MoltenVK.xcframework/ios-arm64 -F MoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -F MoltenVK.xcframework/ios-arm64_x86_64-simulator -F SichuanMahjong.Godot_aot.xcframework/ios-arm64 -F SichuanMahjongIOS/dylibs -F SichuanMahjongIOS.xcframework/ios-arm64 -F SichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -F libgodot.visionos.debug.xcframework/xros-arm64 -F libgodot.visionos.debug.xcframework/xros-arm64-simulator -F libgodot.visionos.release.xcframework/xros-arm64 -F libgodot.visionos.release.xcframework/xros-arm64-simulator -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKStatCaches.noindex/iphoneos27.1-24A94232-7568eff67e6f40c5a98ca4ef40d9005c.sdkstatcache -output-file-map /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex -sdk-module-cache-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_const_extract_protocols.json -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-generated-files.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-own-target-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-all-target-headers.hmap -Xcc -iquote -Xcc /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS-project-headers.hmap -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/include -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources-normal/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources/arm64 -Xcc -I/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/DerivedSources -emit-objc-header -emit-objc-header-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS-Swift.h -import-objc-header /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS/dummy.h -working-directory /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode -experimental-emit-module-separately -disable-cmo
+
+Ld /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS normal (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -Xlinker -reproducible -target arm64-apple-ios15.0 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk -Os -Xlinker -no_warn_duplicate_libraries -L/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -L. -LMoltenVK.xcframework -LSichuanMahjong.Godot_aot.xcframework -LSichuanMahjongIOS -LSichuanMahjongIOS.xcframework -Llibgodot.visionos.debug.xcframework -Llibgodot.visionos.release.xcframework -LMoltenVK.xcframework/ios-arm64 -LMoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -LMoltenVK.xcframework/ios-arm64_x86_64-simulator -LSichuanMahjong.Godot_aot.xcframework/ios-arm64 -LSichuanMahjongIOS/dylibs -LSichuanMahjongIOS.xcframework/ios-arm64 -LSichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -Llibgodot.visionos.debug.xcframework/xros-arm64 -Llibgodot.visionos.debug.xcframework/xros-arm64-simulator -Llibgodot.visionos.release.xcframework/xros-arm64 -Llibgodot.visionos.release.xcframework/xros-arm64-simulator -F/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos -F. -FMoltenVK.xcframework -FSichuanMahjong.Godot_aot.xcframework -FSichuanMahjongIOS -FSichuanMahjongIOS.xcframework -Flibgodot.visionos.debug.xcframework -Flibgodot.visionos.release.xcframework -FMoltenVK.xcframework/ios-arm64 -FMoltenVK.xcframework/ios-arm64_x86_64-maccatalyst -FMoltenVK.xcframework/ios-arm64_x86_64-simulator -FSichuanMahjong.Godot_aot.xcframework/ios-arm64 -FSichuanMahjongIOS/dylibs -FSichuanMahjongIOS.xcframework/ios-arm64 -FSichuanMahjongIOS.xcframework/ios-arm64_x86_64-simulator -Flibgodot.visionos.debug.xcframework/xros-arm64 -Flibgodot.visionos.debug.xcframework/xros-arm64-simulator -Flibgodot.visionos.release.xcframework/xros-arm64 -Flibgodot.visionos.release.xcframework/xros-arm64-simulator -filelist /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_lto.o -Xlinker -dependency_info -Xlinker /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_dependency_info.dat -stdlib\=libc++ -fobjc-arc -fobjc-link-runtime -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.swiftmodule -framework CoreMotion /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjong.Godot.dylib -lMoltenVK -lgodot -Xlinker -no_adhoc_codesign -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS
+
+Copy /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjong.Godot_aot.xcframework/ios-arm64/SichuanMahjong.Godot.dylib (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -exclude Headers -exclude PrivateHeaders -exclude Modules -exclude \*.tbd -strip-unsigned-binaries -strip-deterministic -bitcode-strip all -bitcode-strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip -strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -resolve-src-symlinks -remove-static-executable /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjong.Godot_aot.xcframework/ios-arm64/SichuanMahjong.Godot.dylib /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip -D -S -no_atom_info /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjong.Godot_aot.xcframework/ios-arm64/SichuanMahjong.Godot.dylib -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib -r -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib
+GenerateDSYMFile /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app.dSYM /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    export PATH\=/Applications/Xcode.app/Contents/SharedFrameworks/SwiftBuild.framework/Versions/A/PlugIns/SWBBuildService.bundle/Contents/PlugIns/SWBUniversalPlatformPlugin.bundle/Contents/Frameworks/SWBUniversalPlatform.framework/Resources:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/bin:/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/libexec:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/usr/local/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/bin:/Applications/Xcode.app/Contents/Developer/usr/bin:/Applications/Xcode.app/Contents/Developer/usr/local/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/chendong/.local/bin:/Users/chendong/.bun/bin:/opt/homebrew/opt/dotnet/bin:/opt/homebrew/opt/dotnet/libexec:/opt/homebrew/Cellar/node/25.9.0_1/bin:/Users/chendong/.npm-global/bin:/Applications/Visual\ Studio\ Code.app/Contents/Resources/app/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Applications/VMware\ Fusion.app/Contents/Public:/Users/chendong/.codex/tmp/arg0-macos/codex-arg0Lp33k4:/Users/chendong/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/chendong/.orbstack/bin:/Users/chendong/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/chendong/Library/Application\ Support/CodexImageCache
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS -o /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app.dSYM
+
+CodeSign /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+    Signing Identity:     "Apple Development: donachen2027@outlook.com (MN54CC5STV)"
+    Provisioning Profile: "iOS Team Provisioning Profile: com.chendong.sichuanmahjong.iosdev"
+                          (f42b0510-7af9-47a4-96c9-8c2340d1ace3)
+    
+    /usr/bin/codesign --force --sign 3DAD65E5963AB50015B1BF113B44B1070EEBED23 --timestamp\=none --preserve-metadata\=identifier,entitlements,flags --generate-entitlement-der /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib
+
+CopySwiftLibs /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-swiftStdLibTool --copy --verbose --sign 3DAD65E5963AB50015B1BF113B44B1070EEBED23 --scan-executable /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS --scan-folder /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks --scan-folder /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/PlugIns --scan-folder /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SystemExtensions --scan-folder /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Extensions --platform iphoneos --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+
+ExtractAppIntentsMetadata (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name SichuanMahjongIOS --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.1.sdk --xcode-version 27A9275 --platform-family iOS --deployment-target 15.0 --bundle-identifier com.chendong.sichuanmahjong.iosdev --output /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app --target-triple arm64-apple-ios15.0 --binary-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS --dependency-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS_dependency_info.dat --stringsdata-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftFileList --metadata-file-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyMetadataFileList --static-metadata-file-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyStaticMetadataFileList --swift-const-vals-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/Objects-normal/arm64/SichuanMahjongIOS.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-25 09:27:15.555 appintentsmetadataprocessor[34068:975899] Starting appintentsmetadataprocessor export
+2026-10-25 09:27:15.571 appintentsmetadataprocessor[34068:975899] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+AppIntentsSSUTraining (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Info.plist --temp-dir-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/ssu --bundle-id com.chendong.sichuanmahjong.iosdev --product-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app --extracted-metadata-path /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Metadata.appintents --metadata-file-list /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.DependencyMetadataFileList --source-file /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/Info.plist --archive-ssu-assets
+2026-10-25 09:27:15.609 appintentsnltrainingprocessor[34069:975901] Parsing options for appintentsnltrainingprocessor
+2026-10-25 09:27:15.609 appintentsnltrainingprocessor[34069:975901] Starting AppIntents SSU YAML Generation
+2026-10-25 09:27:15.612 appintentsnltrainingprocessor[34069:975901] No AppShortcuts found - Skipping.
+
+CodeSign /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    
+    Signing Identity:     "Apple Development: donachen2027@outlook.com (MN54CC5STV)"
+    Provisioning Profile: "iOS Team Provisioning Profile: com.chendong.sichuanmahjong.iosdev"
+                          (f42b0510-7af9-47a4-96c9-8c2340d1ace3)
+    
+    /usr/bin/codesign --force --sign 3DAD65E5963AB50015B1BF113B44B1070EEBED23 --entitlements /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SichuanMahjongIOS.build/Release-iphoneos/SichuanMahjongIOS.build/SichuanMahjongIOS.app.xcent --timestamp\=none --generate-entitlement-der /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+RegisterExecutionPolicyException /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-RegisterExecutionPolicyException /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+Validate /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    builtin-validationUtility /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app -validate-for-store -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app (in target 'SichuanMahjongIOS' from project 'SichuanMahjongIOS')
+    cd /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-ios-xcode
+    /usr/bin/touch -c /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app
+
+PruneExplicitPrecompiledModules /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/SDKExplicitPrecompiledModules
+
+** BUILD SUCCEEDED **
+

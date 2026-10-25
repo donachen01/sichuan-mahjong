@@ -10,6 +10,17 @@ public sealed record SichuanSevenPairsEligibility(bool Applies,bool Early,bool F
 /// Eligibility never substitutes for the shared action-value comparison.</summary>
 public static class SichuanSevenPairsDevelopment
 {
+    // Loss of a main-route prerequisite must invalidate old memory too. The
+    // specialized four-pair evaluator returning Applies=false is not permission
+    // to keep an ordinary Seven Pairs commitment with only two/three pairs.
+    internal static bool LostOrdinaryMainPrerequisite(SichuanStateView s,int[]? hand=null)
+    {
+        var h=hand??s.Hand18;
+        return s.InformationMode=="public"&&s.OwnMeldCount==0&&h.Sum() is 13 or 14
+            &&!h.Any(n=>n>=4)&&Enumerable.Range(0,3).Max(suit=>h.Skip(suit*9).Take(9).Sum())<10
+            &&h.Count(n=>n>=2)<4;
+    }
+
     public static SichuanSevenPairsEligibility Assess(SichuanStateView s,int[]? hand=null)
     {
         var h=hand??s.Hand18;

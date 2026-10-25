@@ -1,0 +1,20 @@
+Archive:  build/ios/SichuanMahjong-2.6.93-personal.ipa
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+        0  10-25-2026 09:27   Payload/
+        0  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/
+        0  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/_CodeSignature/
+     4694  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/_CodeSignature/CodeResources
+        0  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/en.lproj/
+       42  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/en.lproj/InfoPlist.strings
+    42005  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/AppIcon60x60@2x.png
+        0  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Launch Screen.storyboardc/
+     2132  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Launch Screen.storyboardc/01J-lp-oVM-view-Ze5-6b-2t3.nib
+      924  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Launch Screen.storyboardc/UIViewController-01J-lp-oVM.nib
+      258  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Launch Screen.storyboardc/Info.plist
+  6133048  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Assets.car
+    65610  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/AppIcon76x76@2x~ipad.png
+      990  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/PrivacyInfo.xcprivacy
+148763104  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/SichuanMahjongIOS.pck
+        0  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Frameworks/
+ 25202320  10-25-2026 09:27   Payload/SichuanMahjongIOS.app/Frameworks/SichuanMahjong.Godot.dylib

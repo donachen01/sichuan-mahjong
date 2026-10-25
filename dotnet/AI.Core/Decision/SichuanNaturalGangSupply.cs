@@ -1,4 +1,5 @@
 using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Inference;
 
 namespace SichuanMahjong.AI.Core.Decision;
 
@@ -21,7 +22,7 @@ public static class SichuanNaturalGangSupply
         {
             actor=Next(actor);
             if(actor==s.SeatIndex)own++;
-            else if(concealedTriplet && s.DingQueSuits[actor]==tile/9
+            else if(concealedTriplet && SichuanOpponentTimeline.MustOfferDraw(s,actor,tile)
                 && s.PassedGang18[s.SeatIndex][tile]==0)forced++;
         }
         var mass=Math.Clamp(expectedWallCopies,0,1);

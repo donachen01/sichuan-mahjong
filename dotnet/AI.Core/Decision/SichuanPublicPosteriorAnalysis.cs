@@ -42,6 +42,10 @@ public sealed record SichuanPublicPosteriorEnsembleReport(
 /// </summary>
 public sealed class SichuanPublicPosteriorAnalysis
 {
+    // The bounded supply model already rejects ESS below eight. The read-only
+    // posterior diagnostic must use the same evidence gate instead of labeling
+    // a highly concentrated particle set as supported.
+    private const double MinimumSupportedEffectiveSamples = 8.0;
     public SichuanPublicPosteriorReport Analyze(SichuanStateView state, int sampleCount, int seed)
     {
         if (!SichuanPublicInferenceBoundary.TryProject(state, out var projection, out var reason))
@@ -55,6 +59,9 @@ public sealed class SichuanPublicPosteriorAnalysis
             return Rejected("sample_conservation_failed");
 
         var sumSquares = particles.Sum(particle => particle.Weight * particle.Weight);
+        var effectiveSamples = sumSquares <= 0 ? 0 : 1 / sumSquares;
+        if (effectiveSamples < MinimumSupportedEffectiveSamples)
+            return Rejected("insufficient_effective_samples");
         var tiles = new List<SichuanPublicPosteriorTile>(27);
         for (var tile = 0; tile < 27; tile++)
         {

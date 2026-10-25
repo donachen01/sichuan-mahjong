@@ -1,0 +1,15 @@
+Executable=/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app/SichuanMahjongIOS
+Identifier=com.chendong.sichuanmahjong.iosdev
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=676230 flags=0x0(none) hashes=21121+7 location=embedded
+Signature size=4790
+Authority=Apple Development: donachen2027@outlook.com (MN54CC5STV)
+Authority=Apple Worldwide Developer Relations Certification Authority
+Authority=Apple Root CA
+Signed Time=Oct 25, 2026 at 09:27:15
+Info.plist entries=39
+TeamIdentifier=FCB4ZVWWD8
+Sealed Resources version=2 rules=10 files=11
+Internal requirements count=1 size=208
+Total signatures=1
+Chosen signature=1

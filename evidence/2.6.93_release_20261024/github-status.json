@@ -1,0 +1,9 @@
+{
+  "remote": "origin",
+  "remote_url": "https://github.com/donachen01/sichuan-mahjong.git",
+  "branch": "codex/structure-cleanup-20260927",
+  "local_commit": "83ffc282",
+  "status": "local commit created; push blocked by automatic approval review",
+  "reason": "The push would send source, device UDIDs, signing account identifier, and real-device process logs to the configured GitHub remote. Explicit approval for this exact destination and payload is required by the automatic review.",
+  "working_tree_commit_scope": "2.6.93 source/version changes, production evidence, Android package evidence, iOS signing/install/launch evidence"
+}

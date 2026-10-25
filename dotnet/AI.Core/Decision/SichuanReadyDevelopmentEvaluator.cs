@@ -28,7 +28,7 @@ public sealed class SichuanReadyDevelopmentEvaluator
         if(_priceCache.TryGetValue(key,out var saved))return saved;
         return _priceCache[key]=_prices.Build(s,hand,wall.ExpectedCounts18,melds);
     }
-    private sealed record Endpoint(int[] Hand,SichuanReadyPrice Price,bool SevenOnly);
+    internal sealed record Endpoint(int[] Hand,SichuanReadyPrice Price,bool SevenOnly);
     private sealed record Comparison(SichuanStateView Root,SichuanBeliefSnapshot Belief,SichuanWallAvailability Wall);
     private static readonly AsyncLocal<Comparison?> CurrentComparison=new();
     private sealed class Scope(Action end):IDisposable{public void Dispose()=>end();}
@@ -161,18 +161,26 @@ public sealed class SichuanReadyDevelopmentEvaluator
 
     private static int Missing(int[] source,int[] target)=>Enumerable.Range(0,27).Sum(t=>Math.Max(0,target[t]-source[t]));
     private static string Key(int[] h)=>string.Concat(h.Select(x=>(char)('0'+x)));
-    private List<Endpoint> Endpoints(SichuanStateView s,SichuanWallAvailability wall)
+    internal List<Endpoint> Endpoints(SichuanStateView s,SichuanWallAvailability wall,bool includeDead=false)
     {
         var h=new int[27];var found=new Dictionary<string,int[]>();
-        var exposed=new int[27];foreach(var m in SichuanDevelopmentPolicy.Melds(s,s.SeatIndex))exposed[m.TileType]+=3;
+        var exposed=new int[27];foreach(var m in SichuanDevelopmentPolicy.Melds(s,s.SeatIndex))exposed[m.TileType]+=m.Type==SichuanMeldType.Peng?3:4;
         var legal=Enumerable.Range(0,27).Where(t=>t/9!=s.OwnDingQueSuit).ToArray();
         bool Add(int t,int n)
         {
-            h[t]+=n;bool valid=h[t]+exposed[t]<=4&&h[t]<=s.Hand18[t]+s.Remaining18[t]&&Missing(s.Hand18,h)<=3;
+            h[t]+=n;
+            // A complete shape may use one hypothetical winning copy even
+            // when that wait is publicly dead. The retained 13-tile endpoint
+            // itself must still be physically obtainable.
+            bool supply=includeDead
+                ?Enumerable.Range(0,27).Sum(x=>Math.Max(0,h[x]-s.Hand18[x]-s.Remaining18[x]))<=1
+                :h[t]<=s.Hand18[t]+s.Remaining18[t];
+            bool valid=h[t]+exposed[t]<=4&&supply&&Missing(s.Hand18,h)<=3;
             if(!valid)h[t]-=n;return valid;
         }
         void Save()
-        {if(Missing(s.Hand18,h)<=2)found.TryAdd(Key(h),h.ToArray());}
+        {if(Missing(s.Hand18,h)<=2&&Enumerable.Range(0,27).All(t=>h[t]<=s.Hand18[t]+s.Remaining18[t]))
+            found.TryAdd(Key(h),h.ToArray());}
         var melds=new List<int[]>();
         foreach(int t in legal){melds.Add([t,t,t]);if(t%9<=6)melds.Add([t,t+1,t+2]);}
         void Ordinary(int start,int left)
@@ -199,12 +207,12 @@ public sealed class SichuanReadyDevelopmentEvaluator
         foreach(var hand in found.Values)
         {
             var price=Price(s,hand,wall);
-            if(price is {HasDrawableWait:true})result.Add(new(hand,price,s.OwnMeldCount==0&&_distance.CalcStandardShanten(hand,0)>0));
+            if(price is not null&&(includeDead||price.HasDrawableWait))result.Add(new(hand,price,s.OwnMeldCount==0&&_distance.CalcStandardShanten(hand,0)>0));
         }
         return result;
     }
 
-    private static double Priority(SichuanStateView s,int[] source,Endpoint e,SichuanWallAvailability wall,int players)
+    internal static double Priority(SichuanStateView s,int[] source,Endpoint e,SichuanWallAvailability wall,int players)
     {
         double reach=1;int missing=Missing(source,e.Hand);if(missing==0)return double.PositiveInfinity;
         double draws=wall.WallCount/(double)players;
@@ -224,7 +232,7 @@ public sealed class SichuanReadyDevelopmentEvaluator
         return reach*win;
     }
 
-    private M.Plan? Plan(SichuanStateView s,int[] initial,int[] endpoint,SichuanWallAvailability wall,SichuanBeliefSnapshot belief)
+    internal M.Plan? Plan(SichuanStateView s,int[] initial,int[] endpoint,SichuanWallAvailability wall,SichuanBeliefSnapshot belief)
     {
         var types=Enumerable.Range(0,27).Where(t=>endpoint[t]>initial[t]).ToArray();
         var required=types.Select(t=>endpoint[t]-initial[t]).ToArray();
@@ -249,7 +257,8 @@ public sealed class SichuanReadyDevelopmentEvaluator
             if(price is not null)foreach(var w in price.Waits){ron[w.TileType]=w.HandScore;self[w.TileType]=w.SelfDrawPerPayer;}
             var own=Enumerable.Repeat(-1,27).ToArray();var peng=Enumerable.Repeat(-1,27).ToArray();
             int index=states.Count;cache[key]=index;
-            states.Add(new(ron,self,own,peng,total<spare.Length?spare[total]:-1,price is not null,hand,melds.Select(m=>m.TileType).ToArray()));
+            states.Add(new(ron,self,own,peng,total<spare.Length?spare[total]:-1,price is not null,hand,melds.Select(m=>m.TileType).ToArray())
+                {ChaJiaoScore=price?.Waits.Max(w=>w.HandScore)??0});
             for(int i=0;i<types.Length;i++)if(got[i]<required[i])
             {
                 int t=types[i];var next=got.ToArray();next[i]++;
@@ -271,7 +280,7 @@ public sealed class SichuanReadyDevelopmentEvaluator
     internal M.Plan PlanForCheck(SichuanStateView s,int[] initial,int[] endpoint,SichuanWallAvailability wall,SichuanBeliefSnapshot belief)
         =>Plan(s,initial,endpoint,wall,belief)!;
 
-    private static M.Environment Environment(SichuanStateView s,SichuanBeliefSnapshot belief,SichuanWallAvailability wall,int[] order)
+    internal static M.Environment Environment(SichuanStateView s,SichuanBeliefSnapshot belief,SichuanWallAvailability wall,int[] order)
     {
         var hazard=new double[4];var ron=new double[4][];var selfPay=new double[4];var ronPay=new double[4];var charge=new double[4];
         for(int seat=0;seat<4;seat++)

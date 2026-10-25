@@ -337,7 +337,7 @@ public sealed class SichuanDecisionEngine
             var posteriorReasons = BuildPosteriorReasons(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage, posteriorAdjustment);
             var riskReasons = BuildRiskReasons(danger, riskLabel, state.WallCount, roundStage, effectiveLiveUkeire, dangerEval);
             var candidateReasons = BuildReasons(effectiveShanten, effectiveLiveUkeire, danger, riskLabel, strategyTag, waitCount, roundStage, posteriorReasons, expectedScore);
-            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SEVEN_PAIRS_") || reason.StartsWith("SINGLE_LANE_") || reason.StartsWith("PUBLIC_SUPPLY_") || reason.StartsWith("PUBLIC_KEY_TILE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
+            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SHORT_WALL_") || reason.StartsWith("SEVEN_PAIRS_") || reason.StartsWith("SINGLE_LANE_") || reason.StartsWith("PUBLIC_SUPPLY_") || reason.StartsWith("PUBLIC_KEY_TILE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
                 .Concat(structuralReadyRejected ? new[] { "STRUCTURAL_READY_NOT_LEGAL" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is not null ? new[] { "LEGAL_READY_ALL_WAIT_PRICING" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is { HasDrawableWait: false } ? new[] { "LEGAL_READY_DEAD_WAIT_CHA_JIAO" } : Array.Empty<string>())
@@ -1113,6 +1113,9 @@ public sealed class SichuanDecisionEngine
         var protectiveLeadActive = roundGoal == "protect_lead" && roundStage >= 2;
         var rankRoundGoal = protectiveLeadActive ? roundGoal : roundGoal == "protect_lead" ? "" : roundGoal;
         var wallCount = context?.Stage.WallCount ?? 99;
+        if(candidates.Count>0&&candidates.All(c=>c.Reasons.Contains(SichuanLateWallDiscardEvaluator.Applied)))
+            return candidates.OrderByDescending(c=>c.UnifiedActionValue)
+                .ThenBy(c=>c.ExpectedDealInLoss).ThenBy(c=>c.Danger).ThenBy(c=>c.TileType).ToList();
         if (mode == "fold")
         {
             return candidates

@@ -1,0 +1,9 @@
+{
+  "ipa": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-personal.ipa",
+  "size_bytes": 175934335,
+  "sha256": "dffb018edcdfb238c9d8dd4a2e94180ee1c9b4110004d3b103eeb1ed3eae3fd4",
+  "bundle_id": "com.chendong.sichuanmahjong.iosdev",
+  "short_version": "2.6.93",
+  "bundle_version": "2.6.93",
+  "app": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/build/ios/SichuanMahjong-2.6.93-device27/Build/Products/Release-iphoneos/SichuanMahjongIOS.app"
+}

@@ -1,0 +1,18 @@
+{
+  "version": "2.6.93",
+  "bundle_identifier": "com.chendong.sichuanmahjong.iosdev",
+  "xcode_export_project": "build/ios/SichuanMahjong-2.6.93-ios-xcode/SichuanMahjongIOS.xcodeproj",
+  "xcode_export_project_exists": true,
+  "native_aot": {
+    "status": "success",
+    "sdk": "isolated .NET 10.0.402 with ILLink 10.0.7 compatibility patch",
+    "dylib": ".godot/mono/temp/bin/ExportRelease/ios-arm64/native/SichuanMahjong.Godot.dylib",
+    "xcframework": ".godot/mono/temp/bin/ExportRelease/SichuanMahjong.Godot_aot.xcframework"
+  },
+  "signing": "success: Apple Development donachen2027@outlook.com (MN54CC5STV), codesign --verify --deep --strict passed",
+  "device": "success: dona iPhone 15 00008120-000915803A90A01E installed and launched; process remained present after 5 seconds",
+  "previous_workflow_reference": "evidence/2.6.92_release_20261023/ios-export.log",
+  "source_sha256": "3f7decc2534a0353ec1a52bf439f3e6ca8ed219e4810f2ef779da9326836be12",
+  "xcode": "/Applications/Xcode.app/Contents/Developer (Xcode 27.1)",
+  "ipa": "build/ios/SichuanMahjong-2.6.93-personal.ipa"
+}

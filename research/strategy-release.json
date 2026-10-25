@@ -8,19 +8,19 @@
     "bucket_local_candidate_v1",
     "gang_branch_candidate_v1"
   ],
-  "created_at": "2026-10-23",
-  "strategy_version": "strategy-contract-v35-lower-source-conditional-development",
+  "created_at": "2026-10-24",
+  "strategy_version": "strategy-contract-v42-short-wall-win-selfdraw-consistency",
   "agent_version": "unified-seat-policy-v2-adaptive-budget",
-  "source_sha256": "1fbf5a24b09be8f3b7143686a8986c37074ee92afbbc564249b051b83c246278",
+  "source_sha256": "3f7decc2534a0353ec1a52bf439f3e6ca8ed219e4810f2ef779da9326836be12",
   "evidence": [
     {
       "kind": "personal_execution",
-      "path": "evidence/2.6.92_release_20261023/native-validation.json",
-      "sha256": "919f80f4e62a190022b78a7df2b5525fb6f4431f2143794ab559c354d1348e68"
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/round8-probability/native-validation-round8.json",
+      "sha256": "aee2f8b369006e5fa8f41d8cc1de21c2e3916930d6ceb83ce136dd993feddf2c"
     }
   ],
   "release_inputs": {
-    "export_presets.cfg": "95af7232c65b17eb76a512a23fe36fff7c6f8814e77b9ea9966cd00caaf53214",
+    "export_presets.cfg": "a77eb0fc2e5cc27608446944a823a2f156c3c152c9014c2b0e5e2697cb0ecd55",
     "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
     "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
     "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
@@ -30,17 +30,15 @@
     "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
     "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
     "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
-    "project.godot": "f74a3e8f51284f947fb2e530f5177d97b49fdaa0f45a1bbdd9fa7a24550e17b3"
+    "project.godot": "92ba5210ae58e43b663a4b1eea8d5efc4e4f8becd7e12bbdca46fadc11c419c5"
   },
-  "notes": "Lower 5.5-7.2 source study and bounded shared policy implementation, exact public geometry/model arithmetic, real C# and Godot authority/entity execution. Author direction differences remain explicit. Prior 5.4 closed by user; no new phone package/install or GitHub delivery; no strength claim.",
+  "notes": "Round 8 acceptance: short-wall terminal trajectory now returns total-win and self-draw probabilities from the same paired worlds; pre-fix strict probability audit had 9 failures, current C# audit 276/276 and ordinary/compact Godot supply chains 24/24 passed. No strength promotion or mobile rebuild.",
   "limitations": [
-    "Controlled compatible reconstructions are not unique original histories or independent full-round strength samples.",
-    "25 explicit reference/background directions remain different; see per-case independent geometry and reasons.",
-    "Forward route and opponent costs remain bounded public approximations, not calibrated terminal equities.",
-    "6.4.3/6.4.4 repeat source families; source/execution rows are not counted twice.",
-    "Installed dona remains earlier 2.6.91; desktop compact transport is not device AOT validation."
+    "Short-wall total-win/self-draw fields are now paired within the terminal trajectory sample; this is semantic consistency, not probability calibration.",
+    "Bounded supply still models only the next opponent action; multi-round supply, complete claims/Gang and behavior calibration remain outside.",
+    "No strength promotion, iOS NativeAOT or Android device claim; installed devices remain earlier 2.6.92 sources."
   ],
-  "validation_stage": "lower_5_5_to_7_2_bounded_implementation_desktop_execution_verified_author_differences_documented",
+  "validation_stage": "eighth_capability_acceptance_short_wall_probability_consistency_desktop_verified_mobile_not_rebuilt",
   "delivery_target": "personal_device",
   "application_version": "2.6.92"
 }

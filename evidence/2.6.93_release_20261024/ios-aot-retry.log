@@ -1,0 +1,15 @@
+  正在确定要还原的项目…
+CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+  所有项目均是最新的，无法还原。
+  2026-10-24 22:19:42.639 xcodebuild[23071:585551]  DVTFilePathFSEvents: Failed to start fs event stream.
+  2026-10-24 22:19:42.640 xcodebuild[23071:585551]  DVTFilePathFSEvents: Failed to start fs event stream.
+  2026-10-24 22:19:42.980 xcodebuild[23071:585549] [MT] DVTDeveloperPaths: Failed to get length of DARWIN_USER_CACHE_DIR from confstr(3), error = Error Domain=NSPOSIXErrorDomain Code=5 "Input/output error". Using NSCachesDirectory instead.
+  Strategy release provenance verified; production rollout=off recording=off; scope=correctness_corrections_only
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+  AI.Core -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/bin/ExportRelease/net10.0/SichuanMahjong.AI.Core.dll
+  SichuanMahjong.Godot -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/.godot/mono/temp/bin/ExportRelease/ios-arm64/SichuanMahjong.Godot.dll
+/Users/chendong/.nuget/packages/microsoft.net.illink.tasks/10.0.7/build/Microsoft.NET.ILLink.targets(325,5): error MSB4216: 无法运行“ComputeManagedAssemblies”任务，因为 MSBuild 无法创建或连接到运行时为“NET”、体系结构为“arm64”的任务宿主。请确保 (1) 请求的运行时和/或体系结构在计算机上可用，以及 (2) 所需的可执行文件“/opt/homebrew/Cellar/dotnet/10.0.107/libexec/sdk/10.0.107/MSBuild.dll”存在，且可以运行。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Users/chendong/.nuget/packages/microsoft.net.illink.tasks/10.0.7/build/Microsoft.NET.ILLink.targets(326,7): error MSB4027: “ComputeManagedAssemblies”任务从“ManagedAssemblies”输出参数生成了无效项。This object is no longer valid because the MetadataLoadContext that created it has been disposed. [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
