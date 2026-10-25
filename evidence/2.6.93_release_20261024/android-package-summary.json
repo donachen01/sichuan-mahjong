@@ -3,23 +3,31 @@
   "version_code": 354,
   "package": "com.chendong.sichuanmahjong",
   "apk": "build/android/SichuanMahjong-2.6.93-release.apk",
-  "bytes": 273585928,
-  "sha256": "8475eab5f70aebf8b37e6ac0caee2dbb3e90c2aa7accda0a77fd4aca518922bd",
+  "bytes": 193154999,
+  "sha256": "ca0688ee0ed93be14a3485ab9a4895df87d1e3f0a20323d7945320dd84c6cb8f",
   "signature_verified": true,
   "signature_schemes": {
     "v2": true,
     "v3": true,
     "v1": false
   },
-  "device_test": "Installed on emulator-5554; direct Activity launch succeeded; process remained alive after 12 seconds",
+  "device_test": "Installed on emulator-5554; minimized APK direct Activity launch succeeded; process remained alive after 12 seconds",
   "source_sha256": "3f7decc2534a0353ec1a52bf439f3e6ca8ed219e4810f2ef779da9326836be12",
   "scope": "Android Release hotfix packaging, v2/v3 signature verification, and real emulator startup validation.",
   "startup_evidence": [
-    "android-hotfix-install.log",
-    "android-hotfix-launch.log",
-    "android-hotfix-pid.log",
-    "android-hotfix-logcat.log"
+    "android-size-minimized-install.log",
+    "android-size-minimized-launch.log",
+    "android-size-minimized-pid.log",
+    "android-size-minimized-logcat.log"
   ],
   "managed_assemblies_embedded": 175,
-  "mono_native_library_count": 29
+  "mono_native_library_count": 13,
+  "static_archives_embedded": 0,
+  "size_optimization": {
+    "previous_hotfix_bytes": 273585928,
+    "current_bytes": 193154999,
+    "reduction_bytes": 80430929,
+    "reduction_percent": 29.4,
+    "removed": "16 static .a linker archives; managed assemblies now deflated"
+  }
 }

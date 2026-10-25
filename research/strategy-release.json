@@ -24,7 +24,7 @@
     "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
     "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
     "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
-    "tools/export_android_release.sh": "72c9628588d32053aca79cd5a9bd3d773f444402a183fe65acf7c65f55855ca1",
+    "tools/export_android_release.sh": "b106af48c90b3b8007afb8218dbca5045d0091e88688c8e921030e67c93d59c3",
     "tools/export_android_debug.sh": "b2396bc50d64afe3daf5804252c97c1b2431883dbbabee14561edf7dc7fa2753",
     "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
     "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",

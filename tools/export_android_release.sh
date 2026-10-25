@@ -167,6 +167,10 @@ zip -q -d "$PRUNED_APK" \
   'assets/.godot/imported/*concept_c_*' \
   'assets/.godot/imported/*scheme_b_runtime*' \
   'assets/.godot/imported/*nameplates_narrowed_real*' 2>/dev/null || true
+# Godot's Mono Android template carries static linker archives in the APK.
+# They are not loaded by the installed app; keep only the dynamic runtime
+# libraries and managed assemblies below.
+zip -q -d "$PRUNED_APK" 'lib/arm64-v8a/*.a' 2>/dev/null || true
 CURRENT_GODOT_LIB_SHA256="$(unzip -p "$PRUNED_APK" 'lib/arm64-v8a/libgodot_android.so' | shasum -a 256 | awk '{print $1}')"
 if [[ "$CURRENT_GODOT_LIB_SHA256" != "$MONO_ANDROID_LIB_SHA256" ]]; then
   ensure_verified_mono_android_lib
@@ -214,8 +218,13 @@ for path in sorted(source.glob('*.dll')):
     lines.append(f"{path.name}\t{digest}")
 target.write_text("\n".join(lines) + "\n")
 PY
-find "$ANDROID_DOTNET_PUBLISH_DIR" -maxdepth 1 -type f \( -name '*.so' -o -name '*.a' -o -name '*.jar' -o -name '*.dex' \) -exec cp {} "$MANAGED_PATCH_DIR/lib/arm64-v8a/" \;
-(cd "$MANAGED_PATCH_DIR" && zip -q -0 -u "$PRUNED_APK" assets/.godot/mono/publish/arm64/* lib/arm64-v8a/*)
+# Static `.a` archives are linker inputs, not runtime libraries; omit them from
+# the APK. Keep dynamic libraries and the Android crypto jar/dex pair. Deflate
+# managed assemblies (the old known-good APK used compressed entries), while
+# native libraries remain stored for Android's native-library extraction path.
+find "$ANDROID_DOTNET_PUBLISH_DIR" -maxdepth 1 -type f \( -name '*.so' -o -name '*.jar' -o -name '*.dex' \) -exec cp {} "$MANAGED_PATCH_DIR/lib/arm64-v8a/" \;
+(cd "$MANAGED_PATCH_DIR" && zip -q -u "$PRUNED_APK" assets/.godot/mono/publish/arm64/*)
+(cd "$MANAGED_PATCH_DIR" && zip -q -0 -u "$PRUNED_APK" lib/arm64-v8a/*)
 rm -rf "$MANAGED_PATCH_DIR"
 MANAGED_COUNT="$(unzip -l "$PRUNED_APK" | awk '{print $4}' | grep -c '^assets/.godot/mono/publish/arm64/.*\.dll$' || true)"
 if (( MANAGED_COUNT < 100 )); then

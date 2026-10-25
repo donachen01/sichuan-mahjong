@@ -69,5 +69,5 @@ Android 与 iOS 已重新打包。三台 Apple 设备通过局域网更新至 2.
 
 ## 2026-10-25 2.6.93 移动端交付状态
 
-版本字段已升级为 2.6.93，Android 构建号 354。首个 Android 包因遗漏 .NET/Mono 运行时而闪退，已复现并修复导出脚本；当前 APK 包含 175 个托管程序集和 29 个配套库，v2/v3 签名通过，并在 `emulator-5554` 上安装、直接启动成功，C# runtime ready 且 12 秒后进程仍存活。iOS NativeAOT 已用隔离 .NET 10.0.402/ILLink 10.0.7 生成，切回上次成功使用的 `/Applications/Xcode.app`（Xcode 27.1）后完成 Apple Development 签名；IPA 已通过 `codesign --verify --deep --strict`，并安装、启动于 dona iPhone 15。证据见[2.6.93 交付记录](../../evidence/2.6.93_release_20261024/交付记录.md)。
+版本字段已升级为 2.6.93，Android 构建号 354。首个 Android 包因遗漏 .NET/Mono 运行时而闪退，已复现并修复导出脚本；当前 APK 为约 193MB，包含 175 个压缩托管程序集和 13 个动态配套库，移除了 16 个无运行时用途的 `.a` 静态归档；v2/v3 签名通过，并在 `emulator-5554` 上安装、直接启动成功，C# runtime ready 且 12 秒后进程仍存活。iOS NativeAOT 已用隔离 .NET 10.0.402/ILLink 10.0.7 生成，切回上次成功使用的 `/Applications/Xcode.app`（Xcode 27.1）后完成 Apple Development 签名；IPA 已通过 `codesign --verify --deep --strict`，并安装、启动于 dona iPhone 15。证据见[2.6.93 交付记录](../../evidence/2.6.93_release_20261024/交付记录.md)。
 
