@@ -188,6 +188,40 @@ if [[ "$FINAL_GODOT_LIB_SHA256" != "$MONO_ANDROID_LIB_SHA256" ]]; then
   echo "Release APK still does not contain the verified mono Android native library: $FINAL_GODOT_LIB_SHA256"
   exit 1
 fi
+
+# The direct template export can produce the APK before Godot copies the
+# Android .NET publish directory.  A Mono libgodot without its managed
+# assemblies and companion native runtime libraries starts and then crashes
+# with “.NET: Assemblies not found”.  Embed the exact arm64 publish output
+# produced for this source tree, matching the layout used by the known-good
+# 2.6.92 package.
+ANDROID_DOTNET_PUBLISH_DIR="$PROJECT_DIR/.godot/mono/temp/bin/$([[ "$GODOT_ANDROID_EXPORT_MODE" == "debug" ]] && echo ExportDebug || echo ExportRelease)/android-arm64"
+if [[ ! -d "$ANDROID_DOTNET_PUBLISH_DIR" ]]; then
+  echo "Missing Android .NET publish directory: $ANDROID_DOTNET_PUBLISH_DIR"
+  exit 1
+fi
+MANAGED_PATCH_DIR="$PROJECT_DIR/build/android/${RELEASE_BASENAME}-managed"
+rm -rf "$MANAGED_PATCH_DIR"
+mkdir -p "$MANAGED_PATCH_DIR/assets/.godot/mono/publish/arm64" "$MANAGED_PATCH_DIR/lib/arm64-v8a"
+find "$ANDROID_DOTNET_PUBLISH_DIR" -maxdepth 1 -type f \( -name '*.dll' -o -name '*.json' \) -exec cp {} "$MANAGED_PATCH_DIR/assets/.godot/mono/publish/arm64/" \;
+python3 - "$ANDROID_DOTNET_PUBLISH_DIR" "$MANAGED_PATCH_DIR/assets/.godot/mono/publish/arm64/.dotnet-publish-manifest" <<'PY'
+import base64, hashlib, pathlib, sys
+source = pathlib.Path(sys.argv[1])
+target = pathlib.Path(sys.argv[2])
+lines = []
+for path in sorted(source.glob('*.dll')):
+    digest = base64.b64encode(hashlib.sha512(path.read_bytes()).digest()).decode('ascii')
+    lines.append(f"{path.name}\t{digest}")
+target.write_text("\n".join(lines) + "\n")
+PY
+find "$ANDROID_DOTNET_PUBLISH_DIR" -maxdepth 1 -type f \( -name '*.so' -o -name '*.a' -o -name '*.jar' -o -name '*.dex' \) -exec cp {} "$MANAGED_PATCH_DIR/lib/arm64-v8a/" \;
+(cd "$MANAGED_PATCH_DIR" && zip -q -0 -u "$PRUNED_APK" assets/.godot/mono/publish/arm64/* lib/arm64-v8a/*)
+rm -rf "$MANAGED_PATCH_DIR"
+MANAGED_COUNT="$(unzip -l "$PRUNED_APK" | awk '{print $4}' | grep -c '^assets/.godot/mono/publish/arm64/.*\.dll$' || true)"
+if (( MANAGED_COUNT < 100 )); then
+  echo "Android APK is missing managed assemblies after embedding: $MANAGED_COUNT"
+  exit 1
+fi
 if ! unzip -p "$PRUNED_APK" 'assets/_cl_' | strings | grep -Fxq -- '--rendering-method' || \
    ! unzip -p "$PRUNED_APK" 'assets/_cl_' | strings | grep -Fxq -- 'gl_compatibility'; then
   echo "Release APK is missing the Android gl_compatibility runtime override."
