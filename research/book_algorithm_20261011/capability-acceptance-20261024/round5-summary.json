@@ -1,0 +1,34 @@
+{
+  "round": "wider_wall_40_signed_settlement_20261024",
+  "source_sha256": "782ccd26147ddaa17efd6e0baa972ecdfc9d04c58658c47c4be9277b3e1e93b4",
+  "before_checks": 6,
+  "before_failures": 0,
+  "after_checks": 6,
+  "after_failures": 0,
+  "terminal_worlds": 32,
+  "elapsedMs": 212.2444,
+  "meanOpponentReadyScore": 0.5729166666666666,
+  "before_unready_cha": 0,
+  "after_unready_cha": [
+    -0.4377691042507944,
+    -0.4377691042507944,
+    -0.4377691042507944,
+    -0.4377691042507944,
+    -0.48838702532508804,
+    -0.4964564919565088,
+    -0.7389731687311538,
+    -0.7291254258190306,
+    -0.7336410333288238,
+    -0.7363285083388263,
+    -0.7414137170320576,
+    -0.7454923091699486
+  ],
+  "after_ready_cha": [
+    0.8622343195884069,
+    0.8816658089647063
+  ],
+  "godot_rows": 2,
+  "godot_failures": [],
+  "mobile_rebuilt": false,
+  "strength_claim": false
+}

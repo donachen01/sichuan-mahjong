@@ -1,0 +1,12 @@
+LOWER lower-41-6-4-base Hu tile=24 child=-1 ms=293.3
+LOWER lower-41-6-5-A Discard tile=14 child=14 ms=554.4
+LOWER lower-41-6-5-B Discard tile=12 child=12 ms=510.8
+LOWER lower-42-6-5-C an_gang tile=4 child=-1 ms=853.3
+LOWER lower-42-6-5-D Discard tile=3 child=3 ms=328.8
+LOWER lower-41-6-5-B-source-waits-exhausted Discard tile=11 child=11 ms=340.7
+LOWER lower-41-6-5-A-public-loss Discard tile=14 child=14 ms=236.2
+LOWER lower-41-6-5-B-public-loss Discard tile=9 child=9 ms=293.4
+LOWER lower-42-6-5-C-public-loss an_gang tile=4 child=-1 ms=1400.1
+LOWER lower-42-6-5-D-public-loss Discard tile=6 child=6 ms=223.1
+LOWER lower-41-6-5-B-source-waits-exhausted-public-loss Discard tile=11 child=11 ms=241.6
+DONE formal geometry-and-authority=43 rows=11 failures=0

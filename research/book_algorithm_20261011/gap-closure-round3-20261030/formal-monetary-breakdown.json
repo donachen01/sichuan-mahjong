@@ -1,0 +1,90 @@
+[
+  {
+    "id": "lower-76-6-28-base-offer-m2/source-corrected",
+    "action": 2,
+    "utility": -0.9039025100128435,
+    "rawExpectedCash": -0.3829309679852042,
+    "ownReceipt": 2.19189453125,
+    "terminal": -0.1692590929852043,
+    "ownFuturePayment": 2.33056640625,
+    "initialDiscardLoss": 0.07500000000000001,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m2/source-corrected",
+    "action": 0,
+    "utility": -1.7623495593773515,
+    "rawExpectedCash": -1.346647363389601,
+    "ownReceipt": 1.02685546875,
+    "terminal": -0.16964541026460092,
+    "ownFuturePayment": 2.203857421875,
+    "initialDiscardLoss": 0,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4/source-corrected",
+    "action": 0,
+    "utility": -1.0574624021694836,
+    "rawExpectedCash": -0.6019788349615209,
+    "ownReceipt": 1.640625,
+    "terminal": -0.15276008496152085,
+    "ownFuturePayment": 2.08984375,
+    "initialDiscardLoss": 0,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4/source-corrected",
+    "action": 2,
+    "utility": -2.437820071059783,
+    "rawExpectedCash": -2.011590678287955,
+    "ownReceipt": 0.78125,
+    "terminal": -0.18815317828795522,
+    "ownFuturePayment": 2.5546875,
+    "initialDiscardLoss": 0.05,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "reread-6-26-after-p4-offer-p3",
+    "action": 2,
+    "utility": -0.6352243024625959,
+    "rawExpectedCash": -0.12548509205048308,
+    "ownReceipt": 2.4140625,
+    "terminal": -0.335641342050483,
+    "ownFuturePayment": 2.12890625,
+    "initialDiscardLoss": 0.07500000000000001,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "reread-6-26-after-p4-offer-p3",
+    "action": 0,
+    "utility": -1.200429302079569,
+    "rawExpectedCash": -0.7656711357850154,
+    "ownReceipt": 1.55859375,
+    "terminal": -0.28715551078501556,
+    "ownFuturePayment": 2.037109375,
+    "initialDiscardLoss": 0,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "reread-6-26-after-p5-offer-p3",
+    "action": 2,
+    "utility": -0.5984482382585099,
+    "rawExpectedCash": -0.08938858085970747,
+    "ownReceipt": 2.439453125,
+    "terminal": -0.34739639335970707,
+    "ownFuturePayment": 2.1064453125,
+    "initialDiscardLoss": 0.07500000000000001,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  },
+  {
+    "id": "reread-6-26-after-p5-offer-p3",
+    "action": 0,
+    "utility": -1.527055058611653,
+    "rawExpectedCash": -1.1138424084362437,
+    "ownReceipt": 1.373046875,
+    "terminal": -0.41560022093624366,
+    "ownFuturePayment": 2.0712890625,
+    "initialDiscardLoss": 0,
+    "scope": "Formal bounded common monetary candidates. Raw cash, risk-adjusted utility, actual terminal scores are different measures."
+  }
+]

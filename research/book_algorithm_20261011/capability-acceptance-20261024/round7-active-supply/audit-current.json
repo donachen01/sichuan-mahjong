@@ -1,0 +1,482 @@
+{
+  "checks": 276,
+  "errors": [],
+  "rows": [
+    {
+      "id": "supply2",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.4047652175429922,
+          "ModeledSelfDrawProbability": 0.1906556388321084,
+          "WinGain": 0.5954208563751007
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.09905124565809238,
+          "ModeledSelfDrawProbability": 0.09905124565809238,
+          "WinGain": 0.19810249131618476
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.6494699449869947,
+          "ModeledSelfDrawProbability": 0.24806947092495937,
+          "WinGain": 0.897539415911954,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS934.4_HELD0_DRAWN3"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.20303397446918445,
+          "ModeledSelfDrawProbability": 0.07803397446918445,
+          "WinGain": 0.2810679489383689,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS934.4_HELD2_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "supply2-hidden-swap",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.4047652175429922,
+          "ModeledSelfDrawProbability": 0.1906556388321084,
+          "WinGain": 0.5954208563751007
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.09905124565809238,
+          "ModeledSelfDrawProbability": 0.09905124565809238,
+          "WinGain": 0.19810249131618476
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.6494699449869947,
+          "ModeledSelfDrawProbability": 0.24806947092495937,
+          "WinGain": 0.897539415911954,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS89.0_HELD0_DRAWN3"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.20303397446918445,
+          "ModeledSelfDrawProbability": 0.07803397446918445,
+          "WinGain": 0.2810679489383689,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS89.0_HELD2_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "supply2-wall20",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.4917323289648112,
+          "ModeledSelfDrawProbability": 0.23319043782399096,
+          "WinGain": 0.724922766788802
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.11288536160739443,
+          "ModeledSelfDrawProbability": 0.11288536160739443,
+          "WinGain": 0.22577072321478886
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.5799362242331246,
+          "ModeledSelfDrawProbability": 0.30080332470577326,
+          "WinGain": 0.8807395489388978,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS537.6_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.256852560966761,
+          "ModeledSelfDrawProbability": 0.19435256096676098,
+          "WinGain": 0.451205121933522,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS537.6_HELD1_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "two_dead",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.43915297137439613,
+          "ModeledSelfDrawProbability": 0.2067625661755327,
+          "WinGain": 0.6459155375499289
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.43915297137439613,
+          "ModeledSelfDrawProbability": 0.2067625661755327,
+          "WinGain": 0.6459155375499289,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS3.4_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS3.4_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "ordinary_dead",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.09536585907061863,
+          "ModeledSelfDrawProbability": 0.09536585907061863,
+          "WinGain": 0.19073171814123727
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS4.2_MS2.5_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.09536585907061863,
+          "ModeledSelfDrawProbability": 0.09536585907061863,
+          "WinGain": 0.19073171814123727,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS4.2_MS2.5_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "active_peng2",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.20009152516462086,
+          "ModeledSelfDrawProbability": 0.20009152516462086,
+          "WinGain": 0.40018305032924173
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.12317614036903912,
+          "ModeledSelfDrawProbability": 0.12317614036903912,
+          "WinGain": 0.24635228073807824
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.20009152516462086,
+          "ModeledSelfDrawProbability": 0.20009152516462086,
+          "WinGain": 0.40018305032924173,
+          "status": "PUBLIC_SUPPLY_gang_transition_outside_step_N0_ESS8.0_MS1.0_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.12317614036903912,
+          "ModeledSelfDrawProbability": 0.12317614036903912,
+          "WinGain": 0.24635228073807824,
+          "status": "PUBLIC_SUPPLY_gang_transition_outside_step_N0_ESS8.0_MS1.0_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "early_budget",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.5340172937460371,
+          "ModeledSelfDrawProbability": 0.25557577450739066,
+          "WinGain": 0.7895930682534279
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.12732276609506687,
+          "ModeledSelfDrawProbability": 0.12732276609506687,
+          "WinGain": 0.25464553219013375
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.5340172937460371,
+          "ModeledSelfDrawProbability": 0.25557577450739066,
+          "WinGain": 0.7895930682534279,
+          "status": null
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.12732276609506687,
+          "ModeledSelfDrawProbability": 0.12732276609506687,
+          "WinGain": 0.25464553219013375,
+          "status": null
+        }
+      ]
+    },
+    {
+      "id": "tiny",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.20571967345930722,
+          "ModeledSelfDrawProbability": 0.09592334339907099,
+          "WinGain": 0.30164301685837824
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.046816500559369006,
+          "ModeledSelfDrawProbability": 0.046816500559369006,
+          "WinGain": 0.09363300111873801
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.5421815693419857,
+          "ModeledSelfDrawProbability": 0.09592334339907099,
+          "WinGain": 0.864638554171382,
+          "status": "PUBLIC_SUPPLY_seed_comparison_unstable_N32_ESS8.0_MS200.9_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.07136297704195306,
+          "ModeledSelfDrawProbability": 0.046816500559369006,
+          "WinGain": 0.14272595408390612,
+          "status": "PUBLIC_SUPPLY_seed_comparison_unstable_N32_ESS8.0_MS200.9_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "safe_current",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.4392398943756711,
+          "ModeledSelfDrawProbability": 0.20682241185065167,
+          "WinGain": 0.6460623062263229
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.10626954066479509,
+          "ModeledSelfDrawProbability": 0.10626954066479509,
+          "WinGain": 0.21253908132959018
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.4392398943756711,
+          "ModeledSelfDrawProbability": 0.20682241185065167,
+          "WinGain": 0.6460623062263229,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.2_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.10626954066479509,
+          "ModeledSelfDrawProbability": 0.10626954066479509,
+          "WinGain": 0.21253908132959018,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.2_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "safe-current-frozen-other",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.1608394828680258,
+          "ModeledSelfDrawProbability": 0.07580113407614764,
+          "WinGain": 0.23664061694417343
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.10394022809528759,
+          "ModeledSelfDrawProbability": 0.10394022809528759,
+          "WinGain": 0.20788045619057519
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.1608394828680258,
+          "ModeledSelfDrawProbability": 0.07580113407614764,
+          "WinGain": 0.23664061694417343,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS5.2_MS1.2_HELD0_DRAWN0"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.10394022809528759,
+          "ModeledSelfDrawProbability": 0.10394022809528759,
+          "WinGain": 0.20788045619057519,
+          "status": "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS5.2_MS1.2_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "safe-current-ordinary-dead",
+      "selected": 4,
+      "root": 4,
+      "baseline": [
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.1047349273858193,
+          "ModeledSelfDrawProbability": 0.1047349273858193,
+          "WinGain": 0.2094698547716386
+        },
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0
+        }
+      ],
+      "refined": [
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.318505663503006,
+          "ModeledSelfDrawProbability": 0.256005663503006,
+          "WinGain": 0.574511327006012,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS6.4_MS250.7_HELD1_DRAWN0"
+        },
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0,
+          "ModeledSelfDrawProbability": 0,
+          "WinGain": 0,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS6.4_MS250.7_HELD0_DRAWN0"
+        }
+      ]
+    },
+    {
+      "id": "opponent_selfhu",
+      "selected": 0,
+      "root": 0,
+      "baseline": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.35020882209196,
+          "ModeledSelfDrawProbability": 0.16431078961818293,
+          "WinGain": 0.5145196117101429
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.07905435677511659,
+          "ModeledSelfDrawProbability": 0.07905435677511659,
+          "WinGain": 0.15810871355023318
+        }
+      ],
+      "refined": [
+        {
+          "tile": 0,
+          "ModeledOwnWinProbability": 0.6508290792987398,
+          "ModeledSelfDrawProbability": 0.2396877631393141,
+          "WinGain": 0.9314162211244568,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS198.0_HELD0_DRAWN2"
+        },
+        {
+          "tile": 4,
+          "ModeledOwnWinProbability": 0.1306570633861513,
+          "ModeledSelfDrawProbability": 0.20972679274689981,
+          "WinGain": 0.2613141267723026,
+          "status": "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS198.0_HELD2_DRAWN1"
+        }
+      ]
+    }
+  ],
+  "oracle": [
+    {
+      "discard": 0,
+      "draw": 1,
+      "offered": 26,
+      "permutations": 6,
+      "OwnWinProbability": 1,
+      "SelfDrawWinProbability": 0.6666666666666666,
+      "ExpectedOwnWinGain": 1.6666666666666665
+    },
+    {
+      "discard": 0,
+      "draw": 4,
+      "offered": 26,
+      "permutations": 6,
+      "OwnWinProbability": 1,
+      "SelfDrawWinProbability": 0.6666666666666666,
+      "ExpectedOwnWinGain": 1.6666666666666665
+    },
+    {
+      "discard": 0,
+      "draw": 12,
+      "offered": 12,
+      "permutations": 6,
+      "OwnWinProbability": 1,
+      "SelfDrawWinProbability": 0,
+      "ExpectedOwnWinGain": 1
+    },
+    {
+      "discard": 4,
+      "draw": 1,
+      "offered": 26,
+      "permutations": 6,
+      "OwnWinProbability": 0,
+      "SelfDrawWinProbability": 0,
+      "ExpectedOwnWinGain": 0
+    },
+    {
+      "discard": 4,
+      "draw": 4,
+      "offered": 26,
+      "permutations": 6,
+      "OwnWinProbability": 0.6666666666666667,
+      "SelfDrawWinProbability": 0.6666666666666667,
+      "ExpectedOwnWinGain": 1.3333333333333335
+    },
+    {
+      "discard": 4,
+      "draw": 12,
+      "offered": 12,
+      "permutations": 6,
+      "OwnWinProbability": 0.6666666666666667,
+      "SelfDrawWinProbability": 0.6666666666666667,
+      "ExpectedOwnWinGain": 1.3333333333333335
+    }
+  ]
+}

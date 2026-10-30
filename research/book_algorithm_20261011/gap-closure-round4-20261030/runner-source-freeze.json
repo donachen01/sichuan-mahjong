@@ -1,0 +1,17 @@
+{
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/equivalence_games.gd": "adb81fd7260aad558c445f4a5580b46d1f302c759bfa6d0e0436fe1568eaab7e",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/formal_execute.gd": "67c4ce91666c496bcd791f514ecaa420d0392b01abefa1ac8b34165dca15259c",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/profile_game.gd": "06f203c997f8331f1ac580e12d4993e3c18c5817ddd4231a22960c60d50bf5bb",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/probe/OldTrajectory.cs": "c557f70c70b704602c80ee96266a0aa0242503f26fea48cf0b5cde1a4f8d7940",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/probe/OldWallSampler.cs": "6fb61dda85657d67e99a9a76539ee3c56374763393b786d1458100d2b0c48683",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs": "2771888b8ee4ee55b65f99d4d1cfa3ab8cfefc44ee2f4de6d5b38f884d7bef6d",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj": "9ecd03e69f56d85df60e4543a8182f5e01556c3d10fa0aec99c0a133db119cfe",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/verify_final.py": "6b0a52b1f14264c9a6c43012933b851cb80db12018cde6c0e7a44676ce40a078",
+  "research/book_algorithm_20261011/gap-closure-round4-20261030/preregistration.json": "dc55238acfe847fcfdf2b3471e908fc5d0f150e33427884f1f263c9f54434901",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/benchmark.gd": "e5b253a554263783080681621646c4b8aca9a42a2995dae34653ab241118699b",
+  "research/book_algorithm_20261011/gap-closure-20261030/verify_game.gd": "50fcfc7ecf86f8e0b2f746efd2df0ee11a4e3b253aeac6a9db5895d6d44ed459",
+  "research/hand_review_20261019/shared_execution_audit/paths_check.gd": "466f2df66c6d9d9c4bba991afa3286fa36568f87eb57dcc2e198c4e75d7f5c97",
+  "research/hand_review_20261018/decision_unification/game_contract_check.gd": "5b56682a4c758a4c4c1eca27d3f458687b82c6890e0956c88aa49bdbcf46721e",
+  "tests/current/SichuanActualActionBranchesRunner.gd": "36c2e7f2d9c2a7c11bb01cec4da5bcc22d0d2814eb69a335a14dc065069edc03",
+  "tests/current/sichuan_ai_pressure_benchmark.gd": "3950bef4abf75d356199a17b87edb3cc4e13ebf433c4a96c1eea99980c34fed7"
+}

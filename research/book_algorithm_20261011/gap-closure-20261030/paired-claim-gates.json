@@ -1,0 +1,173 @@
+[
+  {
+    "section": "6.5.2",
+    "id": "lower-72-6-24-A-offer-p3",
+    "mean": 1.2501343385556591,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.05950_SE_0.51391_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-73-6-24-B-offer-p3",
+    "mean": 0.6476513507792756,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.00501_SE_0.50242_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-73-6-25-base-offer-p5",
+    "mean": -1.1500147150374356,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.14695_SE_0.32870_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-26-base-offer-p7",
+    "mean": 1.0278903513209623,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.75761_SE_0.48274_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-27-base-offer-p6",
+    "mean": 5.009745312500001,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_4.66237_SE_0.83544_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-27-base-offer-p8",
+    "mean": 2.7026825,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_2.89986_SE_0.64462_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p5_claimed-second-peng",
+    "mean": 0.5417710036255098,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.61431_SE_0.60254_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p2_claimed-second-peng",
+    "mean": 0.5869903195437038,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.54172_SE_0.64672_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p2_claimed-second-peng-public-loss",
+    "mean": -0.3125530475633119,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.33522_SE_0.56220_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2-dynamic",
+    "id": "reread-6-26-after-p4-offer-p3",
+    "mean": 0.45528950439796606,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.52835_SE_0.64195_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "6.5.2-dynamic",
+    "id": "reread-6-26-after-p5-offer-p3",
+    "mean": 0.6503949308185673,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.11453_SE_0.59724_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p4-offer-p3/wall20/suppliers1",
+    "mean": -1.0241066979066586,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.91442_SE_0.58871_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p4-offer-p3/wall20/suppliers2",
+    "mean": -0.6163177359313207,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.67140_SE_0.41159_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p4-offer-p3/wall35/suppliers2",
+    "mean": 0.45528950439796606,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_0.52835_SE_0.64195_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p4-offer-p3/wall45/suppliers2",
+    "mean": 0.3906916194220566,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.27652_SE_0.64703_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p5-offer-p3/wall20/suppliers1",
+    "mean": -1.1402943760771906,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.55552_SE_0.51190_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p5-offer-p3/wall20/suppliers2",
+    "mean": -0.8645374525836793,
+    "admissible": true,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.51876_SE_0.38138_CONFIRMED_True"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p5-offer-p3/wall35/suppliers2",
+    "mean": 0.6503949308185673,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.11453_SE_0.59724_CONFIRMED_False"
+    ]
+  },
+  {
+    "section": "conditional-claims",
+    "id": "reread-6-26-after-p5-offer-p3/wall45/suppliers2",
+    "mean": 0.821522037596897,
+    "admissible": false,
+    "reason": [
+      "PUBLIC_CLAIM_PAIRED_MEAN_1.05959_SE_0.75993_CONFIRMED_False"
+    ]
+  }
+]

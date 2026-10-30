@@ -21,7 +21,11 @@ const HAND_STEP_SELF := 0.83
 # 侧家(上/下家)牌沿桌边码放的步距。0.45 太密，牌挤成一条分不清；
 # 加大到 0.62 让每张牌之间留出清晰分界，贴合目标图一张一张的层次感。
 const HAND_STEP_SIDE := 0.62
-const HAND_STEP_FAR := 0.55
+# The far rack keeps a real manufactured seam, but the previous 0.55 pitch left
+# a bright ivory slit between every target tile. 0.54 leaves a sub-1% body-width
+# clearance at the approved 1.28 uniform scale, so the seam reads as a soft
+# contact shadow without making adjacent GLB bodies overlap.
+const HAND_STEP_FAR := 0.54
 const SELF_HAND_SCALE := 1.94
 const SIDE_HAND_SCALE := 1.44
 const FAR_HAND_SCALE := 1.28
@@ -146,6 +150,7 @@ var table_frame_surfaces: Array[Dictionary] = []
 var table_skin_texture_cache: Dictionary = {}
 var world_environment_resource: Environment
 var table_key_light: DirectionalLight3D
+var target_shadow_light: SpotLight3D
 
 
 func _ready() -> void:
@@ -597,10 +602,32 @@ func _setup_world() -> void:
 	fill_light.omni_range = 18.0
 	# Layer 2 is reserved for Mahjong tiles. A camera-side fill preserves glyph
 	# readability on upright faces without washing out the green table or filling
-	# the single key shadow.
-	fill_light.light_cull_mask = 1 << 1
+	# the single key shadow. The target body layer is included so the mobile
+	# target-only shadow rig does not make the canonical GLB body go unlit.
+	fill_light.light_cull_mask = (1 << 1) | SichuanTile3D.TARGET_BODY_RENDER_LAYER
 	fill_light.shadow_enabled = false
 	add_child(fill_light)
+
+	# Mobile builds keep the original global directional shadow setting off for
+	# performance and baseline stability. This one broad spot light is restricted
+	# to the table receiver plus the target-only GLB body layer, so only the
+	# approved far hand/rivers/melds/winning tiles gain physical contact shadows.
+	var target_shadow := SpotLight3D.new()
+	target_shadow_light = target_shadow
+	target_shadow.name = "TargetTileContactShadowKey"
+	target_shadow.position = Vector3(-1.8, 10.5, 7.0)
+	target_shadow.light_color = Color("F1F6E9")
+	target_shadow.light_energy = 0.72
+	target_shadow.spot_range = 23.0
+	target_shadow.spot_angle = 76.0
+	target_shadow.spot_attenuation = 1.35
+	target_shadow.shadow_enabled = mobile_power_profile or mobile_renderer
+	target_shadow.shadow_opacity = 0.58
+	target_shadow.shadow_bias = 0.045
+	target_shadow.shadow_normal_bias = 0.82
+	target_shadow.light_cull_mask = 1 | SichuanTile3D.TARGET_BODY_RENDER_LAYER
+	add_child(target_shadow)
+	target_shadow.look_at(Vector3(0.0, 0.0, 0.0), Vector3.UP)
 
 func _setup_table() -> void:
 	var table := TABLE_SCENE.instantiate() as Node3D
@@ -875,7 +902,12 @@ func _append_hand_entries(
 			180.0 if seat != 0 else 0.0,
 			seat == 0,
 			false,
-			conceal_ai_win_result
+			conceal_ai_win_result,
+			-1,
+			-1,
+			"",
+			false,
+			seat == 2
 		)
 		if seat == 0 and not has_won:
 			self_hand_keys.append(key)
@@ -923,7 +955,16 @@ func _append_hand_entries(
 			false,
 			Vector3.ONE * (_flat_concealed_result_scale_for_seat(seat) if ai_discard_win else scale_value),
 			-1,
-			seat
+			seat,
+			0.0,
+			false,
+			false,
+			false,
+			-1,
+			-1,
+			"",
+			false,
+			true
 		)
 		desired[winning_key]["motion_kind"] = "win_transfer"
 		desired[winning_key]["motion_role"] = "source_tile_to_winner"
@@ -1006,7 +1047,9 @@ func _append_meld_entries(desired: Dictionary, seat: int, melds: Array, reveal_c
 				concealed_gang and not show_face,
 				-1,
 				seat,
-				""
+				"",
+				false,
+				true
 			)
 			var motion_kind := "peng" if meld_type == "peng" else "gang"
 			desired[key]["motion_kind"] = motion_kind
@@ -1098,7 +1141,7 @@ func _append_discard_entries(desired: Dictionary, seat: int, discards: Array, la
 			used_slots[free_slot] = true
 		var position := _discard_position(seat, int(slots[tile_id]))
 		var key := "discard_%d_%d" % [seat, tile_id]
-		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat, 0.0, false, false, false, -1, -1, "", true)
+		desired[key] = _entry(tile, true, Transform3D(_flat_basis_for_seat(seat), position), false, false, false, false, tile_id == latest_id, false, Vector3.ONE * DISCARD_SCALE, -1, seat, 0.0, false, false, false, -1, -1, "", false, true)
 
 
 func _apply_entries(desired: Dictionary) -> void:
@@ -1165,7 +1208,8 @@ func _apply_entries(desired: Dictionary) -> void:
 			int(data.get("meld_source_seat", -1)),
 			int(data.get("meld_owner_seat", -1)),
 			str(data.get("meld_source_type", "")),
-			bool(data.get("show_flat_back_layer", false))
+			bool(data.get("show_flat_back_layer", false)),
+			bool(data.get("target_body_shadows", false))
 		)
 		var target_transform: Transform3D = data.get("transform", Transform3D.IDENTITY)
 		var target_scale: Vector3 = data.get("scale", Vector3.ONE)
@@ -1297,7 +1341,8 @@ func _entry(
 	meld_source_seat: int = -1,
 	meld_owner_seat: int = -1,
 	meld_source_type: String = "",
-	show_flat_back_layer: bool = false
+	show_flat_back_layer: bool = false,
+	target_body_shadows: bool = false
 ) -> Dictionary:
 	return {
 		"tile": tile,
@@ -1320,6 +1365,7 @@ func _entry(
 		"meld_owner_seat": meld_owner_seat,
 		"meld_source_type": meld_source_type,
 		"show_flat_back_layer": show_flat_back_layer,
+		"target_body_shadows": target_body_shadows,
 	}
 
 
@@ -1672,6 +1718,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"self_hand_scale": self_layout_scale,
 		"opponent_hand_scale": SIDE_HAND_SCALE,
 		"far_hand_scale": FAR_HAND_SCALE,
+		"far_hand_world_pitch": HAND_STEP_FAR,
 		"meld_scale": MELD_SCALE,
 		"self_meld_scale": self_layout_scale * SELF_MELD_VISUAL_SCALE_FACTOR,
 		"self_meld_visual_scale_factor": SELF_MELD_VISUAL_SCALE_FACTOR,
@@ -1704,6 +1751,9 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"opponent_hand_contact_policy": "shared_glb_half_height_plus_12mm_felt_clearance",
 		"opponent_hand_contact_clearance": UPRIGHT_HAND_CLEARANCE_Y,
 		"opponent_hand_shadow": "physical_body_casts_short_soft_single_key_contact_shadow",
+		"target_body_render_layer": SichuanTile3D.TARGET_BODY_RENDER_LAYER,
+		"target_shadow_light": target_shadow_light != null,
+		"target_mobile_shadow_policy": "target_glb_body_and_table_receiver_only",
 		"opponent_concealed_surface": "jade_back_with_ivory_rim",
 		"opponent_concealed_owner_surface": "warm_ivory_sides_target_white_far",
 		"side_concealed_top_tilt": "perpendicular_to_table",
@@ -1762,6 +1812,7 @@ func _build_contract(snapshot: Dictionary, all_hands: Array, players: Array, des
 		"concealed_gang_presentation": "outer_faces_middle_jade_backs",
 		"light_count": 2,
 		"shadow_casting_light_count": 1,
+		"target_shadow_light_count": 1 if target_shadow_light != null else 0,
 		"table_skin_count": SichuanTableSkinCatalog.all_skins().size(),
 		"table_skin_id": active_table_skin_id,
 		"table_skin_material_target": "TableFelt",

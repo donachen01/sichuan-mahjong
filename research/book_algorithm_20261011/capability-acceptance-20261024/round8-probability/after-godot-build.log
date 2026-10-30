@@ -1,0 +1,16 @@
+  正在确定要还原的项目…
+CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+  所有项目均是最新的，无法还原。
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+  AI.Core -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll
+  SichuanMahjong.Godot -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/.godot/mono/temp/bin/Debug/SichuanMahjong.Godot.dll
+
+已成功生成。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj : warning NU1900: 获取包漏洞数据时出错: 无法加载源 https://api.nuget.org/v3/index.json 的服务索引。
+    2 个警告
+    0 个错误
+
+已用时间 00:00:34.95

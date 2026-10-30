@@ -1,0 +1,4 @@
+{
+  "reason": "Independent same-continuation invariant expanded to25 cases; three ready continuations differed because explicit-first-discard path used pre-claim belief. Stopped for engineering correctness before reading strength outcomes. No result selection or fit on this cohort.",
+  "complete_benchmark_games": 53
+}

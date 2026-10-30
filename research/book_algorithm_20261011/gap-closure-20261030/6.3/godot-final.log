@@ -1,0 +1,31 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-44-6-6-A/seat1/compactfalse action=discard ms=2080.7 failures=0
+LOWER_EXEC lower-44-6-6-B/seat1/compactfalse action=discard ms=1755.4 failures=0
+LOWER_EXEC lower-45-6-7-1-declared-draw/seat1/compactfalse action=discard ms=2064.1 failures=0
+LOWER_EXEC lower-45-6-7-2-declared-draw/seat1/compactfalse action=discard ms=671.8 failures=0
+LOWER_EXEC lower-45-6-7-3-declared-draw/seat1/compactfalse action=discard ms=602.2 failures=0
+LOWER_EXEC lower-45-6-7-4-declared-draw/seat1/compactfalse action=discard ms=3177.4 failures=0
+LOWER_EXEC lower-45-6-7-5-declared-draw/seat1/compactfalse action=discard ms=399.0 failures=0
+LOWER_EXEC lower-46-6-7-6-declared-draw/seat1/compactfalse action=discard ms=516.7 failures=0
+LOWER_EXEC lower-46-6-7-7-declared-draw/seat1/compactfalse action=discard ms=717.9 failures=0
+LOWER_EXEC lower-46-6-7-8-declared-draw/seat1/compactfalse action=discard ms=271.7 failures=0
+LOWER_EXEC lower-46-6-7-9-declared-draw/seat1/compactfalse action=discard ms=266.8 failures=0
+LOWER_EXEC lower-46-6-7-10-declared-draw/seat1/compactfalse action=discard ms=471.8 failures=0
+LOWER_EXEC lower-44-6-6-A-public-loss/seat1/compactfalse action=discard ms=369.6 failures=0
+LOWER_EXEC lower-44-6-6-B-public-loss/seat1/compactfalse action=discard ms=280.2 failures=0
+LOWER_EXEC lower-45-6-7-1-declared-draw-public-loss/seat1/compactfalse action=discard ms=276.6 failures=0
+LOWER_EXEC lower-45-6-7-2-declared-draw-public-loss/seat1/compactfalse action=discard ms=575.5 failures=0
+LOWER_EXEC lower-45-6-7-3-declared-draw-public-loss/seat1/compactfalse action=discard ms=370.5 failures=0
+LOWER_EXEC lower-45-6-7-4-declared-draw-public-loss/seat1/compactfalse action=discard ms=288.4 failures=0
+LOWER_EXEC lower-45-6-7-5-declared-draw-public-loss/seat1/compactfalse action=discard ms=517.5 failures=0
+LOWER_EXEC lower-46-6-7-6-declared-draw-public-loss/seat1/compactfalse action=discard ms=289.5 failures=0
+LOWER_EXEC lower-46-6-7-7-declared-draw-public-loss/seat1/compactfalse action=discard ms=592.5 failures=0
+LOWER_EXEC lower-46-6-7-8-declared-draw-public-loss/seat1/compactfalse action=discard ms=189.4 failures=0
+LOWER_EXEC lower-46-6-7-9-declared-draw-public-loss/seat1/compactfalse action=discard ms=447.7 failures=0
+LOWER_EXEC lower-46-6-7-10-declared-draw-public-loss/seat1/compactfalse action=discard ms=249.7 failures=0
+LOWER_EXECUTION rows=24 failures=0

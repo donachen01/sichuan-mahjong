@@ -1,0 +1,59 @@
+{
+  "scope": "task-local round4; no fixed future checklist",
+  "initial": "single-process exact replay of prior slowest game seed92625157 controlled0, other seats cash_cost_before_v1; actual native decisions, physical conservation, zero-sum settlement",
+  "optimization": "semantic-preserving optimization first; no reduced search, forced author actions, timeouts or local fallback",
+  "prior_reconstruction": "6-28 original missing timeline remains unknown; conditional comparisons not original truth",
+  "outcome": "retain all failure and timing evidence; choose focused checks after hotspot known, before code changes",
+  "hotspot_optimization": {
+    "before_code_change": true,
+    "witness": "step39 actual legal reaction, same initial deal and terminal ledger",
+    "method": [
+      "immutable prepared wall sampler with exact numeric-input key and decision-local common-world reuse",
+      "precomputed turn successor table; same path arithmetic and RNG consumption"
+    ],
+    "gates": [
+      "old/new per-seed walls exactly equal incl guaranteed wall copies, rotated first suit and boundary seeds",
+      "old/new trajectory outcomes and full estimate arrays bit exact across focused edge/random cases",
+      "same actual slow-game complete action trace/ledger and same book actions/values",
+      "time measurement is single-process desktop, not phone evidence"
+    ],
+    "no_policy_tuning": true
+  },
+  "behavior_equivalence": {
+    "frozen_before_run": true,
+    "baseline": "Archived actual round3 Core DLL; same current policy, debug diagnostic wrapper unchanged",
+    "replay": "Same original slow game plus8 fresh natural all-current deals seed112611031 stride1009",
+    "gates": "Exact initial deal, every-step event hash/phase/actor/wall and full terminal ledger; 108 physical conservation; loaded assembly MVID matches expected file metadata",
+    "purpose": "Semantic equivalence and single-process timing, not new strength or fitting on scores",
+    "temporary_binary_switch": "Archive both modules; always restore final compiled Core after baseline runs"
+  },
+  "profiling_amendment": {
+    "reason": "First exact version still11.5s; common uniform channels do not depend on wall law, repeated creation is unnecessary; single-path Run must not prepare64 successors",
+    "changes": [
+      "decision-local identical uniform-channel reuse by wall length/sample count/base seed",
+      "exact integer guaranteed/residual counts maintained incrementally",
+      "original single-run turn lookup retained, table only for batch Evaluate"
+    ],
+    "semantics": "Same per-path random sequences, integer counts and payment arithmetic; no score/action tuning",
+    "recheck": "Same known8 equivalence deals are now regression cases, not new blind data"
+  },
+  "discovery_scalar_optimization": {
+    "reason": "Discovery only reads ExpectedNetScore, but allocates all paired-path arrays and aggregate flags for each rejected plan",
+    "method": "All paths still simulated; preserve separate gain/loss/cha/refund sums and arithmetic order; confirmation retains full arrays",
+    "gate": "Mean bits equal archived full estimator, plus actual full behavior equivalence",
+    "no_change": "No sample count, endpoint selection criterion, risk weight, policy or stopping change"
+  },
+  "large_discovery_parallelism": {
+    "before_run": true,
+    "reason": "Final serial hotspot remains numerical trajectories; paths independent by frozen plan/environment/world",
+    "scope": "Only internal discovery scalar, >=1024 paths, up to min4 logical processors; ordinary/single-path calls unchanged",
+    "determinism": "Path computations parallel, scalar reduction in original path order with same four sums; full confirmation arrays unchanged",
+    "gates": "16 large2048-path fixtures,3 repeats, bits equal old estimator, plus actual full-game traces; same known deals are performance/regression evidence, not strength holdout",
+    "wall_batch": "Also generate >=1024 independent per-seed walls in up to4 workers; preserve seed indexed destination and all streams. Add2048 exact old/new walls; diagnostic child counters atomic; parallel component times overlap and must not be summed as latency."
+  },
+  "ordinary_timing_repeat": {
+    "reason_after_observation": "First final8-game ordinary totals+2.1%, median+2.4ms; do not claim general speedup from a rare slow witness",
+    "method": "One additional known8-deal run optimized then archived reference, opposite temporal order; source/policy frozen; exact trace checks remain",
+    "scope": "Diagnostic repeat, not new blind data or strength evidence"
+  }
+}

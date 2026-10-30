@@ -1,0 +1,4 @@
+LOWER lower-78-7-1-base-full-public Discard tile=0 child=0 ms=399.7
+LOWER lower-80-7-2-middle-full-public Discard tile=11 child=11 ms=178.2
+LOWER lower-81-7-2-late-full-public Discard tile=16 child=16 ms=564.7
+DONE retention geometry-and-authority=3 rows=3 failures=0

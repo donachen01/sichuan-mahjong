@@ -1,0 +1,8 @@
+CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
+WIDE wall=25 selected=3 ready=2 unready=4 ms=120.7
+WIDE wall=32 selected=3 ready=2 unready=4 ms=37.7
+WIDE wall=40 selected=3 ready=2 unready=4 ms=2.4
+DONE checks=18 failures=3
+FAIL independent terminal settlement sign/bound wall 25
+FAIL independent terminal settlement sign/bound wall 32
+FAIL independent terminal settlement sign/bound wall 40

@@ -1,0 +1,20 @@
+{
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/FailedShapeProposal.cs": "4cf973bd46b70de5f6b5b4be216b0bac22a606fc62dd60080dd85a7d977e9677",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/Program.cs": "b815c50126123fb72f19e549f16ec52683d4c05fb8d0d4f384190c80738ec065",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/Probe.csproj": "9ecd03e69f56d85df60e4543a8182f5e01556c3d10fa0aec99c0a133db119cfe",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/forecast_holdout.gd": "c049cd0f3e6df9797d5a86f44ae0c99a6c779dcc1a7e7045f8522a96c15ff1b4",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/priority_cases.gd": "942497f6cdce9081f193cac2a003a64fe2949b80b89da44e6da894659a5b4b71",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/benchmark.gd": "e5b253a554263783080681621646c4b8aca9a42a2995dae34653ab241118699b",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/full_claims_debug.gd": "d438de566f66b9a353c35ee7ecae41877da947120bc0cf9114e4371d75b89a7c",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/full_claims.gd": "bb2e58c75ecca7394f15b4f519ffe4c81508587a2e98a533f94864b067d26419",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/independent_ready_proposal.py": "f8da4a9d44e9f13b19a6d224ab9e05fe5588c853aa4e218eeafbbc5516c36dc1",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/preregistration.json": "b6904b52de90633782a40d404a88c0895eb9b41dd3ddb405a85e2bcf93ae0273",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/formal_execute.gd": "39af76f36de2914f4e5688de17d4693577815126ec148bfb7af484da9ac5ba65",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/audit_final.py": "8d27f07a64ee26f71fdfe2792c1e8d535deb5a56165d9b7bfdc7dde1bfaae12b",
+  "tests/current/SichuanActualActionBranchesRunner.gd": "36c2e7f2d9c2a7c11bb01cec4da5bcc22d0d2814eb69a335a14dc065069edc03",
+  "research/book_algorithm_20261011/gap-closure-20261030/verify_game.gd": "50fcfc7ecf86f8e0b2f746efd2df0ee11a4e3b253aeac6a9db5895d6d44ed459",
+  "research/hand_review_20261019/shared_execution_audit/paths_check.gd": "466f2df66c6d9d9c4bba991afa3286fa36568f87eb57dcc2e198c4e75d7f5c97",
+  "tests/current/sichuan_ai_pressure_benchmark.gd": "3950bef4abf75d356199a17b87edb3cc4e13ebf433c4a96c1eea99980c34fed7",
+  "research/hand_review_20261018/decision_unification/game_contract_check.gd": "5b56682a4c758a4c4c1eca27d3f458687b82c6890e0956c88aa49bdbcf46721e",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/merge_claims.py": "b2f3a6cd86c3f5635d6277462c1e40d6a18d987de85d43b8be4fcd3828e8da95"
+}

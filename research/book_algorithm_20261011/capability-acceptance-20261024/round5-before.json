@@ -1,0 +1,97 @@
+{
+  "checks": 6,
+  "failures": [],
+  "wall": 40,
+  "terminalSupported": true,
+  "worlds": 32,
+  "elapsedMs": 209.9071,
+  "meanOpponentReadyScore": 0.5729166666666666,
+  "maxOpponentReadyScore": 4,
+  "productionReasons": [],
+  "candidates": [
+    {
+      "tile": 13,
+      "ready": true,
+      "cha": 0,
+      "net": 1.4392136468027217
+    },
+    {
+      "tile": 17,
+      "ready": true,
+      "cha": 0,
+      "net": 1.3490936671244689
+    },
+    {
+      "tile": 9,
+      "ready": false,
+      "cha": 0,
+      "net": -2.9855553169207094
+    },
+    {
+      "tile": 10,
+      "ready": false,
+      "cha": 0,
+      "net": -2.9855553169207094
+    },
+    {
+      "tile": 0,
+      "ready": false,
+      "cha": 0,
+      "net": -3.0044322726794355
+    },
+    {
+      "tile": 8,
+      "ready": false,
+      "cha": 0,
+      "net": -3.0085792798535134
+    },
+    {
+      "tile": 3,
+      "ready": false,
+      "cha": 0,
+      "net": -3.0971537588925897
+    },
+    {
+      "tile": 5,
+      "ready": false,
+      "cha": 0,
+      "net": -3.1014033464439117
+    },
+    {
+      "tile": 11,
+      "ready": false,
+      "cha": 0,
+      "net": -3.2147907296637244
+    },
+    {
+      "tile": 1,
+      "ready": false,
+      "cha": 0,
+      "net": -3.2257501541975633
+    },
+    {
+      "tile": 6,
+      "ready": false,
+      "cha": 0,
+      "net": -3.228141280251839
+    },
+    {
+      "tile": 7,
+      "ready": false,
+      "cha": 0,
+      "net": -3.2295648576575817
+    },
+    {
+      "tile": 4,
+      "ready": false,
+      "cha": 0,
+      "net": -3.2322595297477714
+    },
+    {
+      "tile": 2,
+      "ready": false,
+      "cha": 0,
+      "net": -3.2344217237125714
+    }
+  ]
+}

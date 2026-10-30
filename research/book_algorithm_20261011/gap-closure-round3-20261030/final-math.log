@@ -1,0 +1,5 @@
+JOINTFIT checks=4868 failures=0
+DENSITY checks=602 failures=0
+DONE joint-privacy geometry-and-authority=6 rows=2 failures=0
+DONE posterior-audit geometry-and-authority=0 rows=16 failures=0
+DONE joint-audit-large geometry-and-authority=16 rows=8 failures=0

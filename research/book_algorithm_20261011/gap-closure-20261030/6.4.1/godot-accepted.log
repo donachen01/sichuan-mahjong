@@ -1,0 +1,27 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-47-6-8-A/seat1/compactfalse action=discard ms=2132.1 failures=0
+LOWER_EXEC lower-47-6-8-B/seat1/compactfalse action=discard ms=434.4 failures=0
+LOWER_EXEC lower-47-6-9-base/seat1/compactfalse action=self_hu ms=17.2 failures=0
+LOWER_EXEC lower-47-6-10-base/seat1/compactfalse action=self_hu ms=6.3 failures=0
+LOWER_EXEC lower-48-6-11-base-declared-draw/seat1/compactfalse action=self_hu ms=7.1 failures=0
+LOWER_EXEC lower-49-6-12-A/seat1/compactfalse action=discard ms=687.1 failures=0
+LOWER_EXEC lower-49-6-12-B/seat1/compactfalse action=discard ms=494.6 failures=0
+LOWER_EXEC lower-49-6-12-C/seat1/compactfalse action=discard ms=606.9 failures=0
+LOWER_EXEC lower-50-6-13-A/seat1/compactfalse action=discard ms=533.2 failures=0
+LOWER_EXEC lower-50-6-13-B/seat1/compactfalse action=discard ms=359.0 failures=0
+LOWER_EXEC lower-50-6-13-C/seat1/compactfalse action=discard ms=375.9 failures=0
+LOWER_EXEC lower-50-6-13-D/seat1/compactfalse action=discard ms=405.1 failures=0
+LOWER_EXEC lower-51-6-14-A/seat1/compactfalse action=discard ms=642.6 failures=0
+LOWER_EXEC lower-51-6-14-B/seat1/compactfalse action=discard ms=324.0 failures=0
+LOWER_EXEC lower-51-6-14-C/seat1/compactfalse action=discard ms=185.8 failures=0
+LOWER_EXEC lower-51-6-14-D/seat1/compactfalse action=discard ms=194.3 failures=0
+LOWER_EXEC lower-51-6-14-E/seat1/compactfalse action=discard ms=218.3 failures=0
+LOWER_EXEC lower-48-6-11-base-offer-10/seat1/compactfalse action=peng ms=1056.1 failures=0
+LOWER_EXEC lower-48-6-11-base-offer-16/seat1/compactfalse action=peng ms=995.3 failures=0
+LOWER_EXEC lower-50-6-13-C-major-danger/seat1/compactfalse action=discard ms=98.7 failures=0
+LOWER_EXECUTION rows=20 failures=0

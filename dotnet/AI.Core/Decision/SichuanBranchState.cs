@@ -97,6 +97,7 @@ public static class SichuanBranchState
             if (newlyKnown > 0) draw = t;
         }
         result.MeldViews[own].Clear(); result.MeldViews[own].AddRange(melds);
+        result.IsCalled[own]=melds.Count>0;
         result.Melds18[own].Clear();
         foreach (var m in melds) result.Melds18[own].AddRange(Enumerable.Repeat(m.TileType, m.Type == SichuanMeldType.Peng ? 3 : 4));
         result.HandCounts[own] = hand.Sum(); result.Phase = 5;

@@ -1,0 +1,11 @@
+LOWER lower-68-6-20-A Discard tile=23 child=23 ms=4120.4
+LOWER lower-68-6-20-B add_gang tile=0 child=-1 ms=4602.3
+LOWER lower-68-6-20-C Discard tile=21 child=21 ms=2480.0
+LOWER lower-68-6-20-D add_gang tile=5 child=-1 ms=2500.8
+LOWER lower-69-6-21-A-offer-m2 Gang tile=19 child=-1 ms=245.1
+LOWER lower-69-6-21-B-offer-m3 Peng tile=20 child=23 ms=193.8
+LOWER lower-69-6-21-C-offer-m3 Peng tile=20 child=23 ms=229.6
+LOWER lower-68-6-20-A-public-loss Discard tile=21 child=21 ms=2523.8
+LOWER lower-68-6-20-C-public-loss add_gang tile=5 child=-1 ms=1981.3
+LOWER lower-68-6-20-D-public-loss add_gang tile=5 child=-1 ms=2040.2
+DONE formal geometry-and-authority=76 rows=10 failures=0

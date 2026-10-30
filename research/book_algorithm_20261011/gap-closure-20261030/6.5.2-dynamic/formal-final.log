@@ -1,0 +1,4 @@
+LOWER reread-6-26-after-p4-offer-p3 Pass tile=11 child=-1 ms=734.7
+LOWER reread-6-26-after-p5-offer-p3 Pass tile=11 child=-1 ms=368.8
+LOWER reread-6-26-p1-pair-offer-p3 Pass tile=11 child=-1 ms=802.2
+DONE formal geometry-and-authority=3 rows=3 failures=0

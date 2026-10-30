@@ -1,0 +1,33 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-67-6-19-A/seat1/compactfalse action=discard ms=1998.7 failures=0
+LOWER_EXEC lower-67-6-19-B/seat1/compactfalse action=discard ms=266.0 failures=0
+LOWER_EXEC lower-68-6-19-C/seat1/compactfalse action=add_gang ms=619.5 failures=0
+LOWER_EXEC lower-68-6-20-A/seat1/compactfalse action=discard ms=2440.9 failures=0
+LOWER_EXEC lower-68-6-20-B/seat1/compactfalse action=discard ms=3059.7 failures=0
+LOWER_EXEC lower-68-6-20-C/seat1/compactfalse action=discard ms=1388.2 failures=0
+LOWER_EXEC lower-68-6-20-D/seat1/compactfalse action=add_gang ms=1495.6 failures=0
+LOWER_EXEC lower-69-6-21-A-offer-m2/seat1/compactfalse action=gang ms=237.5 failures=0
+LOWER_EXEC lower-69-6-21-A-draw-25/seat1/compactfalse action=add_gang ms=177.2 failures=0
+LOWER_EXEC lower-69-6-21-B-offer-m3/seat1/compactfalse action=peng ms=169.1 failures=0
+LOWER_EXEC lower-69-6-21-B-draw-25/seat1/compactfalse action=add_gang ms=187.1 failures=0
+LOWER_EXEC lower-69-6-21-C-offer-m3/seat1/compactfalse action=peng ms=199.8 failures=0
+LOWER_EXEC lower-70-6-22-A/seat1/compactfalse action=an_gang ms=1202.7 failures=0
+LOWER_EXEC lower-70-6-22-B/seat1/compactfalse action=an_gang ms=763.2 failures=0
+LOWER_EXEC lower-70-6-22-C/seat1/compactfalse action=discard ms=149.8 failures=0
+LOWER_EXEC lower-67-6-19-A-public-loss/seat1/compactfalse action=discard ms=532.9 failures=0
+LOWER_EXEC lower-67-6-19-B-public-loss/seat1/compactfalse action=discard ms=138.6 failures=0
+LOWER_EXEC lower-68-6-19-C-public-loss/seat1/compactfalse action=add_gang ms=509.7 failures=0
+LOWER_EXEC lower-68-6-20-A-public-loss/seat1/compactfalse action=discard ms=1728.0 failures=0
+LOWER_EXEC lower-68-6-20-C-public-loss/seat1/compactfalse action=add_gang ms=1215.8 failures=0
+LOWER_EXEC lower-68-6-20-D-public-loss/seat1/compactfalse action=add_gang ms=1327.9 failures=0
+LOWER_EXEC lower-69-6-21-A-draw-25-public-loss/seat1/compactfalse action=add_gang ms=147.6 failures=0
+LOWER_EXEC lower-69-6-21-B-draw-25-public-loss/seat1/compactfalse action=add_gang ms=177.9 failures=0
+LOWER_EXEC lower-70-6-22-A-public-loss/seat1/compactfalse action=an_gang ms=909.0 failures=0
+LOWER_EXEC lower-70-6-22-B-public-loss/seat1/compactfalse action=an_gang ms=882.1 failures=0
+LOWER_EXEC lower-70-6-22-C-public-loss/seat1/compactfalse action=discard ms=156.4 failures=0
+LOWER_EXECUTION rows=26 failures=0

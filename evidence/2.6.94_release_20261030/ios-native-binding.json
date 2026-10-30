@@ -1,0 +1,7 @@
+{
+  "source_sha256": "36913e0c9c7e159dc9e398781e17840ab359b7948010cf400b202233a70c1171",
+  "dylib": ".godot/mono/temp/bin/ExportRelease/ios-arm64/native/SichuanMahjong.Godot.dylib",
+  "bytes": 25465816,
+  "sha256": "d47b90ca04e05a2bd1515ccd8b22328d9df79e12c202396acaaf74295ae0ae4e",
+  "export_log": "ios-export.log"
+}

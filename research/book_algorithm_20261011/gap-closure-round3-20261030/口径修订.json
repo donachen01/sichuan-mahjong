@@ -1,0 +1,21 @@
+{
+  "historical_reports_unchanged": true,
+  "retained": [
+    "Second-round source corrections, mathematical and actual execution records",
+    "Common identical-successor value checks",
+    "Frozen single-seat readiness training/validation/holdout observations",
+    "Earlier raw terminal outcomes as facts"
+  ],
+  "constrained_inferences": [
+    "Identical successor values alone do not prove correct monetary coefficients",
+    "Single-seat readiness calibration does not establish joint hidden-allocation or wall calibration",
+    "Risk-adjusted utility must not be treated as actual terminal cash score"
+  ],
+  "new_evidence": "final-audit.json",
+  "not_claimed": [
+    "Original6-28 optimal action recovered",
+    "Long-term or human strength established",
+    "New joint projection promoted to live ranking",
+    "Phone NativeAOT or latency passed"
+  ]
+}

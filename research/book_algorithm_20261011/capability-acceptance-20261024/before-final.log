@@ -1,0 +1,45 @@
+CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
+EMPTY ready_choice/clearedTrue/wall12 mass=0 lock=-1 remaining13=0
+before-final checks=1237 failures=42
+FAIL forced offer requires public clearance r0/seat1/uncleared
+FAIL natural Gang same release premise r0/seat1/uncleared
+FAIL forced offer requires public clearance r0/seat1/missing_only
+FAIL natural Gang same release premise r0/seat1/missing_only
+FAIL forced offer requires public clearance r0/seat2/uncleared
+FAIL natural Gang same release premise r0/seat2/uncleared
+FAIL forced offer requires public clearance r0/seat2/missing_only
+FAIL natural Gang same release premise r0/seat2/missing_only
+FAIL forced offer requires public clearance r0/seat3/uncleared
+FAIL natural Gang same release premise r0/seat3/uncleared
+FAIL forced offer requires public clearance r0/seat3/missing_only
+FAIL natural Gang same release premise r0/seat3/missing_only
+FAIL forced offer requires public clearance r1/seat1/uncleared
+FAIL natural Gang same release premise r1/seat1/uncleared
+FAIL forced offer requires public clearance r1/seat1/missing_only
+FAIL natural Gang same release premise r1/seat1/missing_only
+FAIL forced offer requires public clearance r1/seat2/uncleared
+FAIL natural Gang same release premise r1/seat2/uncleared
+FAIL forced offer requires public clearance r1/seat2/missing_only
+FAIL natural Gang same release premise r1/seat2/missing_only
+FAIL forced offer requires public clearance r1/seat3/uncleared
+FAIL natural Gang same release premise r1/seat3/uncleared
+FAIL forced offer requires public clearance r1/seat3/missing_only
+FAIL natural Gang same release premise r1/seat3/missing_only
+FAIL forced offer requires public clearance r2/seat1/uncleared
+FAIL natural Gang same release premise r2/seat1/uncleared
+FAIL forced offer requires public clearance r2/seat1/missing_only
+FAIL natural Gang same release premise r2/seat1/missing_only
+FAIL forced offer requires public clearance r2/seat2/uncleared
+FAIL natural Gang same release premise r2/seat2/uncleared
+FAIL forced offer requires public clearance r2/seat2/missing_only
+FAIL natural Gang same release premise r2/seat2/missing_only
+FAIL forced offer requires public clearance r2/seat3/uncleared
+FAIL natural Gang same release premise r2/seat3/uncleared
+FAIL forced offer requires public clearance r2/seat3/missing_only
+FAIL natural Gang same release premise r2/seat3/missing_only
+FAIL restored memory revalidates ordinary Seven eligibility 2
+FAIL restored memory revalidates ordinary Seven eligibility 3
+FAIL exited Hu cannot become cha payer via active bitmap 12
+FAIL exited Hu cannot become future Hu payer via active bitmap 12
+FAIL ready_choice/clearedFalse/wall12 real ready profile uses clearance evidence and live supply
+FAIL ready_choice/clearedFalse/wall25 real ready profile uses clearance evidence and live supply

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "single",
+    "hand_cases": 4,
+    "proposal_success": 1.0
+  },
+  {
+    "id": "one-set",
+    "hand_cases": 101,
+    "proposal_success": 0.9999999999999996
+  },
+  {
+    "id": "one-set-scarce",
+    "hand_cases": 36,
+    "proposal_success": 0.8333333333333335
+  },
+  {
+    "id": "two-sets",
+    "hand_cases": 66,
+    "proposal_success": 0.9027777777777779
+  },
+  {
+    "id": "two-sets-roots",
+    "hand_cases": 40,
+    "proposal_success": 0.9714285714285716
+  },
+  {
+    "id": "seven-only",
+    "hand_cases": 7,
+    "proposal_success": 0.1
+  },
+  {
+    "id": "overlap-seven-ordinary",
+    "hand_cases": 7,
+    "proposal_success": 0.18570243248814677
+  },
+  {
+    "id": "overlap-decompositions",
+    "hand_cases": 5,
+    "proposal_success": 0.4263900510204082
+  },
+  {
+    "id": "missing-still-present",
+    "hand_cases": 35,
+    "proposal_success": 1.0000000000000002
+  }
+]

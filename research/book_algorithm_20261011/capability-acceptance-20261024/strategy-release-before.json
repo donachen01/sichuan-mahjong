@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "production_policy_variant": "current",
+  "production_recording": false,
+  "production_terminal_rollout": false,
+  "scope": "correctness_corrections_only",
+  "unpromoted_policy_variants": [
+    "bucket_local_candidate_v1",
+    "gang_branch_candidate_v1"
+  ],
+  "created_at": "2026-10-23",
+  "strategy_version": "strategy-contract-v36-short-wall-net-settlement",
+  "agent_version": "unified-seat-policy-v2-adaptive-budget",
+  "source_sha256": "a41cff53743b6b841a3406d299e1d87beebc2d66d5b29cdc8c6183eb4600ca0b",
+  "evidence": [
+    {
+      "kind": "personal_execution",
+      "path": "research/hand_review_20261023/late_wall_break_ready/native-validation.json",
+      "sha256": "5fafcede7235e37ef20119ce27ea106ed530e6301a3f512e0eb45a800b567fa0"
+    }
+  ],
+  "release_inputs": {
+    "export_presets.cfg": "95af7232c65b17eb76a512a23fe36fff7c6f8814e77b9ea9966cd00caaf53214",
+    "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
+    "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
+    "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
+    "tools/export_android_release.sh": "d8c9b0c30365c1e9308a696ee86d822f76d94192435a4b833e5450339f17e53a",
+    "tools/export_android_debug.sh": "b2396bc50d64afe3daf5804252c97c1b2431883dbbabee14561edf7dc7fa2753",
+    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
+    "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
+    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
+    "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
+    "project.godot": "f74a3e8f51284f947fb2e530f5177d97b49fdaa0f45a1bbdd9fa7a24550e17b3"
+  },
+  "notes": "Short-wall ready/fold comparison now includes signed draw settlement and refunds, finite fixed endpoint development, and one common discard arbiter. Focused independent/C#/Godot checks; no mobile rebuild or strength claim.",
+  "limitations": [
+    "Original dona per-turn input/history unavailable; screenshot-compatible reconstructions are conditional.",
+    "Short-wall correction applies to supported public root ready/fold comparisons with 0-8 tiles, cleared missing suit and no active Hu lock or immediate Gang-discard context.",
+    "Public posterior, future win hazards and opponent structural development remain uncalibrated approximations. Fixed own endpoint plans omit voluntary opponent claims and future Gang; terminal opponent forecasts use fixed turns.",
+    "High-cost folding counterexample controls the public risk input and is not a physical original-hand replay.",
+    "Desktop ordinary/compact transport is not iOS NativeAOT evidence. Installed three devices remain 2.6.92 with the earlier source binding."
+  ],
+  "validation_stage": "short_wall_focused_desktop_execution_verified_mobile_not_rebuilt",
+  "delivery_target": "personal_device",
+  "application_version": "2.6.92"
+}

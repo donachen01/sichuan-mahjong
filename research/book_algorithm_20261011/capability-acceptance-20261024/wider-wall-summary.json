@@ -1,0 +1,25 @@
+{
+  "round": "wider_wall_signed_settlement_20261024",
+  "source_sha256": "a9a73490c1be550b7108c41924507c20761e582d10497ec4db3caf00c9bb3b13",
+  "before_checks": 16,
+  "before_failures": 4,
+  "after_checks": 24,
+  "after_failures": 0,
+  "wall_sizes": [
+    9,
+    12,
+    16,
+    24
+  ],
+  "mixed_candidates_per_wall": {
+    "ready": 2,
+    "unready": 4
+  },
+  "before_unready_cha_jiao": {},
+  "after_unready_cha_jiao": {},
+  "independent_terminal_rows": 4,
+  "godot_rows": 6,
+  "godot_failures": [],
+  "mobile_rebuilt": false,
+  "strength_claim": false
+}

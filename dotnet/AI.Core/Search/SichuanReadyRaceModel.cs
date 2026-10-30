@@ -7,6 +7,7 @@ namespace SichuanMahjong.AI.Core.Search;
 public sealed record SichuanReadyRaceGroup(double ExpectedCopies, double SelfDrawPerPayer,
     double DiscardScore, int ForcedDiscardMask)
 {
+    public IReadOnlyList<int>? TileTypes {get;init;}
     // Optional conditional release model. Missing-suit releases remain certain.
     // An absent estimate never becomes an invented voluntary offer.
     public IReadOnlyList<double>? ReleaseProbabilities { get; init; }
@@ -22,7 +23,11 @@ public sealed record SichuanReadyRaceOpponent(int Actor, double SelfDrawProbabil
     double OwnDiscardRonProbability, double SelfDrawPayment, double OwnDiscardPayment,
     double GangPaymentPerDraw, double CrossRonProbability = 0,
     double FirstDiscardRonProbability = 0, double FirstDiscardPayment = 0,
-    double GangDiscardPayment = 0);
+    double GangDiscardPayment = 0)
+{
+    public IReadOnlyList<double>? GroupSelfDrawProbability {get;init;}
+    public IReadOnlyList<double>? GroupSelfDrawPayment {get;init;}
+}
 
 /// <summary>Drawn fourth copies for existing Peng melds. On an own draw they
 /// produce one legal paid added Gang, one root and an immediate replacement.</summary>
@@ -117,17 +122,17 @@ internal static class SichuanReadyRaceModel
                 if(g.OptimisticReleaseBound)
                 {
                     var ron=new SichuanBloodBattleChanceModel.Value(Win:1,WinGain:score){RonWin=1,RonGain=score};
-                    var retain=AfterDraw(nextA,nextB,gg);
+                    var retain=AfterDraw(nextA,nextB,gg,group);
                     return ron.Net>=retain.Net?ron:retain;
                 }
                 if(g.ReleaseProbabilities is { } release && actor<release.Count && release[actor]>0)
                 {
                     var ron=new SichuanBloodBattleChanceModel.Value(Win:1,WinGain:score){RonWin=1,RonGain=score};
-                    return SichuanBloodBattleChanceModel.Value.Mix(ron,AfterDraw(nextA,nextB,gg),Math.Clamp(release[actor],0,1));
+                    return SichuanBloodBattleChanceModel.Value.Mix(ron,AfterDraw(nextA,nextB,gg,group),Math.Clamp(release[actor],0,1));
                 }
-                return AfterDraw(nextA,nextB,gg);
+                return AfterDraw(nextA,nextB,gg,group);
             }
-            SichuanBloodBattleChanceModel.Value AfterDraw(int nextA,int nextB,int nextG)
+            SichuanBloodBattleChanceModel.Value AfterDraw(int nextA,int nextB,int nextG,int hitGroup=-1)
             {
                 if(r.ReadyOpponents is {Count:>0} profiles)
                 {
@@ -147,8 +152,9 @@ internal static class SichuanReadyRaceModel
                         var p=profiles[index];var bit=1<<p.Actor;
                         if((live&bit)==0)return Exits(index+1,live,loss,ron,self);
                         var probability=actor==0?p.OwnDiscardRonProbability:
-                            actor==p.Actor?p.SelfDrawProbability:p.CrossRonProbability;
-                        var payment=actor==0?p.OwnDiscardPayment:actor==p.Actor?p.SelfDrawPayment:0;
+                            actor==p.Actor?(hitGroup>=0?p.GroupSelfDrawProbability?[hitGroup]??p.SelfDrawProbability:p.SelfDrawProbability):p.CrossRonProbability;
+                        var payment=actor==0?p.OwnDiscardPayment:actor==p.Actor?
+                            (hitGroup>=0?p.GroupSelfDrawPayment?[hitGroup]??p.SelfDrawPayment:p.SelfDrawPayment):0;
                         if(actor==0 && replacement)
                         {
                             payment=p.GangDiscardPayment>0?p.GangDiscardPayment:

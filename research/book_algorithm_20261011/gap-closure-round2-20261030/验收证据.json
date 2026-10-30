@@ -1,0 +1,245 @@
+{
+  "source_files": 290,
+  "core_sources": 197,
+  "same_binaries": 3,
+  "execution": [
+    {
+      "section": "claims",
+      "formal": 40,
+      "actual": 40
+    },
+    {
+      "section": "gangs",
+      "formal": 10,
+      "actual": 10
+    }
+  ],
+  "protocol_and_seat_chains": 24,
+  "invariants": {
+    "checks": 25,
+    "max_difference": 0
+  },
+  "independent_graphs": {
+    "graphs": 28,
+    "states": 6144,
+    "checks": 373106,
+    "failures": []
+  },
+  "benchmark": {
+    "games": 160,
+    "pairs": 128,
+    "independent_deals": 32,
+    "mean_paired_net": -0.0625,
+    "seed_cluster_95": [
+      -0.4765625,
+      0.3515625
+    ],
+    "all_deals_matched": true,
+    "all_fully_settled": true,
+    "decision_ms": {
+      "n": 1865,
+      "median": 28.705,
+      "p95": 291.2943999999998,
+      "maximum": 6300.198
+    },
+    "scope": "Four seats share one deal cluster. Desktop concurrent-process timings are not phone performance. No parameter tuning on this cohort.",
+    "improvement_confirmed": false,
+    "significant_regression": false
+  },
+  "readiness": {
+    "observations": 2013,
+    "current_observations": 1003,
+    "formula_max_error": 1.1102230246251565e-15,
+    "current_brier": 0.11866118160663593,
+    "old_formula_on_same_current_states_brier": 0.12597526522744726,
+    "independent_holdout": {
+      "raw": {
+        "n": 1601,
+        "games": 24,
+        "brier": 0.14042816759937563,
+        "game_mean_brier": 0.14049232548129117,
+        "log_loss": 0.4405823765227447,
+        "bins": [
+          {
+            "lower": 0.0,
+            "n": 747,
+            "prediction": 0.08976483144533914,
+            "truth": 0.09504685408299866
+          },
+          {
+            "lower": 0.2,
+            "n": 569,
+            "prediction": 0.28680268107909096,
+            "truth": 0.2126537785588752
+          },
+          {
+            "lower": 0.4,
+            "n": 238,
+            "prediction": 0.47980005820938926,
+            "truth": 0.47058823529411764
+          },
+          {
+            "lower": 0.6,
+            "n": 40,
+            "prediction": 0.6619011809095309,
+            "truth": 0.725
+          },
+          {
+            "lower": 0.8,
+            "n": 7,
+            "prediction": 0.8758999999999999,
+            "truth": 1.0
+          }
+        ]
+      },
+      "actual": {
+        "n": 1601,
+        "games": 24,
+        "brier": 0.14510260926463364,
+        "game_mean_brier": 0.14056237217632203,
+        "log_loss": 0.4267826419861325,
+        "bins": [
+          {
+            "lower": 0.0,
+            "n": 733,
+            "prediction": 0.060015201264875896,
+            "truth": 0.02592087312414734
+          },
+          {
+            "lower": 0.2,
+            "n": 202,
+            "prediction": 0.3171088631694982,
+            "truth": 0.22772277227722773
+          },
+          {
+            "lower": 0.4,
+            "n": 335,
+            "prediction": 0.5005797429755259,
+            "truth": 0.30149253731343284
+          },
+          {
+            "lower": 0.6,
+            "n": 265,
+            "prediction": 0.6916964050109016,
+            "truth": 0.4716981132075472
+          },
+          {
+            "lower": 0.8,
+            "n": 66,
+            "prediction": 0.8509056410729178,
+            "truth": 0.7424242424242424
+          }
+        ]
+      },
+      "candidate": {
+        "n": 1601,
+        "games": 24,
+        "brier": 0.12216338024000127,
+        "game_mean_brier": 0.12048321681907286,
+        "log_loss": 0.3665460299862725,
+        "bins": [
+          {
+            "lower": 0.0,
+            "n": 786,
+            "prediction": 0.035486107370168385,
+            "truth": 0.04198473282442748
+          },
+          {
+            "lower": 0.2,
+            "n": 478,
+            "prediction": 0.301518358129932,
+            "truth": 0.25313807531380755
+          },
+          {
+            "lower": 0.4,
+            "n": 276,
+            "prediction": 0.4812494568331489,
+            "truth": 0.5036231884057971
+          },
+          {
+            "lower": 0.6,
+            "n": 61,
+            "prediction": 0.6651068688569212,
+            "truth": 0.7704918032786885
+          }
+        ],
+        "game_paired_brier_delta": -0.020079155357249145,
+        "cluster_bootstrap_95": [
+          -0.035660225464563315,
+          -0.004805699205821453
+        ],
+        "game_paired_log_loss_delta": -0.05400326353922927,
+        "old_high_threat_subset": {
+          "n": 421,
+          "brier_delta": -0.04025090763139621
+        }
+      },
+      "formula_maximum_error": 1.27675647831893e-15,
+      "promotion_gate_passed": true,
+      "fit_sha256": "5dd5633dad4b2856c4fa1be4bdfd444d06c8eb544922ee4d519107fb41003107",
+      "scope": "Independent complete self-play games. No human calibration claim; previous round raw scores are not deployed-posterior metrics."
+    },
+    "scope": "Independent self-play labels; no human-opponent calibration claim."
+  },
+  "complete_claims": [
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "public_hypotheses": 32,
+      "actual_terminal_games": 64,
+      "effective_sample_size": 9.382887238961205,
+      "pass_net": -0.10002186633502352,
+      "peng_net": -1.5002234073570881,
+      "peng_minus_pass": -1.4002015410220645,
+      "descriptive_weighted_pair_bootstrap_95": [
+        -6.386994900044204,
+        2.421002945641427
+      ],
+      "scope": "Hypotheses share one reconstructed public background, not32 independent real deals. Other root responders are assumed already passed. Initial legal action and priced first discard are declared counterfactual interventions. All later actions actual native policy. No claim of optimality or true hidden-state posterior."
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "public_hypotheses": 32,
+      "actual_terminal_games": 64,
+      "effective_sample_size": 9.412705790086594,
+      "pass_net": -1.2783223181530952,
+      "peng_net": 0.7749133852275736,
+      "peng_minus_pass": 2.0532357033806683,
+      "descriptive_weighted_pair_bootstrap_95": [
+        -2.1922978083367086,
+        4.943411826496712
+      ],
+      "scope": "Hypotheses share one reconstructed public background, not32 independent real deals. Other root responders are assumed already passed. Initial legal action and priced first discard are declared counterfactual interventions. All later actions actual native policy. No claim of optimality or true hidden-state posterior."
+    }
+  ],
+  "artifacts": {
+    "preregistration.json": "9efdab3a23610ce2e80ff6e783e83bfd3a02f14033c8b32a77e975fe4292346f",
+    "final-source-freeze.json": "c2d7686ad688600625ad31aebd5df7e42f1ea9bc4264e87125b9a8dde4b91f36",
+    "final-dll-binding.json": "a4732e6fac6c9a8049891a9d5b5efe0d0f3a4f1a3b82c03a62090c5c21ab0234",
+    "benchmark-final.json": "78f9a12fa1183146edcc316c1b6bbe459a506c137ebdc98d2de1d8e6f6a1c999",
+    "full-claims-final-corrected-32.json": "fc317968f1eedaddf5f19f9dd7708b676b521987ae0d034931e5c415ea2935d8",
+    "frozen-fit.json": "5dd5633dad4b2856c4fa1be4bdfd444d06c8eb544922ee4d519107fb41003107",
+    "train.json": "407a642fa973ab8b21f5aa1d687181d951c501d624ba431155c212371b10249d",
+    "validation.json": "f2c0dc6a059aafc00eac014c4eb93722a19b74844e69ef7d1ab18c480818f5c8",
+    "holdout.json": "baae37f88cbc7ac578338fc206a3aeff6a10ed8b2a27969da68ba7a17166ec98",
+    "holdout-evaluation.json": "f4f22ad2159e93a57a06b24566797c45e204c4b1c6deece3af446ec4544fb68f",
+    "graphs-independent.json": "be22ae216d83c143477998e2bfe9d47330a50b42219745a36d96e0e9dec61cf1",
+    "invariance-expanded/invariance.json": "2f5fe2a015f9dac66bbaff6f902bee440aa391abdbc1a30b2770d69070467678",
+    "claims/formal.json": "9b5dbc538d31167da7ca4fa3011a2e12dc158f5ae95efbe308cbe57c4f1ea344",
+    "claims/execution.json": "29b1957f6718ee4451ac3699e5fc0254a6773c61dbaaee2dcbfda4e4e4b2821d",
+    "gangs/formal.json": "849d212a40e8d8fd3cbc5df79c43856f0ca909b5a3bf9a75da7e0598bf6f6ec3",
+    "gangs/execution.json": "1d9bb967407dd436f16603fdb1a8bc1c18b1a7a42e5afaf6be3eaf023de3eb0e",
+    "precision/matrix.json": "890e01c2aedb3e4c38e8bcfb883886fb2b8398fabb5283960ddaf67d9c7a9ad5",
+    "precision/current.json": "2c821c1a3859b4aee3388257909b162efacd4b948a76e64e1b6290e5e02ff4ba",
+    "independent-claim-shapes.json": "7bd5e67abe40e7e4c5dad3de4af967608b18daa0fbfd90e0bee5e9bf7e13db75",
+    "input-control/formal.json": "ee8da24bb485599a7cb7ed03ec940817fe0cb568a38a2283138d2aaad219b679",
+    "original-source-binding.json": "9d82958f74a5d81ecc7af91de60aba91ba449703fdad87421a0ecbc2a9cfa2c2",
+    "source-6-28-public-detail.png": "846873aacda750559a5b5e46d00ee5f15cff9ad6b91857de1f4579c827658a3c",
+    "原页76-77.txt": "f64617286ef646b97dd311cacca5be48e82efd8dbb8edbebe2fecd8e26e3cdc9",
+    "讨论.md": "7936183bea6ae1212366d45c29214c459c3b09eeee0c298a0df45721555165ac",
+    "结论.md": "3791b48cbd6530d03feaebff33ae2062e12fbe773c47b147b4720a54df19617b",
+    "执行.md": "5b7a5d8da7669de10dc64690a282106f178913298a83f1246c9c76ead4d12674",
+    "学习反思.md": "c323772c0d6f65485b83a61c432a0b6b205363501cac4daef41aa2f0496e2cd4",
+    "来源纠偏.md": "c43e8e5fc4f4ff092c6f77b4b114b4f8e8ff3b0c3376ae86ada77dcceca5458f",
+    "补缺报告.md": "ff1a9cb288224d5f289607fdd0dbb2e46610e85986b8fde9bf54cbac1bb9fd49"
+  }
+}

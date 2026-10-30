@@ -1,0 +1,3225 @@
+{
+  "checks": 103,
+  "failures": [],
+  "rows": [
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-18",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 18,
+      "child": -1,
+      "ms": 20.5928,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "bc840f75cb5c75fc37eccc060785dc84a4d0a5fddd7a1b8bef45864e706a1b6a",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-18",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "d426447b323f588382394685ff350e7e30b9f3d25704e69ce3657e79e335b5ab",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 18,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-19",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 19,
+      "child": -1,
+      "ms": 0.5803,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "d179747cde50735e7877db4b9a080d3c2323d8b730431c30b488994c60eece9c",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-19",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f509f171158430161d864e39203c84f31f9b50141d21aa4334775efdc485b17a",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 19,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-20",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 20,
+      "child": -1,
+      "ms": 0.3878,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "7564b9e0b8fdec9b4c4993ad14f626c55f864a2e0671d89dac182a74a9380ed1",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-20",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2dc88f00053baa81e4128f4e9ef203e4a5098dfae18c6328da95d28ec8e6a1da",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 20,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-21",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 21,
+      "child": -1,
+      "ms": 0.4975,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "ec2dd6c9a6eebcf3902b907abeaf8164ff2c5d9133719009daeca1d32623ae99",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-21",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "77144003d36dbe591698a0a944809c51ea8c9eb977016b40b6ef825daff677c2",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 21,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 0.406,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "16a6a5072a9638691f6378f1d8a63df45bfa201446f6f8fb199eac41a4226638",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7f8b810b7e6f2b2bd8603c130686caa2fe65bbd005d8daabeae20cbb78de5d6f",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-23",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 23,
+      "child": -1,
+      "ms": 0.3732,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8356ebd9d69d9d1a521abf1206d8d063d1429d616069d5f6897fa7058dd51f9b",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-23",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "375184406cc2cc7ee1863267d25c3fb63805e370e96657bb126c500d8b24f26c",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 23,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-24",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 24,
+      "child": -1,
+      "ms": 0.456,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "71ac6e7c54ac4e93ddfb8d95ef76cb15eadd009a755deb0f39ef676eac84dfbb",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-24",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2abcde29e782eadd10b62323405a0bdc84dc7ba740e393a733c44ba2c3d62eda",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 24,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-25",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 25,
+      "child": -1,
+      "ms": 0.8403,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c7ed3eab9fa02face0905ef9d1f6e9d13bf0170994a2ebd182c4f6835a7c6255",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "917084744ad9a4610bddfe93d306957b4cc85d015e220b790e205808820df0d5",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 25,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-nine_gates-declared-draw/wait-26",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 26,
+      "child": -1,
+      "ms": 0.3823,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "fa1ded408f5ab53409b636355b1f0067e5613e4b9f7f00815ea3aa49b3d0722e",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-nine_gates-declared-draw/wait-26",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "acdf39a23de6d65c51f9f508da6f74f98108248fd19b834550747eafd41e846b",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 26,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-18",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 18,
+      "child": -1,
+      "ms": 0.4579,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "d6d654acebbfa2687f16e345eb3238606bee1c6c845fe31c045b3aa9940f0040",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-18",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "015e3f182bede2d179b2d6a511e43f06fd472b6562887a591793ec6ec215f283",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 18,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-19",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 19,
+      "child": -1,
+      "ms": 0.3555,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "52ca6feb74f9cadc7767579f2550f20ecd9a47ffe6a835d0648620ae2f4fb260",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-19",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f2a22edc2ab3c24db28af2be556c2d9693d9a28e3c64c2d0f992cc1e25f88183",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 19,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-20",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 20,
+      "child": -1,
+      "ms": 0.4684,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "4fffa3c0515d9f79b4051a1d4cfbd7a5823573164fc295e33a89a6609a7ebbe3",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-20",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "ba84c8dd3e1452483737e252470d96000b2e39ed2bd5e5c0072b1163b27b04aa",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 20,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-21",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 21,
+      "child": -1,
+      "ms": 0.407,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "b2adb7d40ee3348b9c6b2e29b820ea0c3efb1ac7e99bfe7b32d6125a146363f4",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-21",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "8ed6bc2f8df0d82a6a270acee7be903d0d636da431de28d0a152ce9bd5eba796",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 21,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 0.4062,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "1a2257f001736c3032b80c82cb2da789908b00429af6289062c5e465847ddae0",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "48103aab21b9f8eecd68484f996c8f47559137204fc1d0b03c800f54a554054e",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-24",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 24,
+      "child": -1,
+      "ms": 0.3696,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "f73423d344dd5f2cec5cf8bc621a4ea2400c3a6f8ab144ea780e2ebfc96fbad9",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-24",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "85bf93c508eeba47e44c51e7a3c140beb4e753ef40f5b84eded3d3981530ad49",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 24,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-25",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 25,
+      "child": -1,
+      "ms": 0.3985,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "d02f482bec20036e8d97b55b14b7fcab074a3f1cd087e3420508d3b61c154a67",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "35e8f23b0150698edb3e23ea6ab1c92109b79aa5ea28bcf64d1f03e4f4752301",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 25,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-A-declared-draw/wait-26",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 26,
+      "child": -1,
+      "ms": 0.4852,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "7130e89ec240cab43588838d764f7949bbcb7fcca62bf0ceb9125a5f040ab94d",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-A-declared-draw/wait-26",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "777876d73010c976cce9f02d55f566f51c271413bc1c14ef19d96dad14a1f853",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 26,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-18",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 18,
+      "child": -1,
+      "ms": 1.0285,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "6881df64037cb53dbb0bf8ee24693ec287d0f7bf704c709427bc04cc86902bca",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-18",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "3cd0eb71c0877d711f3301b86e77084ef994fd46397eb9b99bbde82de852ffec",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 18,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-19",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 19,
+      "child": -1,
+      "ms": 0.4744,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "ee8c1d1dfac753b098da0d81fb08f2f724d45c333f557b6eea30bfb050773338",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-19",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "83115f5606ffdbcde60da20d49b06ca9c753e71984616e10edc675c274d289fc",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 19,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-20",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 20,
+      "child": -1,
+      "ms": 0.5473,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "45acfa27cfdc4c9808432464ce218a3ab7c47e9b4b0d595625184558d9ac6944",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-20",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7b650cd06add2650cb4ea59a0455060cee83c5113d24445de1077f6f3ca9e61e",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 20,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 1.0027,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "32cb455f39a201ec28ec4f14f138714b9f5f2ef314cab252b94cb6b9787cb513",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "6b0d8778204719886bed8dbf6b21dab208eba44d562f9f16ebb1da8ee3af33a2",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-23",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 23,
+      "child": -1,
+      "ms": 0.4785,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "31e18aefb7874f503e70dd038f44f128582d7eaf0b443bfebe1f583e209d2ab1",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-23",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "0ec79fd3160dd51bf13bb132d48183356362461d923daab0a644de2c63f87f7a",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 23,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-24",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 24,
+      "child": -1,
+      "ms": 0.3672,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8c4269deef3ac4ebd387d67d53837bdcdb47be37b861dc8efff2a21c41339d66",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-24",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "c65c9fa8123c798b009e64cacc04a20729acfee4636bfa529991f51c281acef3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 24,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-25",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 25,
+      "child": -1,
+      "ms": 0.5791,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "2765badfbcae7e38aead66d76a41f0115c247ae23880183d34271f097d24d5d4",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "1affe0201f1d21b428ed920171a9cb7833be06b7186f06d4437955ba4487cbcd",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 25,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-B-declared-draw/wait-26",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 26,
+      "child": -1,
+      "ms": 0.3542,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "ee3ceaac6e00f90c53cacd430bd00a2fba21bbf9b9fd3452b0fa796afed3f803",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-B-declared-draw/wait-26",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "d7ef1f937a0c9081652efb641cde207a91f886520dae81c120bfcf2bfb03f668",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 26,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-9",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 9,
+      "child": -1,
+      "ms": 0.485,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "2d2e11329f52a840654324acebc05e56498cb2e0d0e764e30408f0a1c71fbd1d",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-9",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f84c02a653c4f68a5f7cedcb016aadcf444bc8acf0511105f373d4b71a56fde3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 9,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-10",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 10,
+      "child": -1,
+      "ms": 0.4111,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "7bd10724b4f7c572d11f9039dee491090f244eb09c98255f13911a33592f6d9c",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-10",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "6fb3f91b08707aeb19b5777be07c0b4f673d505853979081ed6e07cd9f5db552",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 10,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 0.4278,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "f6167542d3f949cbe01a23465227252dcdb431e89ed117a3427e0927e6ce62a6",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "6be4531c8e8fff3d9a800f3dcd2472ffb2475517c03430844e41cf44a77bb6ed",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-13",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 13,
+      "child": -1,
+      "ms": 0.378,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "cdb43c508e7e79773d91d3810afcff3cc8634017aacd1e9d48b3991f930989bf",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-13",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "afe8a0acb31db9a529418e88852061ea5c02d8b59dd3f5535b461c7188a0940d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-14",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 14,
+      "child": -1,
+      "ms": 0.5926,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "56f329a232d4c80704617b5ce161a75475bd5d84e79176df6fe9a0a6c0ae5431",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-14",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "a12df2720e41d5303d05622677258c20c4b797014b61b09422e7ce96503c85b4",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-15",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 15,
+      "child": -1,
+      "ms": 1.1935,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "b3c1553e1ee2afc778bf17103a35fd8bf01cde092b54b6759612d676589edf1d",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-15",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "867f54fba9df6956717162a9a17d9e62d2afccefca99e5ad3e90f55fc89ac021",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 15,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-16",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 16,
+      "child": -1,
+      "ms": 0.613,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "30ddacfd149ad98bbf37f0225141feac2058a7936486b5863bb72b80cf7e3bee",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-16",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "ca64b8e264fe39edb20f1d16ae2a2b1132282d0b69fdc4dbc120c8821418ad52",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 16,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-C-declared-draw/wait-17",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 17,
+      "child": -1,
+      "ms": 0.6245,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "63d4c45f817eb3b754a32472c926fe611ad0de01dcee431550093f27fd34d52c",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-C-declared-draw/wait-17",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "4b32ba99a1977353d0dcd0366fa90b384ec567de05a0297845402fcf87d57a67",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-9",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 9,
+      "child": -1,
+      "ms": 0.8301,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "5c6de7c172bffb62e0ea57ae6d0a8fe443af156cabb2546e5f848260a7b52766",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-9",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "897c1060687a55b5a01b7340d82885069edc852cb4b7312a27c9d37d97489aad",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 9,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-10",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 10,
+      "child": -1,
+      "ms": 0.6032,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "588ff5ef5f308b3204a096b4862c19c7e316030dea7cdc5f3dd138ff2d390058",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-10",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "5b736f9c2542b77eafa832690037ddf1fa2248c90b09e0e4704a5963efd6ac33",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 10,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-11",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 11,
+      "child": -1,
+      "ms": 0.5746,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "e5a37446c6531c6a32b2763f4c174bf651be59f05563991546b19d7b17b39e87",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-11",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "3ba87c1b8d0761d2132747c1135d9c345f7aa2cd3008dc412472e3f3f95d3641",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 0.629,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "a7fb6d9c027214ad39058f15af217a5628cb886ca45df8446a39a94d6ef4d011",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "c912e96dcde18eb7f3ee894d5c9ff3628b45e901f19b6f5de6c41bc1b7d04d23",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-13",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 13,
+      "child": -1,
+      "ms": 0.5265,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "30b6f9e38e27de1e6f43edc43f7ce90d5a0f1931bed49de27554bb4eb7948f0e",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-13",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "8c976bfff14cc84fb1cbd7d645729df11714da30eceac679f93d49175bb402f3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-14",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 14,
+      "child": -1,
+      "ms": 0.565,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "2a6d7a65b1ce7cffc8ef42d47724c1f558373492a61cb2633050bdb2214c00b5",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-14",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "e9e4a0826f94f91ee16dd651665caebc12e8f645c067d0e97647a1ccf8c3b8bc",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-16",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 16,
+      "child": -1,
+      "ms": 0.6752,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "06cd5a9de4fb9ddd599d4ca545ffad163a66798375abb2d270ec3b90ef628b35",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-16",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "cadcc777db9535c9830f3c3002bd13ef90915078efd5457a1b355f3af16ee63f",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 16,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-D-declared-draw/wait-17",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 17,
+      "child": -1,
+      "ms": 1.225,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "9e85ee70a1efb6c7d4f60f5bdd5137e78f4796a48bcd2d31a7b3fee877409286",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-D-declared-draw/wait-17",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "920592ea6d75b254c6a1eee2896cd9bcdc2f357395867e4b6c195c18015049a0",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-0",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 0,
+      "child": -1,
+      "ms": 0.6841,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "11b2d29178e67bb3cafc0f2b5d61308514ebfdbc205ce4099546f7aca89a75bb",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-0",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "90a4b2844f5e67dd176a58924f00e951b4dc8829abec603aa3e08e16eb88b700",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 0,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-1",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 1,
+      "child": -1,
+      "ms": 0.5809,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "a67e96e928eb7dea846a34128571e6c1b2b45f46f9f176789afa71acbc1b7d2e",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-1",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f6ccb68a956c8da167688a006ba8299f7eb9baa16629ebb63273ead85117ba3a",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 1,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-3",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 3,
+      "child": -1,
+      "ms": 0.6492,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "b64ade6beb379478cadf784d18884f58641b2bc371f83c785051936ff600dd15",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-3",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "65c793e95914d137cce25cad9e4b8bad89cef1c58a3e4d8e82e287bb23f103ab",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 3,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-4",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 4,
+      "child": -1,
+      "ms": 0.5824,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c7b270c6fd910f772e37bc946bbdd3cef55b7205d6051b3394a9813c0ab47e0b",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-4",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "cbcc118abf7c92703d97452ea375b001db4f56abeda2c803673866d5ec71d010",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 4,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-5",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 5,
+      "child": -1,
+      "ms": 0.5427,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8c9df535548c22d7d6bd78e3b77fcaf0a983e95c768bbd110078e7ec596a1cb2",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-5",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "0e85e3e645c2db641d9df3ddd0e12834b02a8426ce43fdbc5f0715d07f50f932",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 5,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-7",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 7,
+      "child": -1,
+      "ms": 0.4127,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "bed4504db64595304b2af217f36e473421e324cd3d011c5fc727ecd14880841d",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-7",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "549187c66243b0d29bcd51569eecdb65dd555d8657e0906544fe8287de2dcb13",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 7,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-E-declared-draw/wait-8",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 8,
+      "child": -1,
+      "ms": 2.111,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "cb81ae5482d35d8cd46c4d26176397d3fcfe8fd22b60b12f5e495c0101ef479b",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-E-declared-draw/wait-8",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "35885b250edba660a161d59a6a929e4439bb883eee8acba678d29818c382a1d5",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 8,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-0",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 0,
+      "child": -1,
+      "ms": 0.4668,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c68744d3aa7e320a4121fca7c8dac664dd751652c9ca29044e611352d8f3f16f",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-0",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2f04f2154c4d69db330cc577fff7bbbaed650036d042f57752fe6dc7d2a034e6",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 0,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-1",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 1,
+      "child": -1,
+      "ms": 0.3901,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8a4c9cfcd9813ca052618e432f76742e11ef0e1e20a9298f554254786990ff14",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-1",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2ca0b88d48633d863919dde75b68113f8c6f7e10ae97002ec624af7696f50b21",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 1,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-2",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 2,
+      "child": -1,
+      "ms": 0.9342,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "88eed60e33a2567b141b68bc88c121cef77533a0d49517783b670f728e318dbc",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-2",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7e88c745c07df0357e46918a4ef32c2a86d4405492c44687a59ace7419d0bc99",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 2,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-4",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 4,
+      "child": -1,
+      "ms": 0.4362,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c5526e99e918eb3f47533676c090178bc303e10992a99c6dde8bc0d92a4e359c",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-4",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "b375de2366588ee63cb8e9a205b7b2c406fc15d5bbb1221ecc57e45cbb2efbc0",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 4,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-6",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 6,
+      "child": -1,
+      "ms": 0.4217,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c9b0bbdd35269df4d8e9127bf1a3aa976852513c7995254154ebf2869871bb82",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-6",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2dd7e114b0c23c329d650f4d79f82ee1522a232b8c82a7caf1729c4c797294b3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 6,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-7",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 7,
+      "child": -1,
+      "ms": 0.3647,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "96ea43df7f799f4fd1d1905e8ab95697bac1e4e589082e1e98db6e2dc8a0aacf",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-7",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7f98b2931bc3290391598389038616891e95d423c895bd8768374c47e24376c2",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 7,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-38-6-intro-F-declared-draw/wait-8",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 8,
+      "child": -1,
+      "ms": 0.4789,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "c849b0c4078ab231e1a4c849d8d4111ae6d22bb17459a4fb172477b4d1d2bde3",
+        "Window": "turn",
+        "RoundId": "lower-38-6-intro-F-declared-draw/wait-8",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2053c9a419e229cca490ad68b65cd40bc466aa1c2176cf3d6306e50af538f06c",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 8,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-9",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 9,
+      "child": -1,
+      "ms": 0.3952,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8e0e9e35cf58388d56b3dd916896bdcd5d52e769f35649003c7c219f5d1b744b",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-9",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "605c6cc5220afe50e5df3b0dff5d984150bd7f44fe8442a4059593af075d41cd",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 9,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-10",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 10,
+      "child": -1,
+      "ms": 0.3962,
+      "values": {
+        "hu": 51000,
+        "pass": -51000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 51",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "29b610f8871a6a992c759f9a9825067cd611cf2d6648500e9818a3280d84b94c",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-10",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "304753cd147547c9d832b541d6c2f40f15b6b8f8c56c50ed45fa8c1b22a263c1",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 10,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-11",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 11,
+      "child": -1,
+      "ms": 0.909,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "20cedaa0634db11436c7f0ebf91c5659364a255e630314a22bf9166c84ddac3b",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-11",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "8bc8e8215ec8b42fa3a21cb519a877ce3b35b158feaa33a4047211cf2505b73e",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 0.4155,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "e67fc038b956154d80dba0248e235961fb8f668ca0fd95b884401abd86e29e92",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "06821bd2692046aaec2c703a8299dd5c6348f64dc4234c87257df3acf6bafcfb",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-13",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 13,
+      "child": -1,
+      "ms": 0.3678,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "82b9b194b1bcadff2339d9b080603f16787fa31f9c05f86afe3276f38961df3b",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-13",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "8f5827dcd19575823bf22ad78a6fd28027a0665db120f9db83037a90a696811d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-14",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 14,
+      "child": -1,
+      "ms": 0.4106,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "6f368342b26e9f9d940eb5ae747e33edab53b1758551bc6afa4a4cc4482491b3",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-14",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7c41d868f36e831b7828c99a9e27fbd98e2881d09d19499c22102a508380fca3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-16",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 16,
+      "child": -1,
+      "ms": 0.4387,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "40ab600dae1dd4bc1d54ef4a2f8d0d672e0078a86f7388e951e40f61a9fbb8c3",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-16",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "d0a22be30c4d14c84cf1150f465c3a27e07d4168bbf39478198914fd70ccbd8e",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 16,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-39-6-3-base-declared-draw/wait-17",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 17,
+      "child": -1,
+      "ms": 0.4408,
+      "values": {
+        "hu": 27000,
+        "pass": -27000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 27",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "b1ca41f7809f2c571ac83c09996cf82d72b313a32b6e321ef3081650d228de09",
+        "Window": "turn",
+        "RoundId": "lower-39-6-3-base-declared-draw/wait-17",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7b63088811b69ddabc1a4aeff1bbbc55784df106bd41aeac8f63e6f3e1951460",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A1-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 0.4524,
+      "values": {
+        "hu": 15000,
+        "pass": -15000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 15",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "52a2961b3ce84b73f685edafac13cdad1a3e59c1078aa85e640837955e20ddf9",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A1-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "95fc7998b380bc579a16815cd53da31f309dec1f345d871f2ce3903708e26226",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A2-declared-draw/wait-19",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 19,
+      "child": -1,
+      "ms": 0.4933,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "fa34fe35e09055aedfa06479eff48343a5524647720953bfe6dbe0ea270bea9f",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A2-declared-draw/wait-19",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f1fdd6d957b1188db0440ed9bae2d02f2e14139fac818b60b8a320fc495ec383",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 19,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A2-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 0.3827,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "61f4351abe0d9753280dc3ff3541753954c27e2a591da99cdfc3dd477e32b9f6",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A2-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "0ead235915f3da43ab5ff23ba1be2bd9552f6942d3aead8934a5349d7f32ecf7",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A3-declared-draw/wait-19",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 19,
+      "child": -1,
+      "ms": 0.2871,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "e2d2843b628d686380c09549ad594141ec627afde66077dd983418280ca0b447",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A3-declared-draw/wait-19",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "81bf2b48618c63b018e9b2100d2e16b70c214e0c469c2c1b24d1715a0168ade7",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 19,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A3-declared-draw/wait-22",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 22,
+      "child": -1,
+      "ms": 0.3042,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "8903764cce7a8681d3d261ca453f8b8624c1ef9377ba1a0b8ed948dbce577fc6",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A3-declared-draw/wait-22",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "9c26578d298c333a4b305af1ba90d57b72f7ec2e863c934c214804f22cd2fe68",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 22,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-A3-declared-draw/wait-25",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 25,
+      "child": -1,
+      "ms": 0.3484,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "19abc962b31bdcf2159a2523a4e05e2ba3fe3913e770f7a344014ad0b7997b45",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-A3-declared-draw/wait-25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "b83c69b36fc87757a525c02e4a425d3506f4d3a7ec5933ef00944a231ec3e026",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 25,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-B1-declared-draw/wait-9",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 9,
+      "child": -1,
+      "ms": 0.3448,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "a9f24968423c0334a245ff8239718195a6bb617b2fec0e149eecc589fb0b142c",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-B1-declared-draw/wait-9",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "4bc6bd8c1562b0017670a002631bf6e0ea7dc6131d8ce051a7f0e160fae67a18",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 9,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-B1-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 1.0292,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "91241da2534668b01b025ede35b8b30245173d0ee699512e5524d73da27a1863",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-B1-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "746f8b6fa98d12ad1df8339e7031d89339f113e3091bdfc4b2738726dbd3863a",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-B2-declared-draw/wait-9",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 9,
+      "child": -1,
+      "ms": 0.2925,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "981110240854fa87f6069220cded590f03b3c94beeb31ab0fcb06b9de75c9dba",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-B2-declared-draw/wait-9",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "92c3d4a5d53ff5066aae0308ba66fb4d916256e9d4a8bcd9958dad2bd8ea0399",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 9,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-B2-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 0.3084,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "e6f6c3b3e3921b6afbc4cef2e9717aab2b29d2a837847f01d99065989385c623",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-B2-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "65f626e6e27907cc89120131cf650df42cc90ffcabedf2d67041fdd0097be87b",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-1-B2-declared-draw/wait-15",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 15,
+      "child": -1,
+      "ms": 0.3516,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "b831fe6b2cd63582f12a58bea151b1aa43d140e4f6cc2bf23a53212f6cb4ad31",
+        "Window": "turn",
+        "RoundId": "lower-core-6-1-B2-declared-draw/wait-15",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "6fcfbd6ca73b599e41c89fcb6aa08bd864d870059e79ec58ee64f4d1513327c6",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 15,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A1-declared-draw/wait-18",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 18,
+      "child": -1,
+      "ms": 0.3169,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "ccf195ffe0188758454a4f31589c54cd8b5ea8f914a78bedc85133b53348cc11",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A1-declared-draw/wait-18",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "6f39519181a92176b6d81338b9f82b48ffd9113b418734d730c2efff54872908",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 18,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A1-declared-draw/wait-20",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 20,
+      "child": -1,
+      "ms": 0.3087,
+      "values": {
+        "hu": 9000,
+        "pass": -9000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 9",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "2dfe756d4216ad2b05e434eb2ec7d3b3ab0f7df5f37e60e7718549cee26a0d5e",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A1-declared-draw/wait-20",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "dd8a8e52fd21176480c8d0599d959736ee66a09b9719e790cb5f581e81101ce5",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 20,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A1-declared-draw/wait-21",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 21,
+      "child": -1,
+      "ms": 0.336,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "e821b09779e2f2caf09cd850f224257cc6daee2e7340432b03bae63064e010be",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A1-declared-draw/wait-21",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2d3ed6c3810c1d846082c6508b1d34c40e6c084889f588c7ad916703f8bb872c",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 21,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A2-declared-draw/wait-18",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 18,
+      "child": -1,
+      "ms": 0.3416,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "81460484eb0cfbbfa7285e47d779e8444914d458e8f6f7689463e79f18fadb16",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A2-declared-draw/wait-18",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "d17a2b54150702ecb8fd6d97e442d1f40697e4797587f7a46676a9bcae45f9ea",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 18,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A2-declared-draw/wait-20",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 20,
+      "child": -1,
+      "ms": 0.3677,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "a8a9b49bde4c39ad8f461db3b87f7817774033555462b5905c385ff82eee9ddd",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A2-declared-draw/wait-20",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "ccc2daae9e3dd1d52a85e9708180d426dc5a483e8ca3d48a1d0dcf925967e6b6",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 20,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A2-declared-draw/wait-21",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 21,
+      "child": -1,
+      "ms": 0.383,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "f6a6ca38d7955005b8cf6169231ddfafa8429734d5588e629c8df98f7a4a3c59",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A2-declared-draw/wait-21",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "56988f74de9536af07c39ad369dcda48804ce4c3df226d47f3bf237e84f21af2",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 21,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A2-declared-draw/wait-23",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 23,
+      "child": -1,
+      "ms": 0.8616,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "39ff6ebbf1eba5754fb4bf44fafd67d0abc047e74457ad7c645fa5f9482546de",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A2-declared-draw/wait-23",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "c4da17b0cc6ff812b77485b5fc740d9cb635dd24520eceb209274647f0233a3c",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 23,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-A2-declared-draw/wait-24",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 24,
+      "child": -1,
+      "ms": 0.3033,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "aa6f1a80049924c5dc3dbe24a95db9340634141c12a39c35ceda4698a027428c",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-A2-declared-draw/wait-24",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "a224f50861a6d4b9701019ddde7eb6ec8c6c24eb354053eca8344554ac7b4be5",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 24,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-B-declared-draw/wait-11",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 11,
+      "child": -1,
+      "ms": 0.3607,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "881bdc9f5f070cb154d905d339f05da94a5f75cdf91c1e5ed4c3d8197050828b",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-B-declared-draw/wait-11",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "eccfc324a40012904bca7d3a41a2c229a73dfa5bf6b2b02e3e8b4600f9232fc3",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-B-declared-draw/wait-12",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 12,
+      "child": -1,
+      "ms": 0.8866,
+      "values": {
+        "hu": 9000,
+        "pass": -9000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 9",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "f372920f23a13395574f4b4b06c96651b612ab93b4f5e9d10e3afd737c084ba9",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-B-declared-draw/wait-12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "a2ef57c478a660e3c7d8b674af0e47ecb552731a08dfc38376167416714c7feb",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-B-declared-draw/wait-13",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 13,
+      "child": -1,
+      "ms": 0.3327,
+      "values": {
+        "hu": 9000,
+        "pass": -9000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 9",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "adf0cc1729043dc76dcba89f82d99d5f26d0e98fddb509af4c4d7f22a18e2bfc",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-B-declared-draw/wait-13",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "234c73f0adb09365765b6f8b8ec885d4cc5a663e62c7b69bd67ccff484746c48",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-B-declared-draw/wait-14",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 14,
+      "child": -1,
+      "ms": 0.3469,
+      "values": {
+        "hu": 9000,
+        "pass": -9000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 9",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "24d1be2a8252845034ba333e7a59b66927581e659c1b14a416c0f5539493cda7",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-B-declared-draw/wait-14",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "dbfb002ab229f9468d5170bca3d24c25ac35ec375604acfbfd6fabe379d4bcfe",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    },
+    {
+      "id": "lower-core-6-2-B-declared-draw/wait-15",
+      "section": "6.1",
+      "action": "Hu",
+      "tile": 15,
+      "child": -1,
+      "ms": 0.3259,
+      "values": {
+        "hu": 6000,
+        "pass": -6000
+      },
+      "reasons": [
+        "SELF_DRAW_CERTAIN_GAIN",
+        "SELF_DRAW_RULE_CASHFLOW",
+        "\u672C\u6B21\u80E1\u724C\u786E\u5B9A\u6536\u5165 6",
+        "SELF_DRAW_WIN_TYPE_SelfDraw"
+      ],
+      "command": {
+        "Id": "d0f5cfb8db9f4a90c202bba7d482ea2ada4b2199a0b8fecc78618f1bb9de441c",
+        "Window": "turn",
+        "RoundId": "lower-core-6-2-B-declared-draw/wait-15",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "214a27fbe40debf0bc12ef3e4a9e0765076101a433ddf32b1b2c2435676a76e0",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "hu",
+        "Tile": 15,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "diagnostic": null
+    }
+  ]
+}

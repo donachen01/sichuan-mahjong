@@ -1,0 +1,20 @@
+{
+  "source_sha256": "5806a2df17686a9b015496a17f72eed277bc79bee3607dafa5ca86f81203012e",
+  "before_checks": 1237,
+  "before_failed_checks": 42,
+  "current_checks": 1237,
+  "failures": [],
+  "neutral_allocation_settings": 116,
+  "neutral_seeds": 3,
+  "neutral_hypotheses": 89088,
+  "neutral_checks": 1044,
+  "independent_release_counterexamples": 27,
+  "fresh_physical_backgrounds": 12,
+  "fresh_execution_rows": 50,
+  "affected_golden_rows": 8,
+  "natural_rounds": 2,
+  "natural_executed_actions": 132,
+  "same_loaded_core_dll": true,
+  "mobile_rebuilt": false,
+  "overall_learning_acceptance_complete": false
+}

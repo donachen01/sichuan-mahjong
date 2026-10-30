@@ -1,0 +1,27 @@
+{
+  "round": 4,
+  "status": "declared_round_completed",
+  "overall_learning_goal": "not_all_closed",
+  "closed": [
+    "exact-input numerical wall/channel reuse",
+    "discovery scalar avoids unused outputs with exact ordered sums",
+    "batch turn table, original single-path behavior",
+    "bounded deterministic parallel batches, exact numeric/actual behavior evidence"
+  ],
+  "remaining": [
+    "complex reaction still6.8seconds",
+    "6-28 missing original context/m4 uncertainty",
+    "live joint posterior scope/cost/value",
+    "phone AOT/performance",
+    "human/long-term strength"
+  ],
+  "evidence": "final-audit.json",
+  "reports": [
+    "讨论.md",
+    "学习反思.md",
+    "结论.md",
+    "执行.md",
+    "补缺报告.md"
+  ],
+  "does_not_define_future_regression_suite": true
+}

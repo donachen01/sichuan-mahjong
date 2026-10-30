@@ -1,0 +1,37 @@
+{
+  "info" : {
+    "arguments" : [
+      "devicectl",
+      "device",
+      "install",
+      "app",
+      "--device",
+      "00008120-000915803A90A01E",
+      "build/ios/SichuanMahjong-2.6.94-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app",
+      "--json-output",
+      "evidence/2.6.94_release_20261030/dona-install.json"
+    ],
+    "commandType" : "devicectl.device.install.app",
+    "environment" : {
+      "TERM" : "dumb"
+    },
+    "jsonVersion" : 5,
+    "outcome" : "success",
+    "version" : "651.13.5"
+  },
+  "result" : {
+    "deviceIdentifier" : "516E99D2-18B6-5DD8-94E1-6993510A036D",
+    "installedApplications" : [
+      {
+        "bundleID" : "com.chendong.sichuanmahjong.iosdev",
+        "databaseSequenceNumber" : 4180,
+        "databaseUUID" : "17F212F3-2714-4F0E-A5E2-321D5D80FCE8",
+        "installationURL" : "file:///private/var/containers/Bundle/Application/EFB55E1D-BBB8-40EB-8FC8-D68B3D9F54F2/SichuanMahjongIOS.app/",
+        "launchServicesIdentifier" : "unknown",
+        "options" : {
+
+        }
+      }
+    ]
+  }
+}

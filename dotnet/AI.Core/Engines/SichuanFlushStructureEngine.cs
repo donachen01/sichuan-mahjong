@@ -15,6 +15,11 @@ public sealed class SichuanFlushStructureEngine
     // Private immutable patterns; Lazy safely shares the one-time enumeration.
     private static readonly Lazy<byte[][]>[] Patterns = Enumerable.Range(0, 5)
         .Select(melds => new Lazy<byte[][]>(() => BuildPatterns(melds))).ToArray();
+    private static readonly Lazy<byte[][]>[] Ready = Enumerable.Range(0,5).Select(m=>new Lazy<byte[][]>(()=>
+        Patterns[m].Value.SelectMany(goal=>Enumerable.Range(0,9).Where(t=>goal[t]>0).Select(t=>
+        {var h=goal.ToArray();h[t]--;return h;})).GroupBy(h=>string.Join(',',h)).Select(g=>g.First()).ToArray())).ToArray();
+    internal static IEnumerable<ReadOnlyMemory<byte>> ReadyPatterns(int melds)
+        =>Ready[melds].Value.Select(a=>new ReadOnlyMemory<byte>(a));
 
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, SichuanFlushStructure> Cache = new();
     private static SichuanFlushStructure Copy(SichuanFlushStructure value) => value with {

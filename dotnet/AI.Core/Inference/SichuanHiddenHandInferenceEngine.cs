@@ -35,36 +35,52 @@ public sealed class SichuanHiddenHandInferenceEngine
         int seed = 20260713,
         SichuanHiddenHandProposal proposal = SichuanHiddenHandProposal.BehaviorWeightedLegacy,
         int minimumParticleCount = 32)
+        =>SampleParticlesCore(state,particleCount,seed,proposal,minimumParticleCount,4096);
+
+    internal IReadOnlyList<SichuanHiddenHandParticle> SamplePublicResearchParticles(
+        SichuanStateView state,int particleCount,int seed,SichuanHiddenHandProposal proposal=SichuanHiddenHandProposal.PublicPriorThenLikelihood,
+        IReadOnlyDictionary<int,double>? readyTargets=null)
+    {
+        SichuanMahjong.AI.Core.Decision.SichuanPolicyExecutionScope.RequireResearchContext();
+        return SampleParticlesCore(state,particleCount,seed,proposal,32,16384,readyTargets);
+    }
+
+    private IReadOnlyList<SichuanHiddenHandParticle> SampleParticlesCore(
+        SichuanStateView state,int particleCount,int seed,SichuanHiddenHandProposal proposal,
+        int minimumParticleCount,int maximumParticleCount,IReadOnlyDictionary<int,double>? readyTargets=null)
     {
 
-        particleCount = Math.Clamp(particleCount, Math.Clamp(minimumParticleCount, 8, 32), 4096);
+        particleCount = Math.Clamp(particleCount, Math.Clamp(minimumParticleCount, 8, 32), maximumParticleCount);
+        bool publicProposal=proposal is SichuanHiddenHandProposal.PublicPriorThenLikelihood or SichuanHiddenHandProposal.PublicReadyMixture;
         // Public snapshot versions are transport/cache bookkeeping, not tile
         // evidence. Retain historical coupling only for the legacy proposal.
         var random = new Random(seed ^ (state.SeatIndex << 16)
-            ^ (proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood ? 0 : state.VisibleVersion));
+            ^ (publicProposal ? 0 : state.VisibleVersion));
         var pool = Enumerable.Range(0, 27).Select(tile => Math.Max(0, state.Remaining18[tile])).ToArray();
-        var publicTileOrder = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
+        var publicTileOrder = publicProposal
             ? CanonicalPublicTileOrder(state) : null;
         var handSizes = ResolveHiddenHandSizes(
-            state, includeExitedSeats: proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood);
+            state, includeExitedSeats: publicProposal);
         var particles = new List<SichuanHiddenHandParticle>(particleCount);
         // An announced legal winner has cleared dingque even though their
         // concealed tiles remain allocated after exiting blood-battle play.
         // Keep the active waiting-boundary helper and legacy proposal intact.
         var cleared = Enumerable.Range(0, 4).Select(seat =>
             SichuanOpponentTimeline.MustHaveClearedMissing(state, seat)
-            || (proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
+            || (publicProposal
                 && state.HasHu[seat] && state.DingQueSuits[seat] is >= 0 and < 3)).ToArray();
         // Public evidence is fixed throughout this sampling call. Prepare it
         // once, without sharing it across seats, observations or hidden worlds.
-        var publicEvidence = proposal == SichuanHiddenHandProposal.PublicPriorThenLikelihood
+        var publicEvidence = publicProposal
             ? Enumerable.Range(0, 4).Select(seat => PreparePublicLikelihood(state, seat)).ToArray()
             : null;
-        var wonMasks=Enumerable.Range(0,4).Select(seat=>proposal==SichuanHiddenHandProposal.PublicPriorThenLikelihood
+        var proposalLogs=proposal==SichuanHiddenHandProposal.PublicReadyMixture
+            ?publicEvidence!.Select(e=>Enumerable.Range(0,27).Select(t=>e.MissingLog[t]+e.MeldLog[t]+e.DiscardLog[t]).ToArray()).ToArray():null;
+        var wonMasks=Enumerable.Range(0,4).Select(seat=>publicProposal
             ? PublicWonSingletonMask(state,seat):0u).ToArray();
         var samplingSeats = Enumerable.Range(0, 4).Where(seat => seat != state.SeatIndex)
             .OrderByDescending(seat => cleared[seat]).ToArray();
-        for (var attempt = 0; attempt < particleCount * 4 && particles.Count < particleCount; attempt++)
+        for (var attempt = 0; attempt < particleCount * (proposal==SichuanHiddenHandProposal.PublicReadyMixture?32:4) && particles.Count < particleCount; attempt++)
         {
             var remaining = (int[])pool.Clone();
             var hands = Enumerable.Range(0, 4).Select(_ => new int[27]).ToArray();
@@ -72,6 +88,38 @@ public sealed class SichuanHiddenHandInferenceEngine
             var valid = true;
             foreach (var seat in samplingSeats)
             {
+                if(proposal==SichuanHiddenHandProposal.PublicReadyMixture)
+                {
+                    var start=remaining.ToArray();int forbidden=cleared[seat]?state.DingQueSuits[seat]:-1;
+                    int size=handSizes[seat],mc=state.MeldCount(seat),dq=state.DingQueSuits[seat];
+                    bool mix=state.ActiveSeats[seat]&&!state.HasHu[seat]&&size==13-3*mc&&dq is >=0 and <3;
+                    double rate=mix?Math.Clamp(readyTargets?.GetValueOrDefault(seat,.2)??.2,.02,.8):0;
+                    var exposed=new int[27];foreach(int t in state.Melds18[seat])exposed[t]++;
+                    if(mix&&random.NextDouble()<rate)
+                    {
+                        var h=SichuanReadyHandProposal.Draw(start,exposed,dq,mc,random,proposalLogs![seat]);
+                        if(h is null){valid=false;break;}
+                        hands[seat]=h;for(int t=0;t<27;t++)remaining[t]-=h[t];
+                    }
+                    else for(int draw=0;draw<size;draw++)
+                    {
+                        int t=PriorDrawExcluding(remaining,random,forbidden,publicTileOrder,wonMasks[seat]);
+                        if(t<0){valid=false;break;}hands[seat][t]++;remaining[t]--;
+                    }
+                    if(!valid)break;
+                    var hand=hands[seat];
+                    double prior=SichuanReadyHandProposal.LogPhysicalMass(start,hand);
+                    double uniform=SichuanReadyHandProposal.LogPhysicalMass(start,hand,forbidden,wonMasks[seat]);
+                    double density=mix?SichuanReadyHandProposal.Density(start,exposed,dq,mc,hand,proposalLogs![seat]):0;
+                    double logQ=uniform;
+                    if(mix)
+                    {
+                        double ready=density>0?Math.Log(density):double.NegativeInfinity,max=Math.Max(uniform,ready);
+                        logQ=max+Math.Log((1-rate)*Math.Exp(uniform-max)+rate*Math.Exp(ready-max));
+                    }
+                    logWeight+=prior-logQ+PreparedPublicHandLogLikelihood(publicEvidence![seat],hand);
+                    continue;
+                }
                 for (var draw = 0; draw < handSizes[seat]; draw++)
                 {
                     // Legacy callers retain their historical behavior-weighted

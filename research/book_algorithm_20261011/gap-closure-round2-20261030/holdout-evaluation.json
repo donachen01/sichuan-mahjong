@@ -1,0 +1,127 @@
+{
+  "raw": {
+    "n": 1601,
+    "games": 24,
+    "brier": 0.14042816759937563,
+    "game_mean_brier": 0.14049232548129117,
+    "log_loss": 0.4405823765227447,
+    "bins": [
+      {
+        "lower": 0.0,
+        "n": 747,
+        "prediction": 0.08976483144533914,
+        "truth": 0.09504685408299866
+      },
+      {
+        "lower": 0.2,
+        "n": 569,
+        "prediction": 0.28680268107909096,
+        "truth": 0.2126537785588752
+      },
+      {
+        "lower": 0.4,
+        "n": 238,
+        "prediction": 0.47980005820938926,
+        "truth": 0.47058823529411764
+      },
+      {
+        "lower": 0.6,
+        "n": 40,
+        "prediction": 0.6619011809095309,
+        "truth": 0.725
+      },
+      {
+        "lower": 0.8,
+        "n": 7,
+        "prediction": 0.8758999999999999,
+        "truth": 1.0
+      }
+    ]
+  },
+  "actual": {
+    "n": 1601,
+    "games": 24,
+    "brier": 0.14510260926463364,
+    "game_mean_brier": 0.14056237217632203,
+    "log_loss": 0.4267826419861325,
+    "bins": [
+      {
+        "lower": 0.0,
+        "n": 733,
+        "prediction": 0.060015201264875896,
+        "truth": 0.02592087312414734
+      },
+      {
+        "lower": 0.2,
+        "n": 202,
+        "prediction": 0.3171088631694982,
+        "truth": 0.22772277227722773
+      },
+      {
+        "lower": 0.4,
+        "n": 335,
+        "prediction": 0.5005797429755259,
+        "truth": 0.30149253731343284
+      },
+      {
+        "lower": 0.6,
+        "n": 265,
+        "prediction": 0.6916964050109016,
+        "truth": 0.4716981132075472
+      },
+      {
+        "lower": 0.8,
+        "n": 66,
+        "prediction": 0.8509056410729178,
+        "truth": 0.7424242424242424
+      }
+    ]
+  },
+  "candidate": {
+    "n": 1601,
+    "games": 24,
+    "brier": 0.12216338024000127,
+    "game_mean_brier": 0.12048321681907286,
+    "log_loss": 0.3665460299862725,
+    "bins": [
+      {
+        "lower": 0.0,
+        "n": 786,
+        "prediction": 0.035486107370168385,
+        "truth": 0.04198473282442748
+      },
+      {
+        "lower": 0.2,
+        "n": 478,
+        "prediction": 0.301518358129932,
+        "truth": 0.25313807531380755
+      },
+      {
+        "lower": 0.4,
+        "n": 276,
+        "prediction": 0.4812494568331489,
+        "truth": 0.5036231884057971
+      },
+      {
+        "lower": 0.6,
+        "n": 61,
+        "prediction": 0.6651068688569212,
+        "truth": 0.7704918032786885
+      }
+    ],
+    "game_paired_brier_delta": -0.020079155357249145,
+    "cluster_bootstrap_95": [
+      -0.035660225464563315,
+      -0.004805699205821453
+    ],
+    "game_paired_log_loss_delta": -0.05400326353922927,
+    "old_high_threat_subset": {
+      "n": 421,
+      "brier_delta": -0.04025090763139621
+    }
+  },
+  "formula_maximum_error": 1.27675647831893e-15,
+  "promotion_gate_passed": true,
+  "fit_sha256": "5dd5633dad4b2856c4fa1be4bdfd444d06c8eb544922ee4d519107fb41003107",
+  "scope": "Independent complete self-play games. No human calibration claim; previous round raw scores are not deployed-posterior metrics."
+}

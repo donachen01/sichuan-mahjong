@@ -1,0 +1,22 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-53-6-15-A/seat1/compactfalse action=discard ms=214.6 failures=0
+LOWER_EXEC lower-53-6-15-B/seat1/compactfalse action=discard ms=56.1 failures=0
+LOWER_EXEC lower-53-6-15-C/seat1/compactfalse action=discard ms=41.4 failures=0
+LOWER_EXEC lower-54-6-16-A/seat1/compactfalse action=discard ms=17.2 failures=0
+LOWER_EXEC lower-54-6-16-B/seat1/compactfalse action=discard ms=19.9 failures=0
+LOWER_EXEC lower-54-6-16-C/seat1/compactfalse action=discard ms=20.9 failures=0
+LOWER_EXEC lower-55-6-16-D/seat1/compactfalse action=discard ms=19.7 failures=0
+LOWER_EXEC lower-55-6-16-E/seat1/compactfalse action=discard ms=19.3 failures=0
+LOWER_EXEC lower-55-6-17-A/seat1/compactfalse action=discard ms=13.9 failures=0
+LOWER_EXEC lower-55-6-17-B/seat1/compactfalse action=discard ms=12.9 failures=0
+LOWER_EXEC lower-55-6-17-C/seat1/compactfalse action=discard ms=11.2 failures=0
+LOWER_EXEC lower-56-6-18-A/seat1/compactfalse action=discard ms=21.3 failures=0
+LOWER_EXEC lower-56-6-18-B/seat1/compactfalse action=discard ms=12.4 failures=0
+LOWER_EXEC lower-57-6-18-C/seat1/compactfalse action=discard ms=19.2 failures=0
+LOWER_EXEC lower-54-6-16-B-middle-pair-loss/seat1/compactfalse action=discard ms=17.7 failures=0
+LOWER_EXECUTION rows=15 failures=0

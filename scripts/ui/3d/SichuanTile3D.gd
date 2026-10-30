@@ -10,6 +10,10 @@ var draw_marker_style_variant := 0
 @export_enum("无选中图案")
 var selected_marker_style_variant := 0
 const TILE_SIZE := Vector3(0.42, 0.24, 0.58)
+# Target-only body layer.  The existing hand/symbol layer stays at bit 1; this
+# layer lets the mobile target shadow light affect only the explicitly approved
+# opponent hand, rivers, melds and fallen winning tiles.
+const TARGET_BODY_RENDER_LAYER := 1 << 3
 # Blender 玉白牌体顶面 Y=0.24。所有姿态复用这一个加厚实体，平扣牌不能单独
 # 压缩成纸片。亮牌不再叠加不透明白色内框，印刷符号直接落在圆润玉石表面上；
 # 暗牌才覆盖一层圆角翡翠面，四周只露极窄象牙唇边。
@@ -35,7 +39,10 @@ const FLAT_RESULT_JADE_BACK := Color("0C5729")
 # 对家仍可按其朝向局部抬高白色牌身，但普通行牌中的三家暗手必须复用同一套
 # PBR 翡翠背面。不能再给对家单独设置无光照亮绿大面或亮绿实体层，否则同桌
 # 直接读成两副不同颜色的牌。
-const FAR_RACK_IVORY_COLOR := Color("EBE7DF")
+# 对家牌墙正对镜头时，象牙壳上沿会形成连续高光。保留真实暖灰象牙材质，
+# 只把对家这一朝向的源色压到受阴影后的读数，避免白唇边抢过翡翠背面；本家、
+# 上家和下家继续使用普通象牙材质。
+const FAR_RACK_IVORY_COLOR := Color("B0B8AF")
 # 碰、杠和胡牌来源统一使用高饱和翡翠绿实体箭头，与黄色摸牌/弃牌提示彻底区分。
 # 它保留明确的方向尖端，不附加座位文字。
 const SOURCE_ARROW_COLOR := Color("25C95A")
@@ -53,6 +60,9 @@ var is_selected := false
 var showing_face := false
 
 var body_root: Node3D
+var body_shadow_nodes: Array[GeometryInstance3D] = []
+var body_shadow_baseline: Array[int] = []
+var body_layer_baseline: Array[int] = []
 var face_mesh: MeshInstance3D
 var concealed_cap_mesh: MeshInstance3D
 var symbol_mesh: MeshInstance3D
@@ -122,7 +132,8 @@ func configure(
 	meld_source: int = -1,
 	meld_owner: int = -1,
 	meld_type: String = "",
-	show_flat_back_layer: bool = false
+	show_flat_back_layer: bool = false,
+	target_body_shadows: bool = false
 ) -> void:
 	_build_visuals()
 	var resolved_winning_source := meld_source if meld_source >= 0 else winning_source
@@ -147,6 +158,7 @@ func configure(
 		use_flat_concealed_result,
 		resolved_source_kind,
 		show_flat_back_layer,
+		target_body_shadows,
 	]
 	if requested_signature == configuration_signature:
 		return
@@ -164,11 +176,13 @@ func configure(
 	front_brightness_boost = bright_front
 	concealed_surface_flip = flip_concealed_surfaces
 	flat_concealed_result = use_flat_concealed_result
+	_set_target_body_shadows(target_body_shadows)
 	# 只给隐藏牌背使用树脂倒角；亮牌字面继续使用原平面，避免本轮牌背修复
 	# 改变牌面符号、白边或既有排版。
 	face_mesh.mesh = beveled_back_surface_mesh if not show_face else flat_surface_mesh
 	var use_flat_back_material := not show_face and flat_concealed_result
 	var use_far_rack_material := not show_face and not flat_concealed_result and winner_seat == 2
+	var use_canonical_far_concealed_surface := use_far_rack_material and not show_face
 	_apply_ivory_body_material(body_root, front_brightness_boost, use_far_rack_material)
 	if not show_face and flat_concealed_result:
 		# 平扣结果的真实 GLB 背层也使用同一套受光补偿，避免绿色表面和实体
@@ -200,11 +214,12 @@ func configure(
 	# 本家站立手牌的受光角度比桌面弃牌更容易落暗。仅在 bright_front 合同下
 	# 显示一张紧贴实体圆角牌身的稳定暖白面，使视觉白度与弃牌一致；符号、厚度、
 	# 阴影和触控仍来自原 3D 牌，不是 HUD 卡片。
-	face_mesh.visible = not show_face or (show_face and bright_front)
-	# Face-up discard tiles still rest on a physical green underside. Keep that
-	# layer explicit because the imported body alone reads as an all-white base
-	# from the tabletop camera. This flag is limited to the discard river.
-	concealed_cap_mesh.visible = not show_face or show_flat_back_layer
+	# 对家暗手直接使用 GLB 的实体牌身与翡翠背层；不再叠加程序化象牙承托面
+	# 或程序化牌背。这样白色上沿和绿面边界都由同一个 Blender 牌体自然投影。
+	face_mesh.visible = (not show_face and not use_canonical_far_concealed_surface) \
+		or (show_face and bright_front)
+	# 其他隐藏手牌继续保留原承托节点；弃牌/碰杠/胡牌等亮牌仍只显示共享 GLB 背层。
+	concealed_cap_mesh.visible = not show_face and not use_canonical_far_concealed_surface
 	symbol_mesh.visible = show_face
 	# Rotate only the printed content in its own face plane. Rotating the whole
 	# tile would also move the ivory top lip and change the accepted rack pose.
@@ -400,6 +415,32 @@ func _build_visuals() -> void:
 	add_child(winning_source_label)
 
 	_set_tile_render_layer(self)
+	# Capture the already-approved tile render layer after the shared layer policy
+	# has been applied. Target-only shadowing may temporarily move the imported
+	# body meshes to a separate layer, and disabling it must restore bit 1 exactly.
+	_collect_body_shadow_nodes(body_root)
+
+
+func _collect_body_shadow_nodes(node: Node) -> void:
+	if node is GeometryInstance3D:
+		body_shadow_nodes.append(node as GeometryInstance3D)
+		body_shadow_baseline.append(int((node as GeometryInstance3D).cast_shadow))
+		body_layer_baseline.append(int((node as GeometryInstance3D).layers))
+	for child in node.get_children():
+		_collect_body_shadow_nodes(child)
+
+
+func _set_target_body_shadows(enabled: bool) -> void:
+	for index in range(body_shadow_nodes.size()):
+		var node := body_shadow_nodes[index]
+		if not is_instance_valid(node):
+			continue
+		node.cast_shadow = (
+			GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+			if enabled
+			else body_shadow_baseline[index]
+		)
+		node.layers = TARGET_BODY_RENDER_LAYER if enabled else body_layer_baseline[index]
 
 
 func _face_material(show_face: bool) -> StandardMaterial3D:
@@ -534,13 +575,17 @@ func _flat_concealed_jade_back_material() -> StandardMaterial3D:
 
 
 func _far_rack_ivory_material() -> StandardMaterial3D:
-	# 对家立牌顶部使用同一组暖象牙 PBR 参数，靠牌面朝向与全局补光获得可读性，
-	# 不再用自发光制造独立于现场光照的白边。
-	const CACHE_KEY := "body:far_rack_ivory_v5"
+	# 对家立牌顶部继续接受现场光照，但降低清漆高光，让每张牌的上沿不再
+	# 形成连续白线；几何、翡翠背层和阴影投射保持不变。
+	const CACHE_KEY := "body:far_rack_ivory_v7_shadowed_edge"
 	if material_cache.has(CACHE_KEY):
 		return material_cache[CACHE_KEY]
 	var result := _ivory_body_material(false).duplicate() as StandardMaterial3D
 	result.albedo_color = FAR_RACK_IVORY_COLOR
+	result.roughness = 0.62
+	if _allow_expensive_material_features():
+		result.clearcoat = 0.0
+		result.clearcoat_roughness = 0.62
 	result.emission_enabled = false
 	material_cache[CACHE_KEY] = result
 	return result

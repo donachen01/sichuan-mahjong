@@ -1,0 +1,3248 @@
+[
+  {
+    "id": "lower-42-6-5-C",
+    "action": "an_gang",
+    "tile": 4,
+    "fixed_melds_after": 1,
+    "branches": [
+      {
+        "draw": 0,
+        "draw_copy_upper_bound": 3,
+        "immediate_hu": true,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 2,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 4
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 2,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条2"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 2,
+                "copies": 2,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条3"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 2,
+                "keys": [
+                  "N:0:0|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  0
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 4
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 4,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:6",
+                  "N:0:3|1:0|1:0|1:6"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 7
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 6,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条7"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 7,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条8"
+              }
+            ],
+            "live_copies": 3
+          }
+        ]
+      },
+      {
+        "draw": 1,
+        "draw_copy_upper_bound": 2,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 1,
+                "keys": [
+                  "N:0:1|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 2,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:5|2:1|2:2"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条3"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:2|1:5|2:1|2:3"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 1,
+                "keys": [
+                  "N:0:3|1:0|1:5|2:1"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:1|1:0|1:5|2:3"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 1,
+                "keys": [
+                  "N:0:1|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条2"
+              }
+            ],
+            "live_copies": 1
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          }
+        ]
+      },
+      {
+        "draw": 2,
+        "draw_copy_upper_bound": 2,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:5|2:1|2:2"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 2,
+                "copies": 1,
+                "keys": [
+                  "N:0:2|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条3"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:1|1:5|2:2|2:3"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 2,
+                "copies": 1,
+                "keys": [
+                  "N:0:3|1:0|1:5|2:2"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条3"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:2|1:0|1:5|2:3"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 2,
+                "copies": 1,
+                "keys": [
+                  "N:0:2|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条3"
+              }
+            ],
+            "live_copies": 1
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          }
+        ]
+      },
+      {
+        "draw": 3,
+        "draw_copy_upper_bound": 2,
+        "immediate_hu": true,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 1,
+                "copies": 2,
+                "keys": [
+                  "N:0:2|1:5|2:1|2:3"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 2,
+                "copies": 2,
+                "keys": [
+                  "N:0:1|1:5|2:2|2:3"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条3"
+              },
+              {
+                "tile": 3,
+                "copies": 1,
+                "keys": [
+                  "N:0:3|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 2,
+                  "fan": 4,
+                  "hand_score": 16,
+                  "self_per_payer": 17
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 8
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 2,
+                "copies": 2,
+                "keys": [
+                  "N:0:2|1:0|1:5|2:3"
+                ],
+                "heads": [
+                  2
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条3"
+              }
+            ],
+            "live_copies": 4
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 1,
+                "copies": 2,
+                "keys": [
+                  "N:0:1|1:0|1:5|2:3"
+                ],
+                "heads": [
+                  1
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条2"
+              },
+              {
+                "tile": 2,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条3"
+              }
+            ],
+            "live_copies": 4
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 1,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 4
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 3,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 4,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:6"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 7
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 6,
+                "copies": 3,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条7"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 7,
+                "copies": 3,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条8"
+              }
+            ],
+            "live_copies": 3
+          }
+        ]
+      },
+      {
+        "draw": 5,
+        "draw_copy_upper_bound": 3,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 2,
+                "keys": [
+                  "N:0:5|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 4,
+                "keys": [
+                  "N:0:5|1:1|1:1|1:6"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 6
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 2,
+                "keys": [
+                  "N:0:5|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 4,
+                "keys": [
+                  "N:0:5|1:0|1:1|1:6"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 6
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          }
+        ]
+      },
+      {
+        "draw": 6,
+        "draw_copy_upper_bound": 3,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 6,
+                "copies": 2,
+                "keys": [
+                  "N:0:6|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  6
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条7"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 6,
+                "copies": 2,
+                "keys": [
+                  "N:0:6|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  6
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条7"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 0,
+            "waits": [],
+            "live_copies": 0
+          }
+        ]
+      },
+      {
+        "draw": 7,
+        "draw_copy_upper_bound": 3,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 7,
+                "copies": 2,
+                "keys": [
+                  "N:0:7|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  7
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条8"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 7,
+                "copies": 2,
+                "keys": [
+                  "N:0:7|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  7
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条8"
+              }
+            ],
+            "live_copies": 2
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 0,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 8,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 3,
+                "keys": [
+                  "N:0:5|1:1|1:1|1:6"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 3,
+                "keys": [
+                  "N:0:8|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  8
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 6
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 5,
+                "copies": 3,
+                "keys": [
+                  "N:0:5|1:0|1:1|1:6"
+                ],
+                "heads": [
+                  5
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条6"
+              },
+              {
+                "tile": 8,
+                "copies": 3,
+                "keys": [
+                  "N:0:8|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  8
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条9"
+              }
+            ],
+            "live_copies": 6
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:6",
+                  "N:0:3|1:0|1:0|1:6"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:6"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 8,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 9,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 9,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 10,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 10,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 11,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 11,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 12,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 12,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 13,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 13,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 14,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 14,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 15,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 15,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 16,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 16,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 17,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 17,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 18,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 18,
+                "copies": 3,
+                "keys": [
+                  "N:0:18|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  18
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万1"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 18,
+                "copies": 3,
+                "keys": [
+                  "N:0:18|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  18
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万1"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 18,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 19,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 19,
+                "copies": 3,
+                "keys": [
+                  "N:0:19|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  19
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万2"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 19,
+                "copies": 3,
+                "keys": [
+                  "N:0:19|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  19
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万2"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 19,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 20,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 20,
+                "copies": 3,
+                "keys": [
+                  "N:0:20|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  20
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万3"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 20,
+                "copies": 3,
+                "keys": [
+                  "N:0:20|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  20
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万3"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 20,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 21,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 21,
+                "copies": 3,
+                "keys": [
+                  "N:0:21|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  21
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万4"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 21,
+                "copies": 3,
+                "keys": [
+                  "N:0:21|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  21
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万4"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 21,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 22,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 22,
+                "copies": 3,
+                "keys": [
+                  "N:0:22|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  22
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万5"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 22,
+                "copies": 3,
+                "keys": [
+                  "N:0:22|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  22
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万5"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 22,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 23,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 23,
+                "copies": 3,
+                "keys": [
+                  "N:0:23|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  23
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万6"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 23,
+                "copies": 3,
+                "keys": [
+                  "N:0:23|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  23
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万6"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 23,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 24,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 24,
+                "copies": 3,
+                "keys": [
+                  "N:0:24|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  24
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万7"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 24,
+                "copies": 3,
+                "keys": [
+                  "N:0:24|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  24
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万7"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 24,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 25,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 25,
+                "copies": 3,
+                "keys": [
+                  "N:0:25|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  25
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万8"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 25,
+                "copies": 3,
+                "keys": [
+                  "N:0:25|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  25
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万8"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 25,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      },
+      {
+        "draw": 26,
+        "draw_copy_upper_bound": 4,
+        "immediate_hu": false,
+        "candidates": [
+          {
+            "discard": 0,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 26,
+                "copies": 3,
+                "keys": [
+                  "N:0:26|1:1|1:1|1:5"
+                ],
+                "heads": [
+                  26
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万9"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 1,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 2,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 3,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 26,
+                "copies": 3,
+                "keys": [
+                  "N:0:26|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  26
+                ],
+                "score": {
+                  "base_fan": 0,
+                  "roots": 1,
+                  "fan": 1,
+                  "hand_score": 2,
+                  "self_per_payer": 3
+                },
+                "label": "万9"
+              }
+            ],
+            "live_copies": 3
+          },
+          {
+            "discard": 5,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 6,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 7,
+            "ordinary_shanten": 1,
+            "waits": [],
+            "live_copies": 0
+          },
+          {
+            "discard": 26,
+            "ordinary_shanten": 0,
+            "waits": [
+              {
+                "tile": 0,
+                "copies": 3,
+                "keys": [
+                  "N:0:0|1:1|1:1|1:5",
+                  "N:0:3|1:0|1:0|1:5"
+                ],
+                "heads": [
+                  0,
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条1"
+              },
+              {
+                "tile": 3,
+                "copies": 2,
+                "keys": [
+                  "N:0:3|1:0|1:1|1:5"
+                ],
+                "heads": [
+                  3
+                ],
+                "score": {
+                  "base_fan": 2,
+                  "roots": 1,
+                  "fan": 3,
+                  "hand_score": 8,
+                  "self_per_payer": 9
+                },
+                "label": "条4"
+              }
+            ],
+            "live_copies": 5
+          }
+        ]
+      }
+    ],
+    "assumption": "unknown public counts zero except declared known; not wall probability"
+  }
+]

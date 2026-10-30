@@ -1,0 +1,600 @@
+[
+  {
+    "id": "lower-76-6-28-base-offer-m2/source-corrected",
+    "action": "pass",
+    "required_acquisitions": 2,
+    "nearest_ready_goals": [
+      {
+        "acquisitions": [
+          18,
+          18
+        ],
+        "waits": [
+          19,
+          20,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          19
+        ],
+        "waits": [
+          18,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          20
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          21
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          22
+        ],
+        "waits": [
+          18,
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          24
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          20
+        ],
+        "waits": [
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          21
+        ],
+        "waits": [
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          22
+        ],
+        "waits": [
+          18,
+          20,
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          23
+        ],
+        "waits": [
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          24
+        ],
+        "waits": [
+          21
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          20
+        ],
+        "waits": [
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          21
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          22
+        ],
+        "waits": [
+          19,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          23
+        ],
+        "waits": [
+          20,
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          24
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          26
+        ],
+        "waits": [
+          26
+        ]
+      },
+      {
+        "acquisitions": [
+          21,
+          21
+        ],
+        "waits": [
+          19,
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          21,
+          24
+        ],
+        "waits": [
+          19,
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          22,
+          22
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          22,
+          23
+        ],
+        "waits": [
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          23,
+          23
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          24,
+          24
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          26,
+          26
+        ],
+        "waits": [
+          20
+        ]
+      }
+    ],
+    "first_acquisition_union": [
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      26
+    ]
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m2/source-corrected",
+    "action": "peng",
+    "required_acquisitions": 1,
+    "nearest_ready_goals": [
+      {
+        "acquisitions": [
+          18
+        ],
+        "waits": [
+          19,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          19
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          21
+        ],
+        "waits": [
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          22
+        ],
+        "waits": [
+          18
+        ]
+      },
+      {
+        "acquisitions": [
+          24
+        ],
+        "waits": [
+          19
+        ]
+      }
+    ],
+    "first_acquisition_union": [
+      18,
+      19,
+      21,
+      22,
+      24
+    ]
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4/source-corrected",
+    "action": "pass",
+    "required_acquisitions": 2,
+    "nearest_ready_goals": [
+      {
+        "acquisitions": [
+          18,
+          18
+        ],
+        "waits": [
+          19,
+          20,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          19
+        ],
+        "waits": [
+          18,
+          19,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          20
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          21
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          22
+        ],
+        "waits": [
+          18,
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          18,
+          24
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          19
+        ],
+        "waits": [
+          18,
+          20,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          20
+        ],
+        "waits": [
+          19,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          21
+        ],
+        "waits": [
+          19,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          22
+        ],
+        "waits": [
+          18,
+          20,
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          23
+        ],
+        "waits": [
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          19,
+          24
+        ],
+        "waits": [
+          19,
+          21
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          20
+        ],
+        "waits": [
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          21
+        ],
+        "waits": [
+          18,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          22
+        ],
+        "waits": [
+          19,
+          22
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          23
+        ],
+        "waits": [
+          20,
+          23
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          24
+        ],
+        "waits": [
+          18,
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          20,
+          26
+        ],
+        "waits": [
+          26
+        ]
+      },
+      {
+        "acquisitions": [
+          21,
+          24
+        ],
+        "waits": [
+          19,
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          22,
+          22
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          22,
+          23
+        ],
+        "waits": [
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          23,
+          23
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          24,
+          24
+        ],
+        "waits": [
+          20
+        ]
+      },
+      {
+        "acquisitions": [
+          26,
+          26
+        ],
+        "waits": [
+          20
+        ]
+      }
+    ],
+    "first_acquisition_union": [
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      26
+    ]
+  },
+  {
+    "id": "lower-76-6-28-base-offer-m4/source-corrected",
+    "action": "peng",
+    "required_acquisitions": 1,
+    "nearest_ready_goals": [
+      {
+        "acquisitions": [
+          19
+        ],
+        "waits": [
+          21,
+          24
+        ]
+      },
+      {
+        "acquisitions": [
+          21
+        ],
+        "waits": [
+          19
+        ]
+      },
+      {
+        "acquisitions": [
+          24
+        ],
+        "waits": [
+          19
+        ]
+      }
+    ],
+    "first_acquisition_union": [
+      19,
+      21,
+      24
+    ]
+  }
+]

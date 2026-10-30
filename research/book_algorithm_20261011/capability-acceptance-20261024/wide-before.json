@@ -1,0 +1,487 @@
+{
+  "checks": 16,
+  "failures": [
+    "wide wall unready liability is represented 9",
+    "wide wall unready liability is represented 12",
+    "wide wall unready liability is represented 16",
+    "wide wall unready liability is represented 24"
+  ],
+  "rows": [
+    {
+      "id": "wall9",
+      "ms": 152.7783,
+      "selected": 3,
+      "ready": [
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.14706375164813587,
+          "net": 2.2092670695474927,
+          "reasons": [
+            "CHA_JIAO_0.89"
+          ]
+        },
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 0.8661296009690098,
+          "net": 1.9515260181786114,
+          "reasons": [
+            "CHA_JIAO_1.78"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1098411287304004,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1098411287304004,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1425771287304003,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -2.6034678221082808,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.14706375164813587,
+          "net": 2.2092670695474927,
+          "reasons": [
+            "CHA_JIAO_0.89"
+          ]
+        },
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 0.8661296009690098,
+          "net": 1.9515260181786114,
+          "reasons": [
+            "CHA_JIAO_1.78"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1098411287304004,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1098411287304004,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -2.1425771287304003,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -2.6034678221082808,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wall12",
+      "ms": 3.52,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.277186508728932,
+          "net": 2.6800290966989206,
+          "reasons": [
+            "CHA_JIAO_2.59"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.17467829979091243,
+          "net": 2.5497995220848546,
+          "reasons": [
+            "CHA_JIAO_1.30"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9571524508070237,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9571524508070237,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9898884508070236,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -2.382106846989624,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.277186508728932,
+          "net": 2.6800290966989206,
+          "reasons": [
+            "CHA_JIAO_2.59"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.17467829979091243,
+          "net": 2.5497995220848546,
+          "reasons": [
+            "CHA_JIAO_1.30"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9571524508070237,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9571524508070237,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9898884508070236,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -2.382106846989624,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wall16",
+      "ms": 4.0291,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.3248745973412903,
+          "net": 3.5747956205709146,
+          "reasons": [
+            "CHA_JIAO_2.77"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.18738848270252773,
+          "net": 3.350356892182206,
+          "reasons": [
+            "CHA_JIAO_1.38"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.947711005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.947711005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -1.970172005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.980447005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.3248745973412903,
+          "net": 3.5747956205709146,
+          "reasons": [
+            "CHA_JIAO_2.77"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.18738848270252773,
+          "net": 3.350356892182206,
+          "reasons": [
+            "CHA_JIAO_1.38"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.947711005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.947711005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -1.970172005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.980447005258738,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wall24",
+      "ms": 2.9694,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.233929202679591,
+          "net": 3.5199123400042724,
+          "reasons": [
+            "CHA_JIAO_2.61"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.17091716138806723,
+          "net": 3.365412892771416,
+          "reasons": [
+            "CHA_JIAO_1.31"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9317867737421108,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9317867737421108,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9542477737421107,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9645227737421107,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.233929202679591,
+          "net": 3.5199123400042724,
+          "reasons": [
+            "CHA_JIAO_2.61"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.17091716138806723,
+          "net": 3.365412892771416,
+          "reasons": [
+            "CHA_JIAO_1.31"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9317867737421108,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9317867737421108,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9542477737421107,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": 0,
+          "net": -1.9645227737421107,
+          "reasons": [
+            "CHA_JIAO_0.00"
+          ]
+        }
+      ]
+    }
+  ]
+}

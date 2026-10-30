@@ -1,0 +1,47 @@
+{
+  "failure": "Strict metadata float equality after Godot JSON roundtrip",
+  "differences": [
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "field": "original_ess",
+      "input": 1756.744661673177,
+      "roundtrip": 1756.74466167318,
+      "difference": 2.9558577807620168e-12
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "field": "original_ess",
+      "input": 2651.4077260550994,
+      "roundtrip": 2651.4077260551,
+      "difference": 4.547473508864641e-13
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "field": "maximum_weight",
+      "input": 0.0033767073542975722,
+      "roundtrip": 0.00337670735429757,
+      "difference": -2.168404344971009e-18
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "field": "original_ess",
+      "input": 1597.7139417992396,
+      "roundtrip": 1597.71394179924,
+      "difference": 4.547473508864641e-13
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "field": "original_ess",
+      "input": 1919.726284553672,
+      "roundtrip": 1919.72628455367,
+      "difference": -2.0463630789890885e-12
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "field": "maximum_weight",
+      "input": 0.005610665364946416,
+      "roundtrip": 0.00561066536494641,
+      "difference": -6.071532165918825e-18
+    }
+  ]
+}

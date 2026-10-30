@@ -1,0 +1,38 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+FULL_CLAIM lower-76-6-28-base-offer-m2/world0/pass complete=1 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world0/peng complete=2 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world1/pass complete=3 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world1/peng complete=4 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world2/pass complete=5 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world2/peng complete=6 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world3/pass complete=7 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world3/peng complete=8 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world4/pass complete=9 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world4/peng complete=10 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world5/pass complete=11 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world5/peng complete=12 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world6/pass complete=13 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world6/peng complete=14 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world7/pass complete=15 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m2/world7/peng complete=16 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world0/pass complete=17 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world0/peng complete=18 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world1/pass complete=19 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world1/peng complete=20 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world2/pass complete=21 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world2/peng complete=22 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world3/pass complete=23 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world3/peng complete=24 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world4/pass complete=25 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world4/peng complete=26 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world5/pass complete=27 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world5/peng complete=28 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world6/pass complete=29 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world6/peng complete=30 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world7/pass complete=31 failures=0
+FULL_CLAIM lower-76-6-28-base-offer-m4/world7/peng complete=32 failures=0

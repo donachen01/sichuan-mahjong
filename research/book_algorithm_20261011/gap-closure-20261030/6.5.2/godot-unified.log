@@ -1,0 +1,45 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-72-6-23-base-offer-m4/seat1/compactfalse action=pass ms=693.8 failures=0
+LOWER_EXEC lower-72-6-23-base-draw-18/seat1/compactfalse action=add_gang ms=2891.9 failures=0
+LOWER_EXEC lower-72-6-24-A-offer-p3/seat1/compactfalse action=pass ms=117.1 failures=0
+LOWER_EXEC lower-72-6-24-A-draw-16/seat1/compactfalse action=add_gang ms=1519.2 failures=0
+LOWER_EXEC lower-73-6-24-B-offer-p3/seat1/compactfalse action=peng ms=98.8 failures=0
+LOWER_EXEC lower-73-6-24-B-draw-16/seat1/compactfalse action=add_gang ms=1380.3 failures=0
+LOWER_EXEC lower-73-6-24-C-offer-p3/seat1/compactfalse action=pass ms=98.2 failures=0
+LOWER_EXEC lower-73-6-24-C-draw-16/seat1/compactfalse action=add_gang ms=1372.1 failures=0
+LOWER_EXEC lower-73-6-25-base-offer-p2/seat1/compactfalse action=pass ms=451.7 failures=0
+LOWER_EXEC lower-73-6-25-base-offer-p5/seat1/compactfalse action=pass ms=332.4 failures=0
+LOWER_EXEC lower-73-6-25-base-offer-p9/seat1/compactfalse action=pass ms=391.1 failures=0
+LOWER_EXEC lower-74-6-25-both-declared-draw/seat1/compactfalse action=discard ms=8.7 failures=0
+LOWER_EXEC lower-74-6-25-p5_claimed-declared-draw/seat1/compactfalse action=discard ms=157.6 failures=0
+LOWER_EXEC lower-74-6-25-p2_claimed-declared-draw/seat1/compactfalse action=discard ms=168.5 failures=0
+LOWER_EXEC lower-75-6-26-base-offer-p3/seat1/compactfalse action=pass ms=369.9 failures=0
+LOWER_EXEC lower-75-6-26-base-offer-p4/seat1/compactfalse action=pass ms=325.3 failures=0
+LOWER_EXEC lower-75-6-26-base-offer-p5/seat1/compactfalse action=pass ms=315.4 failures=0
+LOWER_EXEC lower-75-6-26-base-offer-p7/seat1/compactfalse action=pass ms=350.9 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p3/seat1/compactfalse action=pass ms=633.6 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat1/compactfalse action=peng ms=2494.3 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat1/compactfalse action=peng ms=533.5 failures=0
+LOWER_EXEC lower-76-6-27-p6_claimed-declared-draw/seat1/compactfalse action=discard ms=2581.2 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/seat1/compactfalse action=pass ms=209.0 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/seat1/compactfalse action=pass ms=181.6 failures=0
+LOWER_EXEC lower-76-6-28-base-draw-25/seat1/compactfalse action=add_gang ms=2485.9 failures=0
+LOWER_EXEC lower-74-6-25-p5_claimed-second-peng/seat1/compactfalse action=pass ms=243.4 failures=0
+LOWER_EXEC lower-74-6-25-p5_claimed-second-peng-public-loss/seat1/compactfalse action=pass ms=108.2 failures=0
+LOWER_EXEC lower-74-6-25-p2_claimed-second-peng/seat1/compactfalse action=peng ms=187.0 failures=0
+LOWER_EXEC lower-74-6-25-p2_claimed-second-peng-public-loss/seat1/compactfalse action=pass ms=149.7 failures=0
+LOWER_EXEC lower-72-6-23-base-draw-18-public-loss/seat1/compactfalse action=add_gang ms=2184.6 failures=0
+LOWER_EXEC lower-72-6-24-A-draw-16-public-loss/seat1/compactfalse action=add_gang ms=1407.4 failures=0
+LOWER_EXEC lower-73-6-24-B-draw-16-public-loss/seat1/compactfalse action=add_gang ms=1296.9 failures=0
+LOWER_EXEC lower-73-6-24-C-draw-16-public-loss/seat1/compactfalse action=add_gang ms=1260.6 failures=0
+LOWER_EXEC lower-74-6-25-both-declared-draw-public-loss/seat1/compactfalse action=discard ms=6.8 failures=0
+LOWER_EXEC lower-74-6-25-p5_claimed-declared-draw-public-loss/seat1/compactfalse action=discard ms=176.3 failures=0
+LOWER_EXEC lower-74-6-25-p2_claimed-declared-draw-public-loss/seat1/compactfalse action=discard ms=171.8 failures=0
+LOWER_EXEC lower-76-6-27-p6_claimed-declared-draw-public-loss/seat1/compactfalse action=discard ms=2010.6 failures=0
+LOWER_EXEC lower-76-6-28-base-draw-25-public-loss/seat1/compactfalse action=add_gang ms=2114.9 failures=0
+LOWER_EXECUTION rows=38 failures=0

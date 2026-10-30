@@ -1,0 +1,192 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 102.0,
+        "id": "d4988e0b9133a9686957ab2be24cf05e8239fafc95ae4947b14b086c3de52995",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "24d15d297b0301f8d8cf490e9a2bb075",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "461b74b65fde8c3d60b691e26d9ca5ac9259982c6dda251e60b2cd39047a22d3",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall12/compactfalse",
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 1",
+        "继续出牌统一净值 0.48",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_3",
+        "当前后手弃牌风险已计价 0.5900",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 103.0,
+        "id": "9b68e1829fd4230a35bf4fd8e166559a6c69731eb7e5cef598a3521acbe68890",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "fea1bc81124b959b0dbc90bd096f5422",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "4cca7881036ca56728d93647b58eb704a05c02fbdd97f3461fd947a05660ebca",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall16/compactfalse",
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 1",
+        "继续出牌统一净值 1.34",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_3",
+        "当前后手弃牌风险已计价 0.5900",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 104.0,
+        "id": "e893223d552db268ebf3f49579ea3a8f505c26cc39649e0623182033a7c9b832",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "610160c15e9713885683a9d0b732910c",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "3521d6df02773d9ac8cd62693fdf67ae08bb98a30cc95d36eda84ed368cd6c8e",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall24/compactfalse",
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 2",
+        "继续出牌统一净值 1.23",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_3",
+        "当前后手弃牌风险已计价 0.5900",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 105.0,
+        "id": "2756f457936e806805f109a20dbc1a6febec379df0f889682ea4534d6ebaddd3",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "242f8c9eab6aa462b90a07d458cf05c1",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "a7ad569fd01b7c90d6199400bd909eb64b092901eb331450c827ee63547c4f60",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall12/compacttrue",
+      "reasons": [
+        "当前后手向听 0"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 106.0,
+        "id": "b2a6c69e897c233e71a2254fa87e61698b642685e897b091e55f18a4945e18be",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "3c279929342313286f9851cf1ed20ae2",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "e890b6370bb4f9924f77e7f26347efa8f3a1f47e0113a60d45903afe2dec6cce",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall16/compacttrue",
+      "reasons": [
+        "当前后手向听 0"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 107.0,
+        "id": "316234344029716d33566483d3ef21afba98c828a05f0eb681e8afdfe9b12659",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "a777a3a4254b33b5ec7a15f2dfb8621d",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "89452f62bc38e0bb745560cb689a6531ad539c035b8adaca80e025382000ff11",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall24/compacttrue",
+      "reasons": [
+        "当前后手向听 0"
+      ]
+    }
+  ],
+  "scope": "three wider-wall reconstructed backgrounds x ordinary/compact real C# to GameState execution; not original replay or iOS AOT"
+}

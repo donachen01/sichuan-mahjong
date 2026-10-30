@@ -33,7 +33,7 @@ public static class SichuanSearchBudget
 
     public static IDisposable Enter(SichuanStateView state)
     {
-        if (Current.Value is not null || state.PolicyVariant is not ("current" or "adaptive_search_v1"))
+        if (Current.Value is not null || state.PolicyVariant is not ("current" or "adaptive_search_v1" or "cash_cost_before_v1" or "before_round2_v1" or "pre_learning_closure_v1" or "ready_stopping_candidate" or "completion_candidate" or "terminal_retention_candidate" or "gap_candidate"))
             return new Scope(() => { });
         Current.Value = new(SichuanDecisionCommand.Fingerprint(state));
         return new Scope(() => Current.Value = null);

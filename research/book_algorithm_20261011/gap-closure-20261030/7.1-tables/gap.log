@@ -1,0 +1,4 @@
+LOWER lower-78-7-1-base-full-public Discard tile=0 child=0 ms=417.8
+LOWER lower-80-7-2-middle-full-public Discard tile=11 child=11 ms=800.4
+LOWER lower-81-7-2-late-full-public Discard tile=16 child=16 ms=426.0
+DONE gap geometry-and-authority=3 rows=3 failures=0

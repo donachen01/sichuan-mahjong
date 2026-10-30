@@ -1,0 +1,17 @@
+{
+  "source_sha256": "b33270c96eb99fc862f233789b788e7d5b98e46d7b700792b7c26286c424fccd",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/wide-game-results.json",
+      "sha256": "99c8e55ef32e2f33b59138c10295939201fc058c9d6b5174769f45fc3e8718c5"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "dacba861236a16ad7f22aea4d836858430a4646f9620743b87010009396c2e19",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "dacba861236a16ad7f22aea4d836858430a4646f9620743b87010009396c2e19"
+  },
+  "scope": "25-32 wider-wall signed settlement comparison and four ordinary/compact real entity chains; 40+ remains outside scope; no strength/mobile claim."
+}

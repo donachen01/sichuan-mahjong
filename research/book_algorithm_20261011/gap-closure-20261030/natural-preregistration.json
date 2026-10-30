@@ -1,0 +1,20 @@
+{
+  "seeds": "31561031 + 1009*d; d=0..7",
+  "controlled_seats": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "variants": [
+    "pre_learning_closure_v1",
+    "current"
+  ],
+  "opponents": "pre_learning_closure_v1",
+  "primary": "controlled final net score, paired by seed/seat and clustered by deal",
+  "secondary": "full legal settlement and 108 entities; public readiness Brier/reliability; decision latency",
+  "selection": "all declared games, no outcome selection or tuning to held-out labels",
+  "strength_claim": "pilot only; confidence and model limitations reported even if positive",
+  "fixed_future_regression": false,
+  "amendment_before_any_completed_game": "Legacy frozen research helper has no signed command under current executor. Retain validation and use the normal signed pre-closure strategy for all opponents; 0 completed games before amendment."
+}

@@ -1,0 +1,16 @@
+  AI.Core -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(34,3): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(59,39): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(60,66): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(62,2): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(34,3): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(59,39): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(60,66): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Program.cs(62,2): error CS8852: 只能在对象初始值设定项中或在实例构造函数或 "init" 访问器中的 "this" 或 "base" 上分配 init-only 属性或索引器 "SichuanStateView.WallCount"。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/probe/Probe.csproj]
+    0 个警告
+    4 个错误
+
+已用时间 00:00:22.42

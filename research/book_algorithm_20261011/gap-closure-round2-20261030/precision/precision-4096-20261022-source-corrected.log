@@ -1,0 +1,5 @@
+LOWER lower-76-6-28-base-offer-m2/source-corrected Peng tile=19 child=7 ms=1522.5
+LOWER lower-76-6-28-base-offer-m4/source-corrected Peng tile=21 child=5 ms=934.2
+LOWER reread-6-26-after-p4-offer-p3 Peng tile=11 child=7 ms=904.2
+LOWER reread-6-26-after-p5-offer-p3 Peng tile=11 child=7 ms=890.6
+DONE precision-4096-20261022 geometry-and-authority=4 rows=4 failures=0

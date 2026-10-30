@@ -1,0 +1,73 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-41-6-4-base/seat1/compactfalse action=self_hu ms=58.9 failures=0
+LOWER_EXEC lower-41-6-5-A/seat1/compactfalse action=discard ms=601.4 failures=0
+LOWER_EXEC lower-41-6-5-B/seat1/compactfalse action=discard ms=491.7 failures=0
+LOWER_EXEC lower-42-6-5-C/seat1/compactfalse action=an_gang ms=1135.4 failures=0
+LOWER_EXEC lower-42-6-5-D/seat1/compactfalse action=discard ms=260.3 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat1/compactfalse action=discard ms=249.4 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat1/compactfalse action=discard ms=175.4 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat1/compactfalse action=discard ms=247.7 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat1/compactfalse action=an_gang ms=1284.1 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat1/compactfalse action=discard ms=160.1 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat1/compactfalse action=discard ms=191.4 failures=0
+LOWER_EXEC lower-41-6-4-base/seat2/compactfalse action=self_hu ms=4.5 failures=0
+LOWER_EXEC lower-41-6-5-A/seat2/compactfalse action=discard ms=192.7 failures=0
+LOWER_EXEC lower-41-6-5-B/seat2/compactfalse action=discard ms=168.4 failures=0
+LOWER_EXEC lower-42-6-5-C/seat2/compactfalse action=an_gang ms=390.3 failures=0
+LOWER_EXEC lower-42-6-5-D/seat2/compactfalse action=discard ms=145.9 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat2/compactfalse action=discard ms=204.2 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat2/compactfalse action=discard ms=190.9 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat2/compactfalse action=discard ms=185.8 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat2/compactfalse action=an_gang ms=1252.0 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat2/compactfalse action=discard ms=288.9 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat2/compactfalse action=discard ms=287.4 failures=0
+LOWER_EXEC lower-41-6-4-base/seat3/compactfalse action=self_hu ms=12.9 failures=0
+LOWER_EXEC lower-41-6-5-A/seat3/compactfalse action=discard ms=296.2 failures=0
+LOWER_EXEC lower-41-6-5-B/seat3/compactfalse action=discard ms=248.7 failures=0
+LOWER_EXEC lower-42-6-5-C/seat3/compactfalse action=an_gang ms=503.5 failures=0
+LOWER_EXEC lower-42-6-5-D/seat3/compactfalse action=discard ms=204.5 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat3/compactfalse action=discard ms=186.1 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat3/compactfalse action=discard ms=180.1 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat3/compactfalse action=discard ms=188.8 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat3/compactfalse action=an_gang ms=1165.0 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat3/compactfalse action=discard ms=156.6 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat3/compactfalse action=discard ms=181.6 failures=0
+LOWER_EXEC lower-41-6-4-base/seat1/compacttrue action=self_hu ms=14.3 failures=0
+LOWER_EXEC lower-41-6-5-A/seat1/compacttrue action=discard ms=182.6 failures=0
+LOWER_EXEC lower-41-6-5-B/seat1/compacttrue action=discard ms=186.3 failures=0
+LOWER_EXEC lower-42-6-5-C/seat1/compacttrue action=an_gang ms=388.1 failures=0
+LOWER_EXEC lower-42-6-5-D/seat1/compacttrue action=discard ms=141.1 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat1/compacttrue action=discard ms=181.1 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat1/compacttrue action=discard ms=236.2 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat1/compacttrue action=discard ms=280.6 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat1/compacttrue action=an_gang ms=1459.7 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat1/compacttrue action=discard ms=198.6 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat1/compacttrue action=discard ms=189.5 failures=0
+LOWER_EXEC lower-41-6-4-base/seat2/compacttrue action=self_hu ms=4.3 failures=0
+LOWER_EXEC lower-41-6-5-A/seat2/compacttrue action=discard ms=222.5 failures=0
+LOWER_EXEC lower-41-6-5-B/seat2/compacttrue action=discard ms=190.7 failures=0
+LOWER_EXEC lower-42-6-5-C/seat2/compacttrue action=an_gang ms=391.1 failures=0
+LOWER_EXEC lower-42-6-5-D/seat2/compacttrue action=discard ms=148.0 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat2/compacttrue action=discard ms=203.3 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat2/compacttrue action=discard ms=183.4 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat2/compacttrue action=discard ms=198.1 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat2/compacttrue action=an_gang ms=1161.3 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat2/compacttrue action=discard ms=159.5 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat2/compacttrue action=discard ms=219.7 failures=0
+LOWER_EXEC lower-41-6-4-base/seat3/compacttrue action=self_hu ms=4.2 failures=0
+LOWER_EXEC lower-41-6-5-A/seat3/compacttrue action=discard ms=274.7 failures=0
+LOWER_EXEC lower-41-6-5-B/seat3/compacttrue action=discard ms=292.3 failures=0
+LOWER_EXEC lower-42-6-5-C/seat3/compacttrue action=an_gang ms=509.8 failures=0
+LOWER_EXEC lower-42-6-5-D/seat3/compacttrue action=discard ms=269.6 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted/seat3/compacttrue action=discard ms=191.5 failures=0
+LOWER_EXEC lower-41-6-5-A-public-loss/seat3/compacttrue action=discard ms=237.1 failures=0
+LOWER_EXEC lower-41-6-5-B-public-loss/seat3/compacttrue action=discard ms=220.5 failures=0
+LOWER_EXEC lower-42-6-5-C-public-loss/seat3/compacttrue action=an_gang ms=1215.6 failures=0
+LOWER_EXEC lower-42-6-5-D-public-loss/seat3/compacttrue action=discard ms=155.2 failures=0
+LOWER_EXEC lower-41-6-5-B-source-waits-exhausted-public-loss/seat3/compacttrue action=discard ms=191.8 failures=0
+LOWER_EXECUTION rows=66 failures=0

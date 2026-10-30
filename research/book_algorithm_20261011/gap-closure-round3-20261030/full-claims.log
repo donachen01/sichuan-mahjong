@@ -1,0 +1,43 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+JOINT_CLAIM games=1 applied=true failures=0
+JOINT_CLAIM games=2 applied=true failures=0
+JOINT_CLAIM games=3 applied=true failures=0
+JOINT_CLAIM games=4 applied=true failures=0
+JOINT_CLAIM games=5 applied=true failures=0
+JOINT_CLAIM games=6 applied=true failures=0
+JOINT_CLAIM games=7 applied=true failures=0
+JOINT_CLAIM games=8 applied=true failures=0
+JOINT_CLAIM games=9 applied=true failures=0
+JOINT_CLAIM games=10 applied=true failures=0
+JOINT_CLAIM games=11 applied=true failures=0
+JOINT_CLAIM games=12 applied=true failures=0
+JOINT_CLAIM games=13 applied=true failures=0
+JOINT_CLAIM games=14 applied=true failures=0
+JOINT_CLAIM games=15 applied=true failures=0
+JOINT_CLAIM games=16 applied=true failures=0
+JOINT_CLAIM games=17 applied=true failures=0
+JOINT_CLAIM games=18 applied=true failures=0
+JOINT_CLAIM games=19 applied=true failures=0
+JOINT_CLAIM games=20 applied=true failures=0
+JOINT_CLAIM games=21 applied=true failures=0
+JOINT_CLAIM games=22 applied=true failures=0
+JOINT_CLAIM games=23 applied=true failures=0
+JOINT_CLAIM games=24 applied=true failures=0
+JOINT_CLAIM games=25 applied=true failures=0
+JOINT_CLAIM games=26 applied=true failures=0
+JOINT_CLAIM games=27 applied=true failures=0
+JOINT_CLAIM games=28 applied=true failures=0
+JOINT_CLAIM games=29 applied=true failures=0
+JOINT_CLAIM games=30 applied=true failures=0
+JOINT_CLAIM games=31 applied=true failures=0
+JOINT_CLAIM games=32 applied=true failures=0
+JOINT_CLAIM games=33 applied=true failures=0
+JOINT_CLAIM games=34 applied=true failures=0
+JOINT_CLAIM games=35 applied=true failures=0
+JOINT_CLAIM games=36 applied=true failures=0
+JOINT_CLAIM games=37 applied=true failures=0

@@ -1,0 +1,4 @@
+LOWER reread-6-26-after-p4-offer-p3 Peng tile=11 child=7 ms=735.1
+LOWER reread-6-26-after-p5-offer-p3 Peng tile=11 child=7 ms=409.8
+LOWER reread-6-26-p1-pair-offer-p3 Pass tile=11 child=-1 ms=880.1
+DONE gap geometry-and-authority=3 rows=3 failures=0

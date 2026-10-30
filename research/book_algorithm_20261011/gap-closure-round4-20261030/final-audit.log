@@ -1,0 +1,38 @@
+{
+  "actual_replay": {
+    "original_reported_ms": 22424.867,
+    "reference_ms": 14774.731,
+    "optimized_ms": 6832.68,
+    "speedup": 2.1623624990486894,
+    "reduction_fraction": 0.5375428493418932,
+    "all60_steps_exact": true,
+    "scores": {
+      "0": 13,
+      "1": -1,
+      "2": -4,
+      "3": -8
+    }
+  },
+  "natural_games": {
+    "deals": 8,
+    "paired_runs": 16,
+    "all_steps_exact": 492,
+    "reference": {
+      "n": 484,
+      "total_ms": 43939.91100000001,
+      "median_ms": 35.7055,
+      "p95_ms": 361.6554999999999,
+      "maximum_ms": 1445.514
+    },
+    "optimized": {
+      "n": 484,
+      "total_ms": 44865.974,
+      "median_ms": 38.083,
+      "p95_ms": 353.5341999999999,
+      "maximum_ms": 1605.051
+    },
+    "scope": "Known cases after first collection, semantic/performance regression only; no strength or new blind claim."
+  },
+  "formal_cases": 4,
+  "actual_formal_executions": 4
+}

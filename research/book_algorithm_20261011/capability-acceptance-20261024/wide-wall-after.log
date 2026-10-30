@@ -1,0 +1,5 @@
+WIDE wall=9 selected=3 ready=2 unready=4 ms=160.0
+WIDE wall=12 selected=1 ready=2 unready=4 ms=8.5
+WIDE wall=16 selected=1 ready=2 unready=4 ms=5.1
+WIDE wall=24 selected=1 ready=2 unready=4 ms=7.6
+DONE checks=24 failures=0

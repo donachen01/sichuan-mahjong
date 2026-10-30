@@ -1,0 +1,174 @@
+{
+  "checks": "all per-seat public counts preserved; physically conserved by game harness",
+  "rows": [
+    {
+      "id": "lower-78-7-1-base-full-public",
+      "rivers_by_relative": [
+        4,
+        4,
+        3,
+        3
+      ],
+      "wall": 40,
+      "unknown": [
+        2,
+        3,
+        0,
+        4,
+        3,
+        3,
+        2,
+        3,
+        4,
+        1,
+        3,
+        2,
+        2,
+        3,
+        4,
+        4,
+        3,
+        3,
+        3,
+        4,
+        4,
+        3,
+        4,
+        3,
+        3,
+        4,
+        2
+      ],
+      "opponent_melds": [],
+      "timeline": "deterministic seat-group interleave; exact global event order not supplied by book",
+      "hidden": "compatible physical witness, not observed opponent cards"
+    },
+    {
+      "id": "lower-80-7-2-middle-full-public",
+      "rivers_by_relative": [
+        7,
+        7,
+        5,
+        5
+      ],
+      "wall": 31,
+      "unknown": [
+        0,
+        1,
+        1,
+        4,
+        3,
+        3,
+        2,
+        2,
+        3,
+        1,
+        3,
+        3,
+        2,
+        3,
+        2,
+        3,
+        3,
+        3,
+        2,
+        1,
+        4,
+        3,
+        4,
+        2,
+        0,
+        1,
+        2
+      ],
+      "opponent_melds": [
+        {
+          "relative": 1,
+          "tile": 24
+        },
+        {
+          "relative": 1,
+          "tile": 19
+        },
+        {
+          "relative": 2,
+          "tile": 0
+        }
+      ],
+      "timeline": "deterministic seat-group interleave; exact global event order not supplied by book",
+      "hidden": "compatible physical witness, not observed opponent cards"
+    },
+    {
+      "id": "lower-81-7-2-late-full-public",
+      "rivers_by_relative": [
+        8,
+        8,
+        10,
+        9
+      ],
+      "wall": 19,
+      "unknown": [
+        0,
+        2,
+        3,
+        3,
+        1,
+        1,
+        0,
+        0,
+        1,
+        2,
+        1,
+        1,
+        1,
+        3,
+        1,
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        2,
+        2,
+        2,
+        1,
+        0,
+        2
+      ],
+      "opponent_melds": [
+        {
+          "relative": 1,
+          "tile": 19
+        },
+        {
+          "relative": 1,
+          "tile": 20
+        },
+        {
+          "relative": 2,
+          "tile": 4
+        },
+        {
+          "relative": 2,
+          "tile": 6
+        },
+        {
+          "relative": 2,
+          "tile": 0,
+          "size": 4
+        },
+        {
+          "relative": 3,
+          "tile": 5
+        },
+        {
+          "relative": 3,
+          "tile": 12
+        }
+      ],
+      "timeline": "deterministic seat-group interleave; exact global event order not supplied by book",
+      "hidden": "compatible physical witness, not observed opponent cards"
+    }
+  ]
+}

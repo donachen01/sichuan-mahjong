@@ -1,0 +1,5 @@
+LOWER lower-76-6-28-base-offer-m2/old-public-control Pass tile=19 child=-1 ms=1427.3
+LOWER lower-76-6-28-base-offer-m2/source-corrected Pass tile=19 child=-1 ms=594.2
+LOWER lower-76-6-28-base-offer-m4/old-public-control Pass tile=21 child=-1 ms=576.2
+LOWER lower-76-6-28-base-offer-m4/source-corrected Pass tile=21 child=-1 ms=229.8
+DONE formal geometry-and-authority=4 rows=4 failures=0

@@ -1,0 +1,123 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 102.0,
+        "id": "8ab2b15add978cb95ecceb6f0a45e87d9557f0b145c74ddef4d0e253f91d8a4d",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "845f297cf47bc7f8865f5ec71d1269e3",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "914c13d9df00232ba577321eb579ac58a4722995f2b6ac662f30db01e7ee8471",
+        "tile": 0.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-78-7-1-base/seat1/compactfalse",
+      "ms": 391.005,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 2",
+        "继续出牌统一净值 2.62",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_0",
+        "当前后手弃牌风险已计价 0.1800",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-78-7-1-base"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 103.0,
+        "id": "cc2392d1db88406d3870f9432f5ddc8ec965114be4042e33e22f0eb992d4c202",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "15929684013fdc3d78b0db16f7641cd5",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "40d2875c5c111ccb631cd1c65a2af39d02e79804f94bbaae3dd014c47e43d81f",
+        "tile": 15.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-80-7-2-middle/seat1/compactfalse",
+      "ms": 191.521,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 4",
+        "继续出牌统一净值 0.94",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_15",
+        "当前后手弃牌风险已计价 0.6400",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-80-7-2-middle"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 104.0,
+        "id": "4ebbde1394bf13a45f00971be3c307850370713e3c6babc93d2f1fd6d627b2a0",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "a12e8eec0eb50f83d408309ad7bee461",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "228a46334ff9f395f693e4af69a9217198671b712294b5b8cedb94629416b782",
+        "tile": 18.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-81-7-2-late/seat1/compactfalse",
+      "ms": 211.255,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 2",
+        "继续出牌统一净值 2.77",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_18",
+        "当前后手弃牌风险已计价 0.3000",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-81-7-2-late"
+    }
+  ],
+  "scope": "physical controlled backgrounds; real C# seat authority and GameState; compact desktop transport is not device NativeAOT"
+}

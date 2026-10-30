@@ -26,7 +26,7 @@ public static class SichuanPolicyTiming
         public Timer(string name) { _name=name; _parent=Current.Value; Current.Value=this; }
         public void Dispose() { var ticks=Stopwatch.GetTimestamp()-_start;
             Current.Value=_parent;
-            if(_parent is not null) _parent._children+=ticks;
+            if(_parent is not null) Interlocked.Add(ref _parent._children,ticks);
             long self=Math.Max(0,ticks-_children);
             Values.AddOrUpdate(_name,(ticks,self,1),(_,old)=>(old.Ticks+ticks,old.Self+self,old.Calls+1)); }
     }

@@ -1,0 +1,15 @@
+{
+	"complete_games": [],
+	"readiness": [],
+	"failure": {
+		"key": "31561031:0:pre_learning_closure_v1",
+		"step": 1,
+		"phase": 5,
+		"message": "C# AI seat 2 返回了不可执行决策，已拒绝本地替代出牌。",
+		"physical": {
+			"passed": true,
+			"reasons": []
+		},
+		"agents": true
+	}
+}

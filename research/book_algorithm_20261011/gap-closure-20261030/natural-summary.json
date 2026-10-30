@@ -1,0 +1,136 @@
+{
+  "games": 64,
+  "pairs": 32,
+  "independent_seed_clusters": 8,
+  "mean_paired_gain": 0.5625,
+  "seed_cluster_standard_error": 0.5255736661700513,
+  "descriptive_95_percent_interval": [
+    -0.6804817204921714,
+    1.8054817204921714
+  ],
+  "per_seed_gain": {
+    "31561031": 3.75,
+    "31562040": -0.75,
+    "31563049": 1.75,
+    "31564058": 0.25,
+    "31565067": 0,
+    "31566076": 0,
+    "31567085": -0.5,
+    "31568094": 0
+  },
+  "baseline_score_vectors_per_seed": {
+    "31561031": 1,
+    "31562040": 1,
+    "31563049": 1,
+    "31564058": 1,
+    "31565067": 1,
+    "31566076": 1,
+    "31567085": 1,
+    "31568094": 1
+  },
+  "readiness": [
+    {
+      "variant": "pre_learning_closure_v1",
+      "n": 276,
+      "prevalence": 0.25,
+      "brier": 0.1210533902090215,
+      "reliability": [
+        {
+          "range": [
+            0,
+            0.2
+          ],
+          "n": 144,
+          "prediction": 0.09028753929376197,
+          "truth": 0.0625
+        },
+        {
+          "range": [
+            0.2,
+            0.4
+          ],
+          "n": 86,
+          "prediction": 0.282754361846052,
+          "truth": 0.26744186046511625
+        },
+        {
+          "range": [
+            0.4,
+            0.6
+          ],
+          "n": 34,
+          "prediction": 0.5257152011287644,
+          "truth": 0.7941176470588235
+        },
+        {
+          "range": [
+            0.6,
+            0.8
+          ],
+          "n": 12,
+          "prediction": 0.6721997390615547,
+          "truth": 0.8333333333333334
+        }
+      ]
+    },
+    {
+      "variant": "current",
+      "n": 262,
+      "prevalence": 0.21374045801526717,
+      "brier": 0.12342035847019417,
+      "reliability": [
+        {
+          "range": [
+            0,
+            0.2
+          ],
+          "n": 137,
+          "prediction": 0.09117840129455815,
+          "truth": 0.072992700729927
+        },
+        {
+          "range": [
+            0.2,
+            0.4
+          ],
+          "n": 89,
+          "prediction": 0.28786822509322596,
+          "truth": 0.24719101123595505
+        },
+        {
+          "range": [
+            0.4,
+            0.6
+          ],
+          "n": 25,
+          "prediction": 0.4976508441410702,
+          "truth": 0.6
+        },
+        {
+          "range": [
+            0.6,
+            0.8
+          ],
+          "n": 11,
+          "prediction": 0.6734244550720515,
+          "truth": 0.8181818181818182
+        }
+      ]
+    }
+  ],
+  "latency_ms": {
+    "pre_learning_closure_v1": {
+      "n": 520,
+      "median": 35.185,
+      "p95": 247.794,
+      "max": 804.828
+    },
+    "current": {
+      "n": 481,
+      "median": 29.906,
+      "p95": 211.486,
+      "max": 1291.74
+    }
+  },
+  "interpretation": "Small predeclared self-play pilot. Confidence interval clustered by 8 original deals. No human-opponent calibration or universal strength claim; no fitting on these labels. CPU-concurrent timings are not device benchmarks."
+}

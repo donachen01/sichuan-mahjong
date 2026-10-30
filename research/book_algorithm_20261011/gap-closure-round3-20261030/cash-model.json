@@ -1,0 +1,102 @@
+{
+  "checks": 0,
+  "failures": [],
+  "rows": [
+    {
+      "id": "lower-76-6-28-base-offer-m2/source-corrected",
+      "action": "pass",
+      "first": -1,
+      "utility": -1.4984377457552507,
+      "ownReceipt": 1.21875,
+      "ownPayment": 2.125,
+      "terminal": -0.16762621425270946,
+      "initialDiscardLoss": 0,
+      "rawExpectedCash": -1.0738762142527094,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "lower-76-6-28-base-offer-m2/source-corrected",
+      "action": "peng",
+      "first": 18,
+      "utility": -1.820953901752192,
+      "ownReceipt": 1.0703125,
+      "ownPayment": 2.24609375,
+      "terminal": -0.16897006554950408,
+      "initialDiscardLoss": 0.05,
+      "rawExpectedCash": -1.3947513155495042,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "lower-76-6-28-base-offer-m4/source-corrected",
+      "action": "pass",
+      "first": -1,
+      "utility": -1.0574624021694836,
+      "ownReceipt": 1.640625,
+      "ownPayment": 2.08984375,
+      "terminal": -0.15276008496152085,
+      "initialDiscardLoss": 0,
+      "rawExpectedCash": -0.6019788349615208,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "lower-76-6-28-base-offer-m4/source-corrected",
+      "action": "peng",
+      "first": 19,
+      "utility": -2.437820071059783,
+      "ownReceipt": 0.78125,
+      "ownPayment": 2.5546875,
+      "terminal": -0.18815317828795522,
+      "initialDiscardLoss": 0.05,
+      "rawExpectedCash": -2.011590678287955,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "reread-6-26-after-p4-offer-p3",
+      "action": "pass",
+      "first": -1,
+      "utility": -0.8626003110807515,
+      "ownReceipt": 1.8359375,
+      "ownPayment": 2.0234375,
+      "terminal": -0.21444034244935184,
+      "initialDiscardLoss": 0,
+      "rawExpectedCash": -0.40194034244935184,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "reread-6-26-after-p4-offer-p3",
+      "action": "peng",
+      "first": 7,
+      "utility": -0.9118035375381728,
+      "ownReceipt": 2.15625,
+      "ownPayment": 2.171875,
+      "terminal": -0.32734335052889796,
+      "initialDiscardLoss": 0.07500000000000001,
+      "rawExpectedCash": -0.41796835052889797,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "reread-6-26-after-p5-offer-p3",
+      "action": "pass",
+      "first": -1,
+      "utility": -0.9726219755587096,
+      "ownReceipt": 1.65625,
+      "ownPayment": 1.83203125,
+      "terminal": -0.37729476631496167,
+      "initialDiscardLoss": 0,
+      "rawExpectedCash": -0.5530760163149617,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    },
+    {
+      "id": "reread-6-26-after-p5-offer-p3",
+      "action": "peng",
+      "first": 7,
+      "utility": -0.9507595117198735,
+      "ownReceipt": 2.0078125,
+      "ownPayment": 2.05078125,
+      "terminal": -0.36240958068241974,
+      "initialDiscardLoss": 0.07500000000000001,
+      "rawExpectedCash": -0.48037833068241975,
+      "scope": "Bounded trajectory raw expected cash and risk-adjusted utility are different quantities; neither is actual terminal game score."
+    }
+  ]
+}

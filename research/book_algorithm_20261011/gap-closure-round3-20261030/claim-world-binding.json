@@ -1,0 +1,37 @@
+{
+  "matched_current_projected_hypotheses": 256,
+  "pools": [
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "seed": 20261130,
+      "original_ess": 1756.744661673177,
+      "maximum_weight": 0.0101424609677852,
+      "draws": 64,
+      "distinct_allocations": 64
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "seed": 20261209,
+      "original_ess": 2651.4077260550994,
+      "maximum_weight": 0.0033767073542975722,
+      "draws": 64,
+      "distinct_allocations": 64
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "seed": 20261130,
+      "original_ess": 1597.7139417992396,
+      "maximum_weight": 0.0102617748898573,
+      "draws": 64,
+      "distinct_allocations": 62
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "seed": 20261209,
+      "original_ess": 1919.726284553672,
+      "maximum_weight": 0.005610665364946416,
+      "draws": 64,
+      "distinct_allocations": 64
+    }
+  ]
+}

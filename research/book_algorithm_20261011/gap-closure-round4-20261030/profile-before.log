@@ -1,0 +1,68 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+PROFILE before step=0 phase=2 actor=0 ms=369.5
+PROFILE before step=1 phase=5 actor=0 ms=215.7
+PROFILE before step=2 phase=5 actor=3 ms=24.7
+PROFILE before step=3 phase=5 actor=2 ms=22.9
+PROFILE before step=4 phase=5 actor=1 ms=3.8
+PROFILE before step=5 phase=6 actor=0 ms=76.7
+PROFILE before step=6 phase=5 actor=0 ms=27.9
+PROFILE before step=7 phase=5 actor=3 ms=4.3
+PROFILE before step=8 phase=6 actor=2 ms=35.1
+PROFILE before step=9 phase=5 actor=2 ms=28.8
+PROFILE before step=10 phase=5 actor=1 ms=20.9
+PROFILE before step=11 phase=5 actor=0 ms=21.1
+PROFILE before step=12 phase=5 actor=3 ms=31.1
+PROFILE before step=13 phase=5 actor=2 ms=33.5
+PROFILE before step=14 phase=5 actor=1 ms=59.5
+PROFILE before step=15 phase=5 actor=0 ms=1719.0
+PROFILE before step=16 phase=5 actor=3 ms=30.6
+PROFILE before step=17 phase=5 actor=2 ms=9.0
+PROFILE before step=18 phase=6 actor=3 ms=60.5
+PROFILE before step=19 phase=5 actor=3 ms=212.2
+PROFILE before step=20 phase=5 actor=2 ms=31.2
+PROFILE before step=21 phase=5 actor=1 ms=26.5
+PROFILE before step=22 phase=5 actor=0 ms=8.9
+PROFILE before step=23 phase=6 actor=2 ms=79.6
+PROFILE before step=24 phase=5 actor=2 ms=231.5
+PROFILE before step=25 phase=5 actor=1 ms=27.1
+PROFILE before step=26 phase=5 actor=0 ms=11.2
+PROFILE before step=27 phase=6 actor=1 ms=58.5
+PROFILE before step=28 phase=5 actor=3 ms=29.6
+PROFILE before step=29 phase=5 actor=2 ms=85.3
+PROFILE before step=30 phase=5 actor=1 ms=11.4
+PROFILE before step=31 phase=6 actor=2 ms=43.2
+PROFILE before step=32 phase=5 actor=2 ms=10.7
+PROFILE before step=33 phase=6 actor=1 ms=315.4
+PROFILE before step=34 phase=5 actor=1 ms=453.7
+PROFILE before step=35 phase=5 actor=0 ms=29.0
+PROFILE before step=36 phase=5 actor=3 ms=25.9
+PROFILE before step=37 phase=5 actor=2 ms=33.3
+PROFILE before step=38 phase=5 actor=1 ms=12.1
+PROFILE before step=39 phase=6 actor=0 ms=15679.4
+PROFILE before step=40 phase=5 actor=0 ms=42.2
+PROFILE before step=41 phase=5 actor=3 ms=16.1
+PROFILE before step=42 phase=6 actor=1 ms=295.4
+PROFILE before step=43 phase=5 actor=1 ms=130.0
+PROFILE before step=44 phase=5 actor=0 ms=53.3
+PROFILE before step=45 phase=5 actor=3 ms=50.7
+PROFILE before step=46 phase=5 actor=2 ms=115.0
+PROFILE before step=47 phase=5 actor=1 ms=35.0
+PROFILE before step=48 phase=5 actor=0 ms=13.4
+PROFILE before step=49 phase=6 actor=1 ms=1094.6
+PROFILE before step=50 phase=5 actor=0 ms=36.9
+PROFILE before step=51 phase=5 actor=3 ms=40.4
+PROFILE before step=52 phase=5 actor=2 ms=42.4
+PROFILE before step=53 phase=5 actor=0 ms=106.3
+PROFILE before step=54 phase=5 actor=3 ms=33.3
+PROFILE before step=55 phase=5 actor=2 ms=56.5
+PROFILE before step=56 phase=5 actor=3 ms=66.7
+PROFILE before step=57 phase=5 actor=2 ms=66.1
+PROFILE before step=58 phase=5 actor=3 ms=36.5
+PROFILE before step=59 phase=5 actor=2 ms=18.7
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/profile-before.json

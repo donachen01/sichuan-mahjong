@@ -1,0 +1,55 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-42-6-5-C/seat1/compactfalse action=discard ms=1288.8 failures=0
+LOWER_EXEC lower-68-6-20-C/seat1/compactfalse action=discard ms=2179.3 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat1/compactfalse action=peng ms=2956.4 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat1/compactfalse action=peng ms=598.2 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat1/compactfalse action=discard ms=215.2 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat1/compactfalse action=add_gang ms=190.8 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat1/compactfalse action=pass ms=128.0 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat1/compactfalse action=hu ms=417.4 failures=0
+LOWER_EXEC lower-42-6-5-C/seat2/compactfalse action=discard ms=572.4 failures=0
+LOWER_EXEC lower-68-6-20-C/seat2/compactfalse action=add_gang ms=1346.6 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat2/compactfalse action=peng ms=2726.6 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat2/compactfalse action=peng ms=577.7 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat2/compactfalse action=discard ms=196.1 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat2/compactfalse action=add_gang ms=173.8 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat2/compactfalse action=pass ms=89.0 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat2/compactfalse action=hu ms=355.1 failures=0
+LOWER_EXEC lower-42-6-5-C/seat3/compactfalse action=discard ms=547.7 failures=0
+LOWER_EXEC lower-68-6-20-C/seat3/compactfalse action=discard ms=1347.7 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat3/compactfalse action=peng ms=2652.4 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat3/compactfalse action=peng ms=579.0 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat3/compactfalse action=discard ms=180.8 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat3/compactfalse action=add_gang ms=169.9 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat3/compactfalse action=pass ms=112.6 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat3/compactfalse action=hu ms=378.0 failures=0
+LOWER_EXEC lower-42-6-5-C/seat1/compacttrue action=discard ms=527.7 failures=0
+LOWER_EXEC lower-68-6-20-C/seat1/compacttrue action=discard ms=1362.8 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat1/compacttrue action=peng ms=2689.0 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat1/compacttrue action=peng ms=606.3 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat1/compacttrue action=discard ms=196.8 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat1/compacttrue action=add_gang ms=175.3 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat1/compacttrue action=pass ms=105.7 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat1/compacttrue action=hu ms=401.2 failures=0
+LOWER_EXEC lower-42-6-5-C/seat2/compacttrue action=discard ms=536.7 failures=0
+LOWER_EXEC lower-68-6-20-C/seat2/compacttrue action=add_gang ms=1360.8 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat2/compacttrue action=peng ms=2713.4 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat2/compacttrue action=peng ms=645.0 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat2/compacttrue action=discard ms=201.5 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat2/compacttrue action=add_gang ms=197.3 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat2/compacttrue action=pass ms=87.4 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat2/compacttrue action=hu ms=363.2 failures=0
+LOWER_EXEC lower-42-6-5-C/seat3/compacttrue action=discard ms=535.2 failures=0
+LOWER_EXEC lower-68-6-20-C/seat3/compacttrue action=discard ms=1334.6 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p6/seat3/compacttrue action=peng ms=2646.6 failures=0
+LOWER_EXEC lower-75-6-27-base-offer-p8/seat3/compacttrue action=peng ms=729.7 failures=0
+LOWER_EXEC lower-81-7-2-late-full-public/seat3/compacttrue action=discard ms=197.5 failures=0
+LOWER_EXEC lower-85-7-6-base-draw-9/seat3/compacttrue action=add_gang ms=180.0 failures=0
+LOWER_EXEC lower-41-6-5-A/ready-discard16/offer11/wall34/seat3/compacttrue action=pass ms=123.7 failures=0
+LOWER_EXEC lower-41-6-5-B/ready-discard9/offer11/wall34/seat3/compacttrue action=hu ms=416.2 failures=0
+LOWER_EXECUTION rows=48 failures=0

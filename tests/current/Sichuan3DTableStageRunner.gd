@@ -53,6 +53,7 @@ func _run() -> void:
 	})
 	await process_frame
 	_verify_contract(stage, hand_counts, discard_counts, failures)
+	_verify_target_shadow_scope(stage, failures)
 	await _verify_center_wall_count_3d_neijiang(stage, failures)
 	_verify_hidden_hands(stage, failures)
 	_verify_hand_surface_and_upright_pose(stage, failures)
@@ -167,6 +168,41 @@ func _run() -> void:
 	quit(1)
 
 
+func _verify_target_shadow_scope(stage: SichuanTableStage3D, failures: Array[String]) -> void:
+	var desired: Dictionary = stage.get("last_desired_entries")
+	var tile_nodes: Dictionary = stage.get("tile_nodes")
+	for key_value in desired.keys():
+		var key := str(key_value)
+		var entry: Dictionary = desired[key_value]
+		var expected := false
+		if key.begins_with("hand_"):
+			expected = key.begins_with("hand_2_")
+		elif key.begins_with("discard_") or key.begins_with("meld_") or key.begins_with("winning_"):
+			expected = true
+		if bool(entry.get("target_body_shadows", false)) != expected:
+			failures.append("target body shadow scope drifted for %s" % key)
+		if expected and (key.begins_with("discard_") or key.begins_with("meld_") or key.begins_with("winning_")):
+			if bool(entry.get("show_flat_back_layer", false)):
+				failures.append("target face-up object still requests a procedural back cap for %s" % key)
+		var tile := tile_nodes.get(key_value) as SichuanTile3D
+		if tile == null:
+			continue
+		if expected and (key.begins_with("discard_") or key.begins_with("meld_") or key.begins_with("winning_")):
+			if tile.body_root.find_child("MahjongTileBack", true, false) == null:
+				failures.append("target object lost the canonical Blender jade back for %s" % key)
+		var body_nodes: Array = tile.get("body_shadow_nodes")
+		var body_layers: Array = tile.get("body_layer_baseline")
+		for index in range(body_nodes.size()):
+			var body_mesh := body_nodes[index] as GeometryInstance3D
+			if body_mesh == null:
+				continue
+			if int(body_layers[index]) != (1 << 1):
+				failures.append("canonical body baseline layer changed for %s" % key)
+			var expected_layer := SichuanTile3D.TARGET_BODY_RENDER_LAYER if expected else int(body_layers[index])
+			if int(body_mesh.layers) != expected_layer:
+				failures.append("target body render layer drifted for %s" % key)
+
+
 func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_counts: Array, failures: Array[String]) -> void:
 	var contract := stage.get_visual_contract()
 	if str(contract.get("mode", "")) != "hybrid_3d_world_2d_hud":
@@ -188,6 +224,10 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("every self-hand tile must remain pickable")
 	if int(contract.get("light_count", -1)) != 2 or int(contract.get("shadow_casting_light_count", -1)) != 1:
 		failures.append("mobile lighting budget must keep the original two lights and one shadow caster")
+	if int(contract.get("target_shadow_light_count", 0)) != 1 \
+		or int(contract.get("target_body_render_layer", 0)) != SichuanTile3D.TARGET_BODY_RENDER_LAYER \
+		or str(contract.get("target_mobile_shadow_policy", "")) != "target_glb_body_and_table_receiver_only":
+		failures.append("target-only mobile shadow rig contract is missing")
 	if int(contract.get("mobile_directional_shadow_size", 0)) != 2048 \
 			or int(contract.get("mobile_soft_shadow_filter_quality", -1)) != 0 \
 			or float(contract.get("directional_shadow_max_distance", 0.0)) < 20.0 \
@@ -199,6 +239,8 @@ func _verify_contract(stage: SichuanTableStage3D, hand_counts: Array, discard_co
 		failures.append("V1 precise core assets must consume zero Tripo calls")
 	if float(contract.get("self_hand_scale", 0.0)) < 1.60 or float(contract.get("opponent_hand_scale", 0.0)) < 1.40:
 		failures.append("mobile readability scale is below the enlarged tile threshold")
+	if absf(float(contract.get("far_hand_world_pitch", 0.0)) - 0.54) > 0.001:
+		failures.append("far hand seam pitch must use the target-only 0.54 trial spacing")
 	if not (contract.get("tile_physical_size", Vector3.ZERO) as Vector3).is_equal_approx(Vector3(0.42, 0.24, 0.58)):
 		failures.append("standing and flat poses do not share the thicker physical tile dimensions")
 	var flat_back_cover_size := contract.get("flat_back_cover_size", Vector2.ZERO) as Vector2
@@ -448,10 +490,25 @@ func _verify_hand_surface_and_upright_pose(stage: SichuanTableStage3D, failures:
 				continue
 			found = true
 			var tile := nodes[key_value] as SichuanTile3D
-			var owner_mesh := tile.face_mesh
-			var back_mesh := tile.concealed_cap_mesh
-			var owner_material := owner_mesh.get_surface_override_material(0) as StandardMaterial3D
-			var back_material := back_mesh.get_surface_override_material(0) as StandardMaterial3D
+			var canonical_far_rack: bool = seat == 2
+			var owner_mesh := (
+				tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
+				if canonical_far_rack else tile.face_mesh
+			)
+			var back_mesh := (
+				tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
+				if canonical_far_rack else tile.concealed_cap_mesh
+			)
+			var owner_material := (
+				owner_mesh.material_override as StandardMaterial3D
+				if canonical_far_rack
+				else owner_mesh.get_surface_override_material(0) as StandardMaterial3D
+			)
+			var back_material := (
+				back_mesh.material_override as StandardMaterial3D
+				if canonical_far_rack
+				else back_mesh.get_surface_override_material(0) as StandardMaterial3D
+			)
 			if tile.concealed_surface_flip:
 				failures.append("AI seat %d still swaps cover materials instead of orienting the physical back layer" % seat)
 				return
@@ -461,8 +518,14 @@ func _verify_hand_surface_and_upright_pose(stage: SichuanTableStage3D, failures:
 					% [seat, owner_mesh.mesh != null, owner_mesh.visible, owner_material != null]
 				)
 				return
-			if owner_material.albedo_color.r < 0.75 or owner_material.albedo_color.g < 0.75 or owner_material.albedo_color.b < 0.75:
-				failures.append("AI seat %d owner-facing concealed surface is not ivory white" % seat)
+			if canonical_far_rack and (tile.face_mesh.visible or tile.concealed_cap_mesh.visible):
+				failures.append("far hand still adds a procedural cover over the canonical Blender body")
+				return
+			var minimum_owner_channel := 0.60 if seat == 2 else 0.75
+			if owner_material.albedo_color.r < minimum_owner_channel \
+				or owner_material.albedo_color.g < minimum_owner_channel \
+				or owner_material.albedo_color.b < minimum_owner_channel:
+				failures.append("AI seat %d owner-facing concealed surface lost its readable ivory value" % seat)
 				return
 			if back_mesh.mesh == null or not back_mesh.visible or back_material == null \
 					or back_material.albedo_color.g <= back_material.albedo_color.r * 1.5:
@@ -549,7 +612,13 @@ func _verify_readability_geometry(stage: SichuanTableStage3D, failures: Array[St
 			if absf(tile.transform.basis.z.y) < 0.94:
 				failures.append("AI seat %d concealed rack is not near-vertical" % seat)
 				return
-			if tile.concealed_cap_mesh == null or not tile.concealed_cap_mesh.visible:
+			if seat == 2:
+				var canonical_body := tile.body_root.find_child("MahjongTileBody", true, false) as MeshInstance3D
+				var canonical_back := tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
+				if canonical_body == null or not canonical_body.visible or canonical_back == null or not canonical_back.visible:
+					failures.append("far hand lost its canonical Blender body/back pair")
+					return
+			elif tile.concealed_cap_mesh == null or not tile.concealed_cap_mesh.visible:
 				failures.append("AI seat %d concealed tile lost its ivory top lip" % seat)
 				return
 			if tile.position.y < 0.30:
@@ -735,6 +804,17 @@ func _verify_target_reference_hand_anchors(stage: SichuanTableStage3D, failures:
 			average /= float(positions.size())
 		if average.distance_to(expected_centers[seat]) > 0.08:
 			failures.append("seat %d hand departed from the accepted target-reference anchor: actual=%s expected=%s" % [seat, average, expected_centers[seat]])
+	if nodes.size() > 1:
+		var far_x_positions: Array[float] = []
+		for key_value in nodes.keys():
+			if str(key_value).begins_with("hand_2_"):
+				far_x_positions.append((nodes[key_value] as Node3D).position.x)
+		far_x_positions.sort()
+		for index in range(1, far_x_positions.size()):
+			var far_gap := far_x_positions[index] - far_x_positions[index - 1] \
+				- SichuanTile3D.TILE_SIZE.x * SichuanTableStage3D.FAR_HAND_SCALE
+			if far_gap < 0.0 or far_gap > 0.006:
+				failures.append("opponent hand trial seam must stay non-overlapping and below 0.006 world units: %.4f" % far_gap)
 	var self_meld_z: Array[float] = []
 	for key_value in nodes.keys():
 		if str(key_value).begins_with("meld_0_"):
@@ -1235,15 +1315,16 @@ func _verify_discard_back_layer(stage: SichuanTableStage3D, failures: Array[Stri
 		if not tile.showing_face or tile.symbol_mesh == null or not tile.symbol_mesh.visible:
 			failures.append("discard river tiles must remain face-up")
 			return
-		if tile.concealed_cap_mesh == null or not tile.concealed_cap_mesh.visible:
-			failures.append("discard river tiles lost the explicit green underside layer")
+		var body_back := tile.body_root.find_child("MahjongTileBack", true, false) as MeshInstance3D
+		if body_back == null or body_back.material_override == null:
+			failures.append("discard river tiles lost the shared Blender jade back mesh")
 			return
-		var back_material := tile.concealed_cap_mesh.get_surface_override_material(0) as StandardMaterial3D
+		var back_material := body_back.material_override as StandardMaterial3D
 		if back_material == null or back_material.albedo_color.g <= back_material.albedo_color.r * 1.5:
-			failures.append("discard river underside is not the jade back material")
+			failures.append("discard river shared Blender back is not jade")
 			return
-		if not bool(desired.get(key_value, {}).get("show_flat_back_layer", false)):
-			failures.append("discard river entry does not declare its physical green underside")
+		if bool(desired.get(key_value, {}).get("show_flat_back_layer", false)):
+			failures.append("discard river must not add a procedural back cap")
 			return
 		break
 	if not found:

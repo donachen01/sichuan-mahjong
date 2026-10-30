@@ -1,0 +1,75 @@
+{
+  "kernel": {
+    "checks": 24785,
+    "walls": 3060,
+    "paths": 15360,
+    "failures": [],
+    "ms": 1211.3998,
+    "processors": 10,
+    "scope": "Exact semantic parity to archived original kernels; numerical toy cases, not strength or natural game claims."
+  },
+  "actual_replay": {
+    "original_reported_ms": 22424.867,
+    "reference_ms": 14774.731,
+    "optimized_ms": 6832.68,
+    "speedup": 2.1623624990486894,
+    "reduction_fraction": 0.5375428493418932,
+    "all60_steps_exact": true,
+    "scores": {
+      "0": 13,
+      "1": -1,
+      "2": -4,
+      "3": -8
+    }
+  },
+  "natural_games": {
+    "deals": 8,
+    "paired_runs": 16,
+    "all_steps_exact": 492,
+    "reference": {
+      "n": 484,
+      "total_ms": 43939.91100000001,
+      "median_ms": 35.7055,
+      "p95_ms": 361.6554999999999,
+      "maximum_ms": 1445.514
+    },
+    "optimized": {
+      "n": 484,
+      "total_ms": 44865.974,
+      "median_ms": 38.083,
+      "p95_ms": 353.5341999999999,
+      "maximum_ms": 1605.051
+    },
+    "scope": "Known cases after first collection, semantic/performance regression only; no strength or new blind claim."
+  },
+  "ordinary_opposite_order": {
+    "known_deals": 8,
+    "runs": 32,
+    "reference": {
+      "n": 968,
+      "total_ms": 87988.857,
+      "median_ms": 35.902,
+      "p95_ms": 353.7403,
+      "maximum_ms": 1776.416
+    },
+    "optimized": {
+      "n": 968,
+      "total_ms": 87180.083,
+      "median_ms": 38.131,
+      "p95_ms": 349.67075,
+      "maximum_ms": 1605.051
+    },
+    "scope": "Same8 known deals repeated in opposite temporal order; no additional independent sources or strength claim."
+  },
+  "formal_cases": 4,
+  "actual_formal_executions": 4,
+  "source_files": 293,
+  "mechanism": "Same policies, samples, endpoints, numerical worlds/streams and ordered cash reduction. Bounded up-to4-worker paths/walls only at>=1024. No action or timeout fallback.",
+  "platform": "Single-process desktop true C#/Godot; parallel component clocks overlap; actual step wall time is primary. Phone NativeAOT, heat and rendering contention unverified.",
+  "open_gaps": [
+    "Remaining long-tail cost",
+    "6-28 original context and m4 uncertainty",
+    "Joint projection live promotion",
+    "Phone/human/long-term evidence"
+  ]
+}

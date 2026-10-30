@@ -1,0 +1,274 @@
+{
+  "checks": 12,
+  "failures": [],
+  "rows": [
+    {
+      "id": "independent/settlement25",
+      "charge": 0.439283739287159,
+      "observed": -0.07833015702621436,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall25",
+      "ms": 147.8664,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.2876351361550493,
+          "net": 3.5205766321817378,
+          "reasons": [
+            "CHA_JIAO_2.71"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.19290408752708293,
+          "net": 3.3470972116569535,
+          "reasons": [
+            "CHA_JIAO_1.35"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.044970840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.044970840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.0674318401829135,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.077706840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.2876351361550493,
+          "net": 3.5205766321817378,
+          "reasons": [
+            "CHA_JIAO_2.71"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.19290408752708293,
+          "net": 3.3470972116569535,
+          "reasons": [
+            "CHA_JIAO_1.35"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.044970840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.044970840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.0674318401829135,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.07833015702621436,
+          "net": -2.077706840182913,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "independent/settlement32",
+      "charge": 0.530355115316509,
+      "observed": -0.09548702167317683,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall32",
+      "ms": 48.2826,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1840387240644237,
+          "net": 3.5115281669845637,
+          "reasons": [
+            "CHA_JIAO_2.52"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.16533775885332555,
+          "net": 3.3622854662755386,
+          "reasons": [
+            "CHA_JIAO_1.26"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0329633254201713,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0329633254201713,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0554243254201707,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.065699325420171,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1840387240644237,
+          "net": 3.5115281669845637,
+          "reasons": [
+            "CHA_JIAO_2.52"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.16533775885332555,
+          "net": 3.3622854662755386,
+          "reasons": [
+            "CHA_JIAO_1.26"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0329633254201713,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0329633254201713,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.0554243254201707,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.09548702167317683,
+          "net": -2.065699325420171,
+          "reasons": [
+            "CHA_JIAO_-0.13",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.13"
+          ]
+        }
+      ]
+    }
+  ]
+}

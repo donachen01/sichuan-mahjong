@@ -1,0 +1,5 @@
+{
+  "original_sha256": "9a0c3b789f51f57337ca0c85fa055e5c34f0cf29c8c7c4e40a65b02a0ab2c0fd",
+  "source_round3_dll_binding": "../gap-closure-round3-20261030/dll-binding.json",
+  "archived_binary": "before/round3-executed-core.dll"
+}

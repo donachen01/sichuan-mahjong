@@ -3,7 +3,9 @@ namespace SichuanMahjong.AI.Core.Inference;
 public enum SichuanHiddenHandProposal
 {
     BehaviorWeightedLegacy,
-    PublicPriorThenLikelihood
+    PublicPriorThenLikelihood,
+    // Value2 was an unshipped research proposal; keep later values stable.
+    PublicReadyMixture = 3
 }
 
 public sealed record SichuanHiddenHandParticle(int[][] Hands27, int[] Wall27, double Weight);

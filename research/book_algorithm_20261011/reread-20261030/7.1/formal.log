@@ -1,0 +1,4 @@
+LOWER lower-78-7-1-base Discard tile=0 child=0 ms=395.3
+LOWER lower-80-7-2-middle Discard tile=15 child=15 ms=189.7
+LOWER lower-81-7-2-late Discard tile=18 child=18 ms=262.5
+DONE formal geometry-and-authority=29 rows=3 failures=0

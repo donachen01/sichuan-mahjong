@@ -1,0 +1,8 @@
+LOWER lower-84-7-3-base-declared-draw Hu tile=19 child=-1 ms=180.8
+LOWER lower-84-7-4-base-declared-draw Hu tile=19 child=-1 ms=45.2
+LOWER lower-85-7-5-base-declared-draw Hu tile=18 child=-1 ms=37.6
+LOWER lower-85-7-6-base-offer-p9 Peng tile=17 child=11 ms=122.9
+LOWER lower-85-7-6-base-draw-9 add_gang tile=9 child=-1 ms=562.3
+LOWER lower-85-7-6-base-offer-p9-root-exhausted Hu tile=17 child=-1 ms=58.4
+LOWER lower-84-7-4-base-declared-draw-public-loss Hu tile=19 child=-1 ms=32.9
+DONE formal geometry-and-authority=11 rows=7 failures=0

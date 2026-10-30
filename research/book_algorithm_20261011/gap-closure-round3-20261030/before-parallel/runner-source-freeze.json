@@ -1,0 +1,17 @@
+{
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/FailedShapeProposal.cs": "4cf973bd46b70de5f6b5b4be216b0bac22a606fc62dd60080dd85a7d977e9677",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/Program.cs": "b815c50126123fb72f19e549f16ec52683d4c05fb8d0d4f384190c80738ec065",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/probe/Probe.csproj": "9ecd03e69f56d85df60e4543a8182f5e01556c3d10fa0aec99c0a133db119cfe",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/forecast_holdout.gd": "c049cd0f3e6df9797d5a86f44ae0c99a6c779dcc1a7e7045f8522a96c15ff1b4",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/priority_cases.gd": "942497f6cdce9081f193cac2a003a64fe2949b80b89da44e6da894659a5b4b71",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/benchmark.gd": "e5b253a554263783080681621646c4b8aca9a42a2995dae34653ab241118699b",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/full_claims_debug.gd": "d438de566f66b9a353c35ee7ecae41877da947120bc0cf9114e4371d75b89a7c",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/full_claims.gd": "44c6fe64d988c302a8373868b58f667f0cf4b2aac1c50c652edc96c25f64034b",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/independent_ready_proposal.py": "f8da4a9d44e9f13b19a6d224ab9e05fe5588c853aa4e218eeafbbc5516c36dc1",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/preregistration.json": "445e96296f566cfb137b3cc80fd3fea481c4505c186ed0cb490ea614d6c2f9ca",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/formal_execute.gd": "f64ce1bc6ce879a1bb0e6d514e8d4a3554cb63abdd92f3d899d4a42b2d186a6b",
+  "research/book_algorithm_20261011/gap-closure-round3-20261030/audit_final.py": "c79f54e6fc88b28cd46d69963bfa2500441b7fc850b70e02220c9c3af575b6a8",
+  "tests/current/SichuanActualActionBranchesRunner.gd": "36c2e7f2d9c2a7c11bb01cec4da5bcc22d0d2814eb69a335a14dc065069edc03",
+  "research/book_algorithm_20261011/gap-closure-20261030/verify_game.gd": "50fcfc7ecf86f8e0b2f746efd2df0ee11a4e3b253aeac6a9db5895d6d44ed459",
+  "research/hand_review_20261019/shared_execution_audit/paths_check.gd": "466f2df66c6d9d9c4bba991afa3286fa36568f87eb57dcc2e198c4e75d7f5c97"
+}

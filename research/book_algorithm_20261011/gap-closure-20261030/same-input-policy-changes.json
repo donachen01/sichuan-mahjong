@@ -1,0 +1,870 @@
+[
+  {
+    "section": "6.2",
+    "id": "lower-41-6-5-A",
+    "before": [
+      "Discard",
+      14,
+      14
+    ],
+    "after": [
+      "Discard",
+      16,
+      16
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-41-6-5-B",
+    "before": [
+      "Discard",
+      12,
+      12
+    ],
+    "after": [
+      "Discard",
+      13,
+      13
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-42-6-5-C",
+    "before": [
+      "an_gang",
+      4,
+      -1
+    ],
+    "after": [
+      "Discard",
+      1,
+      1
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-42-6-5-D",
+    "before": [
+      "Discard",
+      3,
+      3
+    ],
+    "after": [
+      "Discard",
+      2,
+      2
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-41-6-5-A-public-loss",
+    "before": [
+      "Discard",
+      14,
+      14
+    ],
+    "after": [
+      "Discard",
+      16,
+      16
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-41-6-5-B-public-loss",
+    "before": [
+      "Discard",
+      9,
+      9
+    ],
+    "after": [
+      "Discard",
+      16,
+      16
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-42-6-5-C-public-loss",
+    "before": [
+      "an_gang",
+      4,
+      -1
+    ],
+    "after": [
+      "Discard",
+      1,
+      1
+    ]
+  },
+  {
+    "section": "6.2",
+    "id": "lower-42-6-5-D-public-loss",
+    "before": [
+      "Discard",
+      6,
+      6
+    ],
+    "after": [
+      "Discard",
+      2,
+      2
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-44-6-6-A",
+    "before": [
+      "Discard",
+      26,
+      26
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-45-6-7-1-declared-draw",
+    "before": [
+      "Discard",
+      9,
+      9
+    ],
+    "after": [
+      "Discard",
+      13,
+      13
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-45-6-7-4-declared-draw",
+    "before": [
+      "Discard",
+      25,
+      25
+    ],
+    "after": [
+      "Discard",
+      12,
+      12
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-45-6-7-5-declared-draw",
+    "before": [
+      "Discard",
+      2,
+      2
+    ],
+    "after": [
+      "Discard",
+      16,
+      16
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-46-6-7-6-declared-draw",
+    "before": [
+      "Discard",
+      19,
+      19
+    ],
+    "after": [
+      "Discard",
+      6,
+      6
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-46-6-7-8-declared-draw",
+    "before": [
+      "Discard",
+      5,
+      5
+    ],
+    "after": [
+      "Discard",
+      8,
+      8
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-46-6-7-9-declared-draw",
+    "before": [
+      "Discard",
+      23,
+      23
+    ],
+    "after": [
+      "Discard",
+      8,
+      8
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-44-6-6-A-public-loss",
+    "before": [
+      "Discard",
+      26,
+      26
+    ],
+    "after": [
+      "Discard",
+      13,
+      13
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-45-6-7-4-declared-draw-public-loss",
+    "before": [
+      "Discard",
+      25,
+      25
+    ],
+    "after": [
+      "Discard",
+      22,
+      22
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-45-6-7-5-declared-draw-public-loss",
+    "before": [
+      "Discard",
+      0,
+      0
+    ],
+    "after": [
+      "Discard",
+      16,
+      16
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-46-6-7-6-declared-draw-public-loss",
+    "before": [
+      "Discard",
+      19,
+      19
+    ],
+    "after": [
+      "Discard",
+      6,
+      6
+    ]
+  },
+  {
+    "section": "6.3",
+    "id": "lower-46-6-7-9-declared-draw-public-loss",
+    "before": [
+      "Discard",
+      24,
+      24
+    ],
+    "after": [
+      "Discard",
+      0,
+      0
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-47-6-8-A",
+    "before": [
+      "Discard",
+      26,
+      26
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-47-6-8-B",
+    "before": [
+      "Discard",
+      17,
+      17
+    ],
+    "after": [
+      "Discard",
+      10,
+      10
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-49-6-12-C",
+    "before": [
+      "Discard",
+      1,
+      1
+    ],
+    "after": [
+      "Discard",
+      22,
+      22
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-50-6-13-A",
+    "before": [
+      "Discard",
+      11,
+      11
+    ],
+    "after": [
+      "Discard",
+      1,
+      1
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-50-6-13-B",
+    "before": [
+      "Discard",
+      10,
+      10
+    ],
+    "after": [
+      "Discard",
+      8,
+      8
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-50-6-13-C",
+    "before": [
+      "Discard",
+      10,
+      10
+    ],
+    "after": [
+      "Discard",
+      8,
+      8
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-50-6-13-D",
+    "before": [
+      "Discard",
+      10,
+      10
+    ],
+    "after": [
+      "Discard",
+      5,
+      5
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-51-6-14-A",
+    "before": [
+      "Discard",
+      22,
+      22
+    ],
+    "after": [
+      "Discard",
+      11,
+      11
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-51-6-14-B",
+    "before": [
+      "Discard",
+      26,
+      26
+    ],
+    "after": [
+      "Discard",
+      12,
+      12
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-51-6-14-C",
+    "before": [
+      "Discard",
+      12,
+      12
+    ],
+    "after": [
+      "Discard",
+      18,
+      18
+    ]
+  },
+  {
+    "section": "6.4.1",
+    "id": "lower-51-6-14-D",
+    "before": [
+      "Discard",
+      12,
+      12
+    ],
+    "after": [
+      "Discard",
+      18,
+      18
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-53-6-15-C",
+    "before": [
+      "Discard",
+      4,
+      4
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-54-6-16-A",
+    "before": [
+      "Discard",
+      20,
+      20
+    ],
+    "after": [
+      "Discard",
+      12,
+      12
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-54-6-16-B",
+    "before": [
+      "Discard",
+      20,
+      20
+    ],
+    "after": [
+      "Discard",
+      9,
+      9
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-55-6-16-E",
+    "before": [
+      "Discard",
+      20,
+      20
+    ],
+    "after": [
+      "Discard",
+      15,
+      15
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-55-6-17-A",
+    "before": [
+      "Discard",
+      19,
+      19
+    ],
+    "after": [
+      "Discard",
+      17,
+      17
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-55-6-17-C",
+    "before": [
+      "Discard",
+      19,
+      19
+    ],
+    "after": [
+      "Discard",
+      11,
+      11
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-56-6-18-A",
+    "before": [
+      "Discard",
+      0,
+      0
+    ],
+    "after": [
+      "Discard",
+      11,
+      11
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-56-6-18-B",
+    "before": [
+      "Discard",
+      0,
+      0
+    ],
+    "after": [
+      "Discard",
+      13,
+      13
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-57-6-18-C",
+    "before": [
+      "Discard",
+      17,
+      17
+    ],
+    "after": [
+      "Discard",
+      14,
+      14
+    ]
+  },
+  {
+    "section": "6.4.2",
+    "id": "lower-54-6-16-B-middle-pair-loss",
+    "before": [
+      "Discard",
+      20,
+      20
+    ],
+    "after": [
+      "Discard",
+      9,
+      9
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-68-6-20-A",
+    "before": [
+      "Discard",
+      5,
+      5
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-68-6-20-B",
+    "before": [
+      "Discard",
+      8,
+      8
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-68-6-20-C",
+    "before": [
+      "add_gang",
+      5,
+      -1
+    ],
+    "after": [
+      "Discard",
+      21,
+      21
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-70-6-22-A",
+    "before": [
+      "Discard",
+      16,
+      16
+    ],
+    "after": [
+      "an_gang",
+      19,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-68-6-20-A-public-loss",
+    "before": [
+      "Discard",
+      5,
+      5
+    ],
+    "after": [
+      "Discard",
+      23,
+      23
+    ]
+  },
+  {
+    "section": "6.5.1",
+    "id": "lower-70-6-22-A-public-loss",
+    "before": [
+      "Discard",
+      16,
+      16
+    ],
+    "after": [
+      "an_gang",
+      19,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-72-6-24-A-offer-p3",
+    "before": [
+      "Peng",
+      11,
+      4
+    ],
+    "after": [
+      "Pass",
+      11,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-73-6-25-base-offer-p2",
+    "before": [
+      "Peng",
+      10,
+      6
+    ],
+    "after": [
+      "Pass",
+      10,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-73-6-25-base-offer-p5",
+    "before": [
+      "Peng",
+      13,
+      6
+    ],
+    "after": [
+      "Pass",
+      13,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-73-6-25-base-offer-p9",
+    "before": [
+      "Peng",
+      17,
+      6
+    ],
+    "after": [
+      "Pass",
+      17,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p2_claimed-declared-draw",
+    "before": [
+      "Discard",
+      0,
+      0
+    ],
+    "after": [
+      "Discard",
+      9,
+      9
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-26-base-offer-p4",
+    "before": [
+      "Peng",
+      12,
+      6
+    ],
+    "after": [
+      "Pass",
+      12,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-26-base-offer-p5",
+    "before": [
+      "Peng",
+      13,
+      6
+    ],
+    "after": [
+      "Pass",
+      13,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-26-base-offer-p7",
+    "before": [
+      "Peng",
+      15,
+      6
+    ],
+    "after": [
+      "Pass",
+      15,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-27-base-offer-p3",
+    "before": [
+      "Peng",
+      11,
+      22
+    ],
+    "after": [
+      "Pass",
+      11,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-27-base-offer-p6",
+    "before": [
+      "Peng",
+      14,
+      11
+    ],
+    "after": [
+      "Peng",
+      14,
+      23
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-75-6-27-base-offer-p8",
+    "before": [
+      "Peng",
+      16,
+      11
+    ],
+    "after": [
+      "Peng",
+      16,
+      23
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-76-6-28-base-offer-m2",
+    "before": [
+      "Peng",
+      19,
+      7
+    ],
+    "after": [
+      "Pass",
+      19,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p5_claimed-second-peng",
+    "before": [
+      "Peng",
+      10,
+      7
+    ],
+    "after": [
+      "Pass",
+      10,
+      -1
+    ]
+  },
+  {
+    "section": "6.5.2",
+    "id": "lower-74-6-25-p5_claimed-declared-draw-public-loss",
+    "before": [
+      "Discard",
+      0,
+      0
+    ],
+    "after": [
+      "Discard",
+      7,
+      7
+    ]
+  },
+  {
+    "section": "7.1-tables",
+    "id": "lower-81-7-2-late-full-public",
+    "before": [
+      "Discard",
+      18,
+      18
+    ],
+    "after": [
+      "Discard",
+      13,
+      13
+    ]
+  }
+]

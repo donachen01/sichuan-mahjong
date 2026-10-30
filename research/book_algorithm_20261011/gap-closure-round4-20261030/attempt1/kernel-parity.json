@@ -1,0 +1,8 @@
+{
+  "checks": 22448,
+  "walls": 3060,
+  "paths": 15360,
+  "failures": [],
+  "ms": 957.6592,
+  "scope": "Exact semantic parity to archived original kernels; numerical toy cases, not strength or natural game claims."
+}

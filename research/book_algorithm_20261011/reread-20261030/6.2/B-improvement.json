@@ -1,0 +1,315 @@
+[
+  {
+    "draw": "筒2",
+    "best_kind_count": 4,
+    "choices": [
+      {
+        "discard": "筒2",
+        "waits": [
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 5,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒3",
+        "waits": [
+          "筒1",
+          "筒4"
+        ],
+        "copies": 6,
+        "root_waits": []
+      },
+      {
+        "discard": "筒4",
+        "waits": [
+          "筒2",
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 7,
+        "root_waits": []
+      },
+      {
+        "discard": "筒5",
+        "waits": [
+          "筒2",
+          "筒3",
+          "筒6",
+          "筒9"
+        ],
+        "copies": 9,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒7",
+        "waits": [
+          "筒2",
+          "筒8"
+        ],
+        "copies": 4,
+        "root_waits": []
+      },
+      {
+        "discard": "筒8",
+        "waits": [
+          "筒2",
+          "筒3",
+          "筒6",
+          "筒9"
+        ],
+        "copies": 9,
+        "root_waits": [
+          "筒3"
+        ]
+      }
+    ]
+  },
+  {
+    "draw": "筒4",
+    "best_kind_count": 7,
+    "choices": [
+      {
+        "discard": "筒2",
+        "waits": [
+          "筒3",
+          "筒4",
+          "筒5",
+          "筒6",
+          "筒7",
+          "筒8",
+          "筒9"
+        ],
+        "copies": 15,
+        "root_waits": []
+      },
+      {
+        "discard": "筒3",
+        "waits": [
+          "筒2",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 7,
+        "root_waits": []
+      },
+      {
+        "discard": "筒4",
+        "waits": [
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 5,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒5",
+        "waits": [
+          "筒3",
+          "筒6",
+          "筒9"
+        ],
+        "copies": 7,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒7",
+        "waits": [
+          "筒3",
+          "筒8"
+        ],
+        "copies": 3,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒8",
+        "waits": [
+          "筒3",
+          "筒6",
+          "筒9"
+        ],
+        "copies": 7,
+        "root_waits": [
+          "筒3"
+        ]
+      }
+    ]
+  },
+  {
+    "draw": "筒7",
+    "best_kind_count": 5,
+    "choices": [
+      {
+        "discard": "筒2",
+        "waits": [
+          "筒4",
+          "筒6",
+          "筒7",
+          "筒8",
+          "筒9"
+        ],
+        "copies": 12,
+        "root_waits": [
+          "筒7"
+        ]
+      },
+      {
+        "discard": "筒5",
+        "waits": [
+          "筒6",
+          "筒9"
+        ],
+        "copies": 6,
+        "root_waits": []
+      },
+      {
+        "discard": "筒7",
+        "waits": [
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 5,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒8",
+        "waits": [
+          "筒6",
+          "筒9"
+        ],
+        "copies": 6,
+        "root_waits": []
+      }
+    ]
+  },
+  {
+    "draw": "筒6",
+    "best_kind_count": 4,
+    "choices": [
+      {
+        "discard": "筒2",
+        "waits": [
+          "筒4",
+          "筒5",
+          "筒7",
+          "筒8"
+        ],
+        "copies": 9,
+        "root_waits": []
+      },
+      {
+        "discard": "筒5",
+        "waits": [
+          "筒1",
+          "筒2",
+          "筒4",
+          "筒7"
+        ],
+        "copies": 11,
+        "root_waits": []
+      },
+      {
+        "discard": "筒6",
+        "waits": [
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 5,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒8",
+        "waits": [
+          "筒1",
+          "筒2",
+          "筒4",
+          "筒7"
+        ],
+        "copies": 11,
+        "root_waits": []
+      }
+    ]
+  },
+  {
+    "draw": "筒9",
+    "best_kind_count": 4,
+    "choices": [
+      {
+        "discard": "筒2",
+        "waits": [
+          "筒4",
+          "筒5",
+          "筒7",
+          "筒8"
+        ],
+        "copies": 9,
+        "root_waits": []
+      },
+      {
+        "discard": "筒5",
+        "waits": [
+          "筒1",
+          "筒2",
+          "筒4",
+          "筒7"
+        ],
+        "copies": 11,
+        "root_waits": []
+      },
+      {
+        "discard": "筒6",
+        "waits": [
+          "筒3",
+          "筒5"
+        ],
+        "copies": 3,
+        "root_waits": [
+          "筒3"
+        ]
+      },
+      {
+        "discard": "筒8",
+        "waits": [
+          "筒1",
+          "筒2",
+          "筒4",
+          "筒7"
+        ],
+        "copies": 11,
+        "root_waits": []
+      },
+      {
+        "discard": "筒9",
+        "waits": [
+          "筒3",
+          "筒5",
+          "筒8"
+        ],
+        "copies": 5,
+        "root_waits": [
+          "筒3"
+        ]
+      }
+    ]
+  }
+]

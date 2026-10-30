@@ -1,0 +1,8 @@
+Source SHA-256: 425cc93dad81ccc8cc4d27d64dca304e8e6bd600fd19ab56add5d574fd72a921
+Relevant Godot/runtime lines; original raw log retained locally.
+10-30 21:24:39.989  5123  5153 I godot   : Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+10-30 21:24:40.096  5123  5153 I godot   : OpenGL API OpenGL ES 3.2 (OpenGL ES 3.2.0 (ANGLE 2.1.25529 git hash: 42c82aa9f861)) - Compatibility - Using Device: Qualcomm - Adreno (TM) 740
+10-30 21:24:40.125  5123  5153 I godot   :
+10-30 21:24:41.713  5123  5153 I godot   : [SichuanCSharpRuntime] ready
+10-30 21:24:41.714  5123  5153 I godot   : [GameState] bound native C# runtime ready=true
+10-30 21:24:41.724  5123  5123 I godot   : Android landscape gravity: requestedOrientation=6

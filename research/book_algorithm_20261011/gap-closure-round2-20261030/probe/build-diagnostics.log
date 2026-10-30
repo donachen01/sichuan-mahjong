@@ -1,0 +1,9 @@
+/opt/homebrew/Cellar/dotnet/10.0.107/libexec/sdk/10.0.107/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets(266,5): error NETSDK1004: 找不到资产文件“/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/probe/obj/project.assets.json”。运行 NuGet 包还原以生成此文件。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/probe/Probe.csproj]
+
+生成失败。
+
+/opt/homebrew/Cellar/dotnet/10.0.107/libexec/sdk/10.0.107/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets(266,5): error NETSDK1004: 找不到资产文件“/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/probe/obj/project.assets.json”。运行 NuGet 包还原以生成此文件。 [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/probe/Probe.csproj]
+    0 个警告
+    1 个错误
+
+已用时间 00:00:00.29

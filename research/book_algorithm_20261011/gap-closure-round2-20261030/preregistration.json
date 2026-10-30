@@ -1,0 +1,73 @@
+{
+  "source_correction": "v1 diagnostic column1 is RAW, not actual current posterior",
+  "train": {
+    "games": 32,
+    "seed_base": 42611031,
+    "stride": 1009
+  },
+  "validation": {
+    "games": 8,
+    "seed_base": 52611031,
+    "stride": 1009
+  },
+  "holdout": {
+    "games": 24,
+    "seed_base": 62611031,
+    "stride": 1009,
+    "do_not_fit_or_select_on_these": true
+  },
+  "opponents": "alternating all-current and all-pre_learning_closure_v1 whole games; same strategy within each game",
+  "observation": "every actor turn with even wall count, predictions for all active non-actor seats; labels only afterwards",
+  "primary": "per-game paired Brier and log loss; cluster bootstrap by whole game",
+  "candidate_fit": "penalized logistic raw-public-feature model, old deployed coefficients as prior; validation selects penalty; freeze before holdout",
+  "promotion": "holdout per-game Brier delta interval below zero, no material log-loss or high-threat deterioration; otherwise do not replace deployed weights",
+  "precision": {
+    "cases": [
+      "6-28 offer2",
+      "6-28 offer4",
+      "6-26 afterPeng4 offer3",
+      "6-26 afterPeng5 offer3"
+    ],
+    "samples": [
+      256,
+      1024,
+      4096
+    ],
+    "seeds": [
+      20261022,
+      20261103
+    ],
+    "production_amendment": "After independent seed and same-state numerical checks, refine uncertainty at most256->1024->4096 at actual root; no research-scope recursion, no hidden-world action choice. Declared before reading strength-cohort outcomes. Source-specific action labels do not enter algorithm."
+  },
+  "scope": "task-local experiments, no fixed future regression checklist",
+  "benchmark": {
+    "seed_base": 72611031,
+    "stride": 1009,
+    "independent_deals": 32,
+    "actual_games": 160,
+    "baseline": "before_round2_v1; same shared algorithms with required stock-state repair, old calibration and 256 samples",
+    "controlled": "one baseline game per seed supplies all four score references, plus four current games changing one seat each",
+    "paired_deal_hash": "initial own hands and complete tile-type wall identical before first action",
+    "primary": "mean controlled-score delta clustered by original seed; 32 clusters, no optional stopping or parameter tuning from this cohort",
+    "secondary": "native calibrated-output arithmetic checks, physical state conservation, full balanced settlement",
+    "interpretation_before_outcomes": "CI spanning zero means strength improvement unconfirmed; never claim universal gain. If complete-cohort interval is strictly negative, do not promote strategic graph/claim changes as an improvement; correctness/stock repair remains independently required. No tuning on this cohort."
+  },
+  "full_claim_policy": {
+    "pilot_worlds": 8,
+    "pilot_seed": 20261107,
+    "confirmation_worlds": 32,
+    "confirmation_seed": 20261119,
+    "root_prefix": "declared legal pass or Peng plus priced first discard; subsequent actual native GameState to terminal",
+    "samples_source": "public-only legal hypothesis sampler; sampled hidden hands are labels/worlds, never policy inputs",
+    "scope": "6-28 two offers; all declared worlds kept regardless of outcome"
+  },
+  "public_input_amendment": "High-resolution source confirms 3-wan, not 2-wan. Paired old/corrected public input arms retain all other public observations. Old worlds remain archived and are not source-faithful acceptance evidence.",
+  "supplementary_public_context": {
+    "walls": [
+      28,
+      20
+    ],
+    "source": "corrected6-28 two offers",
+    "scope": "Explicitly reconstructed additional public rivers; no claim of exact book turn. Exploratory context sensitivity, no model tuning or primary-cohort selection."
+  }
+}

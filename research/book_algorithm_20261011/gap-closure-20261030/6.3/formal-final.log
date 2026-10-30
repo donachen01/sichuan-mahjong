@@ -1,0 +1,25 @@
+LOWER lower-44-6-6-A Discard tile=15 child=15 ms=2131.8
+LOWER lower-44-6-6-B Discard tile=15 child=15 ms=2133.6
+LOWER lower-45-6-7-1-declared-draw Discard tile=13 child=13 ms=2684.3
+LOWER lower-45-6-7-2-declared-draw Discard tile=17 child=17 ms=892.7
+LOWER lower-45-6-7-3-declared-draw Discard tile=2 child=2 ms=794.4
+LOWER lower-45-6-7-4-declared-draw Discard tile=12 child=12 ms=3879.6
+LOWER lower-45-6-7-5-declared-draw Discard tile=2 child=2 ms=682.8
+LOWER lower-46-6-7-6-declared-draw Discard tile=6 child=6 ms=595.3
+LOWER lower-46-6-7-7-declared-draw Discard tile=21 child=21 ms=1008.8
+LOWER lower-46-6-7-8-declared-draw Discard tile=8 child=8 ms=405.9
+LOWER lower-46-6-7-9-declared-draw Discard tile=4 child=4 ms=477.7
+LOWER lower-46-6-7-10-declared-draw Discard tile=2 child=2 ms=517.6
+LOWER lower-44-6-6-A-public-loss Discard tile=13 child=13 ms=663.0
+LOWER lower-44-6-6-B-public-loss Discard tile=15 child=15 ms=472.1
+LOWER lower-45-6-7-1-declared-draw-public-loss Discard tile=9 child=9 ms=533.8
+LOWER lower-45-6-7-2-declared-draw-public-loss Discard tile=0 child=0 ms=533.9
+LOWER lower-45-6-7-3-declared-draw-public-loss Discard tile=21 child=21 ms=562.8
+LOWER lower-45-6-7-4-declared-draw-public-loss Discard tile=10 child=10 ms=458.3
+LOWER lower-45-6-7-5-declared-draw-public-loss Discard tile=16 child=16 ms=684.6
+LOWER lower-46-6-7-6-declared-draw-public-loss Discard tile=6 child=6 ms=458.3
+LOWER lower-46-6-7-7-declared-draw-public-loss Discard tile=21 child=21 ms=1016.4
+LOWER lower-46-6-7-8-declared-draw-public-loss Discard tile=0 child=0 ms=277.0
+LOWER lower-46-6-7-9-declared-draw-public-loss Discard tile=8 child=8 ms=337.9
+LOWER lower-46-6-7-10-declared-draw-public-loss Discard tile=0 child=0 ms=379.7
+DONE formal geometry-and-authority=56 rows=24 failures=0

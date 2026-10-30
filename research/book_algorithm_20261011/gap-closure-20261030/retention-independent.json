@@ -1,0 +1,34 @@
+{
+  "checks": 17688,
+  "failures": [],
+  "rows": [
+    {
+      "id": "independent-short-hand-urn7019",
+      "exact_allocations": 210,
+      "samples": 4096,
+      "ess": 3866.1489078904324,
+      "maximum_mean_error": 0.01112769200661562
+    },
+    {
+      "id": "independent-short-hand-urn16067",
+      "exact_allocations": 210,
+      "samples": 4096,
+      "ess": 3868.9261129034544,
+      "maximum_mean_error": 0.017358876596670125
+    },
+    {
+      "id": "independent-short-hand-urn7019-duplicate",
+      "exact_allocations": 336,
+      "samples": 4096,
+      "ess": 3919.6671302061113,
+      "maximum_mean_error": 0.012985758206145226
+    },
+    {
+      "id": "independent-short-hand-urn16067-duplicate",
+      "exact_allocations": 336,
+      "samples": 4096,
+      "ess": 3924.059853207512,
+      "maximum_mean_error": 0.013653389261903848
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+EMPTY ready_choice/clearedTrue/wall12 mass=0 lock=-1 remaining13=0
+final-second checks=307 failures=1
+FAIL ready_choice/clearedTrue/wall12 real ready profile uses clearance evidence

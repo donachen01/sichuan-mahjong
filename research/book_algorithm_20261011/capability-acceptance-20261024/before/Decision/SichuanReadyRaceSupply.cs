@@ -1,0 +1,32 @@
+using SichuanMahjong.AI.Core.Models;
+using SichuanMahjong.AI.Core.Rules;
+using SichuanMahjong.AI.Core.Search;
+
+namespace SichuanMahjong.AI.Core.Decision;
+
+/// <summary>Public compulsory-discard channels only, in actual draw order.
+/// A concealed opponent hand is never read and voluntary releases are not
+/// assigned an invented fixed probability.</summary>
+public static class SichuanReadyRaceSupply
+{
+    public static IReadOnlyList<SichuanReadyRaceGroup> Build(SichuanStateView s,SichuanReadyPrice ready)
+    {
+        // Existing passed-Hu windows need a richer lock/unlock state than this
+        // fixed-wait model. Retain the conservative self-draw-only path there.
+        if(s.InformationMode!="public" || s.OwnDingQueSuit is <0 or >2
+            || s.SeatIndex is <0 or >3 || s.LockedFans[s.SeatIndex]>=0)return Array.Empty<SichuanReadyRaceGroup>();
+        var order=new List<int>{s.SeatIndex};
+        for(int offset=1;offset<=3;offset++)
+        {
+            var seat=(s.SeatIndex-offset+4)%4;
+            if(s.ActiveSeats[seat]&&!s.HasHu[seat])order.Add(seat);
+        }
+        return ready.Waits.Where(w=>w.PublicWallWeight>0).GroupBy(w=>w.TileType/9).Select(g=>
+        {
+            var mass=g.Sum(w=>w.PublicWallWeight);var mask=0;
+            for(int actor=1;actor<order.Count;actor++)if(s.DingQueSuits[order[actor]]==g.Key)mask|=1<<actor;
+            return new SichuanReadyRaceGroup(mass,g.Sum(w=>w.PublicWallWeight*w.SelfDrawPerPayer)/mass,
+                g.Sum(w=>w.PublicWallWeight*w.HandScore)/mass,mask);
+        }).ToArray();
+    }
+}

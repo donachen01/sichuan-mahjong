@@ -1,0 +1,81 @@
+using System.Numerics;
+
+namespace SichuanMahjong.AI.Core.Search;
+
+/// <summary>Finite public fixed-hand race with legal Ron stopping. A refusal
+/// consumes the offered copy and locks equal/lower Ron until our next draw.
+/// Prices remain separate; the optimizer never observes a hidden wall order.
+/// Wall allocation and rival exits are conditional models, not calibration.</summary>
+internal static class SichuanReadyStoppingModel
+{
+    internal static SichuanBloodBattleChanceModel.Value Evaluate(SichuanActionTreeEvaluator.ChanceSearchRequest r)
+    {
+        var groups=r.ReadyGroups!;int players=Math.Clamp(r.ActivePlayers,2,4),wall=Math.Max(0,r.WallTiles);
+        double hazard=Math.Clamp(r.OpponentWinProbabilityPerDraw,0,1);
+        var cache=new Dictionary<(int W,ulong Counts,int Mask,int Actor,double Lock),SichuanBloodBattleChanceModel.Value>();
+        var expected=groups.Select(g=>Math.Max(0,g.ExpectedCopies)).ToArray();
+        if(expected.Sum()>wall+1e-8)throw new ArgumentException("ready groups exceed wall");
+        // Systematic dependent rounding: each marginal is preserved, the
+        // total is floor/ceil, and no impossible independent allocation occurs.
+        var cuts=new SortedSet<double>{0,1};double cumulative=0;
+        foreach(double n in expected){cumulative+=n-Math.Floor(n);double f=cumulative-Math.Floor(cumulative);if(f>1e-12&&f<1-1e-12)cuts.Add(1-f);}
+        var boundaries=cuts.ToArray();var rows=new List<(SichuanBloodBattleChanceModel.Value,double)>();
+        for(int i=1;i<boundaries.Length;i++)
+        {
+            double u=(boundaries[i]+boundaries[i-1])/2,prior=0;ulong counts=0;
+            for(int j=0;j<expected.Length;j++)
+            {double next=prior+expected[j];int n=(int)(Math.Floor(next+u)-Math.Floor(prior+u));counts|=(ulong)n<<(j*7);prior=next;}
+            int first=(players-Math.Clamp(r.OwnTurnOffset,0,players-1))%players;
+            rows.Add((Solve(wall,counts,(1<<players)-1,first,r.InitialRonLockScore),boundaries[i]-boundaries[i-1]));
+        }
+        var value=default(SichuanBloodBattleChanceModel.Value);double mass=0;
+        foreach(var (v,p) in rows){value=mass==0?v:SichuanBloodBattleChanceModel.Value.Mix(v,value,p/(mass+p));mass+=p;}
+        return value;
+
+        int Next(int mask,int actor)
+        {for(int d=1;d<=players;d++){int s=(actor+d)%players;if((mask&(1<<s))!=0)return s;}return 0;}
+        SichuanBloodBattleChanceModel.Value Solve(int w,ulong counts,int mask,int actor,double locked)
+        {
+            int payers=BitOperations.PopCount((uint)mask)-1;
+            if(payers==0)return new(BattleEnd:1);
+            if(w==0)return new(Draw:1,ChaJiao:r.ChaJiaoValue*payers/(players-1));
+            if(actor==0)locked=0; // the normal own draw clears the pass-Hu lock
+            var key=(w,counts,mask,actor,locked);if(cache.TryGetValue(key,out var known))return known;
+            int total=0;var branches=new List<(SichuanBloodBattleChanceModel.Value,double)>();
+            for(int j=0;j<groups.Count;j++)
+            {
+                int n=(int)((counts>>(j*7))&127);total+=n;if(n==0)continue;
+                var g=groups[j];ulong after=counts-(1UL<<(j*7));
+                SichuanBloodBattleChanceModel.Value hit;
+                if(actor==0)hit=new(Win:1,WinGain:g.SelfDrawPerPayer*payers){SelfDrawWin=1,SelfDrawGain=g.SelfDrawPerPayer*payers};
+                else
+                {
+                    var keep=Miss(after,locked);
+                    var pass=Solve(w-1,after,mask,Next(mask,actor),Math.Max(locked,g.DiscardScore));
+                    var take=new SichuanBloodBattleChanceModel.Value(Win:1,WinGain:g.DiscardScore){RonWin=1,RonGain=g.DiscardScore};
+                    // Same safety premium as the existing live refusal rule.
+                    var offer=g.DiscardScore<=locked?pass:
+                        pass.Net>=g.DiscardScore+Math.Max(.25,g.DiscardScore*.25)?pass:take;
+                    if((g.ForcedDiscardMask&(1<<actor))!=0)hit=offer;
+                    else if(g.ReleaseProbabilities is { } releases&&actor<releases.Count)
+                        hit=SichuanBloodBattleChanceModel.Value.Mix(offer,keep,Math.Clamp(releases[actor],0,1));
+                    else hit=keep;
+                }
+                branches.Add((hit,n/(double)w));
+            }
+            if(total>w)throw new InvalidOperationException("ready allocation exceeds remaining wall");
+            if(w>total)branches.Add((Miss(counts,locked),(w-total)/(double)w));
+            var result=default(SichuanBloodBattleChanceModel.Value);double mass=0;
+            foreach(var (v,p) in branches){result=mass==0?v:SichuanBloodBattleChanceModel.Value.Mix(v,result,p/(mass+p));mass+=p;}
+            return cache[key]=result;
+            SichuanBloodBattleChanceModel.Value Miss(ulong rest,double passLock)
+            {
+                var stay=Solve(w-1,rest,mask,Next(mask,actor),passLock);
+                if(actor==0||hazard==0)return stay;
+                int left=mask&~(1<<actor);var exit=Solve(w-1,rest,left,Next(left,actor),passLock);
+                exit=exit with{OpponentWin=1,Loss=exit.Loss+Math.Max(0,r.OpponentWinLoss)};
+                return SichuanBloodBattleChanceModel.Value.Mix(exit,stay,hazard);
+            }
+        }
+    }
+}

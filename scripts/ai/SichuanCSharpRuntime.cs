@@ -1,3 +1,4 @@
+using SichuanPolicyTiming = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text.Json;
@@ -351,6 +352,62 @@ public partial class SichuanCSharpRuntime : Node
                 SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.MustHaveClearedMissing(state, seat) ? 1.0 : 0.0 }
                 .Select(v => v.ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
         }));
+    }
+
+    // Versioned research diagnostic: v1 intentionally emits the RAW estimate.
+    // Keep its 11-column contract intact. V2 puts raw and actual deployed
+    // posterior side by side before any hidden label can be read by a runner.
+    public string DiagnosePublicReadinessV2Compact(string payloadJson)
+    {
+        var payload=JsonSerializer.Deserialize(payloadJson,RuntimeJsonContext.Default.DiscardPayload);
+        if(payload is null)return string.Empty;
+        var state=BuildState(payload);var belief=new SichuanBeliefEngine().Build(state);
+        return string.Join(";",belief.SeatReadyPosterior.OrderBy(x=>x.Key).Select(x=>
+        {
+            var seat=x.Key;var t=SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.Build(state,seat);
+            return string.Join(",",new[]{(double)seat,
+                belief.PublicReadFeatures.GetValueOrDefault($"seat:{seat}:uncalibrated_ready",x.Value),x.Value,
+                state.WallCount,state.MeldCount(seat),state.Discards18[seat].Count,
+                t.TurnsSinceNonMissingDiscard,t.RecentHandDiscards,t.RecentDrawDiscards,t.RecentCentralDiscards,
+                t.LastDiscardWasMissing?1.0:0.0,
+                SichuanMahjong.AI.Core.Inference.SichuanOpponentTimeline.MustHaveClearedMissing(state,seat)?1.0:0.0}
+                .Select(v=>v.ToString("R",System.Globalization.CultureInfo.InvariantCulture)));
+        }));
+    }
+
+    public string PolicyCoreIdentityDiagnostic()
+    {
+#if DEBUG
+        return typeof(SichuanPolicyTiming).Assembly.ManifestModule.ModuleVersionId.ToString("D");
+#else
+        throw new InvalidOperationException("research_diagnostic_not_in_production_build");
+#endif
+    }
+
+    // Explicit desktop research profiling; disabled in normal execution.
+    public string PolicyTimingDiagnostic(bool start)
+    {
+#if DEBUG
+        if(start){SichuanPolicyTiming.Reset();SichuanPolicyTiming.Enabled=true;return "started";}
+        try{return string.Join("\n",SichuanPolicyTiming.Report());}
+        finally{SichuanPolicyTiming.Enabled=false;SichuanPolicyTiming.Reset();}
+#else
+        throw new InvalidOperationException("research_diagnostic_not_in_production_build");
+#endif
+    }
+
+    // Read-only joint diagnostic. No hypothetical private allocations cross
+    // the runtime boundary, and this method never issues a gameplay command.
+    public string DiagnoseJointReadinessCompact(string payloadJson,int samples,int seed)
+    {
+        var payload=JsonSerializer.Deserialize(payloadJson,RuntimeJsonContext.Default.DiscardPayload);
+        if(payload is null)return "invalid_payload";
+        var r=new SichuanMahjong.AI.Core.Inference.SichuanJointReadinessProjection().Analyze(BuildState(payload),samples,seed);
+        string F(double x)=>double.IsFinite(x)?x.ToString("R",System.Globalization.CultureInfo.InvariantCulture):"-1";
+        return string.Join("|",new[]{r.Status,r.Samples.ToString(),F(r.PriorEffectiveSamples),F(r.EffectiveSamples),F(r.MaximumMarginalError),
+            string.Join(",",r.Target.Select(F)),string.Join(",",r.PriorReady.Select(F)),string.Join(",",r.Ready.Select(F)),
+            string.Join(",",r.PriorWallCopies.Select(F)),string.Join(",",r.WallCopies.Select(F)),
+            string.Join(",",r.PriorWallPresence.Select(F)),string.Join(",",r.WallPresence.Select(F))});
     }
 
     // iOS NativeAOT disables reflection-based System.Text.Json metadata. These

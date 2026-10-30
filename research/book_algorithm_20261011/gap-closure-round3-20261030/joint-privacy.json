@@ -1,0 +1,16 @@
+{
+  "checks": 6,
+  "failures": [],
+  "rows": [
+    {
+      "id": "lower-76-6-28-base-offer-m2/source-corrected",
+      "status": "joint_ready_projection_supported",
+      "checks": "privacy/live-boundary/stock"
+    },
+    {
+      "id": "lower-76-6-28-base-offer-m4/source-corrected",
+      "status": "joint_ready_projection_supported",
+      "checks": "privacy/live-boundary/stock"
+    }
+  ]
+}

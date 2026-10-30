@@ -1,0 +1,1 @@
+{"checks":[{"all_options_and_locks_preserved":true,"next":2,"phase":"defer","seat":3},{"action":"peng","phase":"fresh","prior_winners":0,"seat":3}],"failures":[],"scope":"real native failing world; optional competing Pass is an explicitly declared legal test intervention"}

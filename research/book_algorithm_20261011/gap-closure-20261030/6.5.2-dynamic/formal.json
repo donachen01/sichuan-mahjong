@@ -1,0 +1,389 @@
+{
+  "checks": 3,
+  "failures": [],
+  "rows": [
+    {
+      "id": "reread-6-26-after-p4-offer-p3",
+      "section": "6.5.2",
+      "action": "Pass",
+      "tile": 11,
+      "child": -1,
+      "ms": 739.7944,
+      "values": {
+        "scores": {
+          "pass": -7,
+          "peng": 451,
+          "gang": -536870912
+        },
+        "candidates": [
+          {
+            "Action": {
+              "ActionType": 0,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": -0.07305606669276413,
+            "WinGain": 1.8046875,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.32206093019259396,
+            "DealInLoss": 0,
+            "OpponentFutureLoss": 2.01953125,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_2",
+              "COUNTERFACTUAL_LIVE_18",
+              "COUNTERFACTUAL_EV_-0.07",
+              "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+              "MODEL_REACH_READY_0.648438",
+              "MODEL_FUTURE_SELF_DRAW_0.109375",
+              "CONTINUATION_LEGAL_READY_CONTEXT"
+            ],
+            "IsAdmissible": true,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          },
+          {
+            "Action": {
+              "ActionType": 2,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": 0.45528950439796606,
+            "WinGain": 2.5390625,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.09229959572268065,
+            "DealInLoss": 0.27,
+            "OpponentFutureLoss": 2.1328125,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_1",
+              "COUNTERFACTUAL_LIVE_5",
+              "COUNTERFACTUAL_EV_0.46",
+              "CONTINUATION_MODEL_shared_executable_continuation_action_value",
+              "MODEL_REACH_READY_0.906250",
+              "MODEL_FUTURE_SELF_DRAW_0.093750",
+              "CONTINUATION_LEGAL_READY_CONTEXT",
+              "PUBLIC_CLAIM_PAIRED_MEAN_0.52835_SE_0.64195_CONFIRMED_False"
+            ],
+            "IsAdmissible": false,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0.27,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          }
+        ]
+      },
+      "reasons": [
+        "\u5F53\u524D\u6700\u5FEB\u5411\u542C 2",
+        "\u5F53\u524D\u6F5C\u5728\u6D3B\u5F20 17",
+        "\u4EC5\u5728\u526F\u9732\u6536\u76CA\u4E0D\u8DB3\u65F6\u624D\u9009\u62E9\u8FC7\u724C",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u6E05\u4E00\u8272",
+        "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+        "\u5355\u95E8 \u7B52 12 \u5F20\uFF0C\u5F02\u95E8 1 \u5F20",
+        "\u7B52\u95E8\u5BBD\u5EA6\uFF1A2 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 1 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+        "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+        "\u526F\u8DEF\u7EBF\uFF1A\u6E05\u5BF9",
+        "\u6E05\u8272\u8DEF\u7EBF\uFF1A\u4F18\u5148\u4FDD\u7559\u7B52\uFF0C\u6E05\u7406\u5F02\u95E8\u5B64\u5F20",
+        "\u6301\u7EED\u5927\u8111\uFF1A\u6E05\u4E00\u8272\uFF0C\u627F\u8BFA\u5EA6 28\uFF0C\u5907\u7528 \u6E05\u5BF9",
+        "\u5F00\u5C40\u6218\u7565\uFF1A\u6E05\u4E00\u8272\uFF0C\u5907\u7528 \u6E05\u5BF9\uFF0C\u627F\u8BFA\u5EA6 28",
+        "\u7EDF\u4E00\u52A8\u4F5C\u51C0\u503C -0.07",
+        "\u65E7\u542F\u53D1\u5F0F\u4EC5\u4F5C\u8BCA\u65AD -40\uFF0C\u4E0D\u53C2\u4E0E\u9009\u62E9",
+        "COUNTERFACTUAL_SHANTEN_2",
+        "COUNTERFACTUAL_LIVE_18",
+        "COUNTERFACTUAL_EV_-0.07",
+        "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+        "MODEL_REACH_READY_0.648438",
+        "MODEL_FUTURE_SELF_DRAW_0.109375",
+        "REACTION_EXCLUDED_Peng",
+        "REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION",
+        "\u7EDF\u4E00\u53CD\u4E8B\u5B9E\u5C42\u5DF2\u53C2\u4E0E\u5168\u5019\u9009\u6392\u5E8F\uFF0C\u6700\u7EC8\u52A8\u4F5C\u670D\u4ECE\u89C4\u5219\u3001\u771F\u5B9E\u65F6\u5E8F\u548C\u8FDE\u7EED\u5927\u8111\u95F8\u95E8",
+        "SEARCH_DEEP_ORDINARY_SEVEN_PAIRS_DEVELOPMENT",
+        "QUICK_READY_EXACT_VALUE_TIE_PREFERENCE"
+      ],
+      "command": {
+        "Id": "cd7fa37d0dc31789dd2c21199e2848aec3e16bf1c8b557bbe751832ee85f594b",
+        "Window": "reaction",
+        "RoundId": "reread-6-26-after-p4-offer-p3",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "18f2ba127f78d51869f611354e3fae0e6114796b5db497376f3f16b06bf78e30",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "pass",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "timing": null,
+      "diagnostic": null
+    },
+    {
+      "id": "reread-6-26-after-p5-offer-p3",
+      "section": "6.5.2",
+      "action": "Pass",
+      "tile": 11,
+      "child": -1,
+      "ms": 466.5805,
+      "values": {
+        "scores": {
+          "pass": -46,
+          "peng": 451,
+          "gang": -536870912
+        },
+        "candidates": [
+          {
+            "Action": {
+              "ActionType": 0,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": -0.46413443363239026,
+            "WinGain": 1.4609375,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.3993708314002061,
+            "DealInLoss": 0,
+            "OpponentFutureLoss": 2.0234375,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_2",
+              "COUNTERFACTUAL_LIVE_18",
+              "COUNTERFACTUAL_EV_-0.46",
+              "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+              "MODEL_REACH_READY_0.578125",
+              "MODEL_FUTURE_SELF_DRAW_0.117188",
+              "CONTINUATION_LEGAL_READY_CONTEXT"
+            ],
+            "IsAdmissible": true,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          },
+          {
+            "Action": {
+              "ActionType": 2,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": 0.6503949308185673,
+            "WinGain": 2.7421875,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.11576642787804224,
+            "DealInLoss": 0.27,
+            "OpponentFutureLoss": 2.0859375,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_1",
+              "COUNTERFACTUAL_LIVE_5",
+              "COUNTERFACTUAL_EV_0.65",
+              "CONTINUATION_MODEL_shared_executable_continuation_action_value",
+              "MODEL_REACH_READY_0.890625",
+              "MODEL_FUTURE_SELF_DRAW_0.093750",
+              "CONTINUATION_LEGAL_READY_CONTEXT",
+              "PUBLIC_CLAIM_PAIRED_MEAN_1.11453_SE_0.59724_CONFIRMED_False"
+            ],
+            "IsAdmissible": false,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0.27,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          }
+        ]
+      },
+      "reasons": [
+        "\u5F53\u524D\u6700\u5FEB\u5411\u542C 2",
+        "\u5F53\u524D\u6F5C\u5728\u6D3B\u5F20 17",
+        "\u4EC5\u5728\u526F\u9732\u6536\u76CA\u4E0D\u8DB3\u65F6\u624D\u9009\u62E9\u8FC7\u724C",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u6E05\u4E00\u8272",
+        "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+        "\u5355\u95E8 \u7B52 12 \u5F20\uFF0C\u5F02\u95E8 1 \u5F20",
+        "\u7B52\u95E8\u5BBD\u5EA6\uFF1A2 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 1 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+        "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+        "\u526F\u8DEF\u7EBF\uFF1A\u6E05\u5BF9/\u5E73\u80E1",
+        "\u6E05\u8272\u8DEF\u7EBF\uFF1A\u4F18\u5148\u4FDD\u7559\u7B52\uFF0C\u6E05\u7406\u5F02\u95E8\u5B64\u5F20",
+        "\u6301\u7EED\u5927\u8111\uFF1A\u6E05\u4E00\u8272\uFF0C\u627F\u8BFA\u5EA6 28\uFF0C\u5907\u7528 \u6E05\u5BF9",
+        "\u5F00\u5C40\u6218\u7565\uFF1A\u6E05\u4E00\u8272\uFF0C\u5907\u7528 \u6E05\u5BF9\uFF0C\u627F\u8BFA\u5EA6 28",
+        "\u7EDF\u4E00\u52A8\u4F5C\u51C0\u503C -0.46",
+        "\u65E7\u542F\u53D1\u5F0F\u4EC5\u4F5C\u8BCA\u65AD -40\uFF0C\u4E0D\u53C2\u4E0E\u9009\u62E9",
+        "COUNTERFACTUAL_SHANTEN_2",
+        "COUNTERFACTUAL_LIVE_18",
+        "COUNTERFACTUAL_EV_-0.46",
+        "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+        "MODEL_REACH_READY_0.578125",
+        "MODEL_FUTURE_SELF_DRAW_0.117188",
+        "REACTION_EXCLUDED_Peng",
+        "REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION",
+        "\u7EDF\u4E00\u53CD\u4E8B\u5B9E\u5C42\u5DF2\u53C2\u4E0E\u5168\u5019\u9009\u6392\u5E8F\uFF0C\u6700\u7EC8\u52A8\u4F5C\u670D\u4ECE\u89C4\u5219\u3001\u771F\u5B9E\u65F6\u5E8F\u548C\u8FDE\u7EED\u5927\u8111\u95F8\u95E8",
+        "SEARCH_DEEP_ORDINARY_SEVEN_PAIRS_DEVELOPMENT",
+        "QUICK_READY_EXACT_VALUE_TIE_PREFERENCE"
+      ],
+      "command": {
+        "Id": "89ad2c6b6981a7775029b9de782a4627e6b745e79d9c9b2fdb25a3c9aece8c13",
+        "Window": "reaction",
+        "RoundId": "reread-6-26-after-p5-offer-p3",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "cfeb3c57669e9f3211217a03fae92db48534321829d9d5cbacb0301a6ebfa0c5",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "pass",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "timing": null,
+      "diagnostic": null
+    },
+    {
+      "id": "reread-6-26-p1-pair-offer-p3",
+      "section": "6.5.2",
+      "action": "Pass",
+      "tile": 11,
+      "child": -1,
+      "ms": 991.5867,
+      "values": {
+        "scores": {
+          "pass": 168,
+          "peng": -87,
+          "gang": -536870912
+        },
+        "candidates": [
+          {
+            "Action": {
+              "ActionType": 0,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": 1.6801397468940653,
+            "WinGain": 3.5234375,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.3237682184246312,
+            "DealInLoss": 0,
+            "OpponentFutureLoss": 1.75,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_1",
+              "COUNTERFACTUAL_LIVE_9",
+              "COUNTERFACTUAL_EV_1.68",
+              "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+              "MODEL_REACH_READY_0.656250",
+              "MODEL_FUTURE_SELF_DRAW_0.148438",
+              "CONTINUATION_LEGAL_READY_CONTEXT"
+            ],
+            "IsAdmissible": true,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          },
+          {
+            "Action": {
+              "ActionType": 2,
+              "TileType": 11,
+              "Score": 0,
+              "Reason": ""
+            },
+            "ExpectedNetScore": -0.8719386643237994,
+            "WinGain": 1.578125,
+            "GangGain": 0,
+            "ChaJiaoValue": -0.4133377829889487,
+            "DealInLoss": 0.27,
+            "OpponentFutureLoss": 2.36328125,
+            "RouteContinuationValue": 0,
+            "UncertaintyPenalty": 0,
+            "ReasonCodes": [
+              "COUNTERFACTUAL_SHANTEN_2",
+              "COUNTERFACTUAL_LIVE_9",
+              "COUNTERFACTUAL_EV_-0.87",
+              "CONTINUATION_MODEL_shared_executable_continuation_action_value",
+              "MODEL_REACH_READY_0.523438",
+              "MODEL_FUTURE_SELF_DRAW_0.093750",
+              "CONTINUATION_LEGAL_READY_CONTEXT"
+            ],
+            "IsAdmissible": true,
+            "QuickReadyTiePreferred": false,
+            "ContinuationDiscardRisk": 0.27,
+            "ModeledOwnWinProbability": null,
+            "ModeledSelfDrawProbability": null,
+            "ReadyPrice": null
+          }
+        ]
+      },
+      "reasons": [
+        "\u5F53\u524D\u6700\u5FEB\u5411\u542C 1",
+        "\u5F53\u524D\u6F5C\u5728\u6D3B\u5F20 9",
+        "\u4EC5\u5728\u526F\u9732\u6536\u76CA\u4E0D\u8DB3\u65F6\u624D\u9009\u62E9\u8FC7\u724C",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "\u4E03\u5BF9\u8DEF\u7EBF\uFF1A\u4E94\u5BF9\u4EE5\u4E0A\u95E8\u6E05\u724C\u4F18\u5148\u8FC7\u724C\uFF0C\u4FDD\u7559\u4E03\u5BF9/\u9F99\u4E03\u5BF9",
+        "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u6E05\u4E00\u8272",
+        "\u5BF9\u5B50 5\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+        "\u5355\u95E8 \u7B52 12 \u5F20\uFF0C\u5F02\u95E8 1 \u5F20",
+        "\u7B52\u95E8\u5BBD\u5EA6\uFF1A2 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 1 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+        "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+        "\u526F\u8DEF\u7EBF\uFF1A\u6E05\u5BF9/\u9752\u9F99\u4E03\u5BF9/\u6E05\u4E03\u5BF9",
+        "\u6E05\u8272\u8DEF\u7EBF\uFF1A\u4F18\u5148\u4FDD\u7559\u7B52\uFF0C\u6E05\u7406\u5F02\u95E8\u5B64\u5F20",
+        "\u6301\u7EED\u5927\u8111\uFF1A\u6E05\u4E00\u8272\uFF0C\u627F\u8BFA\u5EA6 76\uFF0C\u5907\u7528 \u6697\u4E03\u5BF9",
+        "\u5F00\u5C40\u6218\u7565\uFF1A\u6E05\u4E00\u8272\uFF0C\u5907\u7528 \u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 76",
+        "\u7EDF\u4E00\u52A8\u4F5C\u51C0\u503C 1.68",
+        "\u65E7\u542F\u53D1\u5F0F\u4EC5\u4F5C\u8BCA\u65AD \u002B15\uFF0C\u4E0D\u53C2\u4E0E\u9009\u62E9",
+        "COUNTERFACTUAL_SHANTEN_1",
+        "COUNTERFACTUAL_LIVE_9",
+        "COUNTERFACTUAL_EV_1.68",
+        "CONTINUATION_MODEL_common_ordinary_seven_pairs_ready_endpoint_trajectory",
+        "MODEL_REACH_READY_0.656250",
+        "MODEL_FUTURE_SELF_DRAW_0.148438",
+        "REACTION_CENTRAL_CONSTRAINT_VALUE_SELECTION",
+        "\u7EDF\u4E00\u53CD\u4E8B\u5B9E\u5C42\u5DF2\u53C2\u4E0E\u5168\u5019\u9009\u6392\u5E8F\uFF0C\u6700\u7EC8\u52A8\u4F5C\u670D\u4ECE\u89C4\u5219\u3001\u771F\u5B9E\u65F6\u5E8F\u548C\u8FDE\u7EED\u5927\u8111\u95F8\u95E8",
+        "SEARCH_DEEP_ORDINARY_SEVEN_PAIRS_DEVELOPMENT",
+        "QUICK_READY_EXACT_VALUE_TIE_PREFERENCE"
+      ],
+      "command": {
+        "Id": "ace3e2a42d86ebdc0736810f830ccf0c4a597ca8a113c7ff9bcd0a9a5fcce6ca",
+        "Window": "reaction",
+        "RoundId": "reread-6-26-p1-pair-offer-p3",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "dff06088897baa21182aa1646dd0ca58ec12a6207af127dc016cd65c5a53eaa4",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "pass",
+        "Tile": 11,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "timing": null,
+      "diagnostic": null
+    }
+  ]
+}

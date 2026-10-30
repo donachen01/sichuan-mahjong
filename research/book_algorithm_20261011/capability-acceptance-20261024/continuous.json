@@ -1,0 +1,53 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "actions": {
+        "discard": 61,
+        "gang": 1,
+        "hu": 2,
+        "pass": 1,
+        "peng": 7
+      },
+      "blocked": {
+
+      },
+      "blood_continues": true,
+      "compact": false,
+      "contract_validation_avg_us": 2842.375,
+      "contract_validation_max_us": 6098,
+      "executed_actions": 72,
+      "run": 0,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": [
+        1,
+        0
+      ]
+    },
+    {
+      "actions": {
+        "discard": 56,
+        "hu": 2,
+        "pass": 1,
+        "peng": 1
+      },
+      "blocked": {
+
+      },
+      "blood_continues": true,
+      "compact": true,
+      "contract_validation_avg_us": 2089.01666666667,
+      "contract_validation_max_us": 4148,
+      "executed_actions": 60,
+      "run": 1,
+      "score_sum": 0,
+      "settlement": true,
+      "winners": [
+        2,
+        0
+      ]
+    }
+  ],
+  "scope": "two fresh-seed bounded natural rounds with real native runtime and physical GameState actions; desktop, including compact transport"
+}

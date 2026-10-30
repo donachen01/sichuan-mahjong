@@ -1,0 +1,93 @@
+{
+  "scope": "Task-local round3, no future regression suite",
+  "discovery": "audit root public posterior versus calibrated ready marginal; both seeds256/4096; no changes to production before evidence",
+  "seeds": [
+    20261130,
+    20261209
+  ],
+  "prior_full_rollouts": "both confidence intervals cover zero; no label fitting or ID-specific strategy",
+  "data_policy": "no real hidden cards or true wall in prediction; hidden labels only after prediction",
+  "joint_projection": {
+    "method": "minimum relative-entropy projection of joint legal hypotheses to frozen calibrated ready marginals; no hidden labels",
+    "gates": [
+      "marginal residual<=1e-8",
+      "effective original hypotheses>=128 at4096",
+      "all physical allocations conserved",
+      "two seeds report sensitivity, no false ESS from resampling"
+    ],
+    "independent_toys": "independent binary product, coupled feasible/infeasible, support missing, boundary0/1; exact physical small hands",
+    "production": "read-only diagnostic first; do not change live action ranking without separate outcome/latency evidence"
+  },
+  "larger_pool_amendment": {
+    "reason": "six of eight4096-particle projections fail original effective-mass gate; do not loosen gate",
+    "samples": 16384,
+    "seeds": [
+      20261130,
+      20261209
+    ],
+    "gates": "original samples/32 rule retained; at16384 requires512 effective original hypotheses, not resampled count",
+    "scope": "research-only larger pool; existing live/public sampler default cap and random stream unchanged"
+  },
+  "fresh_forecast_holdout": {
+    "games": 48,
+    "seed_base": 82611031,
+    "stride": 1009,
+    "policy": "current all seats; ranking unchanged",
+    "snapshot": "first actor phase5 at wall<=36 for first24, <=20 for last24; at most one per original game; missing snapshots explicitly retained",
+    "candidate_samples": 4096,
+    "seed_base_posterior": 20261221,
+    "prediction_before_hidden_labels": true,
+    "primary": "paired per-game wall-copy MSE on supported predictions, interval clustered by game; ready Brier separately; coverage and refusals retained",
+    "promotion": "no live action ranking promotion from marginal fit alone; no refit on this cohort",
+    "runtime_amendment": "Before collection: fixed4096 for48 fresh snapshots; dedicated source-background density check remains16384. Exact-zero hand/wait pruning changes no density."
+  },
+  "shape_proposal": {
+    "reason": "larger uniform proposal still fails original effective-mass gate in five of eight groups",
+    "mixture": "per seat50% original constrained physical draw and50% sequential shape proposal",
+    "shape_weight": "1 +3*same copies +1.5*adjacent copies +0.5*distance2 copies",
+    "target": "unchanged physical prior times public likelihood; exact ordered-path mixture importance correction; public likelihood once",
+    "validation": "independent exhaustive small ordered paths and same-old-proposal bit identity; same heldout games unchanged; no action/score fitting"
+  },
+  "ready_proposal": {
+    "reason": "adjacency shape mixture is unbiased but all eight large pools fail effective-mass criterion; kept as failed experiment",
+    "mixture": "per active waiting seat50% constrained physical prior,50% direct ready construction; within ready closed hands90% ordinary10% seven pairs",
+    "density": "sum over ALL ordered valid construction paths, winning tiles and legal physical removals; combine with uniform unordered hand mass",
+    "failed_construction": "reject entire joint proposal; never local retry or silent uniform replacement",
+    "target": "unchanged physical prior/public likelihood; no hidden labels or source-specific actions",
+    "gates": "original ESS criterion retained",
+    "independent": "forward enumeration of construction process, including overlapping decompositions and seven pairs"
+  },
+  "weighted_ready_proposal": {
+    "reason": "uniform decomposition overproposes scarce triplets and samples about50% ready against target17-30%; after exact weighting still fails original ESS gate",
+    "group_weight": "physical combination counts from pool+one hypothetical copy, times public per-tile likelihood; exact total path density recomputed",
+    "mixture_rate": "frozen public calibrated target per seat, clipped.02-.8; proposal correction removes this dependence before readiness projection, so evidence not counted twice",
+    "density_validation": "independent forward weighted enumeration plus exact physical mass; no hidden labels/action scores",
+    "gates": "unchanged"
+  },
+  "terminal_claims": {
+    "source_cases": "corrected6-28 offer2/4",
+    "public_pool_samples": 16384,
+    "pool_seeds": [
+      20261130,
+      20261209
+    ],
+    "rollouts_each_pool_each_offer": 64,
+    "selection_seed": 20261227,
+    "terminal_games": 512,
+    "root": "restore all rivals reactions; actual native resolves priorities, own legal Pass/attempt-Peng plus fixed public-priced first discard; no other-player forced pass",
+    "intervention_preempted": "retain, both arms must agree if own choice unavailable",
+    "weights": "equally weighted iid draws with replacement from each finite projected pool; report original-pool ESS separately; no fake ESS from duplicates",
+    "interpretation": "conditional model comparison, not actual original book game or strength benchmark",
+    "execution_parallelization": "Same256 fixed worlds and512 paired arms, dispatched by stable world_index modulo4; completed pre-split games retained exactly once, no outcome analysis or result-dependent selection. Source code and native policy unchanged.",
+    "interval_scope": "Per-pool paired bootstrap; combined conditional interval keeps64 worlds in each of the two numerical-pool strata. Does not cover hidden-model misspecification or true book-game uncertainty. Statistical implementation fixed before any score analysis."
+  },
+  "own_cash_channel": {
+    "reason": "independent code audit: trajectory loss is actual own payment but caller maps it to discounted opponent-growth channel",
+    "frozen_before_score_analysis": true,
+    "fix": "separate FutureOwnPayment input, charge full monetary amount, keep opponent growth/stance weights unchanged; same channel in paired numerical errors",
+    "baseline": "cash_cost_before_v1 retains all previous current mechanisms and readiness weights, but old caller discount",
+    "independent": "confidence1 unit1 monetary own loss vs strategic opponent gain; cash/refinement invariants",
+    "benchmark": "32 fresh deals seed92611031 stride1009; one before baseline plus four games one changed current seat per deal;160 games128 pairs; no parameter tuning on cohort",
+    "forecast_recollection": "Archive earlier policy data untouched; identical forecast seeds, no probabilities/score outcomes analyzed before fixing algebra; final data generated by final current policy. Projection remains read-only and is not used to pick actions."
+  }
+}

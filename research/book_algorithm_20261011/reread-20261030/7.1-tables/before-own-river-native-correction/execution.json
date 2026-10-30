@@ -1,0 +1,123 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 102.0,
+        "id": "5c62ec1019c55f217c91709a42463325550978509ae780605b6980c73806ef84",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "28dd10d301d7a18ba649f8d85cac0bd1",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "5aa1b576f238ee46faea5da5db2d1bdf5c8f779a21965cee8ace303985edc397",
+        "tile": 0.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-78-7-1-base-full-public/seat1/compactfalse",
+      "ms": 403.666,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 2",
+        "继续出牌统一净值 2.68",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_0",
+        "当前后手弃牌风险已计价 0.1800",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-78-7-1-base-full-public"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 103.0,
+        "id": "40382ef577369ff1fe3e8c754f8892c05b5500eeb2b3ac3858248bbbd5029c0c",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "520953eba772f1e446929d3d59a19805",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "9499c3597ceb08cb8f5374dc31afc1c397d3805d2486ce8cad19374c4b8e1912",
+        "tile": 11.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-80-7-2-middle-full-public/seat1/compactfalse",
+      "ms": 153.92,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 3",
+        "继续出牌统一净值 0.39",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_11",
+        "当前后手弃牌风险已计价 0.6800",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-80-7-2-middle-full-public"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 104.0,
+        "id": "49b3c743342759726d312db9a453e404717fea0ac678d4faa8c5312010cdcf9d",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "82e80d3d7359d950cc5a252282a855eb",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "6dd6600d014ba2c0b6954f3d230b4387d22a0140312573aa269d2ad645c6b2be",
+        "tile": 18.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-81-7-2-late-full-public/seat1/compactfalse",
+      "ms": 58.782,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 3",
+        "继续出牌统一净值 0.51",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_18",
+        "当前后手弃牌风险已计价 0.7300",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-81-7-2-late-full-public"
+    }
+  ],
+  "scope": "physical controlled backgrounds; real C# seat authority and GameState; compact desktop transport is not device NativeAOT"
+}

@@ -1,0 +1,20 @@
+{
+  "version": "2.6.94",
+  "build": "2.6.94",
+  "bundle": "com.chendong.sichuanmahjong.iosdev",
+  "app": "build/ios/SichuanMahjong-2.6.94-device/Build/Products/Release-iphoneos/SichuanMahjongIOS.app",
+  "team": [
+    "FCB4ZVWWD8"
+  ],
+  "profile_expiration_utc": "2026-11-06T13:15:20Z",
+  "dona_in_profile": true,
+  "application_identifier": "FCB4ZVWWD8.com.chendong.sichuanmahjong.iosdev",
+  "ipa": "build/ios/SichuanMahjong-2.6.94-personal.ipa",
+  "bytes": 173025289,
+  "sha256": "7da2065c5d4ba2005afb6350736e391f81d3ab4b9468e6a6746f3836820408b5",
+  "install_dona": "passed",
+  "signature_verification": "codesign --verify --deep --strict passed in trusted host context",
+  "launch_dona": "pending phone-side developer trust; initial and retry both rejected by iOS Security",
+  "native_phone_execution": "not executed; blocked before runtime by phone-side trust",
+  "probe_files": "prepared in dedicated Documents/release2694; no production package test hook"
+}

@@ -1,0 +1,13 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+WIDE_GAME wall=12 compact=false discard=3 failures=0
+WIDE_GAME wall=16 compact=false discard=3 failures=0
+WIDE_GAME wall=24 compact=false discard=3 failures=0
+WIDE_GAME wall=12 compact=true discard=3 failures=0
+WIDE_GAME wall=16 compact=true discard=3 failures=0
+WIDE_GAME wall=24 compact=true discard=3 failures=0
+DONE wide game rows=6 failures=0

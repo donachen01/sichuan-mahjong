@@ -89,6 +89,7 @@ public sealed class SichuanExactHandAnalyzer
         bool allowSevenPairs = true,
         int forcedSuit = -1)
     {
+        using var timing=SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("exact_discard_analysis");
         var counts = Normalize(hand27);
         var remaining = remaining27 is null ? Enumerable.Range(0, 27).Select(tile => 4 - counts[tile]).ToArray() : NormalizeRemaining(remaining27);
         var results = new List<SichuanDiscardAnalysis>();

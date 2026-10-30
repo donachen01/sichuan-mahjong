@@ -1,0 +1,1570 @@
+[
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 0,
+    "hand": [
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [
+      {
+        "tile": 1,
+        "copies": 3,
+        "keys": [
+          "N:0:1|1:5|1:9|1:11"
+        ],
+        "heads": [
+          1
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 1,
+          "fan": 1,
+          "hand_score": 2,
+          "self_per_payer": 3
+        },
+        "label": "条2"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 1,
+        "copies": 3,
+        "keys": [
+          "N:0:1|1:5|1:9|1:11"
+        ],
+        "heads": [
+          1
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 1,
+          "fan": 1,
+          "hand_score": 2,
+          "self_per_payer": 3
+        }
+      }
+    ],
+    "wait_kind_count": 1,
+    "unseen_copy_upper_bound": 3
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 1,
+    "hand": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [
+      {
+        "tile": 0,
+        "copies": 3,
+        "keys": [
+          "N:0:0|1:5|1:9|1:11"
+        ],
+        "heads": [
+          0
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 1,
+          "fan": 1,
+          "hand_score": 2,
+          "self_per_payer": 3
+        },
+        "label": "条1"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 0,
+        "copies": 3,
+        "keys": [
+          "N:0:0|1:5|1:9|1:11"
+        ],
+        "heads": [
+          0
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 1,
+          "fan": 1,
+          "hand_score": 2,
+          "self_per_payer": 3
+        }
+      }
+    ],
+    "wait_kind_count": 1,
+    "unseen_copy_upper_bound": 3
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 5,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 6,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 7,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 9,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 10,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 11,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 12,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      2,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-78-7-1-base",
+    "discard": 13,
+    "hand": [
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 1,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 5,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 6,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 7,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 11,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 12,
+        "copies": 3,
+        "keys": [
+          "N:0:12|1:5|1:13"
+        ],
+        "heads": [
+          12
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒4"
+      },
+      {
+        "tile": 15,
+        "copies": 3,
+        "keys": [
+          "N:0:15|1:5|1:12"
+        ],
+        "heads": [
+          15
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒7"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 12,
+        "copies": 3,
+        "keys": [
+          "N:0:12|1:5|1:13"
+        ],
+        "heads": [
+          12
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 15,
+        "copies": 3,
+        "keys": [
+          "N:0:15|1:5|1:12"
+        ],
+        "heads": [
+          15
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 12,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 11,
+        "copies": 3,
+        "keys": [
+          "N:0:11|1:5|1:13"
+        ],
+        "heads": [
+          11
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒3"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 11,
+        "copies": 3,
+        "keys": [
+          "N:0:11|1:5|1:13"
+        ],
+        "heads": [
+          11
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 1,
+    "unseen_copy_upper_bound": 3
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 13,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 14,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 15,
+        "copies": 3,
+        "keys": [
+          "N:0:15|1:5|1:11"
+        ],
+        "heads": [
+          15
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒7"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 15,
+        "copies": 3,
+        "keys": [
+          "N:0:15|1:5|1:11"
+        ],
+        "heads": [
+          15
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 1,
+    "unseen_copy_upper_bound": 3
+  },
+  {
+    "id": "lower-80-7-2-middle",
+    "discard": 15,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 11,
+        "copies": 3,
+        "keys": [
+          "N:0:11|1:5|1:12"
+        ],
+        "heads": [
+          11
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒3"
+      },
+      {
+        "tile": 14,
+        "copies": 3,
+        "keys": [
+          "N:0:14|1:5|1:11"
+        ],
+        "heads": [
+          14
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒6"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 11,
+        "copies": 3,
+        "keys": [
+          "N:0:11|1:5|1:12"
+        ],
+        "heads": [
+          11
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 14,
+        "copies": 3,
+        "keys": [
+          "N:0:14|1:5|1:11"
+        ],
+        "heads": [
+          14
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 13,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 18,
+        "copies": 3,
+        "keys": [
+          "N:0:18|1:14|1:19"
+        ],
+        "heads": [
+          18
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "万1"
+      },
+      {
+        "tile": 21,
+        "copies": 3,
+        "keys": [
+          "N:0:21|1:14|1:18"
+        ],
+        "heads": [
+          21
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "万4"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 18,
+        "copies": 3,
+        "keys": [
+          "N:0:18|1:14|1:19"
+        ],
+        "heads": [
+          18
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 21,
+        "copies": 3,
+        "keys": [
+          "N:0:21|1:14|1:18"
+        ],
+        "heads": [
+          21
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 14,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 15,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 16,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 18,
+        "copies": 3,
+        "keys": [
+          "N:0:18|1:13|1:19"
+        ],
+        "heads": [
+          18
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "万1"
+      },
+      {
+        "tile": 21,
+        "copies": 3,
+        "keys": [
+          "N:0:21|1:13|1:18"
+        ],
+        "heads": [
+          21
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "万4"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 18,
+        "copies": 3,
+        "keys": [
+          "N:0:18|1:13|1:19"
+        ],
+        "heads": [
+          18
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 21,
+        "copies": 3,
+        "keys": [
+          "N:0:21|1:13|1:18"
+        ],
+        "heads": [
+          21
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 18,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 13,
+        "copies": 3,
+        "keys": [
+          "N:0:13|1:14|1:19"
+        ],
+        "heads": [
+          13
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒5"
+      },
+      {
+        "tile": 16,
+        "copies": 3,
+        "keys": [
+          "N:0:16|1:13|1:19"
+        ],
+        "heads": [
+          16
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒8"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 13,
+        "copies": 3,
+        "keys": [
+          "N:0:13|1:14|1:19"
+        ],
+        "heads": [
+          13
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 16,
+        "copies": 3,
+        "keys": [
+          "N:0:16|1:13|1:19"
+        ],
+        "heads": [
+          16
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 19,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 20,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [],
+    "structural_waits": [],
+    "wait_kind_count": 0,
+    "unseen_copy_upper_bound": 0
+  },
+  {
+    "id": "lower-81-7-2-late",
+    "discard": 21,
+    "hand": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "meld_count": 2,
+    "waits": [
+      {
+        "tile": 13,
+        "copies": 3,
+        "keys": [
+          "N:0:13|1:14|1:18"
+        ],
+        "heads": [
+          13
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒5"
+      },
+      {
+        "tile": 16,
+        "copies": 3,
+        "keys": [
+          "N:0:16|1:13|1:18"
+        ],
+        "heads": [
+          16
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        },
+        "label": "筒8"
+      }
+    ],
+    "structural_waits": [
+      {
+        "tile": 13,
+        "copies": 3,
+        "keys": [
+          "N:0:13|1:14|1:18"
+        ],
+        "heads": [
+          13
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      },
+      {
+        "tile": 16,
+        "copies": 3,
+        "keys": [
+          "N:0:16|1:13|1:18"
+        ],
+        "heads": [
+          16
+        ],
+        "score": {
+          "base_fan": 0,
+          "roots": 0,
+          "fan": 0,
+          "hand_score": 1,
+          "self_per_payer": 2
+        }
+      }
+    ],
+    "wait_kind_count": 2,
+    "unseen_copy_upper_bound": 6
+  }
+]

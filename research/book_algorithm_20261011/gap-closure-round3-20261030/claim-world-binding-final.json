@@ -1,0 +1,39 @@
+{
+  "matched_current_projected_hypotheses": 256,
+  "pools": [
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "seed": 20261130,
+      "original_ess": 1756.744661673177,
+      "maximum_weight": 0.0101424609677852,
+      "draws": 64,
+      "distinct_allocations": 64
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "seed": 20261209,
+      "original_ess": 2651.4077260550994,
+      "maximum_weight": 0.0033767073542975722,
+      "draws": 64,
+      "distinct_allocations": 64
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "seed": 20261130,
+      "original_ess": 1597.7139417992396,
+      "maximum_weight": 0.0102617748898573,
+      "draws": 64,
+      "distinct_allocations": 62
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "seed": 20261209,
+      "original_ess": 1919.726284553672,
+      "maximum_weight": 0.005610665364946416,
+      "draws": 64,
+      "distinct_allocations": 64
+    }
+  ],
+  "worlds_sha256": "7fe6b3c72b8e500377ae5ba427e98736a1a459a558b89c8def76df17551f6c4d",
+  "current_pools_sha256": "91f946dd270b0e6ae0a00089b2c5475df38662b0838d48e2a1788cdc13389478"
+}

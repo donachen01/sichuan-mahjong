@@ -1,0 +1,9 @@
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Decision/SichuanLearningClosurePolicy.cs(14,11): error CS0103: 当前上下文中不存在名称“SichuanGangDiscardLiability” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Decision/SichuanLearningClosurePolicy.cs(14,11): error CS0103: 当前上下文中不存在名称“SichuanGangDiscardLiability” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj]
+    0 个警告
+    1 个错误
+
+已用时间 00:00:22.64

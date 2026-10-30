@@ -1,0 +1,22 @@
+{
+  "android-start.png": {
+    "bytes": 291738,
+    "sha256": "16f621e98d8594274f1dcce47f565a0d6a77272a80892284c3d5968bd45ffee7",
+    "location": "local evidence original; not embedded in Git or packages"
+  },
+  "android-menu.png": {
+    "bytes": 3475656,
+    "sha256": "057120839b60f477c1e03feded9fe56470e567ee59cb2dcce2b333c7c19d723f",
+    "location": "local evidence original; not embedded in Git or packages"
+  },
+  "android-play.png": {
+    "bytes": 3472297,
+    "sha256": "3aef364d15954fa4b5771212c25ff43015721e65e72f26634d8a0b620faccd6f",
+    "location": "local evidence original; not embedded in Git or packages"
+  },
+  "android-after-discard.png": {
+    "bytes": 3474576,
+    "sha256": "c881469e15fd98c44f1dcb926a707023dc9da9d17b18a5fb53da691b3c186a81",
+    "location": "local evidence original; not embedded in Git or packages"
+  }
+}

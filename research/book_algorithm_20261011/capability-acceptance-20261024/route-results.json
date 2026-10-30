@@ -1,0 +1,35 @@
+{
+  "checks": 5,
+  "failures": [],
+  "rows": [
+    {
+      "id": "seven_memory_loss",
+      "before": "\u5E73\u80E1",
+      "after": "\u5E73\u80E1",
+      "plan": "\u5E73\u80E1",
+      "constraints": [
+        "prefer_fast_ready"
+      ],
+      "reasons": [
+        "\u7B56\u7565\u8C03\u6574\uFF1A\u6697\u4E03\u5BF9 -\u003E \u5E73\u80E1\uFF0C\u7ED3\u6784\u8BC4\u5206\u4F18\u52BF 100",
+        "\u5C40\u52BF\u66F4\u65B0\uFF1A\u672C\u5BB6\u6574\u624B\u7ED3\u6784\u66F4\u65B0",
+        "\u6839\u636E\u5F53\u524D\u673A\u4F1A\u3001\u6536\u76CA\u53CA\u98CE\u9669\u91CD\u4F30\u540E\u7EE7\u7EED\u5E73\u80E1\uFF1B\u65B0\u4FE1\u606F\u4E0D\u5F3A\u5236\u6362\u8DEF"
+      ]
+    },
+    {
+      "id": "flush_capacity_loss",
+      "before": "\u5E73\u80E1",
+      "after": "\u5E73\u80E1",
+      "plan": "\u5E73\u80E1",
+      "admissible": false,
+      "reason": "FLUSH_READY_COPY_CAPACITY"
+    },
+    {
+      "id": "flush_stable",
+      "before": "\u6E05\u4E00\u8272",
+      "after": "\u6E05\u4E00\u8272",
+      "plan": "\u6E05\u4E00\u8272",
+      "revision": 8
+    }
+  ]
+}

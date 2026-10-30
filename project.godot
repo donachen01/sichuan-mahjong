@@ -19,7 +19,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="四川麻将新版"
-config/version="2.6.93"
+config/version="2.6.94"
 run/main_scene="res://scenes/boot/SplashScreen.tscn"
 config/features=PackedStringArray("4.6", "C#")
 config/icon="res://res/art/app_icon/app_icon_1024.png"
@@ -33,11 +33,11 @@ AndroidLandscape="*res://addons/mobile_orientation/android_landscape.gd"
 
 [display]
 
-window/handheld/orientation=4
 window/size/viewport_width=2560
 window/size/viewport_height=1440
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/handheld/orientation=4
 
 [dotnet]
 

@@ -1,0 +1,41 @@
+{
+  "status": "implementation_round_and_desktop_validation_complete_with_unresolved_acceptance_limits",
+  "production_default": "current/adaptive_search_v1 enabled",
+  "last_source_change": "unify eligible ordinary Ron refusal entry instead of bypassing it when old rule already refused",
+  "validated": {
+    "stopping": {
+      "cases": 420,
+      "fields": 2940,
+      "failures": 0
+    },
+    "joint_requirements": {
+      "checks": 3536,
+      "failures": 0
+    },
+    "adaptive_graphs": {
+      "graphs": 24,
+      "stages": 2619,
+      "checks": 159587,
+      "failures": 0
+    },
+    "terminal_joint_inference": {
+      "checks": 17688,
+      "failures": 0
+    },
+    "preceding_revision": {
+      "physical_chains": 177,
+      "natural_full_games": 64,
+      "note": "retained as intermediate, not substituted for latest-source validation"
+    }
+  },
+  "pending": [],
+  "unresolved": [
+    "6-28 and other conditional source-action differences not all resolved",
+    "human-opponent posterior calibration absent; observed self-play reliability imperfect",
+    "complete multi-round optimality not established",
+    "64-game pilot does not establish long-term strength",
+    "no device/AOT validation in this task"
+  ],
+  "final_report": "补缺报告.md",
+  "evidence": "evidence-audit.json"
+}

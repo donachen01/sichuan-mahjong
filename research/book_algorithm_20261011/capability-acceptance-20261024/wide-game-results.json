@@ -1,0 +1,68 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 102.0,
+        "id": "908fe04bd068885f8ab08d4a6dbb45dbd8267d54e04d153039f7b21bcd80acf7",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "f9e2e93a583ab614db3dffbc0b37fcc0",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "f50d9427eb5596c04b9b78425d122541ad9b6ab993749dcc1b4b3cbe0fb1db07",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall40/compactfalse",
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 3",
+        "继续出牌统一净值 1.49",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_3",
+        "当前后手弃牌风险已计价 0.5900",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "actual": 3,
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 103.0,
+        "id": "31c4da0aeedfe07d2af9efb02d98fbff7822eaddc146836e617a6f615b926994",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "acd8c5d7010ca11a714c17dee439ef7c",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "29e2a5d7a80c5438cd39d41fcb1482c7eb063e090939d3c87e91666d8cf5b039",
+        "tile": 3.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "executed": true,
+      "id": "wall40/compacttrue",
+      "reasons": [
+        "当前后手向听 0"
+      ]
+    }
+  ],
+  "scope": "three wider-wall reconstructed backgrounds x ordinary/compact real C# to GameState execution; not original replay or iOS AOT"
+}

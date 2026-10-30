@@ -1,0 +1,26 @@
+{
+  "all_source_runtime_runner_hashes_verified": true,
+  "all_local_report_links_checked": true,
+  "unchanged_ui_scripts_checked": 41,
+  "loaded_modules_matched_to_binary_metadata": true,
+  "no_future_default_suite_created": true,
+  "artifact_sha256": {
+    "final-audit.json": "21b7dd5d9b865b37b54ccba9787f9cb6e2de8dc89e9bd6cc144c004605c15fd1",
+    "补缺报告.md": "10906cfaa271a6331172841d8e6e5fbad51848a577497c554781edf901b8d86c",
+    "讨论.md": "e438032d915ecb4d4cf13946c51e56a7bf8875921465e7b44a0a66332c1258e1",
+    "学习反思.md": "f5cb3520f7f37502f278b9a59f73b95d4ff57652b3cfbd657c13d8783e4450e2",
+    "结论.md": "f3ac3a10200755defabe4866d40651aa3328cbf1f30935d4fb4c807d2e9ff802",
+    "执行.md": "e44f350488d6ff0ee4af5eb7ca9e021619e331ac85e3c81c9892ffa167abfcbb",
+    "checkpoint.json": "0ca77175fa4f8144a86afd7acfc96f6c6851115d3199fd7948a02521a17b0f39",
+    "profile-reference.json": "d0817231702195a5e1a1e1e45ff5bd594d05b6df3799fd81af2f4bb7bdb7539d",
+    "profile-optimized.json": "f53cf64dbe240ea9cc16b58a2bdb3741c02a4da604ca82494276248f1254f970",
+    "equivalence-reference.json": "cacc88bca2477c719f6a36b9041bbf0909179d59e38f6080fa0ac3a02f246293",
+    "equivalence-optimized.json": "53a7a346a273dd9d072dbf5b0c6d155b381f282b89154b16e7d6833c52389c6f",
+    "equivalence-reference-repeat.json": "06f5676cf9172c44fd7ee673396318ef8d8de0ff2c458d5ebd3c8da163467fa4",
+    "equivalence-optimized-repeat.json": "fe8430de6898684df2f82725da4acbf0e5d7b012f67ec35a8e8750f6351066ca",
+    "current.json": "7e2fa2bba9188535f3152ecd3b8a13050d66a37b6b31e7aa6aed9885f859ce68",
+    "execution.json": "c86f9e8e3c565d29d04e0b4f8056717d20f5808291c3cc7e76ed6c827d1d9d28",
+    "kernel-parity.json": "e29b53b2bb787eb55573cee38a728ec5dedf01ce963e26db86e7f3cd8a814717"
+  },
+  "scope": "Round4 desktop exact-behavior/performance evidence, not new strength or phone-release proof."
+}

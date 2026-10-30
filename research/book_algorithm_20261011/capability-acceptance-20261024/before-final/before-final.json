@@ -1,0 +1,4365 @@
+{
+  "checks": 1237,
+  "failures": [
+    "forced offer requires public clearance r0/seat1/uncleared",
+    "natural Gang same release premise r0/seat1/uncleared",
+    "forced offer requires public clearance r0/seat1/missing_only",
+    "natural Gang same release premise r0/seat1/missing_only",
+    "forced offer requires public clearance r0/seat2/uncleared",
+    "natural Gang same release premise r0/seat2/uncleared",
+    "forced offer requires public clearance r0/seat2/missing_only",
+    "natural Gang same release premise r0/seat2/missing_only",
+    "forced offer requires public clearance r0/seat3/uncleared",
+    "natural Gang same release premise r0/seat3/uncleared",
+    "forced offer requires public clearance r0/seat3/missing_only",
+    "natural Gang same release premise r0/seat3/missing_only",
+    "forced offer requires public clearance r1/seat1/uncleared",
+    "natural Gang same release premise r1/seat1/uncleared",
+    "forced offer requires public clearance r1/seat1/missing_only",
+    "natural Gang same release premise r1/seat1/missing_only",
+    "forced offer requires public clearance r1/seat2/uncleared",
+    "natural Gang same release premise r1/seat2/uncleared",
+    "forced offer requires public clearance r1/seat2/missing_only",
+    "natural Gang same release premise r1/seat2/missing_only",
+    "forced offer requires public clearance r1/seat3/uncleared",
+    "natural Gang same release premise r1/seat3/uncleared",
+    "forced offer requires public clearance r1/seat3/missing_only",
+    "natural Gang same release premise r1/seat3/missing_only",
+    "forced offer requires public clearance r2/seat1/uncleared",
+    "natural Gang same release premise r2/seat1/uncleared",
+    "forced offer requires public clearance r2/seat1/missing_only",
+    "natural Gang same release premise r2/seat1/missing_only",
+    "forced offer requires public clearance r2/seat2/uncleared",
+    "natural Gang same release premise r2/seat2/uncleared",
+    "forced offer requires public clearance r2/seat2/missing_only",
+    "natural Gang same release premise r2/seat2/missing_only",
+    "forced offer requires public clearance r2/seat3/uncleared",
+    "natural Gang same release premise r2/seat3/uncleared",
+    "forced offer requires public clearance r2/seat3/missing_only",
+    "natural Gang same release premise r2/seat3/missing_only",
+    "restored memory revalidates ordinary Seven eligibility 2",
+    "restored memory revalidates ordinary Seven eligibility 3",
+    "exited Hu cannot become cha payer via active bitmap 12",
+    "exited Hu cannot become future Hu payer via active bitmap 12",
+    "ready_choice/clearedFalse/wall12 real ready profile uses clearance evidence and live supply",
+    "ready_choice/clearedFalse/wall25 real ready profile uses clearance evidence and live supply"
+  ],
+  "rows": [
+    {
+      "id": "supply/r0/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "dynamic/pairs2",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u6697\u4E03\u5BF9",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "dynamic/pairs3",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u6697\u4E03\u5BF9",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "protected/ready",
+      "brain": "\u6697\u4E03\u5BF9",
+      "PrimaryRoute": "\u6697\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "protected/dragon",
+      "brain": "\u9F99\u4E03\u5BF9",
+      "PrimaryRoute": "\u9F99\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "protected/pure",
+      "brain": "\u6E05\u4E03\u5BF9",
+      "PrimaryRoute": "\u6E05\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "neutral_posterior_independent_enumeration",
+      "hypotheses": 89088,
+      "comparisons": [
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.5,
+          "prob": 0.5,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.52734375,
+          "prob": 0.52734375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.4921875,
+          "prob": 0.4921875,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.328125,
+          "prob": 0.328125,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.34765625,
+          "prob": 0.34765625,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.35546875,
+          "prob": 0.35546875,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.67578125,
+          "prob": 0.67578125,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.67578125,
+          "prob": 0.67578125,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.66796875,
+          "prob": 0.66796875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.2421875,
+          "prob": 0.2421875,
+          "expected": 0.25,
+          "expectedProb": 0.25
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.2421875,
+          "prob": 0.2421875,
+          "expected": 0.25,
+          "expectedProb": 0.25
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.2734375,
+          "prob": 0.2734375,
+          "expected": 0.25,
+          "expectedProb": 0.25
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.51171875,
+          "prob": 0.51171875,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.47265625,
+          "prob": 0.47265625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.53515625,
+          "prob": 0.53515625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 0.8046875,
+          "prob": 0.8046875,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 0.765625,
+          "prob": 0.765625,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 0.7421875,
+          "prob": 0.7421875,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1,
+          "prob": 1,
+          "expected": 1,
+          "expectedProb": 1
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.2265625,
+          "prob": 0.2265625,
+          "expected": 0.2,
+          "expectedProb": 0.2
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.20703125,
+          "prob": 0.20703125,
+          "expected": 0.2,
+          "expectedProb": 0.2
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.23046875,
+          "prob": 0.23046875,
+          "expected": 0.2,
+          "expectedProb": 0.2
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.3671875,
+          "prob": 0.3671875,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.37109375,
+          "prob": 0.37109375,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.40234375,
+          "prob": 0.40234375,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 0.625,
+          "prob": 0.625,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 0.60546875,
+          "prob": 0.60546875,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 0.58984375,
+          "prob": 0.58984375,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 0.8046875,
+          "prob": 0.8046875,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 0.8046875,
+          "prob": 0.8046875,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 1,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 0.79296875,
+          "prob": 0.79296875,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.15234375,
+          "prob": 0.15234375,
+          "expected": 0.16666666666666666,
+          "expectedProb": 0.16666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.15234375,
+          "prob": 0.15234375,
+          "expected": 0.16666666666666666,
+          "expectedProb": 0.16666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.23046875,
+          "prob": 0.23046875,
+          "expected": 0.16666666666666666,
+          "expectedProb": 0.16666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.3046875,
+          "prob": 0.3046875,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.33203125,
+          "prob": 0.33203125,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.3828125,
+          "prob": 0.3828125,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 0.47265625,
+          "prob": 0.47265625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 0.47265625,
+          "prob": 0.47265625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 0.546875,
+          "prob": 0.546875,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 0.6796875,
+          "prob": 0.6796875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 0.69140625,
+          "prob": 0.69140625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 1,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 0.69921875,
+          "prob": 0.69921875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.66796875,
+          "prob": 0.66796875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.69921875,
+          "prob": 0.69921875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.66796875,
+          "prob": 0.66796875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.328125,
+          "prob": 1,
+          "expected": 1.3333333333333333,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.36328125,
+          "prob": 1,
+          "expected": 1.3333333333333333,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.3515625,
+          "prob": 1,
+          "expected": 1.3333333333333333,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.48828125,
+          "prob": 0.48828125,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.53515625,
+          "prob": 0.53515625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.5234375,
+          "prob": 0.5234375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.05859375,
+          "prob": 0.859375,
+          "expected": 1,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.0234375,
+          "prob": 0.83203125,
+          "expected": 1,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.01953125,
+          "prob": 0.8359375,
+          "expected": 1,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.51953125,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.52734375,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.46875,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.390625,
+          "prob": 0.390625,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.38671875,
+          "prob": 0.38671875,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.4140625,
+          "prob": 0.4140625,
+          "expected": 0.4,
+          "expectedProb": 0.4
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.8203125,
+          "prob": 0.7109375,
+          "expected": 0.8,
+          "expectedProb": 0.7
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.78515625,
+          "prob": 0.67578125,
+          "expected": 0.8,
+          "expectedProb": 0.7
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.87109375,
+          "prob": 0.765625,
+          "expected": 0.8,
+          "expectedProb": 0.7
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.2265625,
+          "prob": 0.921875,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.18359375,
+          "prob": 0.890625,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.19921875,
+          "prob": 0.8984375,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.63671875,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.625,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.6171875,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.32421875,
+          "prob": 0.32421875,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.34375,
+          "prob": 0.34375,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.359375,
+          "prob": 0.359375,
+          "expected": 0.3333333333333333,
+          "expectedProb": 0.3333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.65625,
+          "prob": 0.5625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.69140625,
+          "prob": 0.61328125,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.7109375,
+          "prob": 0.6171875,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.03515625,
+          "prob": 0.8125,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 0.9921875,
+          "prob": 0.80078125,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.04296875,
+          "prob": 0.81640625,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.3671875,
+          "prob": 0.9375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.3984375,
+          "prob": 0.953125,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.35546875,
+          "prob": 0.9375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.24609375,
+          "prob": 0.24609375,
+          "expected": 0.2857142857142857,
+          "expectedProb": 0.2857142857142857
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.24609375,
+          "prob": 0.24609375,
+          "expected": 0.2857142857142857,
+          "expectedProb": 0.2857142857142857
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.32421875,
+          "prob": 0.32421875,
+          "expected": 0.2857142857142857,
+          "expectedProb": 0.2857142857142857
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.515625,
+          "prob": 0.45703125,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5238095238095238
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.53515625,
+          "prob": 0.5,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5238095238095238
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.625,
+          "prob": 0.5390625,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5238095238095238
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 0.81640625,
+          "prob": 0.671875,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 0.8203125,
+          "prob": 0.68359375,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 0.953125,
+          "prob": 0.734375,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.14453125,
+          "prob": 0.875,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.13671875,
+          "prob": 0.8671875,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 2,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.20703125,
+          "prob": 0.85546875,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.7421875,
+          "prob": 0.7421875,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.765625,
+          "prob": 0.765625,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.734375,
+          "prob": 0.734375,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.5,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.52734375,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.4921875,
+          "prob": 1,
+          "expected": 1.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.24609375,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.29296875,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.28125,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 3,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 3,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 3,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.6015625,
+          "prob": 0.6015625,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.59375,
+          "prob": 0.59375,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.62109375,
+          "prob": 0.62109375,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.234375,
+          "prob": 0.921875,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.17578125,
+          "prob": 0.87890625,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.2265625,
+          "prob": 0.890625,
+          "expected": 1.2,
+          "expectedProb": 0.9
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.8359375,
+          "prob": 1,
+          "expected": 1.8,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.8203125,
+          "prob": 1,
+          "expected": 1.8,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.82421875,
+          "prob": 1,
+          "expected": 1.8,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.41015625,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.4375,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.40234375,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.4609375,
+          "prob": 0.4609375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.45703125,
+          "prob": 0.45703125,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.515625,
+          "prob": 0.515625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.984375,
+          "prob": 0.78515625,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.97265625,
+          "prob": 0.77734375,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.0390625,
+          "prob": 0.828125,
+          "expected": 1,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.51953125,
+          "prob": 0.953125,
+          "expected": 1.5,
+          "expectedProb": 0.95
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.48046875,
+          "prob": 0.9453125,
+          "expected": 1.5,
+          "expectedProb": 0.95
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.515625,
+          "prob": 0.953125,
+          "expected": 1.5,
+          "expectedProb": 0.95
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.0390625,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.98046875,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.39453125,
+          "prob": 0.39453125,
+          "expected": 0.42857142857142855,
+          "expectedProb": 0.42857142857142855
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.43359375,
+          "prob": 0.43359375,
+          "expected": 0.42857142857142855,
+          "expectedProb": 0.42857142857142855
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.44921875,
+          "prob": 0.44921875,
+          "expected": 0.42857142857142855,
+          "expectedProb": 0.42857142857142855
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.88671875,
+          "prob": 0.71875,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.859375,
+          "prob": 0.703125,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.89453125,
+          "prob": 0.7109375,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.3203125,
+          "prob": 0.90234375,
+          "expected": 1.2857142857142858,
+          "expectedProb": 0.8857142857142857
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.2421875,
+          "prob": 0.86328125,
+          "expected": 1.2857142857142858,
+          "expectedProb": 0.8857142857142857
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.32421875,
+          "prob": 0.8984375,
+          "expected": 1.2857142857142858,
+          "expectedProb": 0.8857142857142857
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.79296875,
+          "prob": 0.96875,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.671875,
+          "prob": 0.96484375,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.70703125,
+          "prob": 0.96875,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.34765625,
+          "prob": 0.34765625,
+          "expected": 0.375,
+          "expectedProb": 0.375
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.3203125,
+          "prob": 0.3203125,
+          "expected": 0.375,
+          "expectedProb": 0.375
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.4140625,
+          "prob": 0.4140625,
+          "expected": 0.375,
+          "expectedProb": 0.375
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.74609375,
+          "prob": 0.6328125,
+          "expected": 0.75,
+          "expectedProb": 0.6428571428571429
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.72265625,
+          "prob": 0.63671875,
+          "expected": 0.75,
+          "expectedProb": 0.6428571428571429
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.83203125,
+          "prob": 0.6640625,
+          "expected": 0.75,
+          "expectedProb": 0.6428571428571429
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.13671875,
+          "prob": 0.83203125,
+          "expected": 1.125,
+          "expectedProb": 0.8214285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.1015625,
+          "prob": 0.82421875,
+          "expected": 1.125,
+          "expectedProb": 0.8214285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.20703125,
+          "prob": 0.83203125,
+          "expected": 1.125,
+          "expectedProb": 0.8214285714285714
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.5078125,
+          "prob": 0.93359375,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.4453125,
+          "prob": 0.94140625,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 3,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.57421875,
+          "prob": 0.91796875,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.7734375,
+          "prob": 0.7734375,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.8046875,
+          "prob": 0.8046875,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.7734375,
+          "prob": 0.7734375,
+          "expected": 0.8,
+          "expectedProb": 0.8
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.6171875,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.640625,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.61328125,
+          "prob": 1,
+          "expected": 1.6,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.39453125,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.4296875,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.42578125,
+          "prob": 1,
+          "expected": 2.4,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 3.203125,
+          "prob": 1,
+          "expected": 3.2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 3.2421875,
+          "prob": 1,
+          "expected": 3.2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 3.2421875,
+          "prob": 1,
+          "expected": 3.2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.640625,
+          "prob": 0.640625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.6484375,
+          "prob": 0.6484375,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.6640625,
+          "prob": 0.6640625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.33203125,
+          "prob": 0.93359375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.37109375,
+          "prob": 0.93359375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.35546875,
+          "prob": 0.91015625,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9333333333333333
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.046875,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.03515625,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.02734375,
+          "prob": 1,
+          "expected": 2,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.6875,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.70703125,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.67578125,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.55078125,
+          "prob": 0.55078125,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.5234375,
+          "prob": 0.5234375,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.57421875,
+          "prob": 0.57421875,
+          "expected": 0.5714285714285714,
+          "expectedProb": 0.5714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.1328125,
+          "prob": 0.8515625,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.1328125,
+          "prob": 0.83203125,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.17578125,
+          "prob": 0.859375,
+          "expected": 1.1428571428571428,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.7265625,
+          "prob": 0.96484375,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.7265625,
+          "prob": 0.97265625,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.796875,
+          "prob": 0.96875,
+          "expected": 1.7142857142857142,
+          "expectedProb": 0.9714285714285714
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.34765625,
+          "prob": 1,
+          "expected": 2.2857142857142856,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.30078125,
+          "prob": 1,
+          "expected": 2.2857142857142856,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.296875,
+          "prob": 1,
+          "expected": 2.2857142857142856,
+          "expectedProb": 1
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.44921875,
+          "prob": 0.44921875,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.484375,
+          "prob": 0.484375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.4765625,
+          "prob": 0.4765625,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.01171875,
+          "prob": 0.78515625,
+          "expected": 1,
+          "expectedProb": 0.7857142857142857
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.00390625,
+          "prob": 0.7734375,
+          "expected": 1,
+          "expectedProb": 0.7857142857142857
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.0234375,
+          "prob": 0.76953125,
+          "expected": 1,
+          "expectedProb": 0.7857142857142857
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.5,
+          "prob": 0.94140625,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.4765625,
+          "prob": 0.8984375,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.56640625,
+          "prob": 0.9296875,
+          "expected": 1.5,
+          "expectedProb": 0.9285714285714286
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.0390625,
+          "prob": 0.98046875,
+          "expected": 2,
+          "expectedProb": 0.9857142857142858
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.984375,
+          "prob": 0.984375,
+          "expected": 2,
+          "expectedProb": 0.9857142857142858
+        },
+        {
+          "w": 4,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.0546875,
+          "prob": 0.984375,
+          "expected": 2,
+          "expectedProb": 0.9857142857142858
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.4140625,
+          "prob": 0.4140625,
+          "expected": 0.4444444444444444,
+          "expectedProb": 0.4444444444444444
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.38671875,
+          "prob": 0.38671875,
+          "expected": 0.4444444444444444,
+          "expectedProb": 0.4444444444444444
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.46875,
+          "prob": 0.46875,
+          "expected": 0.4444444444444444,
+          "expectedProb": 0.4444444444444444
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 0.8671875,
+          "prob": 0.703125,
+          "expected": 0.8888888888888888,
+          "expectedProb": 0.7222222222222222
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.87890625,
+          "prob": 0.71484375,
+          "expected": 0.8888888888888888,
+          "expectedProb": 0.7222222222222222
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 0.93359375,
+          "prob": 0.71875,
+          "expected": 0.8888888888888888,
+          "expectedProb": 0.7222222222222222
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.3125,
+          "prob": 0.87109375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.8809523809523809
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.30078125,
+          "prob": 0.87890625,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.8809523809523809
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.40625,
+          "prob": 0.87109375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.8809523809523809
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.74609375,
+          "prob": 0.953125,
+          "expected": 1.7777777777777777,
+          "expectedProb": 0.9603174603174603
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 1.7578125,
+          "prob": 0.96875,
+          "expected": 1.7777777777777777,
+          "expectedProb": 0.9603174603174603
+        },
+        {
+          "w": 4,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 1.8671875,
+          "prob": 0.95703125,
+          "expected": 1.7777777777777777,
+          "expectedProb": 0.9603174603174603
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.78125,
+          "prob": 0.78125,
+          "expected": 0.8333333333333334,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.828125,
+          "prob": 0.828125,
+          "expected": 0.8333333333333334,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.8046875,
+          "prob": 0.8046875,
+          "expected": 0.8333333333333334,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.66796875,
+          "prob": 1,
+          "expected": 1.6666666666666667,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.69921875,
+          "prob": 1,
+          "expected": 1.6666666666666667,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.66796875,
+          "prob": 1,
+          "expected": 1.6666666666666667,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.5,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.52734375,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.4921875,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 3.328125,
+          "prob": 1,
+          "expected": 3.3333333333333335,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 3.36328125,
+          "prob": 1,
+          "expected": 3.3333333333333335,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 3.3515625,
+          "prob": 1,
+          "expected": 3.3333333333333335,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.6875,
+          "prob": 0.6875,
+          "expected": 0.7142857142857143,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.68359375,
+          "prob": 0.68359375,
+          "expected": 0.7142857142857143,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.69140625,
+          "prob": 0.69140625,
+          "expected": 0.7142857142857143,
+          "expectedProb": 0.7142857142857143
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.41796875,
+          "prob": 0.94921875,
+          "expected": 1.4285714285714286,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.46875,
+          "prob": 0.953125,
+          "expected": 1.4285714285714286,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.44140625,
+          "prob": 0.93359375,
+          "expected": 1.4285714285714286,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.1953125,
+          "prob": 1,
+          "expected": 2.142857142857143,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.140625,
+          "prob": 1,
+          "expected": 2.142857142857143,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.17578125,
+          "prob": 1,
+          "expected": 2.142857142857143,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.890625,
+          "prob": 1,
+          "expected": 2.857142857142857,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.8828125,
+          "prob": 1,
+          "expected": 2.857142857142857,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.875,
+          "prob": 1,
+          "expected": 2.857142857142857,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.58203125,
+          "prob": 0.58203125,
+          "expected": 0.625,
+          "expectedProb": 0.625
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.58984375,
+          "prob": 0.58984375,
+          "expected": 0.625,
+          "expectedProb": 0.625
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.59765625,
+          "prob": 0.59765625,
+          "expected": 0.625,
+          "expectedProb": 0.625
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.2265625,
+          "prob": 0.8828125,
+          "expected": 1.25,
+          "expectedProb": 0.8928571428571429
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.234375,
+          "prob": 0.875,
+          "expected": 1.25,
+          "expectedProb": 0.8928571428571429
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.2578125,
+          "prob": 0.8828125,
+          "expected": 1.25,
+          "expectedProb": 0.8928571428571429
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.8984375,
+          "prob": 0.9921875,
+          "expected": 1.875,
+          "expectedProb": 0.9821428571428571
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.8515625,
+          "prob": 0.97265625,
+          "expected": 1.875,
+          "expectedProb": 0.9821428571428571
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.9296875,
+          "prob": 0.9765625,
+          "expected": 1.875,
+          "expectedProb": 0.9821428571428571
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.5546875,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.48046875,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.515625,
+          "prob": 1,
+          "expected": 2.5,
+          "expectedProb": 1
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.5,
+          "prob": 0.5,
+          "expected": 0.5555555555555556,
+          "expectedProb": 0.5555555555555556
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.55078125,
+          "prob": 0.55078125,
+          "expected": 0.5555555555555556,
+          "expectedProb": 0.5555555555555556
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.5234375,
+          "prob": 0.5234375,
+          "expected": 0.5555555555555556,
+          "expectedProb": 0.5555555555555556
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.140625,
+          "prob": 0.87109375,
+          "expected": 1.1111111111111112,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.0859375,
+          "prob": 0.796875,
+          "expected": 1.1111111111111112,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.12109375,
+          "prob": 0.80078125,
+          "expected": 1.1111111111111112,
+          "expectedProb": 0.8333333333333334
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.67578125,
+          "prob": 0.96484375,
+          "expected": 1.6666666666666667,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.65234375,
+          "prob": 0.92578125,
+          "expected": 1.6666666666666667,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.74609375,
+          "prob": 0.9609375,
+          "expected": 1.6666666666666667,
+          "expectedProb": 0.9523809523809523
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.24609375,
+          "prob": 0.98828125,
+          "expected": 2.2222222222222223,
+          "expectedProb": 0.9920634920634921
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.19921875,
+          "prob": 0.984375,
+          "expected": 2.2222222222222223,
+          "expectedProb": 0.9920634920634921
+        },
+        {
+          "w": 5,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.2734375,
+          "prob": 0.99609375,
+          "expected": 2.2222222222222223,
+          "expectedProb": 0.9920634920634921
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.45703125,
+          "prob": 0.45703125,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.46484375,
+          "prob": 0.46484375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.49609375,
+          "prob": 0.49609375,
+          "expected": 0.5,
+          "expectedProb": 0.5
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.0078125,
+          "prob": 0.78125,
+          "expected": 1,
+          "expectedProb": 0.7777777777777778
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 0.96875,
+          "prob": 0.7734375,
+          "expected": 1,
+          "expectedProb": 0.7777777777777778
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.05859375,
+          "prob": 0.76953125,
+          "expected": 1,
+          "expectedProb": 0.7777777777777778
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.48828125,
+          "prob": 0.94140625,
+          "expected": 1.5,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.45703125,
+          "prob": 0.90234375,
+          "expected": 1.5,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.578125,
+          "prob": 0.91015625,
+          "expected": 1.5,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 1.98046875,
+          "prob": 0.98046875,
+          "expected": 2,
+          "expectedProb": 0.9761904761904762
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.00390625,
+          "prob": 0.98046875,
+          "expected": 2,
+          "expectedProb": 0.9761904761904762
+        },
+        {
+          "w": 5,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.08984375,
+          "prob": 0.9765625,
+          "expected": 2,
+          "expectedProb": 0.9761904761904762
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.8203125,
+          "prob": 0.8203125,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.859375,
+          "prob": 0.859375,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.81640625,
+          "prob": 0.81640625,
+          "expected": 0.8571428571428571,
+          "expectedProb": 0.8571428571428571
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.7109375,
+          "prob": 1,
+          "expected": 1.7142857142857142,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.734375,
+          "prob": 1,
+          "expected": 1.7142857142857142,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.70703125,
+          "prob": 1,
+          "expected": 1.7142857142857142,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.578125,
+          "prob": 1,
+          "expected": 2.5714285714285716,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.6171875,
+          "prob": 1,
+          "expected": 2.5714285714285716,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.58203125,
+          "prob": 1,
+          "expected": 2.5714285714285716,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 3.4296875,
+          "prob": 1,
+          "expected": 3.4285714285714284,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 3.45703125,
+          "prob": 1,
+          "expected": 3.4285714285714284,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 1,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 3.4453125,
+          "prob": 1,
+          "expected": 3.4285714285714284,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.72265625,
+          "prob": 0.72265625,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.73046875,
+          "prob": 0.73046875,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.7109375,
+          "prob": 0.7109375,
+          "expected": 0.75,
+          "expectedProb": 0.75
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.5,
+          "prob": 0.96484375,
+          "expected": 1.5,
+          "expectedProb": 0.9642857142857143
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.5234375,
+          "prob": 0.96875,
+          "expected": 1.5,
+          "expectedProb": 0.9642857142857143
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.4921875,
+          "prob": 0.94921875,
+          "expected": 1.5,
+          "expectedProb": 0.9642857142857143
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.296875,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 2.2578125,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.27734375,
+          "prob": 1,
+          "expected": 2.25,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 3.05078125,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 3.03125,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 2,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 3.0078125,
+          "prob": 1,
+          "expected": 3,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.62109375,
+          "prob": 0.62109375,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.65625,
+          "prob": 0.65625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.625,
+          "prob": 0.625,
+          "expected": 0.6666666666666666,
+          "expectedProb": 0.6666666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.3125,
+          "prob": 0.9140625,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.296875,
+          "prob": 0.90234375,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.33984375,
+          "prob": 0.89453125,
+          "expected": 1.3333333333333333,
+          "expectedProb": 0.9166666666666666
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 2.00390625,
+          "prob": 0.9921875,
+          "expected": 2,
+          "expectedProb": 0.9880952380952381
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.9765625,
+          "prob": 0.984375,
+          "expected": 2,
+          "expectedProb": 0.9880952380952381
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 2.03515625,
+          "prob": 0.9765625,
+          "expected": 2,
+          "expectedProb": 0.9880952380952381
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.69140625,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.6484375,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 3,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.73046875,
+          "prob": 1,
+          "expected": 2.6666666666666665,
+          "expectedProb": 1
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.53515625,
+          "prob": 0.53515625,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.59765625,
+          "prob": 0.59765625,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.578125,
+          "prob": 0.578125,
+          "expected": 0.6,
+          "expectedProb": 0.6
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.2265625,
+          "prob": 0.87890625,
+          "expected": 1.2,
+          "expectedProb": 0.8666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.18359375,
+          "prob": 0.84375,
+          "expected": 1.2,
+          "expectedProb": 0.8666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.19921875,
+          "prob": 0.8359375,
+          "expected": 1.2,
+          "expectedProb": 0.8666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.81640625,
+          "prob": 0.9765625,
+          "expected": 1.8,
+          "expectedProb": 0.9666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.78125,
+          "prob": 0.9453125,
+          "expected": 1.8,
+          "expectedProb": 0.9666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.85546875,
+          "prob": 0.97265625,
+          "expected": 1.8,
+          "expectedProb": 0.9666666666666667
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.42578125,
+          "prob": 0.99609375,
+          "expected": 2.4,
+          "expectedProb": 0.9952380952380953
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.3828125,
+          "prob": 0.984375,
+          "expected": 2.4,
+          "expectedProb": 0.9952380952380953
+        },
+        {
+          "w": 6,
+          "hidden": 4,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.44921875,
+          "prob": 0.99609375,
+          "expected": 2.4,
+          "expectedProb": 0.9952380952380953
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102407,
+          "mean": 0.49609375,
+          "prob": 0.49609375,
+          "expected": 0.5454545454545454,
+          "expectedProb": 0.5454545454545454
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102419,
+          "mean": 0.53125,
+          "prob": 0.53125,
+          "expected": 0.5454545454545454,
+          "expectedProb": 0.5454545454545454
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 1,
+          "seed": 2026102431,
+          "mean": 0.53515625,
+          "prob": 0.53515625,
+          "expected": 0.5454545454545454,
+          "expectedProb": 0.5454545454545454
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102407,
+          "mean": 1.0859375,
+          "prob": 0.82421875,
+          "expected": 1.0909090909090908,
+          "expectedProb": 0.8181818181818182
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102419,
+          "mean": 1.05859375,
+          "prob": 0.82421875,
+          "expected": 1.0909090909090908,
+          "expectedProb": 0.8181818181818182
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 2,
+          "seed": 2026102431,
+          "mean": 1.16796875,
+          "prob": 0.8125,
+          "expected": 1.0909090909090908,
+          "expectedProb": 0.8181818181818182
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102407,
+          "mean": 1.62109375,
+          "prob": 0.94921875,
+          "expected": 1.6363636363636365,
+          "expectedProb": 0.9393939393939394
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102419,
+          "mean": 1.6015625,
+          "prob": 0.9375,
+          "expected": 1.6363636363636365,
+          "expectedProb": 0.9393939393939394
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 3,
+          "seed": 2026102431,
+          "mean": 1.71484375,
+          "prob": 0.9375,
+          "expected": 1.6363636363636365,
+          "expectedProb": 0.9393939393939394
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102407,
+          "mean": 2.15234375,
+          "prob": 0.984375,
+          "expected": 2.1818181818181817,
+          "expectedProb": 0.9848484848484849
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102419,
+          "mean": 2.16015625,
+          "prob": 0.984375,
+          "expected": 2.1818181818181817,
+          "expectedProb": 0.9848484848484849
+        },
+        {
+          "w": 6,
+          "hidden": 5,
+          "copies": 4,
+          "seed": 2026102431,
+          "mean": 2.28125,
+          "prob": 0.98828125,
+          "expected": 2.1818181818181817,
+          "expectedProb": 0.9848484848484849
+        }
+      ]
+    },
+    {
+      "id": "net/exited-wall0",
+      "ms": 107.9496,
+      "activeWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      }
+    },
+    {
+      "id": "net/exited-wall12",
+      "ms": 28.3584,
+      "activeWon": {
+        "ChaJiaoValue": 3.5054017080635145,
+        "WinGain": 1.3784269030281087,
+        "ExpectedNetScore": 4.630559477135068
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0.22964092902017416,
+        "WinGain": 0.8971639094864483,
+        "ExpectedNetScore": 1.5933281503811985
+      }
+    },
+    {
+      "id": "formal/two_pairs/clearedFalse/wall12",
+      "ms": 248.8641,
+      "command": {
+        "Id": "9853679b928b3e9baae91743f9e1849c3551e493e86a044ad6948a5e101a5f9f",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "5f857930bc44ae273443ff7233171d43a3d506f1379a4561f66094ffd8e95768",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.39",
+        "\u5371\u9669\u5EA6 16\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "\u6536\u76CA 1.68 / \u70B9\u70AE\u635F\u5931 0.15",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedFalse/wall25",
+      "ms": 86.1952,
+      "command": {
+        "Id": "78ab2fa557b8b18ec2b246b3bbf3f76d1283cf0817e6e52008a8488fc39d6043",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "556031d7210ff9cb21ad91f1ff9627a57a49e6c5394314f39b233597b233c6e8",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 5",
+        "\u51C0\u5206\u671F\u671B 3.39",
+        "\u5371\u9669\u5EA6 29\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedTrue/wall12",
+      "ms": 545.7662,
+      "command": {
+        "Id": "941f2670e410274353a707bd26f0431316eebdbbfb4f1e5d99524e2a5fed4a45",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2ed2847c7c61825c0aee331ee54048b732603fc057a886833e9deb0c924f573d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.56",
+        "\u5371\u9669\u5EA6 0\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_DEEP_PUBLIC_RISK_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedTrue/wall25",
+      "ms": 43.8027,
+      "command": {
+        "Id": "f2c78466d2ad10c52a96127721d6227fa5a927744f3abfd7e93f0206a118b951",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "946dd1dafff243c8741c38735833c0a2a0840e1d8c865efe28965a08d8a2194f",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 5",
+        "\u51C0\u5206\u671F\u671B 3.47",
+        "\u5371\u9669\u5EA6 17\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedFalse/wall12",
+      "ms": 58.1245,
+      "command": {
+        "Id": "4909b646c0632263e9155a38ca115bf2d00c9844c326b5e991b911e409cceeaf",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "10aca7b3daf3513dc7edef2f581f1a85a442ebe1b985c92be94cf3173134c2ec",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 2",
+        "\u51C0\u5206\u671F\u671B 1.38",
+        "\u5371\u9669\u5EA6 16\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "\u6536\u76CA 1.06 / \u70B9\u70AE\u635F\u5931 0.14",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedFalse/wall25",
+      "ms": 85.0904,
+      "command": {
+        "Id": "0667c113be82039deb2b245c94287bc246606965536fccb41563349396429d8b",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "ea7c4c99618b5445e001236f64ec717ffabeaec6d60a6b264bcb3823eee6235d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.21",
+        "\u5371\u9669\u5EA6 29\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedTrue/wall12",
+      "ms": 450.7763,
+      "command": {
+        "Id": "2727b68e690465e3a3f161b1e2406f716985f20c5d016e53b3aacf7862c51403",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7bfcee796f4a8f0ed6af101cddc1a7bd9f88b15eece3f96ff5b9ac99d456f916",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 2",
+        "\u51C0\u5206\u671F\u671B 1.54",
+        "\u5371\u9669\u5EA6 0\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_DEEP_PUBLIC_RISK_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedTrue/wall25",
+      "ms": 33.5587,
+      "command": {
+        "Id": "2964c788722e26b37f362d9de81f342af777734df7f17471f3737e23951c0c81",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "970eb1429f654ceee2e38d5d65344c7f812e026010b23e31835066fc4ca014bd",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.29",
+        "\u5371\u9669\u5EA6 17\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedFalse/wall12",
+      "ms": 171.1539,
+      "command": {
+        "Id": "3a7c09901ef60f6c76addaa31d19631a4e5b9b0c65dee73f2171e08bb0a7573a",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "97cfac0f8ffbecb2bffe9163646d19b39502c1d35fca4b2ca5579dfa14cbe8c7",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 13,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "OPPONENT_WIDE_BED_SAFER_DISCARD",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.1_HELD0_DRAWN0",
+        "PUBLIC_KEY_TILE_17_A_UNSEEN1_RETENTION_NOT_CERTAINTY",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.56",
+        "\u5371\u9669\u5EA6 18\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedFalse/wall25",
+      "ms": 100.3641,
+      "command": {
+        "Id": "d936b15e0858f3e2593cbd4d6c35abb7dbbc4618171bbfdb5a157344968a9d77",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "962702b957cb6ff47e557d2236d6166d2fec208fdba48eb15b64952f39e9bd32",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 17,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 3.46",
+        "\u5371\u9669\u5EA6 27\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u5BBD\u53EB 1 \u95E8",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedTrue/wall12",
+      "ms": 1507.0938,
+      "command": {
+        "Id": "cd090d9fad7c9e1b0ee5f45a4e9f5ba76b1a10e6b497770bf8409270a4bf51b5",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f453232e1318ddff603de671ed2e975c255143fe4ad4e52e3b747c5144d6b984",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 13,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.1_HELD0_DRAWN0",
+        "PUBLIC_KEY_TILE_17_A_UNSEEN1_RETENTION_NOT_CERTAINTY",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.53",
+        "\u5371\u9669\u5EA6 23\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "SEARCH_DEEP_READY_SPEED_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedTrue/wall25",
+      "ms": 108.9748,
+      "command": {
+        "Id": "806b3c3f65c18721a3683eab96335dafb9bd1ed2f4f81b90125da502c69fbf85",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "24ad34be094fa4c4df5d7098c03fd9f0e02e5a201c955ab60c1b098ec4f3bf1b",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 17,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.75",
+        "\u5371\u9669\u5EA6 15\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u5BBD\u53EB 1 \u95E8",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_BUDGET_FAST"
+      ]
+    }
+  ]
+}

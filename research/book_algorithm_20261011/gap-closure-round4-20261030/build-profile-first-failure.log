@@ -1,0 +1,18 @@
+  AI.Core -> /Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(381,19): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(381,47): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(382,37): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(383,17): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(383,51): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(381,19): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(381,47): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(382,37): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(383,17): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/scripts/ai/SichuanCSharpRuntime.cs(383,51): error CS0103: 当前上下文中不存在名称“SichuanPolicyTiming” [/Volumes/AI/Codex/四川麻将工程_20260701_v2/SichuanMahjong.Godot.csproj]
+    0 个警告
+    5 个错误
+
+已用时间 00:00:36.04

@@ -1,5 +1,6 @@
 using SichuanMahjong.AI.Core.Models;
 using SichuanMahjong.AI.Core.Inference;
+using SichuanMahjong.AI.Core.Decision;
 
 namespace SichuanMahjong.AI.Core.Engines;
 
@@ -9,6 +10,7 @@ public sealed record SichuanWallAvailability(
     int WallCount)
 {
     public int[] KnownWallCounts18 { get; init; } = new int[27];
+    public SichuanTerminalRetentionReport? Retention {get;init;}
 
     public double SumExpected(IEnumerable<int> tileTypes)
         => tileTypes
@@ -30,6 +32,12 @@ public sealed class SichuanWallAvailabilityEngine
             .Select(tile => Math.Clamp(state.Remaining18[tile], 0, 4))
             .ToArray();
         var target = Math.Clamp(state.WallCount, 0, capacities.Sum());
+        if(SichuanLearningClosurePolicy.Retention(state))
+        {
+            var r=new SichuanTerminalRetentionModel().Evaluate(state,belief);
+            if(r.Supported)return new(r.ExpectedWall,AllocateRepresentativeCounts(capacities,r.ExpectedWall,target),target)
+                {KnownWallCounts18=ResolveKnownWallCounts(state,capacities,target),Retention=r};
+        }
         return BuildFromPublicConstraints(state, belief, capacities, target);
     }
 
@@ -86,43 +94,52 @@ public sealed class SichuanWallAvailabilityEngine
         return new SichuanWallAvailability(expected, representative, target){KnownWallCounts18=known};
     }
 
-    public int[] SampleWallOrder(
-        SichuanStateView state,
-        SichuanBeliefSnapshot belief,
-        int seed,
-        int firstSuit = 0)
+    public int[] SampleWallOrder(SichuanStateView state,SichuanBeliefSnapshot belief,int seed,int firstSuit=0)
     {
-        if (firstSuit is < 0 or > 2) throw new ArgumentOutOfRangeException(nameof(firstSuit));
-        var capacities = Enumerable.Range(0, 27)
-            .Select(tile => Math.Clamp(state.Remaining18[tile], 0, 4))
-            .ToArray();
-        var target = Math.Clamp(state.WallCount, 0, capacities.Sum());
-        if (target == 0) return Array.Empty<int>();
+        using var timing=SichuanPolicyTiming.Measure("wall_order_sampling");
+        return PrepareWallOrders(state,belief,firstSuit).Sample(seed);
+    }
 
-        var known=ResolveKnownWallCounts(state,capacities,target);
-        var residual=capacities.Select((n,t)=>n-known[t]).ToArray();
-        var random = new Random(seed);
-        var order = new int[target];
-        for (var draw = 0; draw < target; draw++)
+    // A sampler is an immutable numeric snapshot, never a cached seat policy.
+    // Later changes to a state or belief require preparing another snapshot.
+    internal WallOrderSampler PrepareWallOrders(SichuanStateView state,SichuanBeliefSnapshot belief,int firstSuit=0)
+    {
+        if(firstSuit is <0 or >2)throw new ArgumentOutOfRangeException(nameof(firstSuit));
+        var capacities=Enumerable.Range(0,27).Select(t=>Math.Clamp(state.Remaining18[t],0,4)).ToArray();
+        int target=Math.Clamp(state.WallCount,0,capacities.Sum());
+        var known=target==0?new int[27]:ResolveKnownWallCounts(state,capacities,target);
+        var shares=Enumerable.Range(0,27).Select(t=>ResolveWallShare(belief,t)).ToArray();
+        return new(capacities,known,shares,target,firstSuit);
+    }
+
+    internal sealed class WallOrderSampler(int[] capacities,int[] known,double[] shares,int target,int firstSuit)
+    {
+        // Include every numerical draw input, using exact double bits. Public
+        // history may differ yet imply the same law; any changed weight,
+        // capacity, guaranteed copy, wall size or orientation changes the key.
+        internal string Signature=>firstSuit+"/"+target+"/"+string.Join(',',capacities)+"/"+
+            string.Join(',',known)+"/"+string.Join(',',shares.Select(BitConverter.DoubleToInt64Bits));
+        internal int[] Sample(int seed)
         {
-            var knownRemaining=known.Sum();
-            var drawKnown=knownRemaining>0 && random.Next(target-draw)<knownRemaining;
-            var drawPool=drawKnown?known:residual;
-            var totalWeight = 0.0;
-            for (var tile = 0; tile < 27; tile++)
-                totalWeight += drawPool[tile] * ResolveWallShare(belief, tile);
-
-            var selected = drawKnown ? SampleByCapacity(drawPool,random,firstSuit)
-                : totalWeight > 0.000001
-                    ? SampleWeightedTile(drawPool, belief, random, totalWeight, firstSuit)
-                    : SampleByCapacity(drawPool, random, firstSuit);
-            if (selected < 0)
-                return order.Take(draw).ToArray();
-            order[draw] = selected;
-            capacities[selected]--;
-            drawPool[selected]--;
+            using var timing=SichuanPolicyTiming.Measure("wall_order_draw");
+            if(target==0)return Array.Empty<int>();
+            var guaranteed=known.ToArray();
+            var residual=capacities.Select((n,t)=>n-known[t]).ToArray();
+            var random=new Random(seed);var order=new int[target];
+            int knownRemaining=guaranteed.Sum(),otherRemaining=residual.Sum();
+            for(int draw=0;draw<target;draw++)
+            {
+                bool drawKnown=knownRemaining>0&&random.Next(target-draw)<knownRemaining;
+                var pool=drawKnown?guaranteed:residual;double total=0;
+                for(int t=0;t<27;t++)total+=pool[t]*shares[t];
+                int selected=drawKnown?SampleByCapacity(pool,random,firstSuit,knownRemaining):total>0.000001
+                    ?SampleWeightedTile(pool,shares,random,total,firstSuit):SampleByCapacity(pool,random,firstSuit,otherRemaining);
+                if(selected<0)return order.Take(draw).ToArray();
+                order[draw]=selected;pool[selected]--;
+                if(drawKnown)knownRemaining--;else otherRemaining--;
+            }
+            return order;
         }
-        return order;
     }
 
     private static int[] ResolveKnownWallCounts(SichuanStateView state,IReadOnlyList<int> capacities,int target)
@@ -196,7 +213,7 @@ public sealed class SichuanWallAvailabilityEngine
 
     private static int SampleWeightedTile(
         IReadOnlyList<int> capacities,
-        SichuanBeliefSnapshot belief,
+        IReadOnlyList<double> shares,
         Random random,
         double totalWeight,
         int firstSuit)
@@ -205,7 +222,7 @@ public sealed class SichuanWallAvailabilityEngine
         for (var index = 0; index < 27; index++)
         {
             var tile = ((firstSuit + index / 9) % 3) * 9 + index % 9;
-            var weight = capacities[tile] * ResolveWallShare(belief, tile);
+            var weight = capacities[tile] * shares[tile];
             if (weight <= 0) continue;
             if (roll < weight) return tile;
             roll -= weight;
@@ -215,9 +232,9 @@ public sealed class SichuanWallAvailabilityEngine
             .FirstOrDefault(tile => capacities[tile] > 0, -1);
     }
 
-    private static int SampleByCapacity(IReadOnlyList<int> capacities, Random random, int firstSuit)
+    private static int SampleByCapacity(IReadOnlyList<int> capacities, Random random, int firstSuit,int? knownTotal=null)
     {
-        var total = capacities.Sum();
+        var total = knownTotal??capacities.Sum();
         if (total <= 0) return -1;
         var roll = random.Next(total);
         for (var index = 0; index < 27; index++)

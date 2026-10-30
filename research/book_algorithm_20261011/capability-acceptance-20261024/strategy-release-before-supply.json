@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "production_policy_variant": "current",
+  "production_recording": false,
+  "production_terminal_rollout": false,
+  "scope": "correctness_corrections_only",
+  "unpromoted_policy_variants": [
+    "bucket_local_candidate_v1",
+    "gang_branch_candidate_v1"
+  ],
+  "created_at": "2026-10-24",
+  "strategy_version": "strategy-contract-v38-wider-wall-signed-settlement-floor",
+  "agent_version": "unified-seat-policy-v2-adaptive-budget",
+  "source_sha256": "a9a73490c1be550b7108c41924507c20761e582d10497ec4db3caf00c9bb3b13",
+  "evidence": [
+    {
+      "kind": "personal_execution",
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/native-validation-wide.json",
+      "sha256": "89ae2c5b399741d350d14e1acb6a6769fe323000b82f7f8f5dbd5c37f1131390"
+    }
+  ],
+  "release_inputs": {
+    "export_presets.cfg": "95af7232c65b17eb76a512a23fe36fff7c6f8814e77b9ea9966cd00caaf53214",
+    "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
+    "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
+    "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
+    "tools/export_android_release.sh": "d8c9b0c30365c1e9308a696ee86d822f76d94192435a4b833e5450339f17e53a",
+    "tools/export_android_debug.sh": "b2396bc50d64afe3daf5804252c97c1b2431883dbbabee14561edf7dc7fa2753",
+    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
+    "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
+    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
+    "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
+    "project.godot": "f74a3e8f51284f947fb2e530f5177d97b49fdaa0f45a1bbdd9fa7a24550e17b3"
+  },
+  "notes": "Round 2 acceptance: public mixed ready/unready roots with 9-24 wall tiles now carry a signed unready cha-jiao liability floor from joint terminal hypotheses; own future readiness remains explicitly bounded. C# before/after and ordinary/compact Godot entity execution passed. No strength promotion or mobile rebuild.",
+  "limitations": [
+    "This round covers supported public root states with mixed ready/unready candidates and 9-24 wall tiles; it is not a full long-wall terminal policy.",
+    "Unready liability is a conservative floor using public joint terminal opponent scores and a bounded residual-unready proxy; own multi-step readiness, voluntary releases, claims, future Gang and exact HuaZhu are not fully solved.",
+    "The short-wall exact fixed-endpoint model remains separate for 0-8 tiles. States outside either scope keep the ordinary bounded model and are labeled.",
+    "The public behavior posterior and risk weights remain uncalibrated. Six real wider-wall entity chains establish execution, not comparative strength or long-term score improvement.",
+    "Desktop ordinary/compact transport is not iOS NativeAOT; installed devices remain earlier 2.6.92 sources."
+  ],
+  "validation_stage": "second_capability_acceptance_wider_wall_desktop_verified_mobile_not_rebuilt",
+  "delivery_target": "personal_device",
+  "application_version": "2.6.92"
+}

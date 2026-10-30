@@ -1,0 +1,542 @@
+{
+  "checks": 24,
+  "failures": [],
+  "rows": [
+    {
+      "id": "independent/settlement9",
+      "charge": 1.7743966791148724,
+      "observed": -0.3848369936453119,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall9",
+      "ms": 159.98,
+      "selected": 3,
+      "ready": [
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.14471992727326502,
+          "net": 2.207103719649487,
+          "reasons": [
+            "CHA_JIAO_0.87"
+          ]
+        },
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 0.8523256849951713,
+          "net": 1.9387850037347583,
+          "reasons": [
+            "CHA_JIAO_1.75"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.524310570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.524310570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.557046570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -3.0179372642642814,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.14471992727326502,
+          "net": 2.207103719649487,
+          "reasons": [
+            "CHA_JIAO_0.87"
+          ]
+        },
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 0.8523256849951713,
+          "net": 1.9387850037347583,
+          "reasons": [
+            "CHA_JIAO_1.75"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.524310570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.524310570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -2.557046570886401,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.3848369936453119,
+          "net": -3.0179372642642814,
+          "reasons": [
+            "CHA_JIAO_-0.57",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.57"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "independent/settlement12",
+      "charge": 0.43641877528893813,
+      "observed": -0.0797508785161883,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall12",
+      "ms": 8.5472,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1683285536414116,
+          "net": 2.57955320415314,
+          "reasons": [
+            "CHA_JIAO_2.37"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.159790010270592,
+          "net": 2.536057630857599,
+          "reasons": [
+            "CHA_JIAO_1.18"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0430441469689584,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0430441469689584,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0757801469689583,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.4679985431515585,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1683285536414116,
+          "net": 2.57955320415314,
+          "reasons": [
+            "CHA_JIAO_2.37"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.159790010270592,
+          "net": 2.536057630857599,
+          "reasons": [
+            "CHA_JIAO_1.18"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0430441469689584,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0430441469689584,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.0757801469689583,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.0797508785161883,
+          "net": -2.4679985431515585,
+          "reasons": [
+            "CHA_JIAO_-0.11",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.11"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "independent/settlement16",
+      "charge": 0.9011941403429022,
+      "observed": -0.16357580629581012,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall16",
+      "ms": 5.0965,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1087603826923513,
+          "net": 3.3753222004499452,
+          "reasons": [
+            "CHA_JIAO_2.31"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.15682157859342813,
+          "net": 3.322143639689507,
+          "reasons": [
+            "CHA_JIAO_1.16"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.123882148639326,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.123882148639326,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.1463431486393256,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.1566181486393257,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.1087603826923513,
+          "net": 3.3753222004499452,
+          "reasons": [
+            "CHA_JIAO_2.31"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.15682157859342813,
+          "net": 3.322143639689507,
+          "reasons": [
+            "CHA_JIAO_1.16"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.123882148639326,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.123882148639326,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.1463431486393256,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.16357580629581012,
+          "net": -2.1566181486393257,
+          "reasons": [
+            "CHA_JIAO_-0.23",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.23"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "independent/settlement24",
+      "charge": 0.10360944319083608,
+      "observed": -0.01872354421251409,
+      "syntheticExpected": 3.5,
+      "worlds": 32
+    },
+    {
+      "id": "wall24",
+      "ms": 7.6038,
+      "selected": 1,
+      "ready": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.375635613458222,
+          "net": 3.6507073571529487,
+          "reasons": [
+            "CHA_JIAO_2.91"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.19054556261901223,
+          "net": 3.3835299071075786,
+          "reasons": [
+            "CHA_JIAO_1.46"
+          ]
+        }
+      ],
+      "unready": [
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9519520308589886,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9519520308589886,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9744130308589884,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9846880308589885,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        }
+      ],
+      "all": [
+        {
+          "tile": 1,
+          "ready": true,
+          "cha": 1.375635613458222,
+          "net": 3.6507073571529487,
+          "reasons": [
+            "CHA_JIAO_2.91"
+          ]
+        },
+        {
+          "tile": 3,
+          "ready": true,
+          "cha": 0.19054556261901223,
+          "net": 3.3835299071075786,
+          "reasons": [
+            "CHA_JIAO_1.46"
+          ]
+        },
+        {
+          "tile": 20,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9519520308589886,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 22,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9519520308589886,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 18,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9744130308589884,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        },
+        {
+          "tile": 21,
+          "ready": false,
+          "cha": -0.01872354421251409,
+          "net": -1.9846880308589885,
+          "reasons": [
+            "CHA_JIAO_-0.03",
+            "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.03"
+          ]
+        }
+      ]
+    }
+  ]
+}

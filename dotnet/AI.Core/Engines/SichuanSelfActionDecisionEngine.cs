@@ -24,6 +24,7 @@ public sealed class SichuanSelfActionDecisionEngine
         using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = Decision.SichuanPolicyExecutionScope.EnterDecision();
         SichuanSearchBudget.AllowRootDiscardSearch(state, anGangTileTypes.Count == 0 && addGangTileTypes.Count == 0);
+        using var completionComparison=SichuanReadyDevelopmentEvaluator.EnterTurnComparison(state,!canSelfHu);
         var scores = new Dictionary<string, int>();
 
         if (canSelfHu)

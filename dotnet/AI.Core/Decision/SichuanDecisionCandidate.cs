@@ -23,4 +23,7 @@ public sealed record SichuanDecisionCandidate(
     public double? ModeledOwnWinProbability { get; init; }
     public double? ModeledSelfDrawProbability { get; init; }
     public SichuanReadyPrice? ReadyPrice { get; init; }
+    // Transient paired simulation evidence; never exported as UI payload.
+    internal Search.SichuanDevelopmentTrajectoryModel.Estimate? DevelopmentEvidence { get; init; }
+    internal bool NeedsMoreDevelopmentSamples { get; init; }
 }

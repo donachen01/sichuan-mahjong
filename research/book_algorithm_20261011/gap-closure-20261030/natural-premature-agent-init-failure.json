@@ -1,0 +1,15 @@
+{
+	"complete_games": [],
+	"readiness": [],
+	"failure": {
+		"key": "31561031:0:pre_learning_closure_v1",
+		"step": 0,
+		"phase": 2,
+		"message": "局内 AI 初始化失败，暂停开局。",
+		"physical": {
+			"passed": true,
+			"reasons": []
+		},
+		"agents": false
+	}
+}

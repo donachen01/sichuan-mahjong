@@ -1,0 +1,47 @@
+{
+  "round": "8-short-wall-probability-consistency",
+  "production_change": "SichuanLateWallDiscardEvaluator reports paired SelfDrawProbability; UnifiedDecisionEngine replaces both modeled probabilities together at short-wall settlement.",
+  "source_sha256": "3f7decc2534a0353ec1a52bf439f3e6ca8ed219e4810f2ef779da9326836be12",
+  "before": {
+    "checks": 276,
+    "errors": 9,
+    "probability_failures": [
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds",
+      "probability bounds"
+    ]
+  },
+  "after": {
+    "checks": 276,
+    "errors": 0
+  },
+  "godot": {
+    "rows": 24,
+    "failures": 0,
+    "ordinary": 12,
+    "compact": 12,
+    "command_match": true,
+    "probability_violations": [],
+    "supply_statuses": {
+      "PUBLIC_SUPPLY_public_first_opponent_step": 5,
+      "PUBLIC_SUPPLY_insufficient_effective_samples": 4,
+      "PUBLIC_SUPPLY_gang_transition_outside_step": 1,
+      "PUBLIC_SUPPLY_seed_comparison_unstable": 1
+    }
+  },
+  "builds": {
+    "core_log": "research/book_algorithm_20261011/capability-acceptance-20261024/round8-probability/after-core-build.log",
+    "probe_log": "research/book_algorithm_20261011/capability-acceptance-20261024/round8-probability/after-probe-build.log",
+    "godot_log": "research/book_algorithm_20261011/capability-acceptance-20261024/round8-probability/after-godot-build.log",
+    "godot_build_errors": 0,
+    "godot_nu1900_warnings": 2
+  },
+  "provenance_validation": "passed",
+  "mobile_or_github": "not performed"
+}

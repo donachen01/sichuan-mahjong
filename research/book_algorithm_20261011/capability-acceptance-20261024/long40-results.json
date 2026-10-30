@@ -1,0 +1,110 @@
+{
+  "checks": 6,
+  "failures": [],
+  "wall": 40,
+  "terminalSupported": true,
+  "worlds": 32,
+  "elapsedMs": 212.2444,
+  "meanOpponentReadyScore": 0.5729166666666666,
+  "maxOpponentReadyScore": 4,
+  "productionReasons": [
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.55",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.55",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.55",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.55",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.62",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.63",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.94",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.92",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.93",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.93",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.94",
+    "CHA_JIAO_UNREADY_LIABILITY_FLOOR_-0.94"
+  ],
+  "candidates": [
+    {
+      "tile": 13,
+      "ready": true,
+      "cha": 0.8622343195884069,
+      "net": 2.235055923782821
+    },
+    {
+      "tile": 17,
+      "ready": true,
+      "cha": 0.8816658089647063,
+      "net": 2.1628712087988924
+    },
+    {
+      "tile": 9,
+      "ready": false,
+      "cha": -0.4377691042507944,
+      "net": -3.457032642198815
+    },
+    {
+      "tile": 10,
+      "ready": false,
+      "cha": -0.4377691042507944,
+      "net": -3.457032642198815
+    },
+    {
+      "tile": 0,
+      "ready": false,
+      "cha": -0.4377691042507944,
+      "net": -3.475909597957542
+    },
+    {
+      "tile": 8,
+      "ready": false,
+      "cha": -0.4377691042507944,
+      "net": -3.4800566051316197
+    },
+    {
+      "tile": 3,
+      "ready": false,
+      "cha": -0.48838702532508804,
+      "net": -3.6231465851677096
+    },
+    {
+      "tile": 5,
+      "ready": false,
+      "cha": -0.4964564919565088,
+      "net": -3.6360869882810722
+    },
+    {
+      "tile": 11,
+      "ready": false,
+      "cha": -0.7389731687311538,
+      "net": -4.010664832387177
+    },
+    {
+      "tile": 1,
+      "ready": false,
+      "cha": -0.7291254258190306,
+      "net": -4.0110182378046595
+    },
+    {
+      "tile": 6,
+      "ready": false,
+      "cha": -0.7336410333288238,
+      "net": -4.018272673146983
+    },
+    {
+      "tile": 7,
+      "ready": false,
+      "cha": -0.7363285083388263,
+      "net": -4.022590661138498
+    },
+    {
+      "tile": 4,
+      "ready": false,
+      "cha": -0.7414137170320576,
+      "net": -4.0307621029912974
+    },
+    {
+      "tile": 2,
+      "ready": false,
+      "cha": -0.7454923091699486,
+      "net": -4.037316940688606
+    }
+  ]
+}

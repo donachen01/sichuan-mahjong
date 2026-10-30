@@ -134,6 +134,7 @@ var mahjong_state
 var mahjong_judge
 var pending_ai_turn_decision: Dictionary = {}
 var pending_ai_reaction_decision: Dictionary = {}
+var deferred_ai_claims: Dictionary = {}
 var active_ai_discard_decision: Dictionary = {}
 var pending_ai_turn_request_id: int = 0
 var pending_ai_reaction_request_id: int = 0
@@ -303,6 +304,7 @@ func start_new_round(preserve_dealer: bool = false) -> void:
 	shun_he_locks.clear()
 	current_discard_context.clear()
 	pending_reactions.clear()
+	deferred_ai_claims.clear()
 	trainer_history.clear()
 	latest_trainer_hint.clear()
 	ai_decision_metrics = _create_empty_ai_decision_metrics()
@@ -1579,6 +1581,8 @@ func run_ai_reaction() -> bool:
 	var requested_action := str(decision.get("action", "pass")).strip_edges().to_lower()
 	var resolved_action := _resolve_ai_reaction_action(seat, candidate, requested_action)
 	if resolved_action.is_empty():
+		if _defer_ai_claim_for_priority(seat, candidate, requested_action):
+			return true
 		debug_last_message = "AI 响应已不满足当前合法条件，等待重新决策。"
 		return false
 	if not _is_hell_challenge_mode():
@@ -1699,6 +1703,8 @@ func _is_pending_ai_reaction_decision_valid() -> bool:
 	var seat := int(pending_ai_reaction_decision.get("seat", -1))
 	if seat < 0 or seat >= players.size():
 		return false
+	if int(_get_next_ai_reaction_candidate().get("seat", -1)) != seat:
+		return false
 	var state_signature := str(pending_ai_reaction_decision.get("state_signature", ""))
 	if state_signature != "" and state_signature != _ai_reaction_state_signature(seat):
 		return false
@@ -1716,6 +1722,8 @@ func _is_pending_ai_reaction_request_valid() -> bool:
 	var tile: Dictionary = current_discard_context.get("tile", {})
 	var seat := int(pending_ai_reaction_request_meta.get("seat", -1))
 	if seat < 0 or seat >= players.size():
+		return false
+	if int(_get_next_ai_reaction_candidate().get("seat", -1)) != seat:
 		return false
 	var state_signature := str(pending_ai_reaction_request_meta.get("state_signature", ""))
 	if state_signature != "" and state_signature != _ai_reaction_state_signature(seat):
@@ -3322,6 +3330,7 @@ func _on_ai_reaction_analysis_ready(request_id: int, seat_index: int, analysis: 
 
 
 func _prepare_reaction_context(source_seat: int, discarded_tile: Dictionary) -> void:
+	deferred_ai_claims.clear()
 	pending_ai_turn_decision.clear()
 	pending_ai_reaction_decision.clear()
 	_clear_pending_ai_reaction_request()
@@ -3343,10 +3352,32 @@ func _prepare_reaction_context(source_seat: int, discarded_tile: Dictionary) -> 
 
 
 func _clear_reaction_context() -> void:
+	deferred_ai_claims.clear()
 	current_discard_context.clear()
 	pending_reactions.clear()
 	pending_ai_reaction_decision.clear()
 	_clear_pending_ai_reaction_request()
+
+
+func _defer_ai_claim_for_priority(seat: int, candidate: Dictionary, action: String) -> bool:
+	if action not in ["peng", "gang"] or not bool(candidate.get("can_" + action, false)):
+		return false
+	if not _has_higher_priority_candidate_than(seat, action):
+		return false
+	if not bool(candidate.get("can_hu", false)) and not (action == "peng" and bool(candidate.get("can_gang", false))):
+		return false
+	# This proposal cannot execute yet. Reorder consideration only: preserve
+	# all legal options and locks, and never turn an unexecuted claim into Pass.
+	# After other responses resolve, request a fresh native decision against
+	# the then-current complete legal action set.
+	deferred_ai_claims[seat] = {"action": action, "round": round_index,
+		"tile_id": int(current_discard_context.get("tile", {}).get("id", -1))}
+	_clear_pending_ai_async_state()
+	_record_ai_metric("reaction_deferred")
+	_record_ai_analysis_event("reaction_claim_deferred", {"seat": seat, "action": action})
+	debug_last_message = "等待其他玩家响应。"
+	_emit_state_changed()
+	return true
 
 
 func _record_reaction_pass_evidence(seat: int, candidate: Dictionary) -> void:
@@ -4679,6 +4710,8 @@ func _get_next_ai_reaction_candidate() -> Dictionary:
 		var seat: int = candidate["seat"]
 		if seat < 0 or seat >= players.size() or not players[seat]["is_ai"]:
 			continue
+		if deferred_ai_claims.has(seat) and _has_higher_priority_candidate_than(seat, str(deferred_ai_claims[seat].get("action", ""))):
+			continue
 
 		var priority: int = mahjong_judge.get_candidate_priority(candidate)
 		var distance := _reaction_distance_from_source(source_seat, seat)
@@ -4691,6 +4724,7 @@ func _get_next_ai_reaction_candidate() -> Dictionary:
 
 
 func _remove_reaction_candidate_for_seat(seat: int) -> void:
+	deferred_ai_claims.erase(seat)
 	for index in range(pending_reactions.size()):
 		if pending_reactions[index]["seat"] == seat:
 			pending_reactions.remove_at(index)

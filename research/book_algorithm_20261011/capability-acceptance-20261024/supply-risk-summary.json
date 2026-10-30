@@ -1,0 +1,13 @@
+{
+  "round": "public_supply_posterior_ess_20261024",
+  "source_sha256": "8154a4dfc18be68dba66719184f6ee04d3feecf9353b794ba2448e31d974265a",
+  "supply_checks": 48,
+  "supply_failures": [],
+  "posterior_backgrounds": 12,
+  "low_ess_rejections": 6,
+  "supported_reports": 6,
+  "wide_entity_rows": 6,
+  "wide_entity_failures": [],
+  "mobile_rebuilt": false,
+  "strength_claim": false
+}

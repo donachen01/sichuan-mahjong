@@ -1,0 +1,840 @@
+{
+  "checks": 308,
+  "failures": [],
+  "rows": [
+    {
+      "id": "supply/r0/seat1/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/uncleared",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/missing_only",
+      "mask": 0,
+      "ForcedDiscard": 0,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "dynamic/pairs2",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u5E73\u80E1",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u5E73\u80E1\uFF0C\u627F\u8BFA\u5EA6 68\uFF0C\u5907\u7528 \u5E73\u80E1",
+          "SEVEN_PAIRS_EXIT_TO_ORDINARY_CURRENT_GATES",
+          "\u7B56\u7565\u8C03\u6574\uFF1A\u6697\u4E03\u5BF9 -\u003E \u5E73\u80E1\uFF0C\u7ED3\u6784\u8BC4\u5206\u4F18\u52BF 100"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "dynamic/pairs3",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u5E73\u80E1",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u5E73\u80E1\uFF0C\u627F\u8BFA\u5EA6 68\uFF0C\u5907\u7528 \u5E73\u80E1",
+          "SEVEN_PAIRS_EXIT_TO_ORDINARY_CURRENT_GATES",
+          "\u7B56\u7565\u8C03\u6574\uFF1A\u6697\u4E03\u5BF9 -\u003E \u5E73\u80E1\uFF0C\u7ED3\u6784\u8BC4\u5206\u4F18\u52BF 100"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "protected/ready",
+      "brain": "\u6697\u4E03\u5BF9",
+      "PrimaryRoute": "\u6697\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "protected/dragon",
+      "brain": "\u9F99\u4E03\u5BF9",
+      "PrimaryRoute": "\u9F99\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "protected/pure",
+      "brain": "\u6E05\u4E03\u5BF9",
+      "PrimaryRoute": "\u6E05\u4E03\u5BF9",
+      "ForbidsMelds": true
+    },
+    {
+      "id": "net/exited-wall0",
+      "ms": 123.9913,
+      "activeWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      }
+    },
+    {
+      "id": "net/exited-wall12",
+      "ms": 21.0059,
+      "activeWon": {
+        "ChaJiaoValue": 0.6383340116133196,
+        "WinGain": 0,
+        "ExpectedNetScore": 1.2316418755710938
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0.6383340116133196,
+        "WinGain": 0,
+        "ExpectedNetScore": 1.2316418755710938
+      }
+    },
+    {
+      "id": "formal/two_pairs/clearedFalse/wall12",
+      "ms": 287.2727,
+      "command": {
+        "Id": "9853679b928b3e9baae91743f9e1849c3551e493e86a044ad6948a5e101a5f9f",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "5f857930bc44ae273443ff7233171d43a3d506f1379a4561f66094ffd8e95768",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.39",
+        "\u5371\u9669\u5EA6 16\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "\u6536\u76CA 1.68 / \u70B9\u70AE\u635F\u5931 0.15",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedFalse/wall25",
+      "ms": 118.0653,
+      "command": {
+        "Id": "78ab2fa557b8b18ec2b246b3bbf3f76d1283cf0817e6e52008a8488fc39d6043",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "556031d7210ff9cb21ad91f1ff9627a57a49e6c5394314f39b233597b233c6e8",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 5",
+        "\u51C0\u5206\u671F\u671B 3.39",
+        "\u5371\u9669\u5EA6 29\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedTrue/wall12",
+      "ms": 965.2888,
+      "command": {
+        "Id": "941f2670e410274353a707bd26f0431316eebdbbfb4f1e5d99524e2a5fed4a45",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "2ed2847c7c61825c0aee331ee54048b732603fc057a886833e9deb0c924f573d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.56",
+        "\u5371\u9669\u5EA6 0\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_DEEP_PUBLIC_RISK_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/two_pairs/clearedTrue/wall25",
+      "ms": 45.9289,
+      "command": {
+        "Id": "f2c78466d2ad10c52a96127721d6227fa5a927744f3abfd7e93f0206a118b951",
+        "Window": "turn",
+        "RoundId": "two_pairs/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "946dd1dafff243c8741c38735833c0a2a0840e1d8c865efe28965a08d8a2194f",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 5",
+        "\u51C0\u5206\u671F\u671B 3.47",
+        "\u5371\u9669\u5EA6 17\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedFalse/wall12",
+      "ms": 53.4011,
+      "command": {
+        "Id": "4909b646c0632263e9155a38ca115bf2d00c9844c326b5e991b911e409cceeaf",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "10aca7b3daf3513dc7edef2f581f1a85a442ebe1b985c92be94cf3173134c2ec",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 2",
+        "\u51C0\u5206\u671F\u671B 1.38",
+        "\u5371\u9669\u5EA6 16\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "\u6536\u76CA 1.06 / \u70B9\u70AE\u635F\u5931 0.14",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedFalse/wall25",
+      "ms": 79.4517,
+      "command": {
+        "Id": "0667c113be82039deb2b245c94287bc246606965536fccb41563349396429d8b",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "ea7c4c99618b5445e001236f64ec717ffabeaec6d60a6b264bcb3823eee6235d",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.21",
+        "\u5371\u9669\u5EA6 29\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedTrue/wall12",
+      "ms": 356.4622,
+      "command": {
+        "Id": "2727b68e690465e3a3f161b1e2406f716985f20c5d016e53b3aacf7862c51403",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "7bfcee796f4a8f0ed6af101cddc1a7bd9f88b15eece3f96ff5b9ac99d456f916",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 14,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 14,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 2",
+        "\u51C0\u5206\u671F\u671B 1.54",
+        "\u5371\u9669\u5EA6 0\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u540E\u671F\u5DF2\u5230\uFF0C\u4F18\u5148\u9632\u70AE",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_DEEP_PUBLIC_RISK_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/three_pairs/clearedTrue/wall25",
+      "ms": 31.7571,
+      "command": {
+        "Id": "2964c788722e26b37f362d9de81f342af777734df7f17471f3737e23951c0c81",
+        "Window": "turn",
+        "RoundId": "three_pairs/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "970eb1429f654ceee2e38d5d65344c7f812e026010b23e31835066fc4ca014bd",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 12,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 12,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "FIVE_BLOCK_WHOLE_HAND_REORGANIZATION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "\u6700\u5C0F\u5411\u542C 1",
+        "\u6D3B\u8FDB\u5F20 3",
+        "\u51C0\u5206\u671F\u671B 2.29",
+        "\u5371\u9669\u5EA6 17\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedFalse/wall12",
+      "ms": 159.9455,
+      "command": {
+        "Id": "3a7c09901ef60f6c76addaa31d19631a4e5b9b0c65dee73f2171e08bb0a7573a",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedFalse/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "97cfac0f8ffbecb2bffe9163646d19b39502c1d35fca4b2ca5579dfa14cbe8c7",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 13,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "OPPONENT_WIDE_BED_SAFER_DISCARD",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A1 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "CENTRAL_DISCARD_PROPOSAL_SELECTION",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.1_HELD0_DRAWN0",
+        "PUBLIC_KEY_TILE_17_A_UNSEEN1_RETENTION_NOT_CERTAINTY",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.44",
+        "\u5371\u9669\u5EA6 18\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedFalse/wall25",
+      "ms": 93.0181,
+      "command": {
+        "Id": "d936b15e0858f3e2593cbd4d6c35abb7dbbc4618171bbfdb5a157344968a9d77",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedFalse/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "962702b957cb6ff47e557d2236d6166d2fec208fdba48eb15b64952f39e9bd32",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 17,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 3.02",
+        "\u5371\u9669\u5EA6 27\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u5BBD\u53EB 1 \u95E8",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_BUDGET_FAST"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedTrue/wall12",
+      "ms": 1303.2572,
+      "command": {
+        "Id": "cd090d9fad7c9e1b0ee5f45a4e9f5ba76b1a10e6b497770bf8409270a4bf51b5",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedTrue/wall12",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "f453232e1318ddff603de671ed2e975c255143fe4ad4e52e3b747c5144d6b984",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 13,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 13,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "LIMITED_SEARCH_SELECTION",
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.1_HELD0_DRAWN0",
+        "PUBLIC_KEY_TILE_17_A_UNSEEN1_RETENTION_NOT_CERTAINTY",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.53",
+        "\u5371\u9669\u5EA6 23\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u540E\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "SEARCH_DEEP_READY_SPEED_CONFLICT"
+      ]
+    },
+    {
+      "id": "formal/ready_choice/clearedTrue/wall25",
+      "ms": 91.3745,
+      "command": {
+        "Id": "806b3c3f65c18721a3683eab96335dafb9bd1ed2f4f81b90125da502c69fbf85",
+        "Window": "turn",
+        "RoundId": "ready_choice/clearedTrue/wall25",
+        "Generation": 1,
+        "ViewVersion": 1,
+        "Seat": 1,
+        "StateKey": "24ad34be094fa4c4df5d7098c03fd9f0e02e5a201c955ab60c1b098ec4f3bf1b",
+        "Policy": "unified-seat-policy-v2-adaptive-budget",
+        "PlanRevision": 1,
+        "Action": "discard",
+        "Tile": 17,
+        "GangSubtype": "",
+        "ParentId": "",
+        "ContinuationAction": "",
+        "ContinuationTile": -1,
+        "ContinuationState": ""
+      },
+      "selected": 17,
+      "brain": "\u5E73\u80E1",
+      "reasons": [
+        "ARBITRATION_LEGALITY_SAFETY_PLAN_VALUE",
+        "\u88C1\u51B3\u8FC7\u7A0B\uFF1A0 \u6761\u5EFA\u8BAE\uFF0C0 \u6761\u7531\u5408\u6CD5\u6027\u3001\u4F18\u5148\u7EA7\u53CA\u540C\u7EA7\u7EDF\u4E00\u8BC4\u4EF7\u88C1\u51B3",
+        "OPPONENT_WIDE_BED_DEFENSE_ACTIVE",
+        "\u6700\u5C0F\u5411\u542C 0",
+        "\u6D3B\u8FDB\u5F20 1",
+        "\u51C0\u5206\u671F\u671B 2.75",
+        "\u5371\u9669\u5EA6 15\uFF08\u4F4E\u5371\uFF09",
+        "\u9636\u6BB5 \u4E2D\u671F",
+        "\u7B56\u7565 \u5B9A\u7F3A\u53D6\u820D",
+        "\u5BBD\u53EB 1 \u95E8",
+        "\u540E\u9A8C\uFF1A\u4E2D\u76D8\u538B\u529B\u4E0A\u5347\uFF0C\u5F00\u59CB\u538B\u98CE\u9669",
+        "\u51C0\u5206\u671F\u671B\uFF1A\u4F30\u756A 0.0\uFF0C\u57FA\u7840 1 \u5206",
+        "SEARCH_BUDGET_FAST"
+      ]
+    }
+  ]
+}

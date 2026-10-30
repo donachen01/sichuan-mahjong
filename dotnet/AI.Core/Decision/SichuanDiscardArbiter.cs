@@ -69,7 +69,8 @@ public sealed class SichuanDiscardArbiter
         if((_proposals.Count==0||winner.Priority<SafeTempo)&&_candidates.Count>0
             &&_candidates.Values.All(c=>c.Reasons.Contains("SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS")))
         {
-            var common=_candidates.Values.OrderByDescending(c=>c.UnifiedActionValue)
+            var common=_candidates.Values.OrderByDescending(c=>c.Reasons.Contains("SEVEN_PAIRS_DEVELOPMENT_PRESERVE_INCUMBENT"))
+                .ThenByDescending(c=>c.UnifiedActionValue)
                 .ThenBy(c=>c.Danger).ThenByDescending(c=>c.ExpectedValue).ThenBy(c=>c.TileType).First();
             for(int i=0;i<_steps.Count;i++)if(_steps[i].Accepted)
                 _steps[i]=_steps[i] with{Accepted=false,Reason="complete_common_development_value_required"};

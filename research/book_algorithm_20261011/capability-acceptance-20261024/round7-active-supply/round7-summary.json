@@ -1,0 +1,33 @@
+{
+  "round": "7-active-supply-current-source",
+  "source_sha256": {
+    "dotnet/AI.Core/Decision/SichuanOpponentSupplyStep.cs": "910610d7a77d798fc4a04b60aa3751c26a2b21bc6cb532e372bad6b45cce580c",
+    "dotnet/AI.Core/Decision/SichuanUnifiedDecisionEngine.cs": "5134e7ddf998ab06ff0dcaaf107640209ffe3aaf9e7ec390100eac99240d87f7",
+    "dotnet/AI.Core/Decision/SichuanPublicPosteriorAnalysis.cs": "c7502ce3327d83cd44c9e97c6cc0a36563da4f1dd6b9422154fb4e00d282e856"
+  },
+  "core_dll_sha256": "91cdb0d98344e8705069b019a81f627215a644e86d4ad2a5c3c0b286f8e21a5d",
+  "godot_dll_sha256": "d3d331d0b90378f034ca8f33b0aa6806df097d8e7d893d1bbfa3b40d464c5eb4",
+  "audit_checks": 276,
+  "audit_errors": 0,
+  "godot_rows": 24,
+  "godot_failures": 0,
+  "normal_rows": 12,
+  "compact_rows": 12,
+  "normal_supply_statuses": [
+    "PUBLIC_SUPPLY_gang_transition_outside_step_N0_ESS8.0_MS1.0_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS4.2_MS5.8_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS5.2_MS1.3_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.1_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.2_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS6.4_MS257.3_HELD1_DRAWN0",
+    "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS189.7_HELD0_DRAWN2",
+    "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS264.7_HELD0_DRAWN3",
+    "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS281.9_HELD0_DRAWN0",
+    "PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS903.5_HELD0_DRAWN3",
+    "PUBLIC_SUPPLY_seed_comparison_unstable_N32_ESS8.0_MS189.6_HELD0_DRAWN0"
+  ],
+  "godot_native_ready": true,
+  "godot_entity_command_match": true,
+  "nuget_warning_in_build": true,
+  "godot_system_ca_warning": true
+}

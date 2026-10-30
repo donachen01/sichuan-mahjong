@@ -1,0 +1,1033 @@
+{
+  "assumption": "Each publicly unseen physical copy equally likely on one own draw; same denominator; no releases, risk, survival, future adaptation, or claimed calibrated probability",
+  "rows": [
+    {
+      "id": "lower-41-6-4-base",
+      "discard": -1,
+      "live_kind_count": 5,
+      "copy_upper_bound": 13,
+      "one_draw_hand_score_numerator": 72,
+      "waits": [
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "万1"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 3,
+            "roots": 0,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "万3"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "万4"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 3,
+            "roots": 0,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "万6"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "万7"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 9,
+      "live_kind_count": 1,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 12,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒7"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 10,
+      "live_kind_count": 1,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 12,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒7"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 11,
+      "live_kind_count": 2,
+      "copy_upper_bound": 5,
+      "one_draw_hand_score_numerator": 20,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒5"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 13,
+      "live_kind_count": 1,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 12,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒7"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 14,
+      "live_kind_count": 3,
+      "copy_upper_bound": 6,
+      "one_draw_hand_score_numerator": 28,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒2"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒5"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 15,
+      "live_kind_count": 2,
+      "copy_upper_bound": 4,
+      "one_draw_hand_score_numerator": 16,
+      "waits": [
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒6"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-A",
+      "discard": 16,
+      "live_kind_count": 7,
+      "copy_upper_bound": 17,
+      "one_draw_hand_score_numerator": 76,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒1"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒2"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒4"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒6"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒7"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒9"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 9,
+      "live_kind_count": 3,
+      "copy_upper_bound": 5,
+      "one_draw_hand_score_numerator": 24,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒5"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 11,
+      "live_kind_count": 3,
+      "copy_upper_bound": 7,
+      "one_draw_hand_score_numerator": 28,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒2"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒5"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 12,
+      "live_kind_count": 3,
+      "copy_upper_bound": 5,
+      "one_draw_hand_score_numerator": 24,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒5"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 13,
+      "live_kind_count": 3,
+      "copy_upper_bound": 7,
+      "one_draw_hand_score_numerator": 32,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒6"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒9"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 15,
+      "live_kind_count": 2,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 16,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒8"
+        }
+      ]
+    },
+    {
+      "id": "lower-41-6-5-B",
+      "discard": 16,
+      "live_kind_count": 3,
+      "copy_upper_bound": 7,
+      "one_draw_hand_score_numerator": 32,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "筒3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒6"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "筒9"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 0,
+      "live_kind_count": 2,
+      "copy_upper_bound": 5,
+      "one_draw_hand_score_numerator": 40,
+      "waits": [
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条2"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条8"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 1,
+      "live_kind_count": 5,
+      "copy_upper_bound": 14,
+      "one_draw_hand_score_numerator": 112,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条1"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条4"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条6"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条9"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 3,
+      "live_kind_count": 2,
+      "copy_upper_bound": 5,
+      "one_draw_hand_score_numerator": 40,
+      "waits": [
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条2"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条8"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 4,
+      "live_kind_count": 5,
+      "copy_upper_bound": 14,
+      "one_draw_hand_score_numerator": 56,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条1"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条4"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条6"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条9"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 6,
+      "live_kind_count": 1,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 24,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条8"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-C",
+      "discard": 7,
+      "live_kind_count": 5,
+      "copy_upper_bound": 13,
+      "one_draw_hand_score_numerator": 104,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条1"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条3"
+        },
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条4"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条6"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条7"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-D",
+      "discard": 1,
+      "live_kind_count": 2,
+      "copy_upper_bound": 3,
+      "one_draw_hand_score_numerator": 16,
+      "waits": [
+        {
+          "copies": 2,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条4"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条6"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-D",
+      "discard": 2,
+      "live_kind_count": 4,
+      "copy_upper_bound": 13,
+      "one_draw_hand_score_numerator": 52,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条2"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条5"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条7"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条8"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-D",
+      "discard": 3,
+      "live_kind_count": 2,
+      "copy_upper_bound": 2,
+      "one_draw_hand_score_numerator": 16,
+      "waits": [
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条3"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条6"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-D",
+      "discard": 5,
+      "live_kind_count": 2,
+      "copy_upper_bound": 7,
+      "one_draw_hand_score_numerator": 28,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条5"
+        },
+        {
+          "copies": 4,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条8"
+        }
+      ]
+    },
+    {
+      "id": "lower-42-6-5-D",
+      "discard": 6,
+      "live_kind_count": 4,
+      "copy_upper_bound": 8,
+      "one_draw_hand_score_numerator": 40,
+      "waits": [
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条2"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条3"
+        },
+        {
+          "copies": 3,
+          "score": {
+            "base_fan": 2,
+            "roots": 0,
+            "fan": 2,
+            "hand_score": 4,
+            "self_per_payer": 5
+          },
+          "label": "条5"
+        },
+        {
+          "copies": 1,
+          "score": {
+            "base_fan": 2,
+            "roots": 1,
+            "fan": 3,
+            "hand_score": 8,
+            "self_per_payer": 9
+          },
+          "label": "条6"
+        }
+      ]
+    }
+  ]
+}

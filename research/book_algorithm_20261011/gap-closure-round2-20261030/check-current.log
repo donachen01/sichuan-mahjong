@@ -1,0 +1,5 @@
+LOWER lower-76-6-28-base-offer-m2/source-corrected Pass tile=19 child=-1 ms=1450.2
+LOWER lower-76-6-28-base-offer-m4/source-corrected Pass tile=21 child=-1 ms=356.9
+LOWER reread-6-26-after-p4-offer-p3 Peng tile=11 child=7 ms=716.5
+LOWER reread-6-26-after-p5-offer-p3 Peng tile=11 child=7 ms=532.4
+DONE current geometry-and-authority=4 rows=4 failures=0

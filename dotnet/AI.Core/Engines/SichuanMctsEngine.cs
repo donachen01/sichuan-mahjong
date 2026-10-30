@@ -122,7 +122,11 @@ public sealed class SichuanMctsEngine
 
             hand[draw]++;
 
-            var drawn = SichuanBranchState.AfterOwnDraw(branch,hand,draw,state.WallCount-drawIndex-1);
+            // This structural lookahead freezes rivals' hands and public
+            // actions. Skipped rival positions nominate our next tile but
+            // cannot consume physical stock without projecting those hands.
+            // The shared continuation model prices the actual seat timing.
+            var drawn = SichuanBranchState.AfterOwnDraw(branch,hand,draw,branch.WallCount-1);
             if(SichuanReadyWaitPricing.HasLegalOwnedContext(drawn, hand, drawn.MeldViews[drawn.SeatIndex])
                 && new SichuanExactHandAnalyzer().IsWinning(hand,meldCount,meldCount==0))
             { totalScore+=24; ownDraws++; break; }

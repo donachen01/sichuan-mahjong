@@ -1,0 +1,13 @@
+{
+  "source_sha256": "36913e0c9c7e159dc9e398781e17840ab359b7948010cf400b202233a70c1171",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "evidence/2.6.94_release_20261030/matrix.json",
+      "sha256": "6bf71f564ae2227fb90d3720b6ca63a8480847e7c8a755dbf85429b17ee1838a"
+    }
+  ],
+  "notes": "ExportRelease actual C# runtime tested through ordinary and mobile compact protocols across three seats, current four selected book cases,24 signed latest-state action/first-discard chains. Selected specifically for this mobile delivery; not a future default suite."
+}

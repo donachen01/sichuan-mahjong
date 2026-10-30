@@ -1,0 +1,86 @@
+[
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 3,
+    "success_copies": 4,
+    "p_at_least_one": 0.23427382053654022,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 3,
+    "success_copies": 6,
+    "p_at_least_one": 0.3362627197039778,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 3,
+    "success_copies": 8,
+    "p_at_least_one": 0.4287696577243293,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 3,
+    "success_copies": 18,
+    "p_at_least_one": 0.7652636447733581,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 70,
+    "scheduled_draws": 3,
+    "success_copies": 4,
+    "p_at_least_one": 0.16404822798684693,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 70,
+    "scheduled_draws": 3,
+    "success_copies": 6,
+    "p_at_least_one": 0.2388746803069054,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 70,
+    "scheduled_draws": 3,
+    "success_copies": 8,
+    "p_at_least_one": 0.309097552064304,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 70,
+    "scheduled_draws": 3,
+    "success_copies": 18,
+    "p_at_least_one": 0.5962732919254659,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 6,
+    "success_copies": 4,
+    "p_at_least_one": 0.4247610237434474,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 6,
+    "success_copies": 6,
+    "p_at_least_one": 0.5725232554879953,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 6,
+    "success_copies": 8,
+    "p_at_least_one": 0.6872121381619478,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  },
+  {
+    "unknown_pool": 48,
+    "scheduled_draws": 6,
+    "success_copies": 18,
+    "p_at_least_one": 0.9516135419987366,
+    "condition": "uniform exchangeable physical copies; no exit/claim; illustrative not original table"
+  }
+]

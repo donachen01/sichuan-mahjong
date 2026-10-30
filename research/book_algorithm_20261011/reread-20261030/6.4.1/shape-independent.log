@@ -1,0 +1,18 @@
+INVERSE_GOALS 51 source rows 17
+lower-47-6-8-A/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 13}
+lower-47-6-8-B/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 13}
+lower-47-6-9-base/base {'minimum': 2, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 19}
+lower-47-6-10-base/base {'minimum': 2, 'required': [], 'useful': [1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 10}
+lower-48-6-11-base/base {'minimum': 4, 'required': [], 'useful': [9, 10, 11, 12, 13, 14, 15, 16, 17], 'nearest_patterns': 60}
+lower-49-6-12-A/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 73}
+lower-49-6-12-B/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 87}
+lower-49-6-12-C/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 139}
+lower-50-6-13-A/base {'minimum': 4, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 39}
+lower-50-6-13-B/base {'minimum': 4, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 16}
+lower-50-6-13-C/base {'minimum': 4, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 17}
+lower-50-6-13-D/base {'minimum': 4, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 42}
+lower-51-6-14-A/base {'minimum': 2, 'required': [], 'useful': [20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 7}
+lower-51-6-14-B/base {'minimum': 2, 'required': [], 'useful': [21, 22, 24, 25, 26], 'nearest_patterns': 6}
+lower-51-6-14-C/base {'minimum': 3, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 36}
+lower-51-6-14-D/base {'minimum': 3, 'required': [], 'useful': [18, 19, 20, 21, 22, 24, 25, 26], 'nearest_patterns': 22}
+lower-51-6-14-E/base {'minimum': 2, 'required': [19, 24], 'useful': [19, 24], 'nearest_patterns': 1}

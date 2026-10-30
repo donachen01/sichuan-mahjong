@@ -1,0 +1,17 @@
+{
+  "source_sha256": "8154a4dfc18be68dba66719184f6ee04d3feecf9353b794ba2448e31d974265a",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/wide-game-results.json",
+      "sha256": "e0d265a707b851f17cd3efab0f9746850781aed57f57ae4a838f3b6d1720c8cc"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "95250ef09e3176a1424d96d2beb988b2400b33326b940c1e24ec32087d96231b",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "95250ef09e3176a1424d96d2beb988b2400b33326b940c1e24ec32087d96231b"
+  },
+  "scope": "public posterior ESS diagnostic gate and bounded supply boundary review; six ordinary/compact real entity chains. No strength or mobile AOT claim."
+}

@@ -1,0 +1,17 @@
+{
+  "source_sha256": "a9a73490c1be550b7108c41924507c20761e582d10497ec4db3caf00c9bb3b13",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/wide-wall-game-results.json",
+      "sha256": "e5407396541e54409e31b8125aa06fe179f7057a7e48109dd2f138037bc4fa1c"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "20108610b47d6c13263a7fc6d7e84aa461042ab6d5e9786249e1f95f0a81b5bf",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "20108610b47d6c13263a7fc6d7e84aa461042ab6d5e9786249e1f95f0a81b5bf"
+  },
+  "scope": "wider-wall signed settlement comparison 9-24 tiles, ordinary/compact real entity execution; focused correctness only, no mobile AOT or strength claim."
+}

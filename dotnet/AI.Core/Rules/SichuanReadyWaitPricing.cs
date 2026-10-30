@@ -32,6 +32,7 @@ public sealed class SichuanReadyWaitPricing
 {
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanFanProjectionEngine _fans = new();
+    private sealed record ShapePrices(SichuanReadyWaitPrice[] Waits);
 
     public SichuanReadyPrice? Build(SichuanStateView state, IReadOnlyList<int> hand,
         IReadOnlyList<double> publicWallCounts, IReadOnlyList<SichuanMeldView>? projectedMelds = null)
@@ -45,18 +46,25 @@ public sealed class SichuanReadyWaitPricing
         var capacity=Enumerable.Range(0,27).Select(t=>4-hand[t]).ToArray();
         foreach(var m in melds)capacity[m.TileType]-=m.Type==SichuanMeldType.Peng?3:4;
         if(capacity.Any(n=>n<0))throw new InvalidOperationException("owned copies exceed4");
-        var waits=new List<SichuanReadyWaitPrice>();
-        foreach(var w in _hands.EnumerateWaits(hand,capacity,melds.Length,melds.Length==0))
+        // Legal shape and ordinary self-draw price are independent of wall
+        // weights. Conditional Gang draws often revisit the same endpoint;
+        // cache only the invariant part within this decision, then reweight.
+        var shapeKey=$"{state.OwnDingQueSuit}/"+string.Concat(hand.Select(n=>(char)('0'+n)))+"/"
+            +string.Join(',',melds.Select(m=>$"{m.Type}:{m.TileType}").Order(StringComparer.Ordinal));
+        var exact=SichuanMahjong.AI.Core.Decision.SichuanPolicyExecutionScope.Memoize("ready_exact_shape",shapeKey,()=>
         {
-            if(w.TileType/9==state.OwnDingQueSuit)continue;
-            var completed=hand.ToArray();completed[w.TileType]++;
-            var fan=_fans.Project(completed,melds,SichuanWinType.SelfDraw);
-            waits.Add(new(w.TileType,fan.CappedFan,fan.HandScore,fan.PerPayerScore,Math.Max(0,publicWallCounts[w.TileType]))
+            var rows=new List<SichuanReadyWaitPrice>();
+            foreach(var w in _hands.EnumerateWaits(hand,capacity,melds.Length,melds.Length==0))
             {
-                GenCount = fan.GenCount
-            });
-        }
-        if(waits.Count==0)return null;
+                if(w.TileType/9==state.OwnDingQueSuit)continue;
+                var completed=hand.ToArray();completed[w.TileType]++;
+                var fan=_fans.Project(completed,melds,SichuanWinType.SelfDraw);
+                rows.Add(new(w.TileType,fan.CappedFan,fan.HandScore,fan.PerPayerScore,0){GenCount=fan.GenCount});
+            }
+            return new ShapePrices(rows.ToArray());
+        });
+        var waits=exact.Waits.Select(w=>w with{PublicWallWeight=Math.Max(0,publicWallCounts[w.TileType])}).ToArray();
+        if(waits.Length==0)return null;
         double mass=waits.Sum(w=>w.PublicWallWeight);
         // Dead waits have no future-win revenue. Their unweighted legal price
         // can still be explained, without inventing a drawable probability.

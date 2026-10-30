@@ -1,0 +1,9 @@
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-20261030/probe/Program.cs(226,83): error CS1061: “SichuanSelfActionDecisionResult”未包含“ValueCandidates”的定义，并且找不到可接受第一个“SichuanSelfActionDecisionResult”类型参数的可访问扩展方法“ValueCandidates”(是否缺少 using 指令或程序集引用?) [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-20261030/probe/Probe.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-20261030/probe/Program.cs(226,83): error CS1061: “SichuanSelfActionDecisionResult”未包含“ValueCandidates”的定义，并且找不到可接受第一个“SichuanSelfActionDecisionResult”类型参数的可访问扩展方法“ValueCandidates”(是否缺少 using 指令或程序集引用?) [/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-20261030/probe/Probe.csproj]
+    0 个警告
+    1 个错误
+
+已用时间 00:00:44.99

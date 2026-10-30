@@ -1,0 +1,79 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62611031 games=1 observations=66
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62612040 games=2 observations=128
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62613049 games=3 observations=164
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62614058 games=4 observations=251
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62615067 games=5 observations=322
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62616076 games=6 observations=362
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62617085 games=7 observations=438
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62618094 games=8 observations=511
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62619103 games=9 observations=586
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62620112 games=10 observations=653
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62621121 games=11 observations=720
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62622130 games=12 observations=786
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62623139 games=13 observations=867
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62624148 games=14 observations=927
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62625157 games=15 observations=987
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62626166 games=16 observations=1034
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62627175 games=17 observations=1089
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62628184 games=18 observations=1164
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62629193 games=19 observations=1229
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62630202 games=20 observations=1317
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62631211 games=21 observations=1404
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62632220 games=22 observations=1449
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62633229 games=23 observations=1536
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json.checkpoint.json
+CALIBRATION holdout seed=62634238 games=24 observations=1601
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/holdout.json

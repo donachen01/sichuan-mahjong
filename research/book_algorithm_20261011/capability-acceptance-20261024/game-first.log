@@ -1,0 +1,57 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+ACCEPT two_pairs/clearedFalse/wall12/seat1/compactfalse/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedFalse/wall25/seat1/compactfalse/latentfalse tile=12 failures=0
+ACCEPT two_pairs/clearedTrue/wall12/seat1/compactfalse/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedTrue/wall25/seat1/compactfalse/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedFalse/wall12/seat1/compactfalse/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedFalse/wall25/seat1/compactfalse/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedTrue/wall12/seat1/compactfalse/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedTrue/wall25/seat1/compactfalse/latentfalse tile=12 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat1/compactfalse/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat1/compactfalse/latenttrue tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall25/seat1/compactfalse/latentfalse tile=17 failures=0
+ACCEPT ready_choice/clearedTrue/wall12/seat1/compactfalse/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedTrue/wall25/seat1/compactfalse/latentfalse tile=17 failures=0
+ACCEPT two_pairs/clearedFalse/wall12/seat3/compactfalse/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedFalse/wall25/seat3/compactfalse/latentfalse tile=12 failures=0
+ACCEPT two_pairs/clearedTrue/wall12/seat3/compactfalse/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedTrue/wall25/seat3/compactfalse/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedFalse/wall12/seat3/compactfalse/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedFalse/wall25/seat3/compactfalse/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedTrue/wall12/seat3/compactfalse/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedTrue/wall25/seat3/compactfalse/latentfalse tile=12 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat3/compactfalse/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall25/seat3/compactfalse/latentfalse tile=17 failures=0
+ACCEPT ready_choice/clearedTrue/wall12/seat3/compactfalse/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedTrue/wall25/seat3/compactfalse/latentfalse tile=17 failures=0
+ACCEPT two_pairs/clearedFalse/wall12/seat1/compacttrue/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedFalse/wall25/seat1/compacttrue/latentfalse tile=12 failures=0
+ACCEPT two_pairs/clearedTrue/wall12/seat1/compacttrue/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedTrue/wall25/seat1/compacttrue/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedFalse/wall12/seat1/compacttrue/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedFalse/wall25/seat1/compacttrue/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedTrue/wall12/seat1/compacttrue/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedTrue/wall25/seat1/compacttrue/latentfalse tile=12 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat1/compacttrue/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat1/compacttrue/latenttrue tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall25/seat1/compacttrue/latentfalse tile=17 failures=0
+ACCEPT ready_choice/clearedTrue/wall12/seat1/compacttrue/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedTrue/wall25/seat1/compacttrue/latentfalse tile=17 failures=0
+ACCEPT two_pairs/clearedFalse/wall12/seat3/compacttrue/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedFalse/wall25/seat3/compacttrue/latentfalse tile=12 failures=0
+ACCEPT two_pairs/clearedTrue/wall12/seat3/compacttrue/latentfalse tile=14 failures=0
+ACCEPT two_pairs/clearedTrue/wall25/seat3/compacttrue/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedFalse/wall12/seat3/compacttrue/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedFalse/wall25/seat3/compacttrue/latentfalse tile=12 failures=0
+ACCEPT three_pairs/clearedTrue/wall12/seat3/compacttrue/latentfalse tile=14 failures=0
+ACCEPT three_pairs/clearedTrue/wall25/seat3/compacttrue/latentfalse tile=12 failures=0
+ACCEPT ready_choice/clearedFalse/wall12/seat3/compacttrue/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedFalse/wall25/seat3/compacttrue/latentfalse tile=17 failures=0
+ACCEPT ready_choice/clearedTrue/wall12/seat3/compacttrue/latentfalse tile=13 failures=0
+ACCEPT ready_choice/clearedTrue/wall25/seat3/compacttrue/latentfalse tile=17 failures=0
+DONE executed=50 failures=0

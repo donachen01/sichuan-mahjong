@@ -1,0 +1,26 @@
+{
+  "source_sha256": "5806a2df17686a9b015496a17f72eed277bc79bee3607dafa5ca86f81203012e",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "research/book_algorithm_20261011/capability-acceptance-20261024/game-results.json",
+      "sha256": "c506aab67a74659768280f692a22b980e8316fe51eb6bfd02bbf58f8e8d10a15"
+    },
+    {
+      "path": "research/book_algorithm_20261011/capability-acceptance-20261024/affected-golden.json",
+      "sha256": "1c58fd19398166a3318f331d1e84ca232e6bf8d6875b058cb68446c8616271b5"
+    },
+    {
+      "path": "research/book_algorithm_20261011/capability-acceptance-20261024/continuous.json",
+      "sha256": "25f466ca44792af3761049f92322a1e1b18ef92fe27d8b8f2294ebfedb895606"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "052ed601f2c1929dee5067cd6868546372150adbed8137205f4549c3bcc71587",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "052ed601f2c1929dee5067cd6868546372150adbed8137205f4549c3bcc71587",
+    "research/book_algorithm_20261011/capability-acceptance-20261024/probe/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "052ed601f2c1929dee5067cd6868546372150adbed8137205f4549c3bcc71587"
+  },
+  "scope": "12 new physical backgrounds x 2 seats x 2 protocols plus 2 hidden swaps; 8 affected Golden-hook chains; 2 new-seed natural rounds. Execution correctness, not strength or mobile AOT."
+}

@@ -1,0 +1,13 @@
+INVERSE_GOALS 36 source rows 12
+lower-44-6-6-A/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 13}
+lower-44-6-6-B/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 51}
+lower-45-6-7-1/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 50}
+lower-45-6-7-2/base {'minimum': 4, 'required': [], 'useful': [9, 10, 11, 12, 13, 14, 15, 16, 17], 'nearest_patterns': 14}
+lower-45-6-7-3/base {'minimum': 4, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 36}
+lower-45-6-7-4/base {'minimum': 4, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 31}
+lower-45-6-7-5/base {'minimum': 4, 'required': [], 'useful': [9, 10, 11, 12, 13, 14, 15, 16, 17], 'nearest_patterns': 29}
+lower-46-6-7-6/base {'minimum': 5, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 154}
+lower-46-6-7-7/base {'minimum': 5, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 130}
+lower-46-6-7-8/base {'minimum': 5, 'required': [], 'useful': [9, 10, 11, 12, 13, 14, 15, 16, 17], 'nearest_patterns': 49}
+lower-46-6-7-9/base {'minimum': 5, 'required': [], 'useful': [0, 1, 2, 3, 4, 5, 6, 7, 8], 'nearest_patterns': 65}
+lower-46-6-7-10/base {'minimum': 5, 'required': [], 'useful': [18, 19, 20, 21, 22, 23, 24, 25, 26], 'nearest_patterns': 303}

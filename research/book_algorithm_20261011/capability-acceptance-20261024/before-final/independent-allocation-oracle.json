@@ -1,0 +1,930 @@
+[
+  {
+    "wall": 1,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 2
+  },
+  {
+    "wall": 1,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 1,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.3333333333333333,
+    "p_in_wall": 0.3333333333333333,
+    "count": 3
+  },
+  {
+    "wall": 1,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6666666666666666,
+    "count": 3
+  },
+  {
+    "wall": 1,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 1.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 1,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.25,
+    "p_in_wall": 0.25,
+    "count": 4
+  },
+  {
+    "wall": 1,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 6
+  },
+  {
+    "wall": 1,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 0.75,
+    "p_in_wall": 0.75,
+    "count": 4
+  },
+  {
+    "wall": 1,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 1.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 1,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.2,
+    "p_in_wall": 0.2,
+    "count": 5
+  },
+  {
+    "wall": 1,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 0.4,
+    "p_in_wall": 0.4,
+    "count": 10
+  },
+  {
+    "wall": 1,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 0.6,
+    "p_in_wall": 0.6,
+    "count": 10
+  },
+  {
+    "wall": 1,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 0.8,
+    "p_in_wall": 0.8,
+    "count": 5
+  },
+  {
+    "wall": 1,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.16666666666666666,
+    "p_in_wall": 0.16666666666666666,
+    "count": 6
+  },
+  {
+    "wall": 1,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 0.3333333333333333,
+    "p_in_wall": 0.3333333333333333,
+    "count": 15
+  },
+  {
+    "wall": 1,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 20
+  },
+  {
+    "wall": 1,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6666666666666666,
+    "count": 15
+  },
+  {
+    "wall": 2,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6666666666666666,
+    "count": 3
+  },
+  {
+    "wall": 2,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.3333333333333333,
+    "p_in_wall": 1.0,
+    "count": 3
+  },
+  {
+    "wall": 2,
+    "hidden": 1,
+    "copies": 3,
+    "expected_wall": 2.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 2,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 4
+  },
+  {
+    "wall": 2,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 1.0,
+    "p_in_wall": 0.8333333333333334,
+    "count": 6
+  },
+  {
+    "wall": 2,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 1.5,
+    "p_in_wall": 1.0,
+    "count": 4
+  },
+  {
+    "wall": 2,
+    "hidden": 2,
+    "copies": 4,
+    "expected_wall": 2.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 2,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.4,
+    "p_in_wall": 0.4,
+    "count": 5
+  },
+  {
+    "wall": 2,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 0.8,
+    "p_in_wall": 0.7,
+    "count": 10
+  },
+  {
+    "wall": 2,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 1.2,
+    "p_in_wall": 0.9,
+    "count": 10
+  },
+  {
+    "wall": 2,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 1.6,
+    "p_in_wall": 1.0,
+    "count": 5
+  },
+  {
+    "wall": 2,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.3333333333333333,
+    "p_in_wall": 0.3333333333333333,
+    "count": 6
+  },
+  {
+    "wall": 2,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6,
+    "count": 15
+  },
+  {
+    "wall": 2,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 1.0,
+    "p_in_wall": 0.8,
+    "count": 20
+  },
+  {
+    "wall": 2,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 1.3333333333333333,
+    "p_in_wall": 0.9333333333333333,
+    "count": 15
+  },
+  {
+    "wall": 2,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.2857142857142857,
+    "p_in_wall": 0.2857142857142857,
+    "count": 7
+  },
+  {
+    "wall": 2,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 0.5714285714285714,
+    "p_in_wall": 0.5238095238095238,
+    "count": 21
+  },
+  {
+    "wall": 2,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 0.8571428571428571,
+    "p_in_wall": 0.7142857142857143,
+    "count": 35
+  },
+  {
+    "wall": 2,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 1.1428571428571428,
+    "p_in_wall": 0.8571428571428571,
+    "count": 35
+  },
+  {
+    "wall": 3,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.75,
+    "p_in_wall": 0.75,
+    "count": 4
+  },
+  {
+    "wall": 3,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.5,
+    "p_in_wall": 1.0,
+    "count": 6
+  },
+  {
+    "wall": 3,
+    "hidden": 1,
+    "copies": 3,
+    "expected_wall": 2.25,
+    "p_in_wall": 1.0,
+    "count": 4
+  },
+  {
+    "wall": 3,
+    "hidden": 1,
+    "copies": 4,
+    "expected_wall": 3.0,
+    "p_in_wall": 1.0,
+    "count": 1
+  },
+  {
+    "wall": 3,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.6,
+    "p_in_wall": 0.6,
+    "count": 5
+  },
+  {
+    "wall": 3,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 1.2,
+    "p_in_wall": 0.9,
+    "count": 10
+  },
+  {
+    "wall": 3,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 1.8,
+    "p_in_wall": 1.0,
+    "count": 10
+  },
+  {
+    "wall": 3,
+    "hidden": 2,
+    "copies": 4,
+    "expected_wall": 2.4,
+    "p_in_wall": 1.0,
+    "count": 5
+  },
+  {
+    "wall": 3,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 6
+  },
+  {
+    "wall": 3,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 1.0,
+    "p_in_wall": 0.8,
+    "count": 15
+  },
+  {
+    "wall": 3,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 1.5,
+    "p_in_wall": 0.95,
+    "count": 20
+  },
+  {
+    "wall": 3,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 2.0,
+    "p_in_wall": 1.0,
+    "count": 15
+  },
+  {
+    "wall": 3,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.42857142857142855,
+    "p_in_wall": 0.42857142857142855,
+    "count": 7
+  },
+  {
+    "wall": 3,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 0.8571428571428571,
+    "p_in_wall": 0.7142857142857143,
+    "count": 21
+  },
+  {
+    "wall": 3,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 1.2857142857142858,
+    "p_in_wall": 0.8857142857142857,
+    "count": 35
+  },
+  {
+    "wall": 3,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 1.7142857142857142,
+    "p_in_wall": 0.9714285714285714,
+    "count": 35
+  },
+  {
+    "wall": 3,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.375,
+    "p_in_wall": 0.375,
+    "count": 8
+  },
+  {
+    "wall": 3,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 0.75,
+    "p_in_wall": 0.6428571428571429,
+    "count": 28
+  },
+  {
+    "wall": 3,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 1.125,
+    "p_in_wall": 0.8214285714285714,
+    "count": 56
+  },
+  {
+    "wall": 3,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 1.5,
+    "p_in_wall": 0.9285714285714286,
+    "count": 70
+  },
+  {
+    "wall": 4,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.8,
+    "p_in_wall": 0.8,
+    "count": 5
+  },
+  {
+    "wall": 4,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.6,
+    "p_in_wall": 1.0,
+    "count": 10
+  },
+  {
+    "wall": 4,
+    "hidden": 1,
+    "copies": 3,
+    "expected_wall": 2.4,
+    "p_in_wall": 1.0,
+    "count": 10
+  },
+  {
+    "wall": 4,
+    "hidden": 1,
+    "copies": 4,
+    "expected_wall": 3.2,
+    "p_in_wall": 1.0,
+    "count": 5
+  },
+  {
+    "wall": 4,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6666666666666666,
+    "count": 6
+  },
+  {
+    "wall": 4,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 1.3333333333333333,
+    "p_in_wall": 0.9333333333333333,
+    "count": 15
+  },
+  {
+    "wall": 4,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 2.0,
+    "p_in_wall": 1.0,
+    "count": 20
+  },
+  {
+    "wall": 4,
+    "hidden": 2,
+    "copies": 4,
+    "expected_wall": 2.6666666666666665,
+    "p_in_wall": 1.0,
+    "count": 15
+  },
+  {
+    "wall": 4,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.5714285714285714,
+    "p_in_wall": 0.5714285714285714,
+    "count": 7
+  },
+  {
+    "wall": 4,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 1.1428571428571428,
+    "p_in_wall": 0.8571428571428571,
+    "count": 21
+  },
+  {
+    "wall": 4,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 1.7142857142857142,
+    "p_in_wall": 0.9714285714285714,
+    "count": 35
+  },
+  {
+    "wall": 4,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 2.2857142857142856,
+    "p_in_wall": 1.0,
+    "count": 35
+  },
+  {
+    "wall": 4,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 8
+  },
+  {
+    "wall": 4,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 1.0,
+    "p_in_wall": 0.7857142857142857,
+    "count": 28
+  },
+  {
+    "wall": 4,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 1.5,
+    "p_in_wall": 0.9285714285714286,
+    "count": 56
+  },
+  {
+    "wall": 4,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 2.0,
+    "p_in_wall": 0.9857142857142858,
+    "count": 70
+  },
+  {
+    "wall": 4,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.4444444444444444,
+    "p_in_wall": 0.4444444444444444,
+    "count": 9
+  },
+  {
+    "wall": 4,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 0.8888888888888888,
+    "p_in_wall": 0.7222222222222222,
+    "count": 36
+  },
+  {
+    "wall": 4,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 1.3333333333333333,
+    "p_in_wall": 0.8809523809523809,
+    "count": 84
+  },
+  {
+    "wall": 4,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 1.7777777777777777,
+    "p_in_wall": 0.9603174603174603,
+    "count": 126
+  },
+  {
+    "wall": 5,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.8333333333333334,
+    "p_in_wall": 0.8333333333333334,
+    "count": 6
+  },
+  {
+    "wall": 5,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.6666666666666667,
+    "p_in_wall": 1.0,
+    "count": 15
+  },
+  {
+    "wall": 5,
+    "hidden": 1,
+    "copies": 3,
+    "expected_wall": 2.5,
+    "p_in_wall": 1.0,
+    "count": 20
+  },
+  {
+    "wall": 5,
+    "hidden": 1,
+    "copies": 4,
+    "expected_wall": 3.3333333333333335,
+    "p_in_wall": 1.0,
+    "count": 15
+  },
+  {
+    "wall": 5,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.7142857142857143,
+    "p_in_wall": 0.7142857142857143,
+    "count": 7
+  },
+  {
+    "wall": 5,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 1.4285714285714286,
+    "p_in_wall": 0.9523809523809523,
+    "count": 21
+  },
+  {
+    "wall": 5,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 2.142857142857143,
+    "p_in_wall": 1.0,
+    "count": 35
+  },
+  {
+    "wall": 5,
+    "hidden": 2,
+    "copies": 4,
+    "expected_wall": 2.857142857142857,
+    "p_in_wall": 1.0,
+    "count": 35
+  },
+  {
+    "wall": 5,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.625,
+    "p_in_wall": 0.625,
+    "count": 8
+  },
+  {
+    "wall": 5,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 1.25,
+    "p_in_wall": 0.8928571428571429,
+    "count": 28
+  },
+  {
+    "wall": 5,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 1.875,
+    "p_in_wall": 0.9821428571428571,
+    "count": 56
+  },
+  {
+    "wall": 5,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 2.5,
+    "p_in_wall": 1.0,
+    "count": 70
+  },
+  {
+    "wall": 5,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.5555555555555556,
+    "p_in_wall": 0.5555555555555556,
+    "count": 9
+  },
+  {
+    "wall": 5,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 1.1111111111111112,
+    "p_in_wall": 0.8333333333333334,
+    "count": 36
+  },
+  {
+    "wall": 5,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 1.6666666666666667,
+    "p_in_wall": 0.9523809523809523,
+    "count": 84
+  },
+  {
+    "wall": 5,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 2.2222222222222223,
+    "p_in_wall": 0.9920634920634921,
+    "count": 126
+  },
+  {
+    "wall": 5,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.5,
+    "p_in_wall": 0.5,
+    "count": 10
+  },
+  {
+    "wall": 5,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 1.0,
+    "p_in_wall": 0.7777777777777778,
+    "count": 45
+  },
+  {
+    "wall": 5,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 1.5,
+    "p_in_wall": 0.9166666666666666,
+    "count": 120
+  },
+  {
+    "wall": 5,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 2.0,
+    "p_in_wall": 0.9761904761904762,
+    "count": 210
+  },
+  {
+    "wall": 6,
+    "hidden": 1,
+    "copies": 1,
+    "expected_wall": 0.8571428571428571,
+    "p_in_wall": 0.8571428571428571,
+    "count": 7
+  },
+  {
+    "wall": 6,
+    "hidden": 1,
+    "copies": 2,
+    "expected_wall": 1.7142857142857142,
+    "p_in_wall": 1.0,
+    "count": 21
+  },
+  {
+    "wall": 6,
+    "hidden": 1,
+    "copies": 3,
+    "expected_wall": 2.5714285714285716,
+    "p_in_wall": 1.0,
+    "count": 35
+  },
+  {
+    "wall": 6,
+    "hidden": 1,
+    "copies": 4,
+    "expected_wall": 3.4285714285714284,
+    "p_in_wall": 1.0,
+    "count": 35
+  },
+  {
+    "wall": 6,
+    "hidden": 2,
+    "copies": 1,
+    "expected_wall": 0.75,
+    "p_in_wall": 0.75,
+    "count": 8
+  },
+  {
+    "wall": 6,
+    "hidden": 2,
+    "copies": 2,
+    "expected_wall": 1.5,
+    "p_in_wall": 0.9642857142857143,
+    "count": 28
+  },
+  {
+    "wall": 6,
+    "hidden": 2,
+    "copies": 3,
+    "expected_wall": 2.25,
+    "p_in_wall": 1.0,
+    "count": 56
+  },
+  {
+    "wall": 6,
+    "hidden": 2,
+    "copies": 4,
+    "expected_wall": 3.0,
+    "p_in_wall": 1.0,
+    "count": 70
+  },
+  {
+    "wall": 6,
+    "hidden": 3,
+    "copies": 1,
+    "expected_wall": 0.6666666666666666,
+    "p_in_wall": 0.6666666666666666,
+    "count": 9
+  },
+  {
+    "wall": 6,
+    "hidden": 3,
+    "copies": 2,
+    "expected_wall": 1.3333333333333333,
+    "p_in_wall": 0.9166666666666666,
+    "count": 36
+  },
+  {
+    "wall": 6,
+    "hidden": 3,
+    "copies": 3,
+    "expected_wall": 2.0,
+    "p_in_wall": 0.9880952380952381,
+    "count": 84
+  },
+  {
+    "wall": 6,
+    "hidden": 3,
+    "copies": 4,
+    "expected_wall": 2.6666666666666665,
+    "p_in_wall": 1.0,
+    "count": 126
+  },
+  {
+    "wall": 6,
+    "hidden": 4,
+    "copies": 1,
+    "expected_wall": 0.6,
+    "p_in_wall": 0.6,
+    "count": 10
+  },
+  {
+    "wall": 6,
+    "hidden": 4,
+    "copies": 2,
+    "expected_wall": 1.2,
+    "p_in_wall": 0.8666666666666667,
+    "count": 45
+  },
+  {
+    "wall": 6,
+    "hidden": 4,
+    "copies": 3,
+    "expected_wall": 1.8,
+    "p_in_wall": 0.9666666666666667,
+    "count": 120
+  },
+  {
+    "wall": 6,
+    "hidden": 4,
+    "copies": 4,
+    "expected_wall": 2.4,
+    "p_in_wall": 0.9952380952380953,
+    "count": 210
+  },
+  {
+    "wall": 6,
+    "hidden": 5,
+    "copies": 1,
+    "expected_wall": 0.5454545454545454,
+    "p_in_wall": 0.5454545454545454,
+    "count": 11
+  },
+  {
+    "wall": 6,
+    "hidden": 5,
+    "copies": 2,
+    "expected_wall": 1.0909090909090908,
+    "p_in_wall": 0.8181818181818182,
+    "count": 55
+  },
+  {
+    "wall": 6,
+    "hidden": 5,
+    "copies": 3,
+    "expected_wall": 1.6363636363636365,
+    "p_in_wall": 0.9393939393939394,
+    "count": 165
+  },
+  {
+    "wall": 6,
+    "hidden": 5,
+    "copies": 4,
+    "expected_wall": 2.1818181818181817,
+    "p_in_wall": 0.9848484848484849,
+    "count": 330
+  }
+]

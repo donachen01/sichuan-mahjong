@@ -1,0 +1,31 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52611031 games=1 observations=86
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52612040 games=2 observations=165
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52613049 games=3 observations=224
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52614058 games=4 observations=277
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52615067 games=5 observations=339
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52616076 games=6 observations=386
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52617085 games=7 observations=444
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json.checkpoint.json
+CALIBRATION validation seed=52618094 games=8 observations=525
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/validation.json

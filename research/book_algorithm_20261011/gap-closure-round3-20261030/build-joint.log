@@ -1,0 +1,9 @@
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Inference/SichuanJointReadinessProjection.cs(75,23): error CS0246: 未能找到类型或命名空间名“SichuanExactHandAnalyzer”(是否缺少 using 指令或程序集引用?) [/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj]
+
+生成失败。
+
+/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/Inference/SichuanJointReadinessProjection.cs(75,23): error CS0246: 未能找到类型或命名空间名“SichuanExactHandAnalyzer”(是否缺少 using 指令或程序集引用?) [/Volumes/AI/Codex/四川麻将工程_20260701_v2/dotnet/AI.Core/AI.Core.csproj]
+    0 个警告
+    1 个错误
+
+已用时间 00:00:22.71

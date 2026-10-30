@@ -1,0 +1,390 @@
+{
+  "checks": 116,
+  "failures": [
+    "forced offer requires public clearance r0/seat1/uncleared",
+    "natural Gang same release premise r0/seat1/uncleared",
+    "forced offer requires public clearance r0/seat1/missing_only",
+    "natural Gang same release premise r0/seat1/missing_only",
+    "forced offer requires public clearance r0/seat2/uncleared",
+    "natural Gang same release premise r0/seat2/uncleared",
+    "forced offer requires public clearance r0/seat2/missing_only",
+    "natural Gang same release premise r0/seat2/missing_only",
+    "forced offer requires public clearance r0/seat3/uncleared",
+    "natural Gang same release premise r0/seat3/uncleared",
+    "forced offer requires public clearance r0/seat3/missing_only",
+    "natural Gang same release premise r0/seat3/missing_only",
+    "forced offer requires public clearance r1/seat1/uncleared",
+    "natural Gang same release premise r1/seat1/uncleared",
+    "forced offer requires public clearance r1/seat1/missing_only",
+    "natural Gang same release premise r1/seat1/missing_only",
+    "forced offer requires public clearance r1/seat2/uncleared",
+    "natural Gang same release premise r1/seat2/uncleared",
+    "forced offer requires public clearance r1/seat2/missing_only",
+    "natural Gang same release premise r1/seat2/missing_only",
+    "forced offer requires public clearance r1/seat3/uncleared",
+    "natural Gang same release premise r1/seat3/uncleared",
+    "forced offer requires public clearance r1/seat3/missing_only",
+    "natural Gang same release premise r1/seat3/missing_only",
+    "forced offer requires public clearance r2/seat1/uncleared",
+    "natural Gang same release premise r2/seat1/uncleared",
+    "forced offer requires public clearance r2/seat1/missing_only",
+    "natural Gang same release premise r2/seat1/missing_only",
+    "forced offer requires public clearance r2/seat2/uncleared",
+    "natural Gang same release premise r2/seat2/uncleared",
+    "forced offer requires public clearance r2/seat2/missing_only",
+    "natural Gang same release premise r2/seat2/missing_only",
+    "forced offer requires public clearance r2/seat3/uncleared",
+    "natural Gang same release premise r2/seat3/uncleared",
+    "forced offer requires public clearance r2/seat3/missing_only",
+    "natural Gang same release premise r2/seat3/missing_only",
+    "restored memory revalidates ordinary Seven eligibility 2",
+    "restored memory revalidates ordinary Seven eligibility 3",
+    "exited Hu cannot become cha payer via active bitmap 12"
+  ],
+  "rows": [
+    {
+      "id": "supply/r0/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r0/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r0/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r1/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r1/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat1/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat1/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat2/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat2/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/uncleared",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/missing_only",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0
+    },
+    {
+      "id": "supply/r2/seat3/public_river",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "supply/r2/seat3/ordered_event",
+      "mask": 2,
+      "ForcedDiscard": 0.25,
+      "expected": 0.25
+    },
+    {
+      "id": "dynamic/pairs2",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u6697\u4E03\u5BF9",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 2\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "dynamic/pairs3",
+      "direct": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      },
+      "restored": "\u6697\u4E03\u5BF9",
+      "effective": {
+        "PrimaryRoute": "\u5E73\u80E1",
+        "SecondaryRoutes": [],
+        "RouteWeights": {
+          "\u5E73\u80E1": 100
+        },
+        "Constraints": [
+          "prefer_fast_ready"
+        ],
+        "Reasons": [
+          "\u8DEF\u7EBF\u89C4\u5212\uFF1A\u4E3B\u8DEF\u7EBF \u5E73\u80E1",
+          "\u5BF9\u5B50 3\uFF0C\u523B\u5B50 0\uFF0C\u6839\u6F5C\u529B 0",
+          "\u5355\u95E8 \u7B52 8 \u5F20\uFF0C\u5F02\u95E8 6 \u5F20",
+          "\u7B52\u95E8\u5BBD\u5EA6\uFF1A0 \u5BB6\u5B9A\u7F3A\uFF0C\u7ADE\u4E89 3 \u5BB6\uFF08\u4EC5\u8BA1\u672A\u80E1\u51FA\u7684\u6D3B\u52A8\u73A9\u5BB6\uFF09",
+          "\u573A\u4E0A\u6700\u5927\u5927\u724C\u5A01\u80C1 0",
+          "\u5E73\u80E1\u8DEF\u7EBF\uFF1A\u901F\u5EA6\u3001\u5BBD\u53EB\u3001\u6D3B\u5F20\u4F18\u5148",
+          "\u6301\u7EED\u5927\u8111\uFF1A\u6697\u4E03\u5BF9\uFF0C\u627F\u8BFA\u5EA6 95\uFF0C\u5907\u7528 \u5E73\u80E1"
+        ],
+        "TargetSuit": 1,
+        "ForbidsMelds": false,
+        "ForbidsGangs": false,
+        "PreservesPairs": false
+      }
+    },
+    {
+      "id": "net/exited-wall0",
+      "ms": 125.3769,
+      "activeWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0,
+        "WinGain": 0,
+        "ExpectedNetScore": -0.9423467390400002
+      }
+    },
+    {
+      "id": "net/exited-wall12",
+      "ms": 19.3227,
+      "activeWon": {
+        "ChaJiaoValue": 4.63833401161332,
+        "WinGain": 0,
+        "ExpectedNetScore": 4.6126018755710945
+      },
+      "inactiveWon": {
+        "ChaJiaoValue": 0.6383340116133196,
+        "WinGain": 0,
+        "ExpectedNetScore": 1.2316418755710938
+      }
+    }
+  ]
+}

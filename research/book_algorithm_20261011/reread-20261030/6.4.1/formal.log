@@ -1,0 +1,21 @@
+LOWER lower-47-6-8-A Discard tile=26 child=26 ms=1209.2
+LOWER lower-47-6-8-B Discard tile=17 child=17 ms=186.8
+LOWER lower-47-6-9-base Hu tile=15 child=-1 ms=210.3
+LOWER lower-47-6-10-base Hu tile=15 child=-1 ms=16.4
+LOWER lower-48-6-11-base-declared-draw Hu tile=10 child=-1 ms=251.1
+LOWER lower-49-6-12-A Discard tile=1 child=1 ms=265.4
+LOWER lower-49-6-12-B Discard tile=1 child=1 ms=222.9
+LOWER lower-49-6-12-C Discard tile=1 child=1 ms=279.0
+LOWER lower-50-6-13-A Discard tile=11 child=11 ms=245.5
+LOWER lower-50-6-13-B Discard tile=10 child=10 ms=207.1
+LOWER lower-50-6-13-C Discard tile=10 child=10 ms=157.1
+LOWER lower-50-6-13-D Discard tile=10 child=10 ms=139.0
+LOWER lower-51-6-14-A Discard tile=22 child=22 ms=227.7
+LOWER lower-51-6-14-B Discard tile=26 child=26 ms=134.1
+LOWER lower-51-6-14-C Discard tile=12 child=12 ms=15.1
+LOWER lower-51-6-14-D Discard tile=12 child=12 ms=13.0
+LOWER lower-51-6-14-E Discard tile=11 child=11 ms=293.1
+LOWER lower-48-6-11-base-offer-10 Peng tile=10 child=9 ms=465.4
+LOWER lower-48-6-11-base-offer-16 Peng tile=16 child=9 ms=412.2
+LOWER lower-50-6-13-C-major-danger Discard tile=8 child=8 ms=42.7
+DONE formal geometry-and-authority=176 rows=20 failures=0

@@ -33,7 +33,10 @@ public sealed class SichuanActionTreeEvaluator
 		int Seed = 20260713,
         IReadOnlyList<SichuanReadyRaceGroup>? ReadyGroups = null,
         IReadOnlyList<SichuanReadyRaceOpponent>? ReadyOpponents = null,
-        SichuanReadyRaceGang? ReadyGang = null);
+        SichuanReadyRaceGang? ReadyGang = null,
+        bool AllowRonRefusal = false,
+        double InitialRonLockScore = 0,
+        int MaxRonRefusals = int.MaxValue);
 
 	public sealed record ChanceSearchResult(
 		double ExpectedNetScore,
@@ -126,12 +129,18 @@ public sealed class SichuanActionTreeEvaluator
         };
     }
 
-    private static bool UsesReadyRace(ChanceSearchRequest r) => r.ReadyGroups is { Count: > 0 and <= 2 } && r.GangOpportunityProbability == 0;
+    private static bool UsesStopping(ChanceSearchRequest r) => r.AllowRonRefusal
+        && r.ReadyGroups is { Count: > 0 and <= 3 } && r.ReadyGang is null
+        && r.ReadyOpponents is not {Count:>0} && r.GangOpportunityProbability==0
+        && r.ReadyGroups.Select(g=>g.ForcedDiscardMask).Distinct().Count()==1
+        && r.ReadyGroups.All(g=>g.ReleaseProbabilities is null&&!g.OptimisticReleaseBound);
+    private static bool UsesReadyRace(ChanceSearchRequest r) => UsesStopping(r)
+        || r.ReadyGroups is { Count: > 0 and <= 2 } && r.GangOpportunityProbability == 0;
 
     private static ChanceValue SolveChance(ChanceSearchRequest request)
     {
         using var timing = SichuanMahjong.AI.Core.Decision.SichuanPolicyTiming.Measure("chance_dp");
-        return new(UsesReadyRace(request)
+        return new(UsesStopping(request) ? SichuanReadyStoppingModel.Evaluate(request) : UsesReadyRace(request)
             ? SichuanReadyRaceModel.Evaluate(request)
             : new SichuanBloodBattleChanceModel().Evaluate(request));
     }

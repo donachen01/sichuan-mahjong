@@ -1,0 +1,605 @@
+[
+  {
+    "id": "lower-47-6-9-base",
+    "assumption": "refuse p7 ordinary self draw, discard both p7 on distinct legal own discard opportunities; next draw target rank; public supply upper bounds only",
+    "rows": [
+      {
+        "next_draw": "条1",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条2",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条1",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条2",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条3",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条4",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条7",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条3",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条6",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条9",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条4",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条4",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条5",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条7",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条5",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条4",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条5",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条7",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条8",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条6",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条3",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条6",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条9",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条7",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条4",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条5",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条7",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条8",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条8",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条5",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条7",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条8",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条9",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条3",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条6",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条9",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lower-47-6-10-base",
+    "assumption": "refuse p7 ordinary self draw, discard both p7 on distinct legal own discard opportunities; next draw target rank; public supply upper bounds only",
+    "rows": [
+      {
+        "next_draw": "条1",
+        "ready": false,
+        "waits": []
+      },
+      {
+        "next_draw": "条2",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条5",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条3",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条3",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条6",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条4",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条4",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条5",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条2",
+            "copies": 4,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          },
+          {
+            "tile": "条5",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条6",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条3",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条9",
+            "copies": 3,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条7",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条7",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条8",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条8",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      },
+      {
+        "next_draw": "条9",
+        "ready": true,
+        "waits": [
+          {
+            "tile": "条6",
+            "copies": 1,
+            "score": {
+              "base_fan": 2,
+              "roots": 1,
+              "fan": 3,
+              "hand_score": 8,
+              "self_per_payer": 9
+            }
+          },
+          {
+            "tile": "条9",
+            "copies": 2,
+            "score": {
+              "base_fan": 2,
+              "roots": 0,
+              "fan": 2,
+              "hand_score": 4,
+              "self_per_payer": 5
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

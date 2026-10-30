@@ -1,0 +1,5 @@
+LOWER lower-76-6-28-base-offer-m2/source-corrected Pass tile=19 child=-1 ms=1029.7
+LOWER lower-76-6-28-base-offer-m4/source-corrected Pass tile=21 child=-1 ms=484.8
+LOWER reread-6-26-after-p4-offer-p3 Pass tile=11 child=-1 ms=380.7
+LOWER reread-6-26-after-p5-offer-p3 Pass tile=11 child=-1 ms=316.3
+DONE precision-256-20261022 geometry-and-authority=4 rows=4 failures=0

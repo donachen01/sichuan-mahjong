@@ -1,0 +1,146 @@
+{
+  "strength": {
+    "games": 160,
+    "pairs": 128,
+    "independent_deals": 32,
+    "mean_paired_net": 0.46875,
+    "deal_cluster_95": [
+      0.0703125,
+      0.9765625
+    ],
+    "fully_settled": true,
+    "matched_initial_deals": true,
+    "current_decision_ms": {
+      "n": 2005,
+      "median": 41.287,
+      "p95": 425.6522,
+      "maximum": 22424.867
+    },
+    "scope": "One current seat against the old cash arithmetic; shared current mechanisms and queue fix. Self-play desktop; 4 seats share each original deal. No fitting on these scores.",
+    "improvement_confirmed": true,
+    "significant_regression": false
+  },
+  "forecast": {
+    "games": 48,
+    "observations": 47,
+    "supported": 30,
+    "refusals": {
+      "public_projection_unresolved_missing_suit": 17
+    },
+    "ended_before_snapshot": 1,
+    "wall_copy_mse": {
+      "before": 0.47738294747666266,
+      "after": 0.47081012108371084,
+      "difference": -0.006572826392951824,
+      "game_cluster_difference_95": [
+        -0.011833428673326573,
+        -0.0016242180897865104
+      ]
+    },
+    "wall_presence_brier": {
+      "before": 0.15198978943365996,
+      "after": 0.15046954828692138,
+      "difference": -0.0015202411467385214,
+      "game_cluster_difference_95": [
+        -0.002768504923590822,
+        -0.00024804036142923115
+      ]
+    },
+    "ready_brier_per_game": {
+      "before": 0.3947576138262746,
+      "after": 0.1961274484271903,
+      "difference": -0.19863016539908426,
+      "game_cluster_difference_95": [
+        -0.29316921177216027,
+        -0.10536709959246847
+      ]
+    },
+    "maximum_marginal_error": 4.1236599690464004e-09,
+    "diagnostic_ms": {
+      "median": 1092.5915,
+      "p95": 2619.1563499999993
+    },
+    "scope": "Fresh current-policy self-play states, one snapshot per game; public prediction precedes hidden evaluation labels. Paired metrics cover supported predictions only; refusals retained. Numerical marginal fit is not empirical calibration or live-ranking promotion."
+  },
+  "claims": [
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "pool": 20261130.0,
+      "worlds": 64,
+      "pass_net": 0.953125,
+      "peng_net": 1.671875,
+      "peng_minus_pass": 0.71875,
+      "conditional_monte_carlo_95": [
+        -0.9375,
+        2.421875
+      ],
+      "preempted": 0
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "pool": 20261209.0,
+      "worlds": 64,
+      "pass_net": 1.296875,
+      "peng_net": 2.0,
+      "peng_minus_pass": 0.703125,
+      "conditional_monte_carlo_95": [
+        -1.03125,
+        2.453125
+      ],
+      "preempted": 0
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "pool": 20261130.0,
+      "worlds": 64,
+      "pass_net": 0.96875,
+      "peng_net": 0.5,
+      "peng_minus_pass": -0.46875,
+      "conditional_monte_carlo_95": [
+        -1.46875,
+        0.578125
+      ],
+      "preempted": 0
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "pool": 20261209.0,
+      "worlds": 64,
+      "pass_net": 1.125,
+      "peng_net": 0.90625,
+      "peng_minus_pass": -0.21875,
+      "conditional_monte_carlo_95": [
+        -1.671875,
+        1.234375
+      ],
+      "preempted": 0
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m2/source-corrected",
+      "pool": "both numerical pools",
+      "worlds": 128,
+      "pass_net": 1.125,
+      "peng_net": 1.8359375,
+      "peng_minus_pass": 0.7109375,
+      "conditional_monte_carlo_95": [
+        -0.4921875,
+        1.921875
+      ],
+      "preempted": 0
+    },
+    {
+      "source": "lower-76-6-28-base-offer-m4/source-corrected",
+      "pool": "both numerical pools",
+      "worlds": 128,
+      "pass_net": 1.046875,
+      "peng_net": 0.703125,
+      "peng_minus_pass": -0.34375,
+      "conditional_monte_carlo_95": [
+        -1.234375,
+        0.5390625
+      ],
+      "preempted": 0
+    }
+  ],
+  "queue_deferrals": 1.0
+}

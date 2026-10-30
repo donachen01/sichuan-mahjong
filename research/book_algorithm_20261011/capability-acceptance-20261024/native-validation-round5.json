@@ -1,0 +1,17 @@
+{
+  "source_sha256": "782ccd26147ddaa17efd6e0baa972ecdfc9d04c58658c47c4be9277b3e1e93b4",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/capability-acceptance-20261024/round5-game-results.json",
+      "sha256": "04fe7cb5122358bbf0dc43d02d76d64a48c3a9a3d9e11e801d9ffbb97e052e62"
+    }
+  ],
+  "dlls": {
+    "dotnet/AI.Core/bin/Debug/net10.0/SichuanMahjong.AI.Core.dll": "91cdb0d98344e8705069b019a81f627215a644e86d4ad2a5c3c0b286f8e21a5d",
+    ".godot/mono/temp/bin/Debug/SichuanMahjong.AI.Core.dll": "91cdb0d98344e8705069b019a81f627215a644e86d4ad2a5c3c0b286f8e21a5d"
+  },
+  "scope": "40-wall public terminal world and signed settlement floor; ordinary/compact two real entity chains; no strength or mobile AOT claim."
+}

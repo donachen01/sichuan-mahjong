@@ -1,0 +1,68 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+PROFILE optimized step=0 phase=2 actor=0 ms=365.6
+PROFILE optimized step=1 phase=5 actor=0 ms=229.0
+PROFILE optimized step=2 phase=5 actor=3 ms=25.5
+PROFILE optimized step=3 phase=5 actor=2 ms=25.8
+PROFILE optimized step=4 phase=5 actor=1 ms=3.6
+PROFILE optimized step=5 phase=6 actor=0 ms=83.0
+PROFILE optimized step=6 phase=5 actor=0 ms=28.2
+PROFILE optimized step=7 phase=5 actor=3 ms=4.5
+PROFILE optimized step=8 phase=6 actor=2 ms=37.6
+PROFILE optimized step=9 phase=5 actor=2 ms=30.5
+PROFILE optimized step=10 phase=5 actor=1 ms=21.9
+PROFILE optimized step=11 phase=5 actor=0 ms=22.3
+PROFILE optimized step=12 phase=5 actor=3 ms=28.6
+PROFILE optimized step=13 phase=5 actor=2 ms=29.2
+PROFILE optimized step=14 phase=5 actor=1 ms=58.4
+PROFILE optimized step=15 phase=5 actor=0 ms=1526.8
+PROFILE optimized step=16 phase=5 actor=3 ms=27.6
+PROFILE optimized step=17 phase=5 actor=2 ms=7.9
+PROFILE optimized step=18 phase=6 actor=3 ms=55.1
+PROFILE optimized step=19 phase=5 actor=3 ms=204.7
+PROFILE optimized step=20 phase=5 actor=2 ms=28.3
+PROFILE optimized step=21 phase=5 actor=1 ms=24.2
+PROFILE optimized step=22 phase=5 actor=0 ms=9.2
+PROFILE optimized step=23 phase=6 actor=2 ms=71.2
+PROFILE optimized step=24 phase=5 actor=2 ms=218.3
+PROFILE optimized step=25 phase=5 actor=1 ms=29.7
+PROFILE optimized step=26 phase=5 actor=0 ms=12.0
+PROFILE optimized step=27 phase=6 actor=1 ms=60.4
+PROFILE optimized step=28 phase=5 actor=3 ms=28.9
+PROFILE optimized step=29 phase=5 actor=2 ms=84.7
+PROFILE optimized step=30 phase=5 actor=1 ms=11.5
+PROFILE optimized step=31 phase=6 actor=2 ms=52.8
+PROFILE optimized step=32 phase=5 actor=2 ms=12.1
+PROFILE optimized step=33 phase=6 actor=1 ms=337.1
+PROFILE optimized step=34 phase=5 actor=1 ms=428.4
+PROFILE optimized step=35 phase=5 actor=0 ms=34.6
+PROFILE optimized step=36 phase=5 actor=3 ms=34.2
+PROFILE optimized step=37 phase=5 actor=2 ms=40.5
+PROFILE optimized step=38 phase=5 actor=1 ms=13.3
+PROFILE optimized step=39 phase=6 actor=0 ms=6832.7
+PROFILE optimized step=40 phase=5 actor=0 ms=51.9
+PROFILE optimized step=41 phase=5 actor=3 ms=17.2
+PROFILE optimized step=42 phase=6 actor=1 ms=324.9
+PROFILE optimized step=43 phase=5 actor=1 ms=115.8
+PROFILE optimized step=44 phase=5 actor=0 ms=53.7
+PROFILE optimized step=45 phase=5 actor=3 ms=45.0
+PROFILE optimized step=46 phase=5 actor=2 ms=87.1
+PROFILE optimized step=47 phase=5 actor=1 ms=62.8
+PROFILE optimized step=48 phase=5 actor=0 ms=14.0
+PROFILE optimized step=49 phase=6 actor=1 ms=890.0
+PROFILE optimized step=50 phase=5 actor=0 ms=33.9
+PROFILE optimized step=51 phase=5 actor=3 ms=36.3
+PROFILE optimized step=52 phase=5 actor=2 ms=36.1
+PROFILE optimized step=53 phase=5 actor=0 ms=43.8
+PROFILE optimized step=54 phase=5 actor=3 ms=33.0
+PROFILE optimized step=55 phase=5 actor=2 ms=62.2
+PROFILE optimized step=56 phase=5 actor=3 ms=63.8
+PROFILE optimized step=57 phase=5 actor=2 ms=64.9
+PROFILE optimized step=58 phase=5 actor=3 ms=89.3
+PROFILE optimized step=59 phase=5 actor=2 ms=19.0
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round4-20261030/profile-optimized.json

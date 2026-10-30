@@ -1,0 +1,16 @@
+LOWER lower-53-6-15-A Discard tile=16 child=16 ms=1613.0
+LOWER lower-53-6-15-B Discard tile=20 child=20 ms=650.0
+LOWER lower-53-6-15-C Discard tile=23 child=23 ms=412.8
+LOWER lower-54-6-16-A Discard tile=12 child=12 ms=253.2
+LOWER lower-54-6-16-B Discard tile=9 child=9 ms=313.2
+LOWER lower-54-6-16-C Discard tile=20 child=20 ms=251.2
+LOWER lower-55-6-16-D Discard tile=20 child=20 ms=344.2
+LOWER lower-55-6-16-E Discard tile=15 child=15 ms=286.5
+LOWER lower-55-6-17-A Discard tile=17 child=17 ms=174.6
+LOWER lower-55-6-17-B Discard tile=19 child=19 ms=158.6
+LOWER lower-55-6-17-C Discard tile=11 child=11 ms=161.4
+LOWER lower-56-6-18-A Discard tile=11 child=11 ms=175.1
+LOWER lower-56-6-18-B Discard tile=13 child=13 ms=178.8
+LOWER lower-57-6-18-C Discard tile=14 child=14 ms=146.9
+LOWER lower-54-6-16-B-middle-pair-loss Discard tile=9 child=9 ms=224.7
+DONE formal geometry-and-authority=127 rows=15 failures=0

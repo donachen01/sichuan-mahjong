@@ -1,0 +1,8 @@
+LOWER lower-84-7-3-base-declared-draw Hu tile=19 child=-1 ms=168.5
+LOWER lower-84-7-4-base-declared-draw Hu tile=19 child=-1 ms=46.4
+LOWER lower-85-7-5-base-declared-draw Hu tile=18 child=-1 ms=34.4
+LOWER lower-85-7-6-base-offer-p9 Hu tile=17 child=-1 ms=171.2
+LOWER lower-85-7-6-base-draw-9 add_gang tile=9 child=-1 ms=491.6
+LOWER lower-85-7-6-base-offer-p9-root-exhausted Hu tile=17 child=-1 ms=138.8
+LOWER lower-84-7-4-base-declared-draw-public-loss Hu tile=19 child=-1 ms=21.5
+DONE gap geometry-and-authority=11 rows=7 failures=0

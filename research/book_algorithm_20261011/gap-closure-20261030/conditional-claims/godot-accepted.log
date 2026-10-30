@@ -1,0 +1,37 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall20/suppliers1/seat1/compactfalse action=pass ms=663.2 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall20/suppliers2/seat1/compactfalse action=pass ms=405.9 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall35/suppliers1/seat1/compactfalse action=pass ms=255.7 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall35/suppliers2/seat1/compactfalse action=pass ms=150.2 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall45/suppliers1/seat1/compactfalse action=pass ms=149.8 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m2/wall45/suppliers2/seat1/compactfalse action=pass ms=137.0 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall20/suppliers1/seat1/compactfalse action=pass ms=178.1 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall20/suppliers2/seat1/compactfalse action=pass ms=115.2 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall35/suppliers1/seat1/compactfalse action=pass ms=135.2 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall35/suppliers2/seat1/compactfalse action=pass ms=133.7 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall45/suppliers1/seat1/compactfalse action=pass ms=136.6 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/wall45/suppliers2/seat1/compactfalse action=pass ms=144.0 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall20/suppliers1/seat1/compactfalse action=pass ms=239.2 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall20/suppliers2/seat1/compactfalse action=peng ms=98.7 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall35/suppliers1/seat1/compactfalse action=pass ms=124.1 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall35/suppliers2/seat1/compactfalse action=pass ms=111.8 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall45/suppliers1/seat1/compactfalse action=pass ms=131.2 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/wall45/suppliers2/seat1/compactfalse action=pass ms=119.3 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall20/suppliers1/seat1/compactfalse action=peng ms=224.2 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall20/suppliers2/seat1/compactfalse action=peng ms=125.2 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall35/suppliers1/seat1/compactfalse action=pass ms=112.8 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall35/suppliers2/seat1/compactfalse action=pass ms=127.1 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall45/suppliers1/seat1/compactfalse action=pass ms=121.3 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/wall45/suppliers2/seat1/compactfalse action=pass ms=122.0 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall20/suppliers1/seat1/compactfalse action=pass ms=612.1 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall20/suppliers2/seat1/compactfalse action=pass ms=231.2 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall35/suppliers1/seat1/compactfalse action=pass ms=227.0 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall35/suppliers2/seat1/compactfalse action=pass ms=223.1 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall45/suppliers1/seat1/compactfalse action=pass ms=317.7 failures=0
+LOWER_EXEC reread-6-26-p1-pair-offer-p3/wall45/suppliers2/seat1/compactfalse action=pass ms=240.4 failures=0
+LOWER_EXECUTION rows=30 failures=0

@@ -1,0 +1,30 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+SUPPLY supply2 compact=false tile=0 ms=1159 reasons=["PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS903.5_HELD0_DRAWN3", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY supply2-hidden-swap compact=false tile=0 ms=309 reasons=["PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS264.7_HELD0_DRAWN3", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY supply2-wall20 compact=false tile=0 ms=339 reasons=["PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS281.9_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY two_dead compact=false tile=0 ms=42 reasons=["PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.1_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY ordinary_dead compact=false tile=0 ms=50 reasons=["PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS4.2_MS5.8_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY active_peng2 compact=false tile=0 ms=41 reasons=["PUBLIC_SUPPLY_gang_transition_outside_step_N0_ESS8.0_MS1.0_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY early_budget compact=false tile=0 ms=50 reasons=[]
+SUPPLY tiny compact=false tile=0 ms=350 reasons=["PUBLIC_SUPPLY_seed_comparison_unstable_N32_ESS8.0_MS189.6_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY safe_current compact=false tile=0 ms=31 reasons=["PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS6.9_MS1.2_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY safe-current-frozen-other compact=false tile=0 ms=38 reasons=["PUBLIC_SUPPLY_insufficient_effective_samples_N0_ESS5.2_MS1.3_HELD0_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY safe-current-ordinary-dead compact=false tile=4 ms=289 reasons=["PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS6.4_MS257.3_HELD1_DRAWN0", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY opponent_selfhu compact=false tile=0 ms=314 reasons=["PUBLIC_SUPPLY_public_first_opponent_step_N32_ESS8.0_MS189.7_HELD0_DRAWN2", "SEARCH_DEEP_PUBLIC_OPPONENT_SUPPLY"]
+SUPPLY supply2 compact=true tile=0 ms=226 reasons=[]
+SUPPLY supply2-hidden-swap compact=true tile=0 ms=180 reasons=[]
+SUPPLY supply2-wall20 compact=true tile=0 ms=234 reasons=[]
+SUPPLY two_dead compact=true tile=0 ms=27 reasons=[]
+SUPPLY ordinary_dead compact=true tile=0 ms=27 reasons=[]
+SUPPLY active_peng2 compact=true tile=0 ms=39 reasons=[]
+SUPPLY early_budget compact=true tile=0 ms=31 reasons=[]
+SUPPLY tiny compact=true tile=0 ms=266 reasons=[]
+SUPPLY safe_current compact=true tile=0 ms=24 reasons=[]
+SUPPLY safe-current-frozen-other compact=true tile=0 ms=37 reasons=[]
+SUPPLY safe-current-ordinary-dead compact=true tile=4 ms=203 reasons=[]
+SUPPLY opponent_selfhu compact=true tile=0 ms=254 reasons=[]

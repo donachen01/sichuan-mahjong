@@ -10,6 +10,23 @@ namespace SichuanMahjong.AI.Core.Decision;
 
 public sealed class SichuanUnifiedDecisionEngine
 {
+    internal readonly record struct InitialDiscardPrice(double Ordinary,double GangExtra,double MultiHu,bool HighThreat)
+    {internal double Total=>Ordinary+GangExtra;}
+    internal static InitialDiscardPrice PriceInitialDiscard(SichuanStateView state,int tile,
+        SichuanBeliefSnapshot belief,SichuanWallAvailability wall,double? gangCash=null)
+    {
+        double floor=Math.Max(0,state.Remaining18[tile])*(state.WallCount<=10?.08:.025);
+        double modeled=Enumerable.Range(0,4).Where(seat=>seat!=state.SeatIndex&&state.ActiveSeats[seat]&&!state.HasHu[seat])
+            .Where(seat=>SichuanPublicDiscardSafety.MayRon(state,seat,tile))
+            .Sum(seat=>(belief.SeatTileWaitProbability.GetValueOrDefault(seat)?.GetValueOrDefault(tile,0)??0)
+                *(2+Math.Min(4,state.MeldCount(seat))*.75));
+        if(wall.Retention is {Supported:true} retention)modeled=retention.RonLoss[tile];
+        bool high=state.WallCount<=12||Enumerable.Range(0,4).Any(seat=>seat!=state.SeatIndex&&state.ActiveSeats[seat]
+            &&belief.SeatReadyPosterior.GetValueOrDefault(seat)>=.55);
+        if(!SichuanPublicDiscardSafety.AnyMayRon(state,tile))return new(0,0,modeled,high);
+        return new(high?Math.Max(floor,modeled):floor,
+            SichuanGangDiscardLiability.ExpectedExtraLoss(state,tile,belief,gangCash),modeled,high);
+    }
     private readonly SichuanExactHandAnalyzer _hands = new();
     private readonly SichuanFanProjectionEngine _fans = new();
     private readonly SichuanActionTreeEvaluator _tree = new();
@@ -83,7 +100,12 @@ public sealed class SichuanUnifiedDecisionEngine
         var readyChoices = readyProfiles.Where(p => p.Value is not null)
             .ToDictionary(p => p.Key, p => p.Value!);
         var readyRequests = readyChoices.ToDictionary(p => p.Key, p =>
-            new SichuanActionTreeEvaluator.ChanceSearchRequest(p.Value.PublicDrawableMass,
+        {
+            bool stopping=SichuanLearningClosurePolicy.MayStop(state)&&wallAvailability.Retention is null;
+            var groups=stopping?SichuanReadyRaceSupply.ForStopping(state,p.Value):SichuanReadyRaceSupply.Build(state,p.Value);
+            stopping=stopping&&SichuanReadyRaceSupply.SupportsStopping(groups);
+            if(!stopping)groups=SichuanReadyRaceSupply.Build(state,p.Value);
+            return new SichuanActionTreeEvaluator.ChanceSearchRequest(p.Value.PublicDrawableMass,
                 Math.Max(0, state.WallCount), Math.Max(2, Enumerable.Range(0,4).Count(seat=>state.ActiveSeats[seat]&&!state.HasHu[seat])),
                 SichuanTurnOrder.DrawsBeforeOwnTurnAfterClaim(state),
                 p.Value.HasDrawableWait ? p.Value.WeightedSelfDrawPerPayer * (Enumerable.Range(0,4).Count(seat=>state.ActiveSeats[seat]&&!state.HasHu[seat]) - 1) : 0,
@@ -91,7 +113,10 @@ public sealed class SichuanUnifiedDecisionEngine
                 ChaJiaoValue: EstimateChaJiaoScore(state, p.Value, belief, terminalReadiness),
                 MaxDraws: Math.Max(0, state.WallCount), Simulations: 512,
                 Seed: 20260713 ^ state.RoundIndex ^ (state.SeatIndex << 8),
-                ReadyGroups: SichuanReadyRaceSupply.Build(state, p.Value)));
+                ReadyGroups:groups,ReadyOpponents:wallAvailability.Retention?.Rivals(state,groups,p.Key),
+                AllowRonRefusal:stopping,MaxRonRefusals:stopping
+                    ?SichuanReadyStoppingPolicy.RefusalBudget(SichuanBranchState.AfterDiscard(state,p.Key)):0);
+        });
         var supply = new SichuanOpponentSupplyStep().Refine(state, readyChoices, readyRequests);
 		foreach (var analysis in analyses)
 		{
@@ -113,7 +138,8 @@ public sealed class SichuanUnifiedDecisionEngine
 				terminalReadiness, liveWaits, futureOwnDraws);
 			var readyRaceGroups = ready is null ? null : SichuanReadyRaceSupply.Build(state,ready);
             var chance = supply.Chances.TryGetValue(analysis.DiscardTileType, out var refinedChance)
-                ? refinedChance : _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
+                ? refinedChance : ready is not null ? _tree.SearchChanceNodes(readyRequests[analysis.DiscardTileType])
+                : _tree.SearchChanceNodes(new SichuanActionTreeEvaluator.ChanceSearchRequest(
 				isReady ? liveWaits : 0,
 				Math.Max(0, state.WallCount),
 				activePlayers,
@@ -133,24 +159,13 @@ public sealed class SichuanUnifiedDecisionEngine
 			var structuralLoss = state.WallCount <= 0
 				? Math.Max(0, legalDistance - minimumLegalDistance) * 3.5
 				: analysis.StructuralLoss * 0.035;
-			var baselineRisk = Math.Max(0, state.Remaining18[analysis.DiscardTileType])
-				* (state.WallCount <= 10 ? 0.08 : 0.025);
-			var modeledMultiHuRisk = Enumerable.Range(0, 4)
-				.Where(seat => seat != state.SeatIndex && state.ActiveSeats[seat] && !state.HasHu[seat])
-                .Where(seat => SichuanPublicDiscardSafety.MayRon(state, seat, analysis.DiscardTileType))
-				.Sum(seat => (belief.SeatTileWaitProbability.GetValueOrDefault(seat)
-					?.GetValueOrDefault(analysis.DiscardTileType, 0.0) ?? 0.0)
-					* (2.0 + Math.Min(4, state.MeldCount(seat)) * 0.75));
 			// Public wait probabilities are not yet calibrated enough to price
 			// routine early discards. Use the multi-Hu cost when the wall is short
 			// or there is independent high-readiness evidence.
-			var highThreat = state.WallCount <= 12 || Enumerable.Range(0, 4)
-				.Any(seat => seat != state.SeatIndex && state.ActiveSeats[seat]
-					&& belief.SeatReadyPosterior.GetValueOrDefault(seat, 0.0) >= 0.55);
-            var mayRon = SichuanPublicDiscardSafety.AnyMayRon(state, analysis.DiscardTileType);
-            var dealInRisk = mayRon ? (highThreat ? Math.Max(baselineRisk, modeledMultiHuRisk) : baselineRisk) : 0;
-            var gangDiscardExtraLoss = mayRon ? SichuanGangDiscardLiability.ExpectedExtraLoss(state, analysis.DiscardTileType, belief) : 0;
-			dealInRisk += gangDiscardExtraLoss;
+            var firstDiscard=PriceInitialDiscard(state,analysis.DiscardTileType,belief,wallAvailability);
+            var modeledMultiHuRisk=firstDiscard.MultiHu;var highThreat=firstDiscard.HighThreat;
+            var dealInRisk=firstDiscard.Total;
+            var gangDiscardExtraLoss=firstDiscard.GangExtra;
 			var winGain = chance.ExpectedOwnWinGain;
 			var expectedGangGain = chance.ExpectedGangGain;
 			var chaJiaoValue = chance.ExpectedChaJiaoValue;
@@ -176,7 +191,7 @@ public sealed class SichuanUnifiedDecisionEngine
 				+ progressChance * Math.Max(0.2, 1.2 - legalDistance * 0.2)
 				+ Math.Clamp(shape.ShapeScore, -1.0, 1.0) * 0.12;
 			var uncertainty = state.InformationMode == "oracle" ? 0 : 0.18;
-			var utility = _multiPlayer.Evaluate(new SichuanMultiPlayerUtilityInput(
+			var utility = _multiPlayer.Evaluate(SichuanLearningClosurePolicy.OwnCash(state,
 				winGain,
 				expectedGangGain,
 				chaJiaoValue,
@@ -230,7 +245,7 @@ public sealed class SichuanUnifiedDecisionEngine
             candidates=candidates.Select(c=>
             {
                 var v=development.Values[c.Action.TileType];var chance=v.Estimate.Chance;
-                var utility=_multiPlayer.Evaluate(new(chance.ExpectedOwnWinGain,0,chance.ExpectedChaJiaoValue,
+                var utility=_multiPlayer.Evaluate(SichuanLearningClosurePolicy.OwnCash(state,chance.ExpectedOwnWinGain,0,chance.ExpectedChaJiaoValue,
                     c.DealInLoss,chance.ExpectedOpponentLoss,0,0,.18,players,.78));
                 return c with{ExpectedNetScore=utility.NetUtility,WinGain=chance.ExpectedOwnWinGain,
                     GangGain=0,ChaJiaoValue=chance.ExpectedChaJiaoValue,OpponentFutureLoss=chance.ExpectedOpponentLoss,
@@ -238,6 +253,7 @@ public sealed class SichuanUnifiedDecisionEngine
                     ModeledOwnWinProbability=c.ReadyPrice is null?null:chance.OwnWinProbability,
                     ModeledSelfDrawProbability=c.ReadyPrice is null?null:chance.SelfDrawWinProbability,
                     ReasonCodes=new[]{"SEVEN_PAIRS_COMMON_READY_ENDPOINT_VALUE_NOT_FULL_POLICY_ROLLOUT",
+                        SichuanReadyDevelopmentEvaluator.CompletionExtension(state)?"PUBLIC_COMMON_READY_ENDPOINT_VALUE":"SEVEN_PAIRS_COMMON_READY_ENDPOINT_VALUE",
                         $"SEVEN_PAIRS_DEVELOPMENT_N{development.Samples}_ENDPOINTS{development.Endpoints}_MS{development.Ms:F1}",
                         $"SEVEN_PAIRS_ENDPOINT_{v.Endpoint}_PLANS{v.Plans}_WIN{chance.OwnWinProbability:F4}_READY{v.Estimate.ReadyProbability:F4}_PENG{v.Estimate.PengProbability:F4}_SE{v.StandardError:F4}",
                         "SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS"}.Concat(c.ReasonCodes).ToArray()};
@@ -250,7 +266,7 @@ public sealed class SichuanUnifiedDecisionEngine
                 var reference=candidates.Single(c=>c.Action.TileType==previous.Action.TileType);
                 static double PairedError(double[] x,double[] y)
                 {var d=x.Zip(y,(a,b)=>a-b).ToArray();double m=d.Average();return Math.Sqrt(d.Sum(v=>(v-m)*(v-m))/(d.Length*(d.Length-1)));}
-                SichuanMultiPlayerUtilityInput Input(SichuanDecisionCandidate c)=>new(c.WinGain,0,c.ChaJiaoValue,
+                SichuanMultiPlayerUtilityInput Input(SichuanDecisionCandidate c)=>SichuanLearningClosurePolicy.OwnCash(state,c.WinGain,0,c.ChaJiaoValue,
                     c.DealInLoss,c.OpponentFutureLoss,0,0,.18,players,.78);
                 // Use the SAME utility weights, including covariance on paired
                 // walls. This only guards numerical sampling noise; it is not
@@ -259,8 +275,9 @@ public sealed class SichuanUnifiedDecisionEngine
                 var bb=SichuanMultiPlayerUtilityEngine.NumericalCenteredSeries(Input(reference),b.Gains,b.Losses,b.ChaValues);
                 double error=PairedError(aa,bb);
                 if(proposed.ExpectedNetScore-reference.ExpectedNetScore<=2*error)
-                    candidates=prior.Select(c=>c with{ReasonCodes=c.ReasonCodes.Concat(new[]{
-                        $"SEVEN_PAIRS_DEVELOPMENT_NUMERICAL_CHANGE_NOT_CONFIRMED_SE{error:F4}"}).ToArray()}).ToList();
+                    candidates=candidates.Select(c=>c with{ReasonCodes=c.ReasonCodes.Concat(new[]{
+                        $"SEVEN_PAIRS_DEVELOPMENT_NUMERICAL_CHANGE_NOT_CONFIRMED_SE{error:F4}"})
+                        .Concat(c.Action.TileType==previous.Action.TileType?new[]{"SEVEN_PAIRS_DEVELOPMENT_PRESERVE_INCUMBENT"}:Array.Empty<string>()).ToArray()}).ToList();
             }
         }
         if(shortWallComparison)
@@ -423,7 +440,27 @@ public sealed class SichuanUnifiedDecisionEngine
 			candidates.Add(FromCounterfactual(_melds.Evaluate(state, "peng", tileType, 2, meldCount + 1, routeLoss, risk, 0, belief, pengDiscardTile, gangSourceSeat), new SichuanAction(SichuanActionType.Peng, tileType)));
 		if (canGang && state.Hand18[tileType] >= 3)
 			candidates.Add(FromCounterfactual(_melds.Evaluate(state, "melded_gang", tileType, 3, meldCount + 1, routeLoss, risk, 0, belief, gangSourceSeat:gangSourceSeat), new SichuanAction(SichuanActionType.Gang, tileType)));
-		var ordered = candidates.OrderByDescending(candidate => candidate.ExpectedNetScore)
+        if(SichuanReadyDevelopmentEvaluator.HasJointComparison
+            &&candidates.FirstOrDefault(c=>c.Action.ActionType==SichuanActionType.Pass) is {DevelopmentEvidence: {} pe} passCandidate)
+        {
+            int players=Math.Max(2,state.ActiveSeats.Count(x=>x));
+            double[] Series(SichuanDecisionCandidate c,SichuanDevelopmentTrajectoryModel.Estimate e)=>
+                SichuanMultiPlayerUtilityEngine.NumericalCenteredSeries(SichuanLearningClosurePolicy.OwnCash(state,c.WinGain,0,c.ChaJiaoValue,
+                    c.DealInLoss,c.OpponentFutureLoss,0,0,.18,players,.78),e.Gains,e.Losses,e.ChaValues);
+            var p=Series(passCandidate,pe);
+            candidates=candidates.Select(c=>
+            {
+                if(c.Action.ActionType!=SichuanActionType.Peng||c.DevelopmentEvidence is not {} e)return c;
+                var x=Series(c,e);if(x.Length!=p.Length||x.Length<2)throw new InvalidOperationException("unpaired_claim_evidence");
+                var d=x.Zip(p,(a,b)=>a-b).ToArray();double mean=d.Average();
+                double se=Math.Sqrt(d.Sum(v=>(v-mean)*(v-mean))/(d.Length*(d.Length-1)));
+                double difference=c.ExpectedNetScore-passCandidate.ExpectedNetScore;
+                bool confirmed=difference>2*se;
+                return c with{IsAdmissible=difference<=0||confirmed,NeedsMoreDevelopmentSamples=Math.Abs(difference)<=2*se,ReasonCodes=c.ReasonCodes.Append(
+                    $"PUBLIC_CLAIM_PAIRED_MEAN_{c.ExpectedNetScore-passCandidate.ExpectedNetScore:F5}_SE_{se:F5}_CONFIRMED_{confirmed}").ToArray()};
+            }).ToList();
+        }
+		var ordered = candidates.OrderByDescending(c=>c.IsAdmissible).ThenByDescending(candidate => candidate.ExpectedNetScore)
             .ThenByDescending(candidate => candidate.QuickReadyTiePreferred).ToArray();
 		return new SichuanDecisionExplanation(ordered[0].Action.ActionType, $"反事实净分选择 {ordered[0].Action.ActionType}", ordered[0].ReasonCodes, ordered);
 	}
@@ -440,6 +477,7 @@ public sealed class SichuanUnifiedDecisionEngine
         // Retain the independently qualified old-wait/self-draw candidate.
         // Its permission must never be borrowed to execute a rejected Peng.
         var evidence = new SichuanDevelopmentPolicy().AssessRefusal(state, winningTileType, type);
+        evidence=SichuanReadyStoppingPolicy.Refine(state,evidence);
         // Pass can have no future own draw while a legal Gang receives an
         // immediate replacement. Compare a publicly guaranteed win before
         // applying Pass's eligibility gate. No speculative future income is
@@ -693,6 +731,7 @@ public sealed class SichuanUnifiedDecisionEngine
 			projected.MeldViews[state.SeatIndex].AddRange(InferMeldViews(state, state.SeatIndex));
 		projected.MeldViews[state.SeatIndex].Add(new SichuanMeldView(SichuanMeldType.Peng, tileType, sourceSeat, projected.EventVersion) { AddedGangBlockedUntilOwnDraw = true });
 		projected.Melds18[state.SeatIndex].AddRange(new[] { tileType, tileType, tileType });
+        projected.IsCalled[state.SeatIndex]=true;
         if (sourceSeat is >= 0 and < 4)
         {
             var claimedIndex = projected.Discards18[sourceSeat].LastIndexOf(tileType);
@@ -758,5 +797,5 @@ public sealed class SichuanUnifiedDecisionEngine
                 .Concat(value.BranchReadyValueApplied ? new[]{"GANG_BRANCH_READY_VALUE_WEIGHTED_BEFORE_ROUNDING"} : Array.Empty<string>()).ToArray())
         { QuickReadyTiePreferred = action.ActionType == SichuanActionType.Peng && value.Shanten == 0
             && value.LiveUkeire > 0 && value.ImmediateSelfAction.Length == 0,
-          ContinuationDiscardRisk = value.ExpectedDiscardRisk };
+          ContinuationDiscardRisk = value.ExpectedDiscardRisk,DevelopmentEvidence=value.ReadyDevelopmentEstimate };
 }

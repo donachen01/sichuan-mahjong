@@ -14,6 +14,29 @@ namespace SichuanMahjong.AI.Core.Decision;
 public sealed class SichuanReadyDevelopmentEvaluator
 {
     internal static bool SuppressForResearch;
+    private sealed record ResearchNumerics(int Samples,int Seed,bool IsResearch);
+    private static readonly AsyncLocal<ResearchNumerics?> NumericalResearch=new();
+    internal static IDisposable EnterNumericalResearch(int samples,int seed)
+    {
+        SichuanPolicyExecutionScope.RequireResearchContext();
+        var old=NumericalResearch.Value;
+        NumericalResearch.Value=new(Math.Clamp(samples,256,4096),seed,true);
+        return new Scope(()=>NumericalResearch.Value=old);
+    }
+    internal static string NumericalCacheTag=>NumericalResearch.Value is {} n?$"{n.Samples}/{n.Seed}/{n.IsResearch}":"default";
+    internal static int NumericalSampleCount=>NumericalResearch.Value?.Samples??256;
+    internal static IDisposable? TryRefineNumericalEvidence(SichuanStateView s)
+    {
+        // Bounded numerical refinement at the actual root. Each comparison
+        // separates endpoint discovery and confirmation; an uncertain 1024
+        // estimate can use4096, rather than silently treating noise as Pass.
+        // This is numerical error control, not a population-confidence claim.
+        var old=NumericalResearch.Value;
+        if(s.PolicyVariant=="before_round2_v1"||old is {IsResearch:true}||old is {Samples:>=4096}
+            ||!HasJointComparison||!SichuanSearchBudget.IsRoot(s))return null;
+        NumericalResearch.Value=new(old is null?1024:4096,20261022,false);
+        return new Scope(()=>NumericalResearch.Value=old);
+    }
     public sealed record Value(M.Estimate Estimate,string Endpoint,int Plans,double StandardError);
     public sealed record Report(string Status,IReadOnlyDictionary<int,Value> Values,double Ms,int Endpoints,int Samples)
     {public double EndpointMs{get;init;}public double WallMs{get;init;}public double PlansMs{get;init;}}
@@ -29,13 +52,23 @@ public sealed class SichuanReadyDevelopmentEvaluator
         return _priceCache[key]=_prices.Build(s,hand,wall.ExpectedCounts18,melds);
     }
     internal sealed record Endpoint(int[] Hand,SichuanReadyPrice Price,bool SevenOnly);
+    private static bool PureTarget(SichuanStateView s,Endpoint e)
+    {
+        int t=Array.FindIndex(e.Hand,n=>n>0);if(t<0)return false;int suit=t/9;
+        return e.Hand.Select((n,i)=>(n,i)).All(x=>x.n==0||x.i/9==suit)
+            &&s.Melds18[s.SeatIndex].All(i=>i/9==suit)&&s.MeldViews[s.SeatIndex].All(m=>m.TileType/9==suit);
+    }
+    private static int EndpointLimit(SichuanStateView s,Endpoint e)=>CompletionExtension(s)
+        &&(s.PolicyVariant=="before_round2_v1"||PureTarget(s,e))?3:2;
     private sealed record Comparison(SichuanStateView Root,SichuanBeliefSnapshot Belief,SichuanWallAvailability Wall);
     private static readonly AsyncLocal<Comparison?> CurrentComparison=new();
+    internal static bool CompletionExtension(SichuanStateView s)=>SichuanLearningClosurePolicy.Completion(s);
+    internal static bool HasJointComparison=>CurrentComparison.Value is { } c&&CompletionExtension(c.Root);
     private sealed class Scope(Action end):IDisposable{public void Dispose()=>end();}
     internal static IDisposable EnterReactionComparison(SichuanStateView s,bool allowed)
     {
-        if(!allowed||SuppressForResearch||!Qualifies(s)||s.Hand18.Sum()!=13||s.OwnMeldCount!=0
-            ||new SichuanShantenEngine().CalcLegalShanten(s.Hand18,0,s.OwnDingQueSuit)<=0)
+        if(!allowed||SuppressForResearch||!Qualifies(s)||s.Hand18.Sum()!=13-3*s.OwnMeldCount
+            ||!CompletionExtension(s)&&(s.OwnMeldCount!=0||new SichuanShantenEngine().CalcLegalShanten(s.Hand18,0,s.OwnDingQueSuit)<=0))
             return new Scope(()=>{});
         var allocation=SichuanSearchBudget.TryDeep(s,"SEARCH_DEEP_ORDINARY_SEVEN_PAIRS_DEVELOPMENT");
         if(allocation is null)return new Scope(()=>{});
@@ -43,13 +76,33 @@ public sealed class SichuanReadyDevelopmentEvaluator
         var previous=CurrentComparison.Value;CurrentComparison.Value=new(s,b,w);
         return new Scope(()=>{CurrentComparison.Value=previous;allocation.Dispose();});
     }
+    internal static IDisposable EnterTurnComparison(SichuanStateView s,bool allowed)
+    {
+        if(!allowed||!CompletionExtension(s)||!Qualifies(s)||!SichuanSearchBudget.IsRoot(s))return new Scope(()=>{});
+        var allocation=SichuanSearchBudget.TryDeep(s,"SEARCH_DEEP_COMMON_PUBLIC_COMPLETION");
+        if(allocation is null)return new Scope(()=>{});
+        var b=new SichuanBeliefEngine().Build(s);var w=new SichuanWallAvailabilityEngine().Build(s,b);
+        var prior=CurrentComparison.Value;CurrentComparison.Value=new(s,b,w);
+        return new Scope(()=>{CurrentComparison.Value=prior;allocation.Dispose();});
+    }
     private static bool Qualifies(SichuanStateView s)
     {
-        if(s.InformationMode!="public"||s.WallCount<28||s.LockedFans[s.SeatIndex]>=0
+        if(s.InformationMode!="public"||s.WallCount<(CompletionExtension(s)?16:28)||s.LockedFans[s.SeatIndex]>=0
             ||s.OwnDingQueSuit is <0 or >2||s.DingQueSuits.Any(x=>x is <0 or >2)
             ||s.Hand18.Skip(s.OwnDingQueSuit*9).Take(9).Any(n=>n>0)
             ||!Enumerable.Range(0,4).Any(x=>x!=s.SeatIndex&&s.ActiveSeats[x]&&!s.HasHu[x])
-            ||SichuanGangDiscardLiability.CurrentGangCash(s) is not null)return false;
+            ||!CompletionExtension(s)&&SichuanGangDiscardLiability.CurrentGangCash(s) is not null)return false;
+        if(CompletionExtension(s))
+        {
+            var melds=SichuanDevelopmentPolicy.Melds(s,s.SeatIndex);
+            // A pure ready hand belongs to the exact fixed-hand stopping
+            // comparison. Do not overwrite it with a greedy-Ron trajectory.
+            if(CurrentComparison.Value is null&&s.Hand18.Select((n,t)=>(n,t)).Where(x=>x.n>0)
+                .Select(x=>x.t/9).Concat(melds.Select(m=>m.TileType/9)).Distinct().Count()==1)return false;
+            return Enumerable.Range(0,3).Where(suit=>suit!=s.OwnDingQueSuit).Any(suit=>
+                melds.All(m=>m.TileType/9==suit)&&s.Hand18.Skip(suit*9).Take(9).Sum()+3*melds.Count>=9)
+                &&SichuanDistinctDingQueHuPolicy.AssessDanger(s,new())==0;
+        }
         var gate=SichuanSevenPairsDevelopment.Assess(s);
         if(gate.Applies)return gate.Favorable&&gate.Safe;
         return s.OwnMeldCount==1&&SichuanDevelopmentPolicy.Melds(s,s.SeatIndex).All(m=>m.Type==SichuanMeldType.Peng)
@@ -68,9 +121,11 @@ public sealed class SichuanReadyDevelopmentEvaluator
         if(SuppressForResearch||(!ownedComparison&&(!SichuanSearchBudget.IsRoot(s)||SichuanDiscardPolicy.AtSearchLeaf))
             ||!Qualifies(s)||s.Hand18.Sum()!=14-3*s.OwnMeldCount)return No("outside_scope");
         var gate=SichuanSevenPairsDevelopment.Assess(s);
-        return SichuanPolicyExecutionScope.Memoize("common_ready_development",SichuanDecisionCommand.Fingerprint(s),()=>
+        return SichuanPolicyExecutionScope.Memoize("common_ready_development",(SichuanDecisionCommand.Fingerprint(s),NumericalCacheTag),()=>
         {
-            if(ownedComparison)return Compute(s,context!.Belief,context.Wall,analyses,gate,context.Root);
+            if(ownedComparison)
+                return s.WallCount==context!.Root.WallCount?Compute(s,context.Belief,context.Wall,analyses,gate,context.Root)
+                    :Compute(s,belief,wall,analyses,gate);
             using var allocation=SichuanSearchBudget.TryDeep(s,"SEARCH_DEEP_ORDINARY_SEVEN_PAIRS_DEVELOPMENT");
             return allocation is null?No("budget_not_allocated"):Compute(s,belief,wall,analyses,gate);
         });
@@ -86,17 +141,8 @@ public sealed class SichuanReadyDevelopmentEvaluator
         {int seat=(s.SeatIndex-d+4)%4;if(s.ActiveSeats[seat]&&!s.HasHu[seat])order.Add(seat);}
         numericalSource??=s;
         var env=Environment(numericalSource,belief,wall,order.ToArray());
-        const int count=1024;
-        var worlds=new M.World[count];
-        for(int i=0;i<count;i++)
-        {
-            int seed=20261022+i*7919;
-            var random=new Random(seed^104729);
-            worlds[i]=new(_walls.SampleWallOrder(numericalSource,belief,seed),
-                Enumerable.Range(0,s.WallCount*4).Select(_=>random.NextDouble()).ToArray(),
-                Enumerable.Range(0,s.WallCount*4).Select(_=>random.NextDouble()).ToArray(),
-                Enumerable.Range(0,s.WallCount*4).Select(_=>random.NextDouble()).ToArray());
-        }
+        int count=NumericalResearch.Value?.Samples??(CompletionExtension(s)?256:1024);
+        var worlds=SharedWorlds(numericalSource,belief,count);
         double wallMs=watch.Elapsed.TotalMilliseconds-endpointMs;
         var discovery=worlds.Take(count/2).ToArray();var confirmation=worlds.Skip(count/2).ToArray();
         var result=new Dictionary<int,Value>();
@@ -116,23 +162,34 @@ public sealed class SichuanReadyDevelopmentEvaluator
     {
             var ready=Price(s,h,wall);
             var options=ready is not null?new[]{new Endpoint(h,ready,_distance.CalcStandardShanten(h,s.OwnMeldCount)>0)}:
-                endpoints.Where(e=>Missing(h,e.Hand)<=2&&(allowSeven||!e.SevenOnly))
+                endpoints.Where(e=>Missing(h,e.Hand)<=EndpointLimit(s,e)&&(allowSeven||!e.SevenOnly))
                 .Select(e=>(e,score:Priority(s,h,e,wall,env.Order.Length))).Where(x=>x.score>0)
-                .GroupBy(x=>x.e.SevenOnly).SelectMany(g=>g.OrderByDescending(x=>x.score).ThenBy(x=>Key(x.e.Hand),StringComparer.Ordinal).Take(6))
+                .GroupBy(x=>(x.e.SevenOnly,Pure:CompletionExtension(s)&&x.e.Hand.Select((n,t)=>(n,t)).Where(z=>z.n>0).Select(z=>z.t/9).Distinct().Count()==1))
+                .SelectMany(g=>g.OrderByDescending(x=>x.score).ThenBy(x=>Key(x.e.Hand),StringComparer.Ordinal).Take(6))
                 .Select(x=>x.e).ToArray();
-            M.Estimate? best=null;M.Plan? bestPlan=null;string id="";int n=0;
+            double? bestValue=null;M.Plan? bestPlan=null;string id="";int n=0;
             foreach(var e in options)
             {
                 if(Enumerable.Range(0,27).Any(t=>Math.Max(0,e.Hand[t]-h[t])>s.Remaining18[t]))continue;
                 var plan=Plan(s,h,e.Hand,wall,belief);if(plan is null)continue;
-                n++;var value=M.Evaluate(plan,discovery,env);
+                n++;var value=M.EvaluateMean(plan,discovery,env);
                 // One public plan for all worlds, never a wall-aware maximum.
-                if(best is null||value.Chance.ExpectedNetScore>best.Chance.ExpectedNetScore+1e-9)
-                {best=value;id=plan.Id;bestPlan=plan;}
+                if(bestValue is null||value>bestValue.Value+1e-9)
+                {bestValue=value;id=plan.Id;bestPlan=plan;}
             }
-            if(best is null)
+            if(CompletionExtension(s)&&ready is null)
+            {
+                var adaptive=AdaptivePlan(s,h,endpoints,wall,env.Order.Length);
+                if(adaptive is not null)
+                {
+                    n++;var value=M.EvaluateMean(adaptive,discovery,env);
+                    if(bestValue is null||value>bestValue.Value+1e-9)
+                    {bestValue=value;id=adaptive.Id;bestPlan=adaptive;}
+                }
+            }
+            if(bestValue is null)
             {bestPlan=Plan(s,h,h,wall,belief)!;id=Key(h);}
-            best=M.Evaluate(bestPlan!,confirmation,env);
+            var best=M.Evaluate(bestPlan!,confirmation,env);
             if(best is not null)
             {
                 double mean=best.Nets.Average();double se=Math.Sqrt(best.Nets.Sum(x=>(x-mean)*(x-mean))/(confirmation.Length*(confirmation.Length-1)));
@@ -145,17 +202,50 @@ public sealed class SichuanReadyDevelopmentEvaluator
     {
         var context=CurrentComparison.Value;
         if(context is null||context.Root.SeatIndex!=root.SeatIndex)return null;
-        return SichuanPolicyExecutionScope.Memoize("common_development_holding",(SichuanDecisionCommand.Fingerprint(holding),offset),()=>
+        return SichuanPolicyExecutionScope.Memoize("common_development_holding",(SichuanDecisionCommand.Fingerprint(holding),offset,NumericalCacheTag),()=>
         {
-            var endpoints=Endpoints(holding,context.Wall);var source=context.Root;
+            var source=holding.WallCount==context.Root.WallCount?context.Root:holding;
+            var belief=source==context.Root?context.Belief:new SichuanBeliefEngine().Build(source);
+            var wall=source==context.Root?context.Wall:new SichuanWallAvailabilityEngine().Build(source,belief);
+            var endpoints=Endpoints(holding,wall);
             var order=new List<int>{root.SeatIndex};for(int d=1;d<4;d++){int seat=(root.SeatIndex-d+4)%4;if(root.ActiveSeats[seat]&&!root.HasHu[seat])order.Add(seat);}
-            var env=Environment(source,context.Belief,context.Wall,order.ToArray()) with{FirstActor=order[(order.Count-Math.Clamp(offset,0,order.Count-1))%order.Count]};
-            var worlds=SichuanPolicyExecutionScope.Memoize("development_reaction_worlds",SichuanDecisionCommand.Fingerprint(source),()=>
+            var env=Environment(source,belief,wall,order.ToArray()) with{FirstActor=order[(order.Count-Math.Clamp(offset,0,order.Count-1))%order.Count]};
+            var worlds=SharedWorlds(source,belief,NumericalResearch.Value?.Samples??(CompletionExtension(source)?256:1024));
+            return EvaluateOne(holding,holding.Hand18,endpoints,wall,belief,env,worlds.Take(worlds.Length/2).ToArray(),worlds.Skip(worlds.Length/2).ToArray(),true);
+        });
+    }
+
+    private sealed record Uniforms(double[] Self,double[] Ron,double[] Claim);
+    private static Uniforms[] CommonUniforms(int wallCount,int count,int baseSeed)
+        =>SichuanPolicyExecutionScope.Memoize("common_development_uniforms",(wallCount,count,baseSeed),()=>
+        {
+            var result=new Uniforms[count];
+            for(int i=0;i<count;i++)
             {
-                var w=new M.World[1024];for(int i=0;i<w.Length;i++){int seed=20261022+i*7919;var random=new Random(seed^104729);
-                    w[i]=new(_walls.SampleWallOrder(source,context.Belief,seed),Enumerable.Range(0,source.WallCount*4).Select(_=>random.NextDouble()).ToArray(),Enumerable.Range(0,source.WallCount*4).Select(_=>random.NextDouble()).ToArray(),Enumerable.Range(0,source.WallCount*4).Select(_=>random.NextDouble()).ToArray());}return w;
-            });
-            return EvaluateOne(holding,holding.Hand18,endpoints,context.Wall,context.Belief,env,worlds.Take(512).ToArray(),worlds.Skip(512).ToArray(),true);
+                var random=new Random((baseSeed+i*7919)^104729);
+                result[i]=new(Enumerable.Range(0,wallCount*4).Select(_=>random.NextDouble()).ToArray(),
+                    Enumerable.Range(0,wallCount*4).Select(_=>random.NextDouble()).ToArray(),
+                    Enumerable.Range(0,wallCount*4).Select(_=>random.NextDouble()).ToArray());
+            }
+            return result;
+        });
+
+    internal M.World[] SharedWorlds(SichuanStateView source,SichuanBeliefSnapshot belief,int count)
+    {
+        var sampling=_walls.PrepareWallOrders(source,belief);
+        int baseSeed=NumericalResearch.Value?.Seed??20261022;
+        return SichuanPolicyExecutionScope.Memoize("common_development_numerical_worlds",
+            (sampling.Signature,source.WallCount,count,baseSeed,NumericalCacheTag),()=>
+        {
+            using var timing=SichuanPolicyTiming.Measure("development_world_creation");
+            var uniforms=CommonUniforms(source.WallCount,count,baseSeed);
+            var worlds=new M.World[count];
+            void Fill(int i)=>worlds[i]=new(sampling.Sample(baseSeed+i*7919),uniforms[i].Self,uniforms[i].Ron,uniforms[i].Claim);
+            int workers=Math.Min(4,System.Environment.ProcessorCount);
+            if(count>=1024&&workers>1)
+                System.Threading.Tasks.Parallel.For(0,count,new System.Threading.Tasks.ParallelOptions{MaxDegreeOfParallelism=workers},Fill);
+            else for(int i=0;i<count;i++)Fill(i);
+            return worlds;
         });
     }
 
@@ -163,6 +253,7 @@ public sealed class SichuanReadyDevelopmentEvaluator
     private static string Key(int[] h)=>string.Concat(h.Select(x=>(char)('0'+x)));
     internal List<Endpoint> Endpoints(SichuanStateView s,SichuanWallAvailability wall,bool includeDead=false)
     {
+        using var timing=SichuanPolicyTiming.Measure("development_endpoints");
         var h=new int[27];var found=new Dictionary<string,int[]>();
         var exposed=new int[27];foreach(var m in SichuanDevelopmentPolicy.Melds(s,s.SeatIndex))exposed[m.TileType]+=m.Type==SichuanMeldType.Peng?3:4;
         var legal=Enumerable.Range(0,27).Where(t=>t/9!=s.OwnDingQueSuit).ToArray();
@@ -203,6 +294,15 @@ public sealed class SichuanReadyDevelopmentEvaluator
             {Seven(i+1,left-1);h[legal[i]]-=2;}
         }
         if(s.OwnMeldCount==0)Seven(0,6);
+        if(CompletionExtension(s))for(int suit=0;suit<3;suit++)
+        {
+            if(suit==s.OwnDingQueSuit||exposed.Where((n,t)=>n>0&&t/9!=suit).Any())continue;
+            foreach(var pattern in SichuanFlushStructureEngine.ReadyPatterns(s.OwnMeldCount))
+            {
+                var pure=new int[27];for(int rank=0;rank<9;rank++)pure[suit*9+rank]=pattern.Span[rank];
+                if(Missing(s.Hand18,pure)<=3&&Enumerable.Range(0,27).All(t=>pure[t]+exposed[t]<=4&&pure[t]<=s.Hand18[t]+s.Remaining18[t]))found.TryAdd(Key(pure),pure);
+            }
+        }
         var result=new List<Endpoint>();
         foreach(var hand in found.Values)
         {
@@ -216,12 +316,17 @@ public sealed class SichuanReadyDevelopmentEvaluator
     {
         double reach=1;int missing=Missing(source,e.Hand);if(missing==0)return double.PositiveInfinity;
         double draws=wall.WallCount/(double)players;
+        if(CompletionExtension(s))
+        {
+            var required=Enumerable.Range(0,27).Select(t=>Math.Max(0,e.Hand[t]-source[t])).ToArray();
+            reach=SichuanJointAcquisition.AtLeast(s.Remaining18,required,(int)draws);
+        }
         for(int t=0;t<27;t++)if(e.Hand[t]>source[t])
         {
             int need=e.Hand[t]-source[t];double p=Math.Clamp(wall.ExpectedCounts18[t]/wall.WallCount,0,1);
             int suppliers=e.Hand[t]==3&&source[t]==2?Enumerable.Range(0,4).Count(x=>x!=s.SeatIndex&&s.ActiveSeats[x]&&!s.HasHu[x]&&s.DingQueSuits[x]==t/9):0;
             double k=draws*(1+suppliers),miss=Math.Pow(1-p,k);
-            reach*=Math.Max(0,need==1?1-miss:1-miss-k*p*Math.Pow(1-p,Math.Max(0,k-1)));
+            if(!CompletionExtension(s))reach*=Math.Max(0,need==1?1-miss:1-miss-k*p*Math.Pow(1-p,Math.Max(0,k-1)));
         }
         double win=0;
         foreach(var w in e.Price.Waits)
@@ -239,7 +344,7 @@ public sealed class SichuanReadyDevelopmentEvaluator
         var spare=Enumerable.Range(0,27).SelectMany(t=>Enumerable.Repeat(t,Math.Max(0,initial[t]-endpoint[t])))
             .OrderBy(t=>Enumerable.Range(0,4).Where(x=>x!=s.SeatIndex&&s.ActiveSeats[x]&&!s.HasHu[x])
                 .Sum(x=>belief.SeatTileWaitProbability.GetValueOrDefault(x)?.GetValueOrDefault(t)??0)).ThenBy(t=>t).ToArray();
-        if(types.Length>2||required.Sum()>2||spare.Length!=required.Sum())return null;
+        if(types.Length>(CompletionExtension(s)?3:2)||required.Sum()>(CompletionExtension(s)?3:2)||spare.Length!=required.Sum())return null;
         var states=new List<M.Stage>();var cache=new Dictionary<string,int>();
         int Build(int[] got,int claims)
         {
@@ -279,6 +384,131 @@ public sealed class SichuanReadyDevelopmentEvaluator
 
     internal M.Plan PlanForCheck(SichuanStateView s,int[] initial,int[] endpoint,SichuanWallAvailability wall,SichuanBeliefSnapshot belief)
         =>Plan(s,initial,endpoint,wall,belief)!;
+
+    // Compile one public policy BEFORE numerical walls are sampled/evaluated.
+    // Unlike choosing one fixed endpoint, a new observed tile can select a
+    // different compatible target. There is no maximum over hidden futures.
+    internal M.Plan? AdaptivePlan(SichuanStateView s,int[] initial,List<Endpoint> endpoints,
+        SichuanWallAvailability wall,int players)
+    {
+        using var timing=SichuanPolicyTiming.Measure("development_adaptive_graph");
+        bool improvements=SichuanLearningClosurePolicy.MonetaryClaims(s);
+        static bool Pure(Endpoint e)=>e.Hand.Select((n,t)=>(n,t)).Where(z=>z.n>0).Select(z=>z.t/9).Distinct().Count()==1;
+        // Current policy also retains farther improvement endpoints within
+        // the declared public radius. The prior policy's nearest-only graph
+        // remains available for the paired research control.
+        var within=endpoints.Where(e=>Missing(initial,e.Hand)<=EndpointLimit(s,e)).ToArray();
+        var nearest=improvements?within:within
+            .GroupBy(e=>(e.SevenOnly,Pure:Pure(e))).SelectMany(g=>
+            {int d=g.Min(e=>Missing(initial,e.Hand));return g.Where(e=>Missing(initial,e.Hand)==d);}).ToArray();
+        var candidates=nearest
+            .Select(e=>(e,score:Priority(s,initial,e,wall,players))).Where(x=>x.score>0)
+            .SelectMany(x=>Enumerable.Range(0,27).Where(t=>x.e.Hand[t]>initial[t]).Select(t=>(t,x.e,x.score)))
+            .GroupBy(x=>(x.t,x.e.SevenOnly,Pure:x.e.Hand.Select((n,t)=>(n,t)).Where(z=>z.n>0).Select(z=>z.t/9).Distinct().Count()==1))
+            .Select(g=>g.OrderByDescending(x=>x.score).ThenBy(x=>Key(x.e.Hand),StringComparer.Ordinal).First().e)
+            .GroupBy(e=>Key(e.Hand)).Select(g=>g.First()).ToArray();
+        if(candidates.Length==0)return null;
+        var baseMelds=SichuanDevelopmentPolicy.Melds(s,s.SeatIndex);
+        var states=new List<M.Stage>();var cache=new Dictionary<string,int>();
+        var pending=new Queue<Action>();
+        // Project and price each endpoint only once per exposed-Peng set.
+        // This cache is local to one state/wall, so it cannot reuse stale
+        // copy availability or conceal a changed public observation.
+        var projected=new Dictionary<uint,(List<SichuanMeldView> Melds,Endpoint[] Goals)>();
+        (List<SichuanMeldView> Melds,Endpoint[] Goals) Project(uint claims)
+        {
+            if(projected.TryGetValue(claims,out var saved))return saved;
+            var tiles=Enumerable.Range(0,27).Where(t=>(claims&(1u<<t))!=0).ToArray();
+            var melds=baseMelds.Concat(tiles.Select(t=>new SichuanMeldView(SichuanMeldType.Peng,t,-1,0))).ToList();
+            var goals=new List<Endpoint>();
+            foreach(var endpoint in candidates)
+            {
+                var goal=endpoint.Hand.ToArray();foreach(int t in tiles)goal[t]-=3;
+                if(goal.Any(n=>n<0))continue;
+                var price=Price(s,goal,wall,melds);
+                if(price is not null)goals.Add(new(goal,price,endpoint.SevenOnly&&claims==0));
+            }
+            return projected[claims]=(melds,goals.ToArray());
+        }
+        var priorities=new Dictionary<(string Hand,string Goal,uint Claims),double>();
+        int Build(int[] hand,uint claims,int left,int[] acquired)
+        {
+            var key=Key(hand)+"/"+claims+"/"+left+"/"+Key(acquired);
+            if(cache.TryGetValue(key,out int saved))return saved;
+            if(states.Count>=512){if(improvements)return -1;throw new AdaptiveLimitException();}
+            var melds=Project(claims).Melds;
+            var price=Price(s,hand,wall,melds);
+            var ron=new double[27];var self=new double[27];
+            if(price is not null)foreach(var w in price.Waits){ron[w.TileType]=w.HandScore;self[w.TileType]=w.SelfDrawPerPayer;}
+            var own=Enumerable.Repeat(-1,27).ToArray();var peng=Enumerable.Repeat(-1,27).ToArray();
+            int index=states.Count;cache[key]=index;
+            states.Add(new(ron,self,own,peng,-1,price is not null,hand,melds.Select(m=>m.TileType).ToArray())
+                {ChaJiaoScore=price?.Waits.Max(w=>w.HandScore)??0});
+            if(price is not null||left==0)return index;
+            void Expand()
+            {
+            var ownDiscards=Enumerable.Repeat(-1,27).ToArray();var pengDiscards=Enumerable.Repeat(-1,27).ToArray();
+            var proposals=new List<(bool Claim,int Tile,int[] Hand,uint Claims,int Left,int[] Acquired,int Discard,double Score)>();
+            void Connect(bool claim,int tile,int[] hand,uint nextClaims,int nextLeft,int[] got,int discard)
+            {
+                int next=Build(hand,nextClaims,nextLeft,got);if(next<0)return;
+                if(claim){peng[tile]=next;pengDiscards[tile]=discard;}else{own[tile]=next;ownDiscards[tile]=discard;}
+            }
+            for(int tile=0;tile<27;tile++)
+            {
+                if(s.Remaining18[tile]<=acquired[tile])continue;
+                var nextAcquired=acquired.ToArray();nextAcquired[tile]++;
+                void Transition(bool claim)
+                {
+                    if(claim&&(hand[tile]<2||(claims&(1u<<tile))!=0))return;
+                    if(!claim&&hand[tile]>=4)return;
+                    uint newClaims=claims|(claim?1u<<tile:0);var drawn=hand.ToArray();drawn[tile]+=claim?-2:1;
+                    double best=double.NegativeInfinity;int discard=-1;int[]? chosen=null;
+                    foreach(var e in Project(newClaims).Goals)
+                    {
+                        var goal=e.Hand;
+                        if(!claim&&drawn[tile]>goal[tile]||Missing(drawn,goal)>left-1)continue;
+                        for(int d=0;d<27;d++)
+                        {
+                            if(drawn[d]<=goal[d])continue;
+                            var post=drawn.ToArray();post[d]--;
+                            if(Missing(post,goal)>left-1||Enumerable.Range(0,27).Any(t=>
+                                Math.Max(0,goal[t]-post[t])>s.Remaining18[t]-nextAcquired[t]))continue;
+                            var scoreKey=(Key(post),Key(goal),newClaims);
+                            if(!priorities.TryGetValue(scoreKey,out double score))
+                            {
+                                score=Missing(post,goal)==0
+                                    ?e.Price.Waits.Sum(w=>w.PublicWallWeight*(w.SelfDrawPerPayer*(players-1)
+                                        +Enumerable.Range(0,4).Count(x=>x!=s.SeatIndex&&s.ActiveSeats[x]&&!s.HasHu[x]&&s.DingQueSuits[x]==w.TileType/9)*w.HandScore))/Math.Max(1,wall.WallCount)*wall.WallCount/players
+                                    :Priority(s,post,e,wall,players);
+                                priorities[scoreKey]=score;
+                            }
+                            if(score>best+1e-12||Math.Abs(score-best)<=1e-12&&(discard<0||d<discard))
+                            {best=score;discard=d;chosen=post;}
+                        }
+                    }
+                    if(chosen is null)return;
+                    if(improvements)proposals.Add((claim,tile,chosen,newClaims,left-1,nextAcquired,discard,best));
+                    else Connect(claim,tile,chosen,newClaims,left-1,nextAcquired,discard);
+                }
+                Transition(false);Transition(true);
+            }
+            foreach(var p in proposals.OrderByDescending(p=>p.Score).ThenBy(p=>p.Tile).ThenBy(p=>p.Claim))
+                Connect(p.Claim,p.Tile,p.Hand,p.Claims,p.Left,p.Acquired,p.Discard);
+            states[index]=states[index] with{OwnDiscards=ownDiscards,PengDiscards=pengDiscards};
+            }
+            if(improvements)pending.Enqueue(Expand);else Expand();
+            return index;
+        }
+        int horizon=improvements?3:candidates.Max(e=>Missing(initial,e.Hand));
+        try
+        {
+            Build(initial,0,horizon,new int[27]);while(pending.TryDequeue(out var next))next();
+            return new((improvements?"adaptive-public-improvements-":"adaptive-public-nearest-")+Key(initial),states.ToArray());
+        }
+        catch(AdaptiveLimitException){return null;}
+    }
+    private sealed class AdaptiveLimitException:Exception { }
 
     internal static M.Environment Environment(SichuanStateView s,SichuanBeliefSnapshot belief,SichuanWallAvailability wall,int[] order)
     {

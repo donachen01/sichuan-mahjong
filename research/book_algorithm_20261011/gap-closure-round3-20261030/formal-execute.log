@@ -1,0 +1,11 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+LOWER_EXEC lower-76-6-28-base-offer-m2/source-corrected/seat1/compactfalse action=peng ms=4080.8 failures=0
+LOWER_EXEC lower-76-6-28-base-offer-m4/source-corrected/seat1/compactfalse action=pass ms=574.9 failures=0
+LOWER_EXEC reread-6-26-after-p4-offer-p3/seat1/compactfalse action=peng ms=1158.1 failures=0
+LOWER_EXEC reread-6-26-after-p5-offer-p3/seat1/compactfalse action=peng ms=1022.9 failures=0
+LOWER_EXECUTION rows=4 failures=0

@@ -32,7 +32,8 @@ public sealed class SichuanReactionDecisionEngine
     {
         using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
-        using var developmentComparison=SichuanReadyDevelopmentEvaluator.EnterReactionComparison(state,canPeng&&!canHu&&!canGang);
+        using var developmentComparison=SichuanReadyDevelopmentEvaluator.EnterReactionComparison(state,
+            canPeng&&!canHu&&(!canGang||SichuanReadyDevelopmentEvaluator.CompletionExtension(state)));
         if (canHu)
         {
 			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain, canGang);
@@ -143,6 +144,17 @@ public sealed class SichuanReactionDecisionEngine
 			belief: belief,
             pengDiscardTile: candidates.FirstOrDefault(item => item.action == "peng").result?.PlannedDiscardTile ?? -1,
             gangSourceSeat:sourceSeat);
+        if(unifiedMelds.Candidates.Any(c=>c.NeedsMoreDevelopmentSamples))
+        {
+            using var precision=SichuanReadyDevelopmentEvaluator.TryRefineNumericalEvidence(state);
+            if(precision is not null)
+            {
+                var refined=DecideReaction(state,reactionTileType,canHu,canPeng,canGang,sourceSeat,
+                    reactionType,forceLightweight,mandatoryGang,roundBrain);
+                refined.Reasons=refined.Reasons.Append($"PUBLIC_CLAIM_FRESH_CONFIRMATION_{SichuanReadyDevelopmentEvaluator.NumericalSampleCount/2}_SAMPLES").ToArray();
+                return refined;
+            }
+        }
 		foreach (var unifiedCandidate in unifiedMelds.Candidates.Where(item => item.IsAdmissible))
 		{
 			var key = unifiedCandidate.Action.ActionType.ToString().ToLowerInvariant();
@@ -209,6 +221,7 @@ public sealed class SichuanReactionDecisionEngine
                 var mergedReasons = item.result.Reasons.ToList();
                 mergedReasons.Add($"短搜索修正 {bonus:F2}");
                 if(state.InformationMode=="public")mergedReasons.Add("PUBLIC_REACTION_SHARED_BOUNDED_SEARCH");
+                if(state.InformationMode=="public")mergedReasons.Add("PUBLIC_REACTION_FROZEN_RIVAL_OWN_DRAW_LOOKAHEAD");
                 item.result.Reasons = mergedReasons;
                 candidates[index] = item;
                 scores[item.action] = item.result.Action.Score;
@@ -220,7 +233,7 @@ public sealed class SichuanReactionDecisionEngine
         }
 
         var proposals = new List<(SichuanReactionDecisionResult Result,int Priority,string Code)>();
-        var excluded = new HashSet<SichuanActionType>();
+        var excluded = unifiedMelds.Candidates.Where(c=>!c.IsAdmissible).Select(c=>c.Action.ActionType).ToHashSet();
         // 3.2 exception: an early four-pair hand with two live opponents
         // missing the same suit can have a real big-pair / Jin-Gou route.
         // The ordinary speed score otherwise keeps passing the useful claim
@@ -250,7 +263,7 @@ public sealed class SichuanReactionDecisionEngine
         // the newly exposed meld as progress even when the useful remaining
         // shape is no better.  In the early public decision stage, preserve
         // the pass when no strong pair-route exception is present.
-        if (!pairRouteException
+        if (!SichuanReadyDevelopmentEvaluator.HasJointComparison && !pairRouteException
             && best.Action.ActionType == SichuanActionType.Peng
             && IsWeakEmbeddedPairPeng(state, reactionTileType, roundStage))
         {
@@ -269,7 +282,7 @@ public sealed class SichuanReactionDecisionEngine
         // slightly pessimistic.  The four-pair/two-opponent exception above
         // handles the separate 3-5 route; this branch does not apply to a
         // same-suit second pair such as 1223347.
-        if (!currentPlan.ForbidsMelds
+        if (!SichuanReadyDevelopmentEvaluator.HasJointComparison && !currentPlan.ForbidsMelds
             && best.Action.ActionType == SichuanActionType.Pass
             && IsStrongEmbeddedPairPeng(state, reactionTileType, roundStage))
         {
@@ -339,7 +352,7 @@ public sealed class SichuanReactionDecisionEngine
 				&& currentFollowUp.LiveUkeire > 0;
 			var passWithinDecisionMargin = passCandidate.Action.Score >= peng.Action.Score - 45;
 			if (deadReadyAfterPeng
-				|| !flushClaim && passWithinDecisionMargin && pengDevelopment?.Improves != true
+                || !SichuanReadyDevelopmentEvaluator.HasJointComparison && !flushClaim && passWithinDecisionMargin && pengDevelopment?.Improves != true
                     && (noSpeedGain || wideFlexibleBeforeCall || narrowReadyTrap || damagesExistingReady))
             {
                 passCandidate.Reasons = passCandidate.Reasons
@@ -925,8 +938,10 @@ public sealed class SichuanReactionDecisionEngine
 					ReactionSearchDepth,
 					wallOrder,
                     candidate.ownDrawOffset,
-                    candidate.action == "peng" ? SichuanUnifiedDecisionEngine.ProjectPengContinuation(state,
-                        RemoveCopies(state.Hand18,candidate.result.Action.TileType,2),candidate.result.Action.TileType,state.CurrentSeat)
+                    candidate.action == "peng" ? SichuanBranchState.AfterDiscard(
+                        SichuanUnifiedDecisionEngine.ProjectPengContinuation(state,
+                            RemoveCopies(state.Hand18,candidate.result.Action.TileType,2),candidate.result.Action.TileType,state.CurrentSeat),
+                        candidate.result.PlannedDiscardTile)
                         : candidate.action == "gang" ? ProjectSearchGang(state,candidate.result.Action.TileType) : state);
                 simulations++;
             }
@@ -999,7 +1014,15 @@ public sealed class SichuanReactionDecisionEngine
 				&& (drawIndex - ownDrawOffset) % activePlayers == 0;
 			if (!isOwnDraw) continue;
             hand[draw]++;
-            var drawn=SichuanBranchState.AfterOwnDraw(branch,hand,draw,state.WallCount-drawIndex-1);
+            // This legacy quality lookahead freezes rival hands/actions. Wall
+            // positions choose the sampled own-draw opportunities, but skipped
+            // rival positions are NOT completed public transitions. Shrinking
+            // the node clock for them while retaining their public stock made
+            // guaranteed wall copies exceed the fictitious remaining wall.
+            // Only an observed own draw removes a copy and a wall position in
+            // this model. Actual claim timing/cost is priced by the unified
+            // counterfactual above, never by this structural bonus.
+            var drawn=SichuanBranchState.AfterOwnDraw(branch,hand,draw,Math.Max(0,branch.WallCount-1));
             if(SichuanReadyWaitPricing.HasLegalOwnedContext(drawn,hand,drawn.MeldViews[drawn.SeatIndex])
                 && new Rules.SichuanExactHandAnalyzer().IsWinning(hand,meldCount,meldCount==0))
             { total+=24;ownDraws++;break; }

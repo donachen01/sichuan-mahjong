@@ -10,7 +10,9 @@ public sealed record SichuanMultiPlayerUtilityInput(
     double ExitOrderValue,
     double UncertaintyPenalty,
     int ActivePlayers,
-    double Confidence);
+    double Confidence,
+    double FutureOwnPayment = 0,
+    bool UsesOwnPaymentSeries = false);
 
 public sealed record SichuanMultiPlayerUtilityResult(
     double NetUtility,
@@ -30,9 +32,13 @@ public sealed class SichuanMultiPlayerUtilityEngine
         double confidence=Math.Clamp(input.Confidence,0,1);
         double meanPositive=input.OwnWinGain+input.GangGain+input.ChaJiaoValue;
         double incomeScale=1-Math.Sign(meanPositive)*(1-confidence)*ConfidenceScale;
-        double lossScale=DominantWeight(Math.Clamp(input.ActivePlayers,1,4))*(1+(1-confidence)*ConfidenceScale);
+        // Callers provide exactly one future-loss channel: own cash or the
+        // historical discounted-growth research control.
+        bool ownCash=input.UsesOwnPaymentSeries;
+        double lossScale=(ownCash?1: DominantWeight(Math.Clamp(input.ActivePlayers,1,4)))*(1+(1-confidence)*ConfidenceScale);
+        double meanLoss=ownCash?input.FutureOwnPayment:input.DominantOpponentFutureGain;
         return Enumerable.Range(0,gains.Length).Select(i=>incomeScale*(gains[i]+cha[i]-meanPositive)
-            -lossScale*(losses[i]-input.DominantOpponentFutureGain)).ToArray();
+            -lossScale*(losses[i]-meanLoss)).ToArray();
     }
     public SichuanMultiPlayerUtilityResult Evaluate(SichuanMultiPlayerUtilityInput input)
     {
@@ -42,6 +48,7 @@ public sealed class SichuanMultiPlayerUtilityEngine
         var dominantWeight = DominantWeight(activePlayers);
         var otherWeight = 0.18 + Math.Max(0, activePlayers - 2) * 0.05;
         var threatCost = Math.Max(0, input.DealInLoss)
+            + Math.Max(0, input.FutureOwnPayment)
             + Math.Max(0, input.DominantOpponentFutureGain) * dominantWeight
             + Math.Max(0, input.OtherOpponentFutureGain) * otherWeight;
         var survivalValue = input.ExitOrderValue * (1.0 + Math.Max(0, 4 - activePlayers) * 0.12);

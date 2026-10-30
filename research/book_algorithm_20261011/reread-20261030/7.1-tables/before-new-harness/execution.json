@@ -1,0 +1,123 @@
+{
+  "failures": [],
+  "rows": [
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 102.0,
+        "id": "d2d1a428850e89a38202236c8753253624489ed3e5c794ddf5f617e7833c6387",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "3096d528c9cac66aa0331da673b56ba6",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "9f5173fa4e57ad2e44657c3fea9368c75e2f7e0822ef7fddb25108009449d01d",
+        "tile": 0.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-78-7-1-base-full-public/seat1/compactfalse",
+      "ms": 520.356,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 2",
+        "继续出牌统一净值 2.46",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_0",
+        "当前后手弃牌风险已计价 0.2200",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-78-7-1-base-full-public"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 103.0,
+        "id": "088226f56845fb05e6162a8a69fe276eab19d261150bdec72711c90f124143d2",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "a8f5cd36d472b04850b9b4648b406e73",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "24106c66048429d9ed1d5d4e35036615273827311b348c6dc2feead6b76affa7",
+        "tile": 15.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-80-7-2-middle-full-public/seat1/compactfalse",
+      "ms": 142.514,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 3",
+        "继续出牌统一净值 0.60",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_15",
+        "当前后手弃牌风险已计价 0.6400",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-80-7-2-middle-full-public"
+    },
+    {
+      "action": "discard",
+      "command": {
+        "action": "discard",
+        "continuationAction": "",
+        "continuationState": "",
+        "continuationTile": -1.0,
+        "gangSubtype": "",
+        "generation": 104.0,
+        "id": "a46802aa8fafbd22de63a1317a8c92d855aa2ad724cebbf306cdec40ef2a8386",
+        "parentId": "",
+        "planRevision": 1.0,
+        "policy": "unified-seat-policy-v2-adaptive-budget",
+        "roundId": "b47dfaf1d6a9b41f91d9c34d35ea131a",
+        "schema": 1.0,
+        "seat": 1.0,
+        "stateKey": "e69fff86cad88a5114643002d9bfa20ccbe9b8da80ff1406bd09903882d6b1fe",
+        "tile": 18.0,
+        "viewVersion": 1.0,
+        "window": "turn"
+      },
+      "compact": false,
+      "executed": true,
+      "id": "lower-81-7-2-late-full-public/seat1/compactfalse",
+      "ms": 52.072,
+      "reasons": [
+        "当前后手向听 0",
+        "当前活张 3",
+        "继续出牌统一净值 0.88",
+        "CONTINUATION_LEGAL_READY_CONTEXT",
+        "SELF_PASS_PLANNED_DISCARD_18",
+        "当前后手弃牌风险已计价 0.7000",
+        "SELF_GANG_ROUTE_PRICED_BY_EXECUTABLE_CONTINUATION",
+        "CONTINUATION_MODEL_shared_executable_ready_action_value",
+        "SEARCH_BUDGET_FAST"
+      ],
+      "seat": 1,
+      "source": "lower-81-7-2-late-full-public"
+    }
+  ],
+  "scope": "physical controlled backgrounds; real C# seat authority and GameState; compact desktop transport is not device NativeAOT"
+}

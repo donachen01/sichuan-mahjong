@@ -1,0 +1,704 @@
+{
+	"complete_games": [
+		{
+			"seed": 72624148,
+			"controlled": -1,
+			"scores": {
+				"0": 2,
+				"1": 6,
+				"2": -4,
+				"3": -4
+			},
+			"fully_settled": true,
+			"physical_conservation": true,
+			"deal_sha256": "64e19cf65d4c7fe3ccaa247c4ab8a55b93a44971eb40de90cff183bdf36406e0",
+			"decision_ms": []
+		}
+	],
+	"observations": [
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				52.0,
+				0.0,
+				1.0,
+				-1.0,
+				1.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0318866629587114,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				52.0,
+				0.0,
+				1.0,
+				-1.0,
+				0.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.039918367706681,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				52.0,
+				0.0,
+				1.0,
+				-1.0,
+				1.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0318866629587114,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				48.0,
+				0.0,
+				2.0,
+				-1.0,
+				2.0,
+				0.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0303484542343903,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				48.0,
+				0.0,
+				2.0,
+				-1.0,
+				1.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0380079216699994,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				48.0,
+				0.0,
+				2.0,
+				-1.0,
+				1.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0380079216699994,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				44.0,
+				0.0,
+				3.0,
+				0.0,
+				3.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.161447186269695,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				44.0,
+				0.0,
+				3.0,
+				-1.0,
+				2.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0361854612701213,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				44.0,
+				0.0,
+				3.0,
+				-1.0,
+				2.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0361854612701213,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.0780954149790731,
+				40.0,
+				0.0,
+				4.0,
+				0.0,
+				4.0,
+				0.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.16360669315186,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				40.0,
+				0.0,
+				4.0,
+				-1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0430952219248303,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				40.0,
+				0.0,
+				4.0,
+				-1.0,
+				3.0,
+				1.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0344472577723256,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.0740230035955521,
+				36.0,
+				0.0,
+				5.0,
+				1.0,
+				3.0,
+				1.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.138815246448297,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				36.0,
+				0.0,
+				5.0,
+				-1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0454458711442432,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.07208,
+				36.0,
+				0.0,
+				5.0,
+				-1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0454458711442432,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.104429670229897,
+				32.0,
+				0.0,
+				6.0,
+				2.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.223534578523711,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.102,
+				32.0,
+				0.0,
+				6.0,
+				-1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0632195532929432,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.102,
+				32.0,
+				0.0,
+				6.0,
+				-1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.0632195532929432,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.164959015676306,
+				28.0,
+				0.0,
+				7.0,
+				3.0,
+				1.0,
+				3.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.365935082409968,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				28.0,
+				0.0,
+				7.0,
+				-1.0,
+				1.0,
+				3.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.119241678297092,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				28.0,
+				0.0,
+				7.0,
+				-1.0,
+				1.0,
+				3.0,
+				0.0,
+				1.0,
+				0.0
+			],
+			"actual": 0.119241678297092,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.343036441049768,
+				24.0,
+				1.0,
+				9.0,
+				0.0,
+				1.0,
+				3.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.660045460970731,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				24.0,
+				0.0,
+				7.0,
+				2.0,
+				2.0,
+				2.0,
+				1.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.325245938296237,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				24.0,
+				0.0,
+				8.0,
+				0.0,
+				2.0,
+				2.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.436641285549302,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.41752,
+				20.0,
+				1.0,
+				10.0,
+				0.0,
+				2.0,
+				2.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.674950513254664,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				20.0,
+				0.0,
+				8.0,
+				0.0,
+				1.0,
+				3.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.499029603684774,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				20.0,
+				0.0,
+				9.0,
+				0.0,
+				3.0,
+				1.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.393597588432257,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.41752,
+				16.0,
+				1.0,
+				11.0,
+				1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.586349646349601,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.1615,
+				16.0,
+				0.0,
+				9.0,
+				0.0,
+				1.0,
+				3.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.499293198400971,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.260143088538087,
+				16.0,
+				0.0,
+				10.0,
+				0.0,
+				3.0,
+				1.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.52198009110736,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.550019911182178,
+				12.0,
+				2.0,
+				13.0,
+				0.0,
+				2.0,
+				2.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.772724579480306,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.24548,
+				12.0,
+				0.0,
+				10.0,
+				0.0,
+				3.0,
+				1.0,
+				0.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.497867648963694,
+			"truth": 0,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.608703105726003,
+				8.0,
+				2.0,
+				14.0,
+				0.0,
+				2.0,
+				2.0,
+				1.0,
+				0.0,
+				1.0
+			],
+			"actual": 0.820534162078169,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.317328600320569,
+				8.0,
+				0.0,
+				12.0,
+				2.0,
+				0.0,
+				4.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.650603186526061,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.359836049614615,
+				4.0,
+				0.0,
+				13.0,
+				1.0,
+				3.0,
+				1.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.53120739728001,
+			"truth": 1,
+			"prediction_before_label": true
+		},
+		{
+			"seed": 72624148,
+			"observer_policy": "before_round2_v1",
+			"features": [
+				0.366334075157057,
+				0.0,
+				0.0,
+				15.0,
+				1.0,
+				2.0,
+				2.0,
+				0.0,
+				1.0,
+				1.0
+			],
+			"actual": 0.616060074192637,
+			"truth": 1,
+			"prediction_before_label": true
+		}
+	]
+}

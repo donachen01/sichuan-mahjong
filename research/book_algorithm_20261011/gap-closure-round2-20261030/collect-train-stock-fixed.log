@@ -1,0 +1,103 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42611031 games=1 observations=69
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42612040 games=2 observations=140
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42613049 games=3 observations=211
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42614058 games=4 observations=266
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42615067 games=5 observations=350
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42616076 games=6 observations=394
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42617085 games=7 observations=480
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42618094 games=8 observations=538
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42619103 games=9 observations=618
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42620112 games=10 observations=697
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42621121 games=11 observations=776
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42622130 games=12 observations=843
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42623139 games=13 observations=918
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42624148 games=14 observations=1014
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42625157 games=15 observations=1101
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42626166 games=16 observations=1169
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42627175 games=17 observations=1251
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42628184 games=18 observations=1325
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42629193 games=19 observations=1377
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42630202 games=20 observations=1433
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42631211 games=21 observations=1483
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42632220 games=22 observations=1558
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42633229 games=23 observations=1616
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42634238 games=24 observations=1684
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42635247 games=25 observations=1753
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42636256 games=26 observations=1845
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42637265 games=27 observations=1886
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42638274 games=28 observations=1951
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42639283 games=29 observations=2026
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42640292 games=30 observations=2108
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42641301 games=31 observations=2165
+[GameState] bound native C# runtime ready=true
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json.checkpoint.json
+CALIBRATION train seed=42642310 games=32 observations=2220
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-round2-20261030/train.json

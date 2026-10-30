@@ -1,0 +1,11 @@
+{
+  "games": 512,
+  "unique_arms": 512,
+  "shard_sha256": {
+    "full-claims-shard0.json": "5d30c39f001ec7cc560fba55e4c64763b90272ac4b170a7ab1d3a407ab05dd7a",
+    "full-claims-shard1.json": "939d3adfc965b49ee06280190607332f43f2816a740766a9508a82fabd494a26",
+    "full-claims-shard2.json": "ca61a7081034664da037dfd3616de04275d86d1f140f3ad349da071c1d0463e0",
+    "full-claims-shard3.json": "f56b33d027fa9d0f06ea74b51ae733453289990ce96a1e71a790a46262253a2a"
+  },
+  "scope": "Fixed world-index partition; no outcome selection, duplicate completed arms or incomplete games."
+}

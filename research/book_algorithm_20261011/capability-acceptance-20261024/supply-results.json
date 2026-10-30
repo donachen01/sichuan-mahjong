@@ -1,0 +1,868 @@
+{
+  "checks": 48,
+  "failures": [],
+  "rows": [
+    {
+      "id": "two_pairs/clearedFalse/wall12",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 61.18935594063326,
+      "maxSeedRange": 0.2315648927099591,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 14,
+          "net": 0.3132461087173921,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": 0.3132457895138657,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": 0.2974231788352043,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": 0.07507956510103711,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.3280738865544489,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.5103650464368977,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -0.7821774285647717,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.8740017412746647,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -3.6899331173877177,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -3.7076046690726057,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.8203057732041494,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.851266135670204,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "two_pairs/clearedFalse/wall25",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 59.30728877788951,
+      "maxSeedRange": 0.23808280890386513,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 12,
+          "net": -0.11591970152829927,
+          "reasons": []
+        },
+        {
+          "tile": 14,
+          "net": -0.11591970152829927,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": -0.11591970152829927,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -0.16976970152829932,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.18945238552063387,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.18945238552063387,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.5508132872230278,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -0.5511159742200502,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -4.04866589127635,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -4.049206025896688,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -4.061015339195878,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.076446231010941,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "two_pairs/clearedTrue/wall12",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 14,
+          "net": 0.34512224351484044,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": 0.26679831714937974,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": 0.24464758042553347,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": 0.05671325099004028,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.40804495006486596,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.6027355806274672,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -0.8770141118719536,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.9536249407350565,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -3.659705002262622,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -3.665226214822318,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.900599500134979,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.917153502290644,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "two_pairs/clearedTrue/wall25",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 17,
+          "net": 0.10842138885215953,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": 0.08005000442214287,
+          "reasons": []
+        },
+        {
+          "tile": 14,
+          "net": 0.08005000442214287,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": 0.026200004422142834,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.07664582535040827,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.07664582535040827,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.4531227994020349,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -0.4533677911820765,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -3.872538874963128,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -3.873217940636562,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.892572903747213,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.8929571141649553,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "three_pairs/clearedFalse/wall12",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 61.18935594063326,
+      "maxSeedRange": 0.2315648927099591,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 14,
+          "net": 0.06949324428546348,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": 0.06500236232724486,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": 0.053670314403275673,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -0.1736445163533069,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.45034402999806866,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.6287500599623635,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.6336423587601268,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -3.880181481058648,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -3.891082145507747,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.99518219047172,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.012990809473009,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "three_pairs/clearedFalse/wall25",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 59.30728877788951,
+      "maxSeedRange": 0.24676546729850557,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 6,
+          "net": -0.34435859166374577,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.347097931816756,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.35212907323533044,
+          "reasons": []
+        },
+        {
+          "tile": 14,
+          "net": -0.4244681862443964,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": -0.42455391785552976,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": -0.4247911651366345,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -0.48717741316695473,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -4.192736411133659,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.1949571843026945,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -4.196164069457322,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -4.1972719484749925,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "three_pairs/clearedTrue/wall12",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 14,
+          "net": 0.10971037260793882,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": 0.03138644624247813,
+          "reasons": []
+        },
+        {
+          "tile": 17,
+          "net": 0.004761037835988954,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -0.19453997642811416,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.5326042694248239,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.7212351529966383,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.7248015585818892,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -3.8527436142055316,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -3.8545607943394384,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -4.071181914812934,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.086343829883804,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "three_pairs/clearedTrue/wall25",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 17,
+          "net": -0.1624470339090875,
+          "reasons": []
+        },
+        {
+          "tile": 14,
+          "net": -0.19281264665021625,
+          "reasons": []
+        },
+        {
+          "tile": 12,
+          "net": -0.19320219211256373,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -0.21581981630412544,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -0.2219386389467291,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -0.22207608472858859,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -0.2558104479451449,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -4.030398046825256,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.031190352596713,
+          "reasons": []
+        },
+        {
+          "tile": 16,
+          "net": -4.044245316261978,
+          "reasons": []
+        },
+        {
+          "tile": 15,
+          "net": -4.045570422729872,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "ready_choice/clearedFalse/wall12",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 60.522574117767775,
+      "maxSeedRange": 0.2510375215098347,
+      "supply": [
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS1.3_HELD0_DRAWN0",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS1.3_HELD0_DRAWN0"
+      ],
+      "candidates": [
+        {
+          "tile": 17,
+          "net": 1.6459370607712467,
+          "reasons": [
+            "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS1.3_HELD0_DRAWN0"
+          ]
+        },
+        {
+          "tile": 13,
+          "net": 1.6129364432814501,
+          "reasons": [
+            "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS1.3_HELD0_DRAWN0"
+          ]
+        },
+        {
+          "tile": 9,
+          "net": -3.7925831799156553,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.8509248757927756,
+          "reasons": []
+        },
+        {
+          "tile": 8,
+          "net": -3.9701149110187224,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -3.97394013520759,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -4.266825778494275,
+          "reasons": []
+        },
+        {
+          "tile": 5,
+          "net": -4.319570037367203,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -4.330775520730169,
+          "reasons": []
+        },
+        {
+          "tile": 1,
+          "net": -4.489141723443003,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -4.492047538009011,
+          "reasons": []
+        },
+        {
+          "tile": 2,
+          "net": -4.552175747213088,
+          "reasons": []
+        },
+        {
+          "tile": 4,
+          "net": -4.55773333249024,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -4.565050754680058,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "ready_choice/clearedFalse/wall25",
+      "posteriorStatus": "public_posterior_seed_ensemble",
+      "minEss": 60.26031846893527,
+      "maxSeedRange": 0.20757815838915594,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 17,
+          "net": 0.7286581794392293,
+          "reasons": []
+        },
+        {
+          "tile": 13,
+          "net": 0.11221831621189143,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -3.5507333710892532,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -3.5513672204021858,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.5513672204021858,
+          "reasons": []
+        },
+        {
+          "tile": 8,
+          "net": -3.5515732852460205,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -3.6571357042176795,
+          "reasons": []
+        },
+        {
+          "tile": 5,
+          "net": -3.6580203406956104,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.766949492610752,
+          "reasons": []
+        },
+        {
+          "tile": 1,
+          "net": -3.791639821767619,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -3.7943768743209767,
+          "reasons": []
+        },
+        {
+          "tile": 2,
+          "net": -3.7948473727159553,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -3.798716588607759,
+          "reasons": []
+        },
+        {
+          "tile": 4,
+          "net": -3.8002105025588997,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "ready_choice/clearedTrue/wall12",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.3_HELD0_DRAWN0",
+        "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.3_HELD0_DRAWN0"
+      ],
+      "candidates": [
+        {
+          "tile": 13,
+          "net": 1.1479600669022374,
+          "reasons": [
+            "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.3_HELD0_DRAWN0"
+          ]
+        },
+        {
+          "tile": 17,
+          "net": 0.8513755400000557,
+          "reasons": [
+            "PUBLIC_SUPPLY_actor_hand_outside_bounded_step_N0_ESS0.0_MS0.3_HELD0_DRAWN0"
+          ]
+        },
+        {
+          "tile": 9,
+          "net": -4.290451896389239,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -4.360824028974199,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -4.593040352475942,
+          "reasons": []
+        },
+        {
+          "tile": 8,
+          "net": -4.593875898775842,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -5.0723628662513125,
+          "reasons": []
+        },
+        {
+          "tile": 5,
+          "net": -5.083564122839802,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -5.1577360883499965,
+          "reasons": []
+        },
+        {
+          "tile": 1,
+          "net": -5.38542393373667,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -5.386912065240288,
+          "reasons": []
+        },
+        {
+          "tile": 2,
+          "net": -5.449462169113005,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -5.46601865960388,
+          "reasons": []
+        },
+        {
+          "tile": 4,
+          "net": -5.470683874096907,
+          "reasons": []
+        }
+      ]
+    },
+    {
+      "id": "ready_choice/clearedTrue/wall25",
+      "posteriorStatus": "insufficient_effective_samples",
+      "minEss": 0,
+      "maxSeedRange": 0,
+      "supply": [],
+      "candidates": [
+        {
+          "tile": 17,
+          "net": 0.5630435744051725,
+          "reasons": []
+        },
+        {
+          "tile": 13,
+          "net": -0.13487361548975557,
+          "reasons": []
+        },
+        {
+          "tile": 9,
+          "net": -3.372420204960273,
+          "reasons": []
+        },
+        {
+          "tile": 10,
+          "net": -3.372420204960273,
+          "reasons": []
+        },
+        {
+          "tile": 8,
+          "net": -3.4222459077929592,
+          "reasons": []
+        },
+        {
+          "tile": 0,
+          "net": -3.4274800346015475,
+          "reasons": []
+        },
+        {
+          "tile": 5,
+          "net": -3.55186085465815,
+          "reasons": []
+        },
+        {
+          "tile": 3,
+          "net": -3.5554397567075546,
+          "reasons": []
+        },
+        {
+          "tile": 11,
+          "net": -3.689654221616001,
+          "reasons": []
+        },
+        {
+          "tile": 1,
+          "net": -3.7103434604553214,
+          "reasons": []
+        },
+        {
+          "tile": 2,
+          "net": -3.7105758220217226,
+          "reasons": []
+        },
+        {
+          "tile": 7,
+          "net": -3.717904310460499,
+          "reasons": []
+        },
+        {
+          "tile": 4,
+          "net": -3.723202779609279,
+          "reasons": []
+        },
+        {
+          "tile": 6,
+          "net": -3.7244851198551387,
+          "reasons": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "section": "6.1",
+  "source_rows": 16,
+  "oracle_contexts": 618,
+  "mod3_witness_checks": 522,
+  "method": "independent unordered group multiset exact cover; legal four-copy constraint",
+  "not_blind": true,
+  "failures": []
+}

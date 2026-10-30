@@ -1,0 +1,4958 @@
+[
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 0,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 14
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 1,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 3
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 1
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 2,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 1
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 9,
+    "copies": 25
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 3,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 14
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 4,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 1
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 20
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 5,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 19
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 7,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      }
+    ],
+    "kind_count": 2,
+    "copies": 7
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 15,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 1
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      }
+    ],
+    "kind_count": 7,
+    "copies": 17
+  },
+  {
+    "id": "lower-53-6-15-A",
+    "discard": 16,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 1
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 23
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 0,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 23
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 1,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 12,
+    "copies": 37
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 2,
+    "ordinary_shanten": 3,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 3,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 18
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 4,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 40
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 5,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 21
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 7,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 39
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 8,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 11,
+    "copies": 33
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 19,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 10,
+    "copies": 27
+  },
+  {
+    "id": "lower-53-6-15-B",
+    "discard": 20,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 11,
+    "copies": 33
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 0,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 21
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 1,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 3
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      },
+      {
+        "tile": 23,
+        "copies": 3
+      },
+      {
+        "tile": 24,
+        "copies": 4
+      },
+      {
+        "tile": 25,
+        "copies": 4
+      }
+    ],
+    "kind_count": 15,
+    "copies": 49
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 2,
+    "ordinary_shanten": 3,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 3
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      },
+      {
+        "tile": 23,
+        "copies": 3
+      },
+      {
+        "tile": 24,
+        "copies": 4
+      },
+      {
+        "tile": 25,
+        "copies": 4
+      }
+    ],
+    "kind_count": 17,
+    "copies": 54
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 3,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 16
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 4,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 3
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      },
+      {
+        "tile": 23,
+        "copies": 3
+      },
+      {
+        "tile": 24,
+        "copies": 4
+      },
+      {
+        "tile": 25,
+        "copies": 4
+      }
+    ],
+    "kind_count": 16,
+    "copies": 52
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 5,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 19
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 7,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 3
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      },
+      {
+        "tile": 23,
+        "copies": 3
+      },
+      {
+        "tile": 24,
+        "copies": 4
+      },
+      {
+        "tile": 25,
+        "copies": 4
+      }
+    ],
+    "kind_count": 16,
+    "copies": 51
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 8,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      },
+      {
+        "tile": 23,
+        "copies": 3
+      }
+    ],
+    "kind_count": 9,
+    "copies": 28
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 19,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 10,
+    "copies": 29
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 21,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      }
+    ],
+    "kind_count": 4,
+    "copies": 11
+  },
+  {
+    "id": "lower-53-6-15-C",
+    "discard": 23,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 2
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 2
+      },
+      {
+        "tile": 5,
+        "copies": 3
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 7,
+        "copies": 3
+      },
+      {
+        "tile": 8,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      }
+    ],
+    "kind_count": 10,
+    "copies": 29
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 9,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 22
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 12,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 24
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 20
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 22
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 17,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 22
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 19,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 6,
+    "copies": 16
+  },
+  {
+    "id": "lower-54-6-16-A",
+    "discard": 20,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 22
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 9,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 15
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 12,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 3
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 3
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 18
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 18
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 17,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 3
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 13,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 4,
+    "copies": 7
+  },
+  {
+    "id": "lower-54-6-16-B",
+    "discard": 20,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 12
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 9,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 16
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 10,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 14
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 21
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 25
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 17,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 4,
+    "copies": 10
+  },
+  {
+    "id": "lower-54-6-16-C",
+    "discard": 20,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 16
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 10,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      }
+    ],
+    "kind_count": 3,
+    "copies": 8
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 12,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 16
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 13,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 4
+      },
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 22
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 15,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 20
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 16,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 5,
+    "copies": 14
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 6,
+    "copies": 14
+  },
+  {
+    "id": "lower-55-6-16-D",
+    "discard": 20,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 2
+      },
+      {
+        "tile": 11,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 7,
+    "copies": 20
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 9,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 11,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 12,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 1
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 9,
+    "copies": 26
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 15,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 6,
+    "copies": 20
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 2
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 25
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 2
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 4,
+    "copies": 12
+  },
+  {
+    "id": "lower-55-6-16-E",
+    "discard": 20,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 16
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 11,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 8,
+    "copies": 24
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 13,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 14,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      }
+    ],
+    "kind_count": 2,
+    "copies": 5
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 17,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 10,
+    "copies": 29
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      }
+    ],
+    "kind_count": 9,
+    "copies": 24
+  },
+  {
+    "id": "lower-55-6-17-A",
+    "discard": 20,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 14
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 10,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 3,
+    "copies": 9
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 11,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 13,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 10
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 16,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      }
+    ],
+    "kind_count": 3,
+    "copies": 6
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 10
+  },
+  {
+    "id": "lower-55-6-17-B",
+    "discard": 20,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 11,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 15,
+        "copies": 4
+      }
+    ],
+    "kind_count": 1,
+    "copies": 4
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 17,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      },
+      {
+        "tile": 22,
+        "copies": 4
+      }
+    ],
+    "kind_count": 14,
+    "copies": 42
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 19,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 15,
+        "copies": 4
+      }
+    ],
+    "kind_count": 1,
+    "copies": 4
+  },
+  {
+    "id": "lower-55-6-17-C",
+    "discard": 20,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      },
+      {
+        "tile": 18,
+        "copies": 4
+      },
+      {
+        "tile": 19,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 2
+      },
+      {
+        "tile": 21,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 38
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 0,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 3,
+    "copies": 10
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 2,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 4
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 16,
+    "copies": 50
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 4,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 3,
+    "copies": 10
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 11,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 5,
+    "copies": 17
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 13,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 9,
+    "copies": 30
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 12,
+    "copies": 37
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 1
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 9,
+    "copies": 27
+  },
+  {
+    "id": "lower-56-6-18-A",
+    "discard": 17,
+    "ordinary_shanten": 1,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      }
+    ],
+    "kind_count": 5,
+    "copies": 17
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 0,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 12,
+    "copies": 35
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 2,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 9,
+    "copies": 25
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 4,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 12,
+    "copies": 35
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 10,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 12,
+    "copies": 38
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 11,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 9,
+    "copies": 28
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 13,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      },
+      {
+        "tile": 17,
+        "copies": 4
+      }
+    ],
+    "kind_count": 13,
+    "copies": 39
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 15,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 16,
+        "copies": 3
+      }
+    ],
+    "kind_count": 9,
+    "copies": 28
+  },
+  {
+    "id": "lower-56-6-18-B",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 1
+      },
+      {
+        "tile": 15,
+        "copies": 3
+      }
+    ],
+    "kind_count": 12,
+    "copies": 35
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 0,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 12,
+    "copies": 35
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 2,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      }
+    ],
+    "kind_count": 4,
+    "copies": 13
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 4,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 12,
+    "copies": 35
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 11,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 4
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 13,
+    "copies": 45
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 14,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 4
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 15,
+    "copies": 47
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 16,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 17,
+        "copies": 3
+      }
+    ],
+    "kind_count": 8,
+    "copies": 27
+  },
+  {
+    "id": "lower-57-6-18-C",
+    "discard": 17,
+    "ordinary_shanten": 2,
+    "effective": [
+      {
+        "tile": 0,
+        "copies": 3
+      },
+      {
+        "tile": 1,
+        "copies": 4
+      },
+      {
+        "tile": 2,
+        "copies": 3
+      },
+      {
+        "tile": 3,
+        "copies": 4
+      },
+      {
+        "tile": 4,
+        "copies": 3
+      },
+      {
+        "tile": 5,
+        "copies": 4
+      },
+      {
+        "tile": 6,
+        "copies": 4
+      },
+      {
+        "tile": 9,
+        "copies": 1
+      },
+      {
+        "tile": 10,
+        "copies": 1
+      },
+      {
+        "tile": 11,
+        "copies": 3
+      },
+      {
+        "tile": 12,
+        "copies": 4
+      },
+      {
+        "tile": 13,
+        "copies": 4
+      },
+      {
+        "tile": 14,
+        "copies": 3
+      },
+      {
+        "tile": 15,
+        "copies": 4
+      },
+      {
+        "tile": 16,
+        "copies": 2
+      }
+    ],
+    "kind_count": 15,
+    "copies": 47
+  }
+]

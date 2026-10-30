@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "production_policy_variant": "current",
+  "production_recording": false,
+  "production_terminal_rollout": false,
+  "scope": "correctness_corrections_only",
+  "unpromoted_policy_variants": [
+    "bucket_local_candidate_v1",
+    "gang_branch_candidate_v1"
+  ],
+  "created_at": "2026-10-24",
+  "strategy_version": "strategy-contract-v37-learning-acceptance-public-premises",
+  "agent_version": "unified-seat-policy-v2-adaptive-budget",
+  "source_sha256": "5806a2df17686a9b015496a17f72eed277bc79bee3607dafa5ca86f81203012e",
+  "evidence": [
+    {
+      "kind": "personal_execution",
+      "path": "research/book_algorithm_20261011/capability-acceptance-20261024/native-validation.json",
+      "sha256": "6b1f56d3d0ba44d072878a1e7fbcdbb10e32a69e54c4d1d0e2e04e9029045003"
+    }
+  ],
+  "release_inputs": {
+    "export_presets.cfg": "95af7232c65b17eb76a512a23fe36fff7c6f8814e77b9ea9966cd00caaf53214",
+    "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
+    "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
+    "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
+    "tools/export_android_release.sh": "d8c9b0c30365c1e9308a696ee86d822f76d94192435a4b833e5450339f17e53a",
+    "tools/export_android_debug.sh": "b2396bc50d64afe3daf5804252c97c1b2431883dbbabee14561edf7dc7fa2753",
+    "tools/export_ios_xcode_direct.gd": "45b28a634321a01531e818464009df019b4cf91feaf75be201a1af2908735f5c",
+    "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
+    "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
+    "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
+    "project.godot": "f74a3e8f51284f947fb2e530f5177d97b49fdaa0f45a1bbdd9fa7a24550e17b3"
+  },
+  "notes": "First capability acceptance repairs: only publicly cleared missing-suit draws are guaranteed target releases; ordinary Seven Pairs memory exits when pair prerequisite is lost; Hu-exited seats excluded from common payer counts. 1237 focused C# checks, fresh physical backgrounds, affected Golden-hook chains and two natural desktop rounds. No strength promotion or mobile rebuild.",
+  "limitations": [
+    "This completes the recorded first acceptance batch, not whole-book/all-policy acceptance.",
+    "Public posterior behavior weights and real opponent supply/risk remain uncalibrated. Neutral finite-allocation enumeration validates only the neutral sampler kernel.",
+    "Unknown target releases are not guaranteed. Existing bounded own-policy release models remain scoped and do not cover full future voluntary releases or arbitrary claims.",
+    "Short-wall signed draw settlement remains bounded to supported states; generic unready continuation valuation outside that scope remains unfinished.",
+    "Two natural rounds establish execution/settlement continuity, not comparative strength or long-term score improvement.",
+    "Desktop ordinary/compact protocol checks are not iOS NativeAOT or device verification. Installed devices remain earlier 2.6.92 sources."
+  ],
+  "validation_stage": "first_capability_acceptance_desktop_verified_mobile_not_rebuilt",
+  "delivery_target": "personal_device",
+  "application_version": "2.6.92"
+}

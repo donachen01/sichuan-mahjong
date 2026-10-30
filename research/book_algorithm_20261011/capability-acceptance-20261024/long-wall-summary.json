@@ -1,0 +1,45 @@
+{
+  "round": "wider_wall_25_32_signed_settlement_20261024",
+  "source_sha256": "b33270c96eb99fc862f233789b788e7d5b98e46d7b700792b7c26286c424fccd",
+  "before_checks": 12,
+  "before_failures": 4,
+  "after_checks": 12,
+  "after_failures": 0,
+  "wall_sizes": [
+    25,
+    32
+  ],
+  "before_unready_cha": {
+    "wall25": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "wall32": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "after_unready_cha": {
+    "wall25": [
+      -0.07833015702621436,
+      -0.07833015702621436,
+      -0.07833015702621436,
+      -0.07833015702621436
+    ],
+    "wall32": [
+      -0.09548702167317683,
+      -0.09548702167317683,
+      -0.09548702167317683,
+      -0.09548702167317683
+    ]
+  },
+  "godot_rows": 4,
+  "godot_failures": [],
+  "wall40_scope": "outside",
+  "mobile_rebuilt": false,
+  "strength_claim": false
+}

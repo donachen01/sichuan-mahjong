@@ -1,0 +1,4 @@
+FAIL lower-78-7-1-base-full-public conflicting_observation_version
+FAIL lower-80-7-2-middle-full-public conflicting_observation_version
+FAIL lower-81-7-2-late-full-public conflicting_observation_version
+DONE retention geometry-and-authority=0 rows=0 failures=3

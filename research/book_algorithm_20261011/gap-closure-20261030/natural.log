@@ -1,0 +1,17 @@
+ERROR: Failed to open 'user://logs/godot2026-10-30T09.22.11.log'.
+   at: copy (core/io/dir_access.cpp:423)
+
+================================================================
+handle_crash: Program crashed with signal 11
+Engine version: Godot Engine v4.6.2.stable.mono.official (71f334935c000924d403448e698df4441130df18)
+Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
+[1] 1   libsystem_platform.dylib            0x000000018d97c144 _sigtramp + 56
+[2] RotatedFileLogger::rotate_file() (in Godot) + 1160
+[3] RotatedFileLogger::rotate_file() (in Godot) + 1160
+[4] RotatedFileLogger::RotatedFileLogger(String const&, int) (in Godot) + 80
+[5] Main::setup(char const*, int, char**, bool) (in Godot) + 18868
+[6] OS_MacOS_Headless::run() (in Godot) + 68
+[7] main (in Godot) + 924
+[8] 8   dyld                                0x000000018d59be80 start + 6688
+-- END OF C++ BACKTRACE --
+================================================================

@@ -1,0 +1,26 @@
+{
+  "source_binding_checked": true,
+  "local_report_links_checked": true,
+  "declared_games_completed": {
+    "strength": 160,
+    "forecast": 48,
+    "conditional": 512
+  },
+  "pre_partition_arms": 36,
+  "pre_partition_runner_sha256": "44c6fe64d988c302a8373868b58f667f0cf4b2aac1c50c652edc96c25f64034b",
+  "final_partition_runner_sha256": "bb2e58c75ecca7394f15b4f519ffe4c81508587a2e98a533f94864b067d26419",
+  "artifact_sha256": {
+    "final-audit.json": "47e1355ce3b5018122c77aae930ad020aaa7d84df7208e9543e29bdd07b580f4",
+    "补缺报告.md": "b4fd192a51cd6a893a93fd09bd3420f266157d437eadea306656c63052efa918",
+    "讨论.md": "022d8a458dc6021590c6dca0cb47c35ff8e4b46eb6fa7643095afb4989b89fb6",
+    "学习反思.md": "d981ac20b80a13deb5916addddd6da94a08853c231d442dd41114997303d980e",
+    "结论.md": "e2502b042d6db6383b64c6a6e5634ec0c4c00c56344b178615c2ddfc54598930",
+    "执行.md": "afb41dcc7b51751d0236de9844734f673037743adfc87e7ea224a72796dda4b7",
+    "口径修订.json": "0d65e1b15602b737b458e3dacfef02499d7ecb889aae9d43bba228385adf7751",
+    "checkpoint.json": "d015a50146dffe997a64d261dd2c5527d2c984ecebb1fe80269cc86142cc46d2",
+    "benchmark-final.json": "10fb080626ecff9ac4db6e4b734a778414acaa9ed1b17ca22625e40d89b941ac",
+    "forecast-holdout.json": "52c29db96118c34d0c399dbf2f2f261bce55d07109805013b59cec057d60ac79",
+    "full-claims.json": "9e439f1d9cb9d740546420ef8512383b58dd07b122fcf0e2422d12782d7c2667"
+  },
+  "scope": "This round desktop completion record; not a permanent regression checklist or phone release claim."
+}

@@ -1,0 +1,70 @@
+[
+  {
+    "id": "lower-84-7-3-base",
+    "discard": -1,
+    "ordinary_shanten": 0,
+    "effective": [
+      {
+        "tile": 19,
+        "copies": 2
+      },
+      {
+        "tile": 25,
+        "copies": 2
+      }
+    ],
+    "kind_count": 2,
+    "copies": 4
+  },
+  {
+    "id": "lower-84-7-4-base",
+    "discard": -1,
+    "ordinary_shanten": 0,
+    "effective": [
+      {
+        "tile": 19,
+        "copies": 2
+      },
+      {
+        "tile": 25,
+        "copies": 1
+      }
+    ],
+    "kind_count": 2,
+    "copies": 3
+  },
+  {
+    "id": "lower-85-7-5-base",
+    "discard": -1,
+    "ordinary_shanten": 0,
+    "effective": [
+      {
+        "tile": 18,
+        "copies": 3
+      },
+      {
+        "tile": 20,
+        "copies": 4
+      }
+    ],
+    "kind_count": 2,
+    "copies": 7
+  },
+  {
+    "id": "lower-85-7-6-base",
+    "discard": -1,
+    "ordinary_shanten": 0,
+    "effective": [
+      {
+        "tile": 11,
+        "copies": 2
+      },
+      {
+        "tile": 17,
+        "copies": 2
+      }
+    ],
+    "kind_count": 2,
+    "copies": 4
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "stage": "round complete; remaining strategy/evidence boundaries explicitly open",
+  "fixed": [
+    "V2 raw/actual diagnostic",
+    "public source 3-wan correction",
+    "reaction and self structural-stock clocks",
+    "Peng value unit/projection invariant",
+    "independent readiness calibration"
+  ],
+  "outstanding": [
+    "6-28 offer4 strategy/value disagreement",
+    "full opponent multi-turn policy and public-hypothesis accuracy",
+    "confirmed strength improvement",
+    "human readiness calibration and phone performance"
+  ],
+  "additional_fixed": [
+    "25-way exact continuation invariant",
+    "ready path uses projected public belief",
+    "root-only capped numerical refinement"
+  ],
+  "completed": {
+    "formal_and_actual_chains": 74,
+    "independent_graph_assertions": 373106,
+    "same_value_invariants": 25,
+    "complete_benchmark_games": 160,
+    "independent_deals": 32,
+    "complete_counterfactual_games": 128
+  }
+}

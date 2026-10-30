@@ -1,0 +1,23 @@
+{
+  "version": "2.6.94",
+  "version_code": 355,
+  "apk": "build/android/SichuanMahjong-2.6.94-release.apk",
+  "bytes": 193195959,
+  "sha256": "b5d9c00bc3bd3612b3163ac6d5e9a70952cbf6a6326bb56cd0bb2734d0601703",
+  "managed_assemblies": 175,
+  "native_libraries": 11,
+  "static_archives": 0,
+  "unwanted_source_artifacts": 0,
+  "size_difference_from_2_6_93": 40960,
+  "verification_device": "Android arm64 emulator-5554; not dona iPhone",
+  "install": "passed",
+  "launch": "passed",
+  "native_csharp_ready": true,
+  "chinese_ui": "visually verified",
+  "single_player_table": "visually verified",
+  "gameplay": "passed: missing-suit rule rejected selected tong; legal 3-tiao discarded, all three AIs acted, wall 55 to 51, own next draw shown",
+  "screenshot_table": "android-menu.png",
+  "screenshot_selected_tile": "android-play.png",
+  "screenshot_after_discard": "android-after-discard.png",
+  "phone_scope": "Android test environment only; no iOS gameplay claim"
+}

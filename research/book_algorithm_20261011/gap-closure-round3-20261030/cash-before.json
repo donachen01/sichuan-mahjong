@@ -1,0 +1,1 @@
+{"checks":1,"failures":["two actual own points must be charged as two, not discounted opponent growth"],"actual":-1.16,"expected":-2,"scope":"Exact caller-channel arithmetic, confidence1; no game or strategy mock claim."}

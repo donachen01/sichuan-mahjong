@@ -1,0 +1,4 @@
+LOWER lower-75-6-27-base-offer-p6 Peng tile=14 child=23 ms=3951.0
+LOWER lower-76-6-28-base-offer-m2 Pass tile=19 child=-1 ms=229.7
+LOWER lower-75-6-27-base-offer-p6-warm Peng tile=14 child=23 ms=2227.4
+DONE profile geometry-and-authority=3 rows=3 failures=0

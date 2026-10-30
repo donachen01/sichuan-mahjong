@@ -1,0 +1,13 @@
+{
+  "new_method_type_metadata": {
+    "SharedWorlds": true,
+    "CommonUniforms": true,
+    "EvaluateMean": true,
+    "WallOrderSampler": true
+  },
+  "literal_probe": {
+    "common_development_uniforms": false,
+    "common_development_numerical_worlds": false
+  },
+  "note": "Exact cache-string literals were not retained as byte strings; verify new method/type metadata plus fresh build/source DLL binding and device execution, not literal absence as proof of stale code."
+}

@@ -1,0 +1,16 @@
+Godot Engine v4.6.2.stable.mono.official.71f334935 - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1028)
+[SichuanCSharpRuntime] ready
+[GameState] bound native C# runtime ready=true
+[GameState] bound native C# runtime ready=true
+ERROR: end_previous_round_first
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] update_round_agents (res://scripts/ai/AIManager.gd:53)
+       [1] _begin_round_agents (res://autoload/GameState.gd:2883)
+       [2] complete_opening_roll (res://autoload/GameState.gd:661)
+       [3] _step (res://tests/current/SichuanActualActionBranchesRunner.gd:20)
+       [4] _run (res://research/book_algorithm_20261011/gap-closure-20261030/natural_audit.gd:48)
+benchmark_report_path=/Volumes/AI/Codex/四川麻将工程_20260701_v2/research/book_algorithm_20261011/gap-closure-20261030/natural.json

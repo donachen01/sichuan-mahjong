@@ -11,6 +11,7 @@ public static class SichuanFlushDevelopmentPolicy
     public static SichuanCourseTempoChoice? Select(SichuanStateView s,
         IReadOnlyList<SichuanCandidateDetail> candidates,int incumbent)
     {
+        if(candidates.Count>0&&candidates.All(c=>c.Reasons.Contains("PUBLIC_COMMON_READY_ENDPOINT_VALUE")))return null;
         if(s.InformationMode!="public"||s.WallCount<16||s.OwnDingQueSuit is <0 or >2
             ||s.Hand18.Skip(s.OwnDingQueSuit*9).Take(9).Any(n=>n>0)
             ||SichuanDistinctDingQueHuPolicy.AssessDanger(s,new())!=0)return null;
@@ -48,6 +49,7 @@ public static class SichuanFlushDevelopmentPolicy
     }
     public static bool SupportsClaim(SichuanStateView s,int tile,int source,int discard)
     {
+        if(SichuanReadyDevelopmentEvaluator.HasJointComparison)return false;
         if(discard<0||s.WallCount<20||SichuanDistinctDingQueHuPolicy.AssessDanger(s,new())!=0
             ||new SichuanShantenEngine().CalcLegalShanten(s.Hand18,s.OwnMeldCount,s.OwnDingQueSuit)<=0)return false;
         int target=tile/9;
@@ -71,6 +73,7 @@ public static class SichuanFlushDevelopmentPolicy
 
     public static bool CreatesNewBottleneck(SichuanStateView s,int tile,int source,int discard)
     {
+        if(SichuanReadyDevelopmentEvaluator.HasJointComparison)return false;
         if(s.OwnMeldCount<1||s.WallCount<20||discard<0||discard/9==tile/9
             ||new SichuanShantenEngine().CalcLegalShanten(s.Hand18,s.OwnMeldCount,s.OwnDingQueSuit)<=0)return false;
         var h=s.Hand18.ToArray();h[tile]-=2;

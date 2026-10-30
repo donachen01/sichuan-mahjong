@@ -1,0 +1,253 @@
+{
+  "scope": "task-local evidence, not a future regression list",
+  "core_sources": 197,
+  "binaries_equal": true,
+  "sections": [
+    {
+      "section": "6.2",
+      "formal": 11,
+      "physical": 11,
+      "failures": 0
+    },
+    {
+      "section": "6.3",
+      "formal": 24,
+      "physical": 24,
+      "failures": 0
+    },
+    {
+      "section": "6.4.1",
+      "formal": 20,
+      "physical": 20,
+      "failures": 0
+    },
+    {
+      "section": "6.4.2",
+      "formal": 15,
+      "physical": 15,
+      "failures": 0
+    },
+    {
+      "section": "6.5.1",
+      "formal": 26,
+      "physical": 26,
+      "failures": 0
+    },
+    {
+      "section": "6.5.2",
+      "formal": 38,
+      "physical": 38,
+      "failures": 0
+    },
+    {
+      "section": "6.5.2-dynamic",
+      "formal": 3,
+      "physical": 3,
+      "failures": 0
+    },
+    {
+      "section": "7.1-tables",
+      "formal": 3,
+      "physical": 3,
+      "failures": 0
+    },
+    {
+      "section": "7.2",
+      "formal": 7,
+      "physical": 7,
+      "failures": 0
+    },
+    {
+      "section": "conditional-claims",
+      "formal": 30,
+      "physical": 30,
+      "failures": 0
+    }
+  ],
+  "additional_Csharp_reactions": 204,
+  "new_stopping_assessments": 50,
+  "physical_total": 228,
+  "independent_checks": 183751,
+  "policy_execution_mismatches": [],
+  "claim_gate_failures": [],
+  "paired_claim_gate_count": 19,
+  "natural": {
+    "games": 64,
+    "pairs": 32,
+    "independent_seed_clusters": 8,
+    "mean_paired_gain": 0.21875,
+    "seed_cluster_standard_error": 0.2966987258627367,
+    "descriptive_95_percent_interval": [
+      -0.48294248666537243,
+      0.9204424866653724
+    ],
+    "per_seed_gain": {
+      "31561031": 0.75,
+      "31562040": -0.75,
+      "31563049": 1.75,
+      "31564058": 0.75,
+      "31565067": 0,
+      "31566076": 0,
+      "31567085": -0.75,
+      "31568094": 0
+    },
+    "baseline_score_vectors_per_seed": {
+      "31561031": 1,
+      "31562040": 1,
+      "31563049": 1,
+      "31564058": 1,
+      "31565067": 1,
+      "31566076": 1,
+      "31567085": 1,
+      "31568094": 1
+    },
+    "readiness": [
+      {
+        "variant": "pre_learning_closure_v1",
+        "n": 261,
+        "prevalence": 0.25287356321839083,
+        "brier": 0.12211288188430613,
+        "reliability": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 142,
+            "prediction": 0.09053639973554871,
+            "truth": 0.06338028169014084
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 80,
+            "prediction": 0.2831606916010966,
+            "truth": 0.2875
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 28,
+            "prediction": 0.5079885708103248,
+            "truth": 0.8928571428571429
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 11,
+            "prediction": 0.6734244550720515,
+            "truth": 0.8181818181818182
+          }
+        ]
+      },
+      {
+        "variant": "current",
+        "n": 244,
+        "prevalence": 0.24180327868852458,
+        "brier": 0.13310060486972614,
+        "reliability": [
+          {
+            "range": [
+              0,
+              0.2
+            ],
+            "n": 129,
+            "prediction": 0.09294982649730514,
+            "truth": 0.08527131782945736
+          },
+          {
+            "range": [
+              0.2,
+              0.4
+            ],
+            "n": 82,
+            "prediction": 0.28825648390318614,
+            "truth": 0.2926829268292683
+          },
+          {
+            "range": [
+              0.4,
+              0.6
+            ],
+            "n": 22,
+            "prediction": 0.483278866986949,
+            "truth": 0.6818181818181818
+          },
+          {
+            "range": [
+              0.6,
+              0.8
+            ],
+            "n": 11,
+            "prediction": 0.6734244550720515,
+            "truth": 0.8181818181818182
+          }
+        ]
+      }
+    ],
+    "latency_ms": {
+      "pre_learning_closure_v1": {
+        "n": 498,
+        "median": 32.483,
+        "p95": 224.2,
+        "max": 799.775
+      },
+      "current": {
+        "n": 476,
+        "median": 30.788,
+        "p95": 220.656,
+        "max": 1541.294
+      }
+    },
+    "interpretation": "Small predeclared self-play pilot. Confidence interval clustered by 8 original deals. No human-opponent calibration or universal strength claim; no fitting on these labels. CPU-concurrent timings are not device benchmarks."
+  },
+  "artifacts": {
+    "source-freeze.json": "0324121cada3828370232b970ca73da31b9e5c04808198e04acfdaea729a8bc7",
+    "natural-preregistration.json": "d469153e8e95a321cf19619f0e3c188233867b0767d35021bdb2f98ea28f6fa4",
+    "natural-unified.json": "12730de40783a249eceb4edaac082a1dede4198c9dfab5a5856bb1d4e1029603",
+    "natural-unified-summary.json": "ab860a415f6ff362066911b713ba35652918f9d98e82753e42cb4ef84814c20a",
+    "stopping-executable/formal.json": "45aa34acdaabbc75d9627f449469848cb50a9a7c35d0f06a0f50d939c0b35664",
+    "stopping-execution/execution.json": "facac353f19e4324cc805da7cc265bb0116f92a44003e82437109edc19ade13e",
+    "protocol-controls/matrix.json": "6f2c56ce042cbda263812eca66ed360e291f6e5292efd9dc003f0c4748809b71",
+    "stopping-current.json": "fc84eb646172bf3c84d3f7b9e09e7669e149190ceddede02c87ab36e9717aed1",
+    "joint-acquisition-current.json": "5f294dccf567c1e08b3a6c0b60d8503119d9a85830036c2ad83ce490f541fec9",
+    "graphs-independent.json": "0a4a8c6044636375936e1bed4bfc6a24eff9a05b1279cfb9befcd946abd1330d",
+    "retention-independent.json": "52dddb9a1a6be96a684595a2adf26375a2270ad22627d7d41b0c349955c63e47",
+    "6.2/formal.json": "9e90f9bee81a8875fe076c045f33c6615284a28e44e09ed914e27f07c18a063f",
+    "6.2/formal-fixtures.json": "64bc596a95b61501273af66984d4dfbb21f94016d947377b8de4ea4789c8e601",
+    "6.2/execution.json": "65c5ec8d5e9b0ac9b7c4b681a25bee2546db7e59f779c2d5067ba0a531e76fbc",
+    "6.3/formal.json": "525e1a95b60ac160c8c9a3c3c805511e1ff9ce77f25461f3e6d3f6780dde9928",
+    "6.3/formal-fixtures.json": "f12f1918ad6e4a2ad86e04dc4f67b625b30f6e55848e3dc1678437f0c54d61ee",
+    "6.3/execution.json": "4ddad2bff17a3a7d9730090cff5053a5645c480b97799478a0ab48c13f90676a",
+    "6.4.1/formal.json": "4ba06ced5720647008fbd2dbe914e6ed6eca9e3fab13322a517b815054cf36ad",
+    "6.4.1/formal-fixtures.json": "e7482df2be897b62354c65c3e12460efa646cbe249c84aea75ffdb1415aa4eb1",
+    "6.4.1/execution.json": "a61d0d2ca0432129b0aeab5507de9fba0c8422b48b804ba03ca2eacfaafdf38c",
+    "6.4.2/formal.json": "d4560f12778decf502a46773149609fd0599f236705d66006a68a465d7bfa9aa",
+    "6.4.2/formal-fixtures.json": "d49e311623fd7782daa676950262412c2dc8f6a85c1757babc46ad2d3258d544",
+    "6.4.2/execution.json": "f1e9f0392b59da89d72f560954774bbde92e3fbfc9d430fc5d6fffaa0c53e3c7",
+    "6.5.1/formal.json": "38becff3fd862abc8371dadd6feff83e5a5e61de1f3029ed654d726f48f3cc69",
+    "6.5.1/formal-fixtures.json": "b98cb76cf24be708fa307761ff7bd936485833c22f0a0a5bbe49c7693b016310",
+    "6.5.1/execution.json": "5097ef454f5db17d7ad1a591f017a6a63e4f20e33cc3ca8bb09edc1dfe510b80",
+    "6.5.2/formal.json": "978340a33bdf83abba4ad99b87604fc97d5269203a26743c1ec7a604c0959e15",
+    "6.5.2/formal-fixtures.json": "6a437fa3d42f04e720c55c619e8329bf0b38cf375089c69a2b10cc2057ab03da",
+    "6.5.2/execution.json": "051b4912ff33a48410badbe02398b6d4934030a5c814e430b4e1c4d36566f437",
+    "6.5.2-dynamic/formal.json": "8b6b20c74607464eeac20411f5cc80039f6ea7cb8117d6057e594fcabd8b459c",
+    "6.5.2-dynamic/formal-fixtures.json": "3fe25ad037cec0a587f0648e2f0b691e618d9900560d9c9cd8b83cfdd188abb9",
+    "6.5.2-dynamic/execution.json": "e69e609869e05e409801ee5ed2cfb78be640503a67ca0b5fdc46abbd41268ac8",
+    "7.1-tables/formal.json": "098c31d2edd1c628f233083f428ebbe70b16d6c6d7b92ef624d24b832e080489",
+    "7.1-tables/formal-fixtures.json": "e502b46906457cad6aabb35a57b59c4b694570f44501d7d82fd949a0114cfe78",
+    "7.1-tables/execution.json": "3124e5d8c31934f050a7a80f20b5c9c8ee2c1d3f591993e7a435af4b2c3e9b7a",
+    "7.2/formal.json": "73c4b75923920226e446c88b6b1f6029ada23da8786f8f35629ec009709786ac",
+    "7.2/formal-fixtures.json": "1ccdf418580bbb97b41dbbde94d40c150533a0592f6daa6cc7188b1a9cc39de4",
+    "7.2/execution.json": "2c802c19d500e4726f9ee7abfa54560e901f70c2352dadab033dee8277806462",
+    "conditional-claims/formal.json": "1660546497ccbcef263972b61298d88eb1258e9e9f3dd1eb943c48f22e569af8",
+    "conditional-claims/formal-fixtures.json": "b968ad24966ec04581bca702a936d690aa4b782e181a2cfd4a20fd0abbbdb5f5",
+    "conditional-claims/execution.json": "5f9a92f8fac03766a728e1bef255272249116a7f546af2d44330c89339212c5e"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "slow_trace_mismatches": [],
+  "fresh_mismatches": [],
+  "slow_before_ms": 14774.731,
+  "slow_after_ms": 11535.165,
+  "fresh_before_max": 1445.514,
+  "fresh_after_max": 1699.037
+}
