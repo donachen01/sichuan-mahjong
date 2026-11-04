@@ -1,0 +1,22 @@
+CSSM_ModuleLoad(): One or more parameters passed to a function were not valid.
+single_lane_model_ms=90
+lane_tile=0; target=2; modeled=0.640; freedom=0.737; EV=4.820
+lane_tile=1; target=2; modeled=0.502; freedom=0.848; EV=3.648
+lane_tile=2; target=3; modeled=0.902; freedom=0.867; EV=7.332
+lane_tile=3; target=3; modeled=0.941; freedom=0.949; EV=7.832
+lane_tile=4; target=2; modeled=0.639; freedom=0.734; EV=4.811
+lane_tile=5; target=2; modeled=0.752; freedom=0.894; EV=6.006
+lane_tile=6; target=3; modeled=0.894; freedom=0.850; EV=7.258
+lane_tile=7; target=3; modeled=0.966; freedom=1.000; EV=8.061
+lane_tile=8; target=2; modeled=0.766; freedom=0.928; EV=6.132
+lane_tile=9; target=2; modeled=0.918; freedom=0.850; EV=7.682
+lane_tile=10; target=2; modeled=0.851; freedom=0.716; EV=7.093
+candidate=9; score=326; unified=2.822; shanten=1
+candidate=10; score=324; unified=2.727; shanten=1
+candidate=8; score=148; unified=1.200; shanten=1
+candidate=5; score=114; unified=0.865; shanten=1
+candidate=4; score=62; unified=0.388; shanten=1
+strong_discard=9; keep_EV=7.093; break_pair_EV=4.820
+weak_discard=8
+uncleared_offers=3.367; cleared_offers=3.000; dead_max_EV=-0.300
+SINGLE_LANE_CHECKS elapsed_ms=7414; failures=0

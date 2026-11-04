@@ -337,7 +337,7 @@ public sealed class SichuanDecisionEngine
             var posteriorReasons = BuildPosteriorReasons(effectiveShanten, effectiveLiveUkeire, dealInProbability, maxReadyPosterior, wallDrawPosterior, state.WallCount, roundStage, posteriorAdjustment);
             var riskReasons = BuildRiskReasons(danger, riskLabel, state.WallCount, roundStage, effectiveLiveUkeire, dangerEval);
             var candidateReasons = BuildReasons(effectiveShanten, effectiveLiveUkeire, danger, riskLabel, strategyTag, waitCount, roundStage, posteriorReasons, expectedScore);
-            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SHORT_WALL_") || reason.StartsWith("SEVEN_PAIRS_") || reason.StartsWith("SINGLE_LANE_") || reason.StartsWith("PUBLIC_COMMON_") || reason.StartsWith("PUBLIC_SUPPLY_") || reason.StartsWith("PUBLIC_KEY_TILE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
+            var mergedReasons = (unifiedCandidate?.ReasonCodes.Where(reason => reason.StartsWith("SHORT_WALL_") || reason.StartsWith("SEVEN_PAIRS_") || reason.StartsWith("SINGLE_LANE_") || reason.StartsWith("INDEPENDENT_SUIT_") || reason.StartsWith("PUBLIC_COMMON_") || reason.StartsWith("PUBLIC_SUPPLY_") || reason.StartsWith("PUBLIC_KEY_TILE_") || reason.Contains("单行道") || reason.Contains("后续合法") || reason.Contains("清色增益") || reason.Contains("公开出张")) ?? Array.Empty<string>()).Concat(candidateReasons)
                 .Concat(structuralReadyRejected ? new[] { "STRUCTURAL_READY_NOT_LEGAL" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is not null ? new[] { "LEGAL_READY_ALL_WAIT_PRICING" } : Array.Empty<string>())
                 .Concat(exactReadyPrice is { HasDrawableWait: false } ? new[] { "LEGAL_READY_DEAD_WAIT_CHA_JIAO" } : Array.Empty<string>())
@@ -391,6 +391,12 @@ public sealed class SichuanDecisionEngine
                 UnifiedActionValue = unifiedActionValue,
                 StrategicResidual = strategicResidual,
                 ExpectedNetScore = expectedScore.Net,
+                HeuristicExpectedNetScore = expectedScore.Net,
+                DecisionExpectedUtility = hasUnifiedValue ? unifiedDiscardCandidates[tileType].ExpectedNetScore : expectedScore.Net,
+                DevelopmentPlanWinProbability = unifiedDiscardCandidates.GetValueOrDefault(tileType)?.DevelopmentPlanWinProbability,
+                DevelopmentPlanReadyProbability = unifiedDiscardCandidates.GetValueOrDefault(tileType)?.DevelopmentPlanReadyProbability,
+                ValueModel = unifiedDiscardCandidates.GetValueOrDefault(tileType)?.ValueModel ?? "existing_heuristic",
+                CompleteReferenceTile = SichuanIndependentSuitComparison.ReferenceDiscard(state),
                 ExpectedWinGain = expectedScore.WinGain,
                 ExpectedDealInLoss = expectedScore.DealInLoss,
                 ExpectedDrawRiskLoss = expectedScore.DrawRiskLoss,
@@ -700,7 +706,10 @@ public sealed class SichuanDecisionEngine
             reasons.Insert(0,SichuanOpponentWideBedDefense.ActiveCode);
         }
         var resolved = arbiter.Resolve(settleNow: state.WallCount <= 0,
-            readyValues: unifiedDiscardCandidates);
+            readyValues: unifiedDiscardCandidates, phase: SichuanPhasedSingleLanePolicy.Describe(state));
+        if (arbiter.Steps.Any(step => step.Accepted && step.Module is
+            SichuanPhasedSingleLanePolicy.PreferredDiscardCode or SichuanPhasedSingleLanePolicy.PreferredWaitCode))
+            SichuanIndependentSuitComparison.ConfirmDiscard(state, resolved);
         if (resolved != bestTile)
         {
             var chosen = candidates.First(c => c.TileType == resolved);
@@ -2423,6 +2432,12 @@ public sealed class SichuanDecisionEngine
                 UnifiedActionValue = candidate.UnifiedActionValue,
                 StrategicResidual = candidate.StrategicResidual,
                 ExpectedNetScore = candidate.ExpectedNetScore,
+                HeuristicExpectedNetScore = candidate.HeuristicExpectedNetScore,
+                DecisionExpectedUtility = candidate.DecisionExpectedUtility,
+                DevelopmentPlanWinProbability = candidate.DevelopmentPlanWinProbability,
+                DevelopmentPlanReadyProbability = candidate.DevelopmentPlanReadyProbability,
+                ValueModel = candidate.ValueModel,
+                CompleteReferenceTile = candidate.CompleteReferenceTile,
                 ExpectedWinGain = candidate.ExpectedWinGain,
                 ExpectedDealInLoss = candidate.ExpectedDealInLoss,
                 ExpectedDrawRiskLoss = candidate.ExpectedDrawRiskLoss,

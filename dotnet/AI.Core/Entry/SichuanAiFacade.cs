@@ -30,6 +30,16 @@ public sealed class SichuanAiFacade
         SichuanStateView state, int sampleCount, int seed)
         => new Decision.SichuanPublicPosteriorAnalysis().Analyze(state, sampleCount, seed);
 
+    public Decision.SichuanIndependentSuitWindowReport AnalyzePublicIndependentSuitWindow(
+        SichuanStateView state,IEnumerable<int> discards,int samples=32,int seed=20261111)
+    {
+        if(!_seatWorker&&state.RoundId.Length>0)
+            return Agents.Run(state,"discard_analysis",engine=>engine.AnalyzePublicIndependentSuitWindow(state,discards,samples,seed),
+                _=>new SichuanAction(SichuanActionType.Pass));
+        using var plan=Decision.SichuanPolicyExecutionScope.UseOwnPlan(_roundBrain.Observe(state));
+        return new Decision.SichuanIndependentSuitWindow().Analyze(state,discards,samples,seed);
+    }
+
     public Decision.SichuanPublicPosteriorEnsembleReport AnalyzePublicPosteriorSeedEnsemble(
         SichuanStateView state, int sampleCountPerSeed, int baseSeed, int seedCount = 6)
         => new Decision.SichuanPublicPosteriorAnalysis().AnalyzeSeedEnsemble(
@@ -79,6 +89,7 @@ public sealed class SichuanAiFacade
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
         var result = Decision.SichuanDiscardPolicy.Select(state, brain);
+        Decision.SichuanPhasedSingleLanePolicy.Annotate(state,result);
         return result;
     }
 
@@ -95,6 +106,7 @@ public sealed class SichuanAiFacade
         }
 
         var result = Decision.SichuanDiscardPolicy.Select(state, brain);
+        Decision.SichuanPhasedSingleLanePolicy.Annotate(state,result);
         _turnCache.Put(key, result);
         return result;
     }
@@ -115,6 +127,7 @@ public sealed class SichuanAiFacade
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
         var result = Authority(state).Reaction(state, brain, reactionTileType, canHu, canPeng, canGang, sourceSeat, reactionType, mandatoryGang);
+        Decision.SichuanPhasedSingleLanePolicy.Annotate(state,result);
         return result;
     }
 
@@ -142,6 +155,7 @@ public sealed class SichuanAiFacade
         var brain = _roundBrain.Observe(state);
         using var planScope = Decision.SichuanPolicyExecutionScope.UseOwnPlan(brain);
         var result = Authority(state).Turn(state, brain, canSelfHu, anGangTileTypes, addGangTileTypes, addGangQiangGangCounts, mandatoryGangTileTypes);
+        Decision.SichuanPhasedSingleLanePolicy.Annotate(state,result);
         return result;
     }
 

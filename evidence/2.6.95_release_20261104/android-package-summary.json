@@ -1,0 +1,11 @@
+{
+  "version": "2.6.95",
+  "version_code": 356,
+  "bytes": 193224631,
+  "delta_from_2694": 28672,
+  "sha256": "a0640a98a9067088ab6f7d66f241b20ce3c11ceef5032892361d71e2ca3e62c9",
+  "managed_assemblies": 175,
+  "native_libraries": 11,
+  "excluded_source_entries": 0,
+  "signature_v2_v3": true
+}

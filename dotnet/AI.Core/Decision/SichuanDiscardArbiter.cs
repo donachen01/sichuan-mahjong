@@ -34,7 +34,7 @@ public sealed class SichuanDiscardArbiter
     }
 
     public int Resolve(bool settleNow = false,
-        IReadOnlyDictionary<int, SichuanDecisionCandidate>? readyValues = null)
+        IReadOnlyDictionary<int, SichuanDecisionCandidate>? readyValues = null, SichuanSingleLanePhase? phase = null)
     {
         var commonTail=readyValues is not null&&_legal.All(t=>readyValues.TryGetValue(t,out var c)
             &&c.IsAdmissible&&c.ReasonCodes.Contains(SichuanLateWallDiscardEvaluator.Applied));
@@ -69,8 +69,11 @@ public sealed class SichuanDiscardArbiter
         if((_proposals.Count==0||winner.Priority<SafeTempo)&&_candidates.Count>0
             &&_candidates.Values.All(c=>c.Reasons.Contains("SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS")))
         {
-            var common=_candidates.Values.OrderByDescending(c=>c.Reasons.Contains("SEVEN_PAIRS_DEVELOPMENT_PRESERVE_INCUMBENT"))
+            var common=_candidates.Values.Where(c=>c.CompleteReferenceTile<0||c.TileType==c.CompleteReferenceTile
+                    ||c.Reasons.Contains("INDEPENDENT_SUIT_GOAL_PLAN"))
+                .OrderByDescending(c=>c.Reasons.Contains("SEVEN_PAIRS_DEVELOPMENT_PRESERVE_INCUMBENT"))
                 .ThenByDescending(c=>c.UnifiedActionValue)
+                .ThenByDescending(c=>c.Reasons.Contains("INDEPENDENT_SUIT_GOAL_PLAN"))
                 .ThenBy(c=>c.Danger).ThenByDescending(c=>c.ExpectedValue).ThenBy(c=>c.TileType).First();
             for(int i=0;i<_steps.Count;i++)if(_steps[i].Accepted)
                 _steps[i]=_steps[i] with{Accepted=false,Reason="complete_common_development_value_required"};
@@ -110,6 +113,41 @@ public sealed class SichuanDiscardArbiter
                         GlobalPlan, true, SelectedTile, "shared_model_probability_dominance"));
                     SelectedTile = higher.Action.TileType;
                 }
+            }
+        }
+        if (phase is { Suit: >= 0 } && !_steps.Any(step => step.Accepted && step.Priority >= SafeTempo)
+            && readyValues is not null && readyValues.TryGetValue(SelectedTile, out var currentReady))
+        {
+            var independent = SichuanPhasedSingleLanePolicy.PreferReadyWait(phase.Suit, currentReady,
+                readyValues.Values.Where(candidate => _legal.Contains(candidate.Action.TileType)));
+            if (independent is not null)
+            {
+                for (var i = 0; i < _steps.Count; i++)
+                    if (_steps[i].Accepted)
+                        _steps[i] = _steps[i] with { Accepted = false, Reason = "independent_suit_ready_supply" };
+                _steps.Add(new(SichuanPhasedSingleLanePolicy.PreferredWaitCode, independent.Action.TileType,
+                    GlobalPlan, true, SelectedTile, "live_independent_wait_with_no_lower_win_chance_or_value"));
+                SelectedTile = independent.Action.TileType;
+            }
+        }
+        if (phase is { Early: true, AllLaneOnly: false } && SelectedTile / 9 == phase.Suit
+            && _candidates.TryGetValue(SelectedTile, out var incumbent) && incumbent.Shanten > 0
+            && !_steps.Any(step => step.Accepted && step.Priority >= SafeTempo))
+        {
+            var reference = _candidates.GetValueOrDefault(incumbent.CompleteReferenceTile);
+            var auxiliary = _candidates.Values.Where(candidate => phase.AuxiliaryLooseDiscards.Contains(candidate.TileType)
+                    && SichuanPhasedSingleLanePolicy.PreservesDiscardQuality(candidate, incumbent)
+                    && (reference is null || SichuanPhasedSingleLanePolicy.PreservesDiscardQuality(candidate, reference)))
+                .OrderByDescending(candidate => candidate.ExpectedValue)
+                .ThenBy(candidate => candidate.Danger).ThenBy(candidate => candidate.TileType).FirstOrDefault();
+            if (auxiliary is not null)
+            {
+                for (var i = 0; i < _steps.Count; i++)
+                    if (_steps[i].Accepted)
+                        _steps[i] = _steps[i] with { Accepted = false, Reason = "early_single_lane_preference" };
+                _steps.Add(new(SichuanPhasedSingleLanePolicy.PreferredDiscardCode, auxiliary.TileType,
+                    GlobalPlan, true, SelectedTile, "auxiliary_loose_tile_preserves_sets_shanten_and_safety"));
+                SelectedTile = auxiliary.TileType;
             }
         }
         return SelectedTile;

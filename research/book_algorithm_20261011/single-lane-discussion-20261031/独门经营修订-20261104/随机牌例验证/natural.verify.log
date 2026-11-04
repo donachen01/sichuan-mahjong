@@ -1,0 +1,16 @@
+{
+  "screened": 288,
+  "hits": 60,
+  "deals": 60,
+  "pairs": 120,
+  "mean": 0,
+  "ci95": [
+    0,
+    0
+  ],
+  "changed": 0,
+  "old_hu": 79,
+  "new_hu": 79,
+  "old_lane": 62,
+  "new_lane": 62
+}

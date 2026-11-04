@@ -20,7 +20,7 @@ public sealed class SichuanDecisionResult
     public SichuanAiContext? AiContext { get; init; }
     public SichuanDecisionExplain Explain { get; init; } = new();
     public SichuanDecisionPerformanceReport Performance { get; init; } = new();
-    public IReadOnlyList<string> Reasons { get; init; } = Array.Empty<string>();
+    public IReadOnlyList<string> Reasons { get; set; } = Array.Empty<string>();
     public IReadOnlyDictionary<int, int> CandidateScores { get; init; } = new Dictionary<int, int>();
     public IReadOnlyList<SichuanCandidateDetail> Candidates { get; init; } = Array.Empty<SichuanCandidateDetail>();
     public SichuanClassicPatternAnalysis? ClassicPattern { get; init; }

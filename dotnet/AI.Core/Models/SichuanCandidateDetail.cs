@@ -30,6 +30,12 @@ public sealed class SichuanCandidateDetail
     public double UnifiedActionValue { get; init; }
     public double StrategicResidual { get; init; }
     public double ExpectedNetScore { get; init; }
+    public double HeuristicExpectedNetScore { get; init; }
+    public double DecisionExpectedUtility { get; init; }
+    public double? DevelopmentPlanWinProbability { get; init; }
+    public double? DevelopmentPlanReadyProbability { get; init; }
+    public string ValueModel { get; init; } = "existing_heuristic";
+    public int CompleteReferenceTile { get; init; } = -1;
     public double ExpectedWinGain { get; init; }
     public double ExpectedDealInLoss { get; init; }
     public double ExpectedDrawRiskLoss { get; init; }

@@ -1,0 +1,13 @@
+{
+  "source_sha256": "0e6cbb3ce58d307e89fbd8427fd599fc860cb8db1c752dbe5abace51de0243f9",
+  "claim": "execution_correctness_only",
+  "runtime": "godot_real_native_csharp",
+  "failures": [],
+  "artifacts": [
+    {
+      "path": "evidence/2.6.95_release_20261104/matrix.json",
+      "sha256": "181644fac9fc287d0e481afa7734fd281aa0ce40afea5fb3e28d2372800e6680"
+    }
+  ],
+  "notes": "24 real desktop C# action chains, ordinary and compact. Peng follow-up commands executed."
+}

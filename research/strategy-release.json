@@ -8,19 +8,19 @@
     "bucket_local_candidate_v1",
     "gang_branch_candidate_v1"
   ],
-  "created_at": "2026-10-30",
-  "strategy_version": "learning-gap-closure-20261030-r4",
+  "created_at": "2026-11-04T11:30:03.585116+00:00",
+  "strategy_version": "independent-suit-20261104",
   "agent_version": "unified-seat-policy-v2-adaptive-budget",
-  "source_sha256": "36913e0c9c7e159dc9e398781e17840ab359b7948010cf400b202233a70c1171",
+  "source_sha256": "0e6cbb3ce58d307e89fbd8427fd599fc860cb8db1c752dbe5abace51de0243f9",
   "evidence": [
     {
       "kind": "personal_execution",
-      "path": "evidence/2.6.94_release_20261030/personal-execution.json",
-      "sha256": "1f3ea9e517d7c959d0887b88c3eddb834186a4cfa1ee0cdad55f050c4b1b4363"
+      "path": "evidence/2.6.95_release_20261104/personal-execution.json",
+      "sha256": "9b2ec260dc91d8e7f60b165965070a98aa48795b8c4fa68802823db81efa0ecd"
     }
   ],
   "release_inputs": {
-    "export_presets.cfg": "3fd07973dffba02d64d0937ad420a75ca2236d67ee237c3c9059a6515636fd4d",
+    "export_presets.cfg": "ac649aeb6cec5b14b6214855e3e056ba07d56ec178112636d6455c0154bbca5b",
     "tools/validate_strategy_release.py": "d5ea35f091c1fc97296bd990b8bf55112441efd5658338c5f1fd2b44618a07eb",
     "tools/research/strategy_delivery_validation.py": "a53bd1f1ec93229bcef4cc2bb6e228f392f7e1df48708849744952cc6865582e",
     "tools/export_ios_xcode_project.sh": "7c847e06fc3cf6e891270eff0e80a890f8a34043014700efb29adc5233707c7c",
@@ -30,15 +30,29 @@
     "tools/ios/landscape_rotation.mm": "6bf4ba8e53174533229c27edc1d05b4b7d5b9c8b83a4602206a9a8b15f64375f",
     "tools/ios/configure_landscape_rotation.py": "2903fa5ad1ea6818b53a0dedf0bef0d1dd2fbfac72b14a5dfb6826f2dceaf489",
     "addons/mobile_orientation/android_landscape.gd": "def14106fa1c9a9091e46b13a945e59ea8ca5ec67009110e51f984d1d8cf5965",
-    "project.godot": "388996c80e93c3ec4c678a66cc58e571d54c76be2f88eaecd4ff734060970ba8"
+    "project.godot": "93dfe106926f1dda978cf8de565866a4b61083f18da1a33ccbc298985664fa71"
   },
-  "notes": "Personal current-code delivery after four learning gap-closure rounds. Current policy only; research joint projection stays diagnostic. Full cash pricing, response queue fix and exact execution optimizations retained.",
+  "notes": "Current independent-suit strategy for personal delivery. Focused desktop execution passed. Paired study found no measured improvement.",
   "limitations": [
     "6-28 original context and m4 action disagreement remain unresolved.",
     "New joint posterior remains research-only; no broad human/long-term strength claim.",
-    "Package, AOT and device evidence is recorded separately in this version delivery directory."
+    "Package, AOT and device evidence is recorded separately in this version delivery directory.",
+    "Repaired single-lane strategy has no statistically supported net/Hu improvement in the frozen new6144-round study; no strength promotion.",
+    "Actual near-term full-policy/public-posterior window remains diagnostic; unresolved claims/gang and unknown rival private plans are explicit boundaries.",
+    "Desktop8-worker action-step max34.165s, global p95870.561ms; tail includes full step/recording, is not a phone latency guarantee.",
+    "Live independent comparison retains cleared missing suit, unlocked state, public safety and wall>=16 eligibility; unsupported future Gang proofs remain outside it."
   ],
-  "validation_stage": "personal_delivery_current_source_native_execution",
+  "validation_stage": "desktop_native_correctness_only",
   "delivery_target": "personal_device",
-  "application_version": "2.6.94"
+  "application_version": "2.6.95",
+  "single_lane_repair_strength": {
+    "result": "research/book_algorithm_20261011/single-lane-repair-20261031/result.json",
+    "supported": false,
+    "opponent_populations": 1
+  },
+  "soft_reserve_strength": {
+    "supported": false,
+    "study_status": "no_action_or_net_difference",
+    "study": "research/book_algorithm_20261011/single-lane-discussion-20261031/独门经营修订-20261104/随机牌例验证/验证记录.md"
+  }
 }

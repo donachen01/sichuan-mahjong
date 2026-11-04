@@ -1,0 +1,2071 @@
+{
+  "summary": {
+    "early": {
+      "nodes": 6,
+      "pairs": 24,
+      "changed": 0,
+      "mean": 0,
+      "old_peng_lane_followup": 0,
+      "new_peng_lane_followup": 0,
+      "baseline_lane_discards": 12,
+      "old_live_lane_wait": 0,
+      "new_live_lane_wait": 0
+    },
+    "wait": {
+      "nodes": 6,
+      "pairs": 24,
+      "changed": 0,
+      "mean": 0,
+      "old_peng_lane_followup": 0,
+      "new_peng_lane_followup": 0,
+      "baseline_lane_discards": 20,
+      "old_live_lane_wait": 8,
+      "new_live_lane_wait": 8
+    },
+    "peng": {
+      "nodes": 6,
+      "pairs": 24,
+      "changed": 0,
+      "mean": 0,
+      "old_peng_lane_followup": 24,
+      "new_peng_lane_followup": 24,
+      "baseline_lane_discards": 24,
+      "old_live_lane_wait": 0,
+      "new_live_lane_wait": 0
+    }
+  },
+  "rows": [
+    {
+      "kind": "early",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "b8f200e125285a925a6605c1d044894bea17e49079719f621ca7afad3b39e5a6"
+    },
+    {
+      "kind": "early",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "108696e4728fe23a171ed1ffe766f7455c087059c7e4d431910ae7cb3dcc9da3"
+    },
+    {
+      "kind": "early",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "6713ca3f9c61a682b2959f34b2073acc132c72fde5c4438cf824d22a574475cd"
+    },
+    {
+      "kind": "early",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "b5d3109acb1f1bbcca555dbf3d3d180b1dcbfffc1461382259beadb58211d15f"
+    },
+    {
+      "kind": "early",
+      "seed": 323921951,
+      "seat": 2,
+      "replica": 0,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "d6353cae49231f97365fb487f468231622ff9bd04b234df81b6a9ede5c70c418"
+    },
+    {
+      "kind": "early",
+      "seed": 323921951,
+      "seat": 2,
+      "replica": 1,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "1a49456af1ffff95b0bd3560d84114d7e3ab750dd66378b743e2efefea131044"
+    },
+    {
+      "kind": "early",
+      "seed": 323921951,
+      "seat": 2,
+      "replica": 2,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "c33a3e630cb94cd7e85d0f2258a5cd0912d092076dbfb5cf896f5f6d8df2555b"
+    },
+    {
+      "kind": "early",
+      "seed": 323921951,
+      "seat": 2,
+      "replica": 3,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "459fbe189b359c12813f252a397991bafb42850438d378613342fb184bac7ab7"
+    },
+    {
+      "kind": "early",
+      "seed": 322630766,
+      "seat": 2,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "6232dbb54bf6cbad20ba9738ca78324b3d906a96c73143ee741675d020e835ce"
+    },
+    {
+      "kind": "early",
+      "seed": 322630766,
+      "seat": 2,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": -1,
+      "new_net": -1,
+      "wall": "4eb464cd41a5eb4417cf3842b2abb64bcd261901e964cbbf9a564a8c5fc026b2"
+    },
+    {
+      "kind": "early",
+      "seed": 322630766,
+      "seat": 2,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "a259379e18ec0350dae695a75f68d81a310a5eda2ea1158471cc14f84fb37dfc"
+    },
+    {
+      "kind": "early",
+      "seed": 322630766,
+      "seat": 2,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "d58b31c470656a9298f63eb19ea23ed298520d539038ffce7fa48ed5560996a4"
+    },
+    {
+      "kind": "early",
+      "seed": 323126745,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "old_net": 3,
+      "new_net": 3,
+      "wall": "5bd01405c05551a6077d2a519a171e2aa51e98bb71da84205de1aafbe1828335"
+    },
+    {
+      "kind": "early",
+      "seed": 323126745,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "old_net": 13,
+      "new_net": 13,
+      "wall": "a23abafa9a7fbcbd54417370894380e4a8f4b82bed2bb763ee787e5f125dbd62"
+    },
+    {
+      "kind": "early",
+      "seed": 323126745,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "old_net": 3,
+      "new_net": 3,
+      "wall": "3f60186b7be1dd73536a5132fcff7c54432646cb065a0b2bbac99d5f3c012996"
+    },
+    {
+      "kind": "early",
+      "seed": 323126745,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "9tong"
+        ]
+      ],
+      "old_net": 3,
+      "new_net": 3,
+      "wall": "55455047da9128e3bbd0503bb6f7150b426beba82d76f2ea88c9e8754346abf4"
+    },
+    {
+      "kind": "early",
+      "seed": 326787152,
+      "seat": 0,
+      "replica": 0,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "old_net": 8,
+      "new_net": 8,
+      "wall": "32fe22d7a1f38720481e1fabbe013b220ec0f3593f2100e8ce6bc5bf83404d82"
+    },
+    {
+      "kind": "early",
+      "seed": 326787152,
+      "seat": 0,
+      "replica": 1,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "old_net": 9,
+      "new_net": 9,
+      "wall": "43b4f53551e67978967789612be60e66421ff8250621ac1e3f6e2448cef1d31e"
+    },
+    {
+      "kind": "early",
+      "seed": 326787152,
+      "seat": 0,
+      "replica": 2,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "9cebf7495e0beea939be8a258525eea5e5821278f100e3f9afffc4602fa9cc7d"
+    },
+    {
+      "kind": "early",
+      "seed": 326787152,
+      "seat": 0,
+      "replica": 3,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "7tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "dc9c76f46c0003857c1a03689eb0c18ed2d88c2861c4cc2b32a143471738ec86"
+    },
+    {
+      "kind": "early",
+      "seed": 327246240,
+      "seat": 0,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "8529580f493a1cdb262200c29e508133d16a00355d630e04285b561ec53c13e1"
+    },
+    {
+      "kind": "early",
+      "seed": 327246240,
+      "seat": 0,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 0,
+      "new_net": 0,
+      "wall": "bb3d61fdf3eeacb99414d15681db6b92a1a1101f9ab54703e0581f91933107e8"
+    },
+    {
+      "kind": "early",
+      "seed": 327246240,
+      "seat": 0,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "21ed92f34504b3cbe5ca90cf5687a3356510a6c6db782271c3612120eb689077"
+    },
+    {
+      "kind": "early",
+      "seed": 327246240,
+      "seat": 0,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 0,
+      "new_net": 0,
+      "wall": "15124287eea01c69d51c6f8b567371c716a78205e99704fbd3f9ef299cde50f2"
+    },
+    {
+      "kind": "wait",
+      "seed": 323081656,
+      "seat": 2,
+      "replica": 0,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "3b4c5399eb6031d521a84127d23bbd2eddcf13d55e317c3b5bad0990700bbe00",
+      "old_wait": [
+        "5tiao",
+        "8tiao"
+      ],
+      "new_wait": [
+        "5tiao",
+        "8tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 323081656,
+      "seat": 2,
+      "replica": 1,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "25e4de5b523634e3feb513319d75c34cefe30cf39d472d05d772523320d3e493",
+      "old_wait": [
+        "5tiao",
+        "8tiao"
+      ],
+      "new_wait": [
+        "5tiao",
+        "8tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 323081656,
+      "seat": 2,
+      "replica": 2,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "12132cde165690c2dd164c562327a5da3cb32ae508da44b69a72956a5316245d",
+      "old_wait": [
+        "5tiao",
+        "8tiao"
+      ],
+      "new_wait": [
+        "5tiao",
+        "8tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 323081656,
+      "seat": 2,
+      "replica": 3,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "1efe32ce203af71fc23254b1877948b9f764f729d1788f9cb997fedc5106bcaf",
+      "old_wait": [
+        "5tiao",
+        "8tiao"
+      ],
+      "new_wait": [
+        "5tiao",
+        "8tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "7208bff1e6ac6ecac43747a4ab319c57b92712126706b27fa961c00fd1900e33",
+      "old_wait": [
+        "6wan",
+        "7wan"
+      ],
+      "new_wait": [
+        "6wan",
+        "7wan"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "e117c9c9b73d4d4d34657b7ab6ec8109e51d22a1003f1e54a8f1338a5fc6b214",
+      "old_wait": [
+        "6wan",
+        "7wan"
+      ],
+      "new_wait": [
+        "6wan",
+        "7wan"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 4,
+      "new_net": 4,
+      "wall": "7816a83c8d24676a3617df4224499cdd48237b6373937ec880924bc900dc9c34",
+      "old_wait": [
+        "6wan",
+        "7wan"
+      ],
+      "new_wait": [
+        "6wan",
+        "7wan"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 326709271,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 0,
+      "new_net": 0,
+      "wall": "231fb5790f3c954a8c36992660ab940eab046a55c794dda52cea9d117233da39",
+      "old_wait": [
+        "6wan",
+        "7wan"
+      ],
+      "new_wait": [
+        "6wan",
+        "7wan"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 325631234,
+      "seat": 2,
+      "replica": 0,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "e6ec80d77951b84bed339dde5238eee47cd7293428648e2c43da918dd5b3c699",
+      "old_wait": [
+        "3tong",
+        "6tong"
+      ],
+      "new_wait": [
+        "3tong",
+        "6tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 325631234,
+      "seat": 2,
+      "replica": 1,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "old_net": 8,
+      "new_net": 8,
+      "wall": "6a244c0ac9f60ba9787fea8b202f33d5ce18e7ff9a63287a2af97698fac175f3",
+      "old_wait": [
+        "3tong",
+        "6tong"
+      ],
+      "new_wait": [
+        "3tong",
+        "6tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 325631234,
+      "seat": 2,
+      "replica": 2,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "old_net": -2,
+      "new_net": -2,
+      "wall": "c067294904f94c8439e14be3a9b1534e22dd74960899c707eb5bf68fe9f87020",
+      "old_wait": [
+        "3tong",
+        "6tong"
+      ],
+      "new_wait": [
+        "3tong",
+        "6tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 325631234,
+      "seat": 2,
+      "replica": 3,
+      "lane": "wan",
+      "old": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3wan"
+        ]
+      ],
+      "old_net": -1,
+      "new_net": -1,
+      "wall": "392ee3d080963075490af999544f08e542fbc06159d474debd27686674a8ff91",
+      "old_wait": [
+        "3tong",
+        "6tong"
+      ],
+      "new_wait": [
+        "3tong",
+        "6tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 324987691,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 12,
+      "new_net": 12,
+      "wall": "63675d3a688eb8a92c8ec474be655251a54fee075ceb5d5fffa570a71feaeacc",
+      "old_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ],
+      "new_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 324987691,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "38d4ae25b27239c9f306943434ff158a44a247219ad3c12943e7ac905f84ceb2",
+      "old_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ],
+      "new_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 324987691,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "4ef9447ffceae4f5ee7b09725e61701b337f3448050519ae3868d32c518934e5",
+      "old_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ],
+      "new_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 324987691,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "4tong"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "d92552285255a948495c818bb242c8fed11afee2eb147c12da4e74766a9d52c2",
+      "old_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ],
+      "new_wait": [
+        "3tiao",
+        "6tiao",
+        "9tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322282351,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 7,
+      "new_net": 7,
+      "wall": "ca3d7a9aa74d6704b8c77f90b8a8b458147ceb92b21f1fd321eb06833784efbf",
+      "old_wait": [
+        "1tong"
+      ],
+      "new_wait": [
+        "1tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322282351,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 8,
+      "new_net": 8,
+      "wall": "355737c254fdf91e4d4c5e3a2afd379d0510d46ffd8bb9b0d9d7e676ba91c12e",
+      "old_wait": [
+        "1tong"
+      ],
+      "new_wait": [
+        "1tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322282351,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "c6a65748ecc31e139a4d827e495a5404ab984de14a0b650b5d694711e0d84d04",
+      "old_wait": [
+        "1tong"
+      ],
+      "new_wait": [
+        "1tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322282351,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tong",
+      "old": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "3tiao"
+        ]
+      ],
+      "old_net": 5,
+      "new_net": 5,
+      "wall": "a93449e7b16e98345e58602003a79e3cb8a41477d7d708c5100a0823261824e0",
+      "old_wait": [
+        "1tong"
+      ],
+      "new_wait": [
+        "1tong"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322278252,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 5,
+      "new_net": 5,
+      "wall": "3071f85e61eb1228b1c12b7fa49b325e6a69f9fd25c07651f9790830772a7c5e",
+      "old_wait": [
+        "4tiao"
+      ],
+      "new_wait": [
+        "4tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322278252,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "d71d1f21e8e5331c8e6eaa74fcfc5109bfe6325518916079efcab66963ab6ee5",
+      "old_wait": [
+        "4tiao"
+      ],
+      "new_wait": [
+        "4tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322278252,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "a8259f61fffc454cbcffa3d46804935cd6fb1c0f698711edb09d6d9096b6f8bc",
+      "old_wait": [
+        "4tiao"
+      ],
+      "new_wait": [
+        "4tiao"
+      ]
+    },
+    {
+      "kind": "wait",
+      "seed": 322278252,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "f22a2c55f99957a3da2de5ed92d896770c2e496f07ebfbe94e74305fa26c0c23",
+      "old_wait": [
+        "4tiao"
+      ],
+      "new_wait": [
+        "4tiao"
+      ]
+    },
+    {
+      "kind": "peng",
+      "seed": 325028681,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 9,
+      "new_net": 9,
+      "wall": "af6e6a57951d2b8152b7c89c3e689a1c5b52bc135d4e12731e020e7bd89e63bc",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325028681,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "b38eb400c726f059237128f564a6a2334e6d4ffe13d0748cda2192ccbfec2074",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325028681,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "d063526c2ee18894c1457a8abb83a3e206d99901ce733a50b1fc2dc9e3911361",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325028681,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "f770133a7c7eebb691694a7fe76b67d1a3c20242b3f08335b8580e108924ccf6",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 326942914,
+      "seat": 1,
+      "replica": 0,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "02dd1ac81326a49690be48db7c93925b2a787a3ab9bbab35348b4ac0a7963264",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 326942914,
+      "seat": 1,
+      "replica": 1,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "a0aa7d707bb635098ef8c572717db16a6ba2370c55fc0877b69e19f9168754fb",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 326942914,
+      "seat": 1,
+      "replica": 2,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "4504a9c459c0b45f0f8a2a428422214c96ad857c89d60ef335fe60fbe180378c",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 326942914,
+      "seat": 1,
+      "replica": 3,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "146e2c7c0feb7fddc456dae8bfd2724d8931032c182b606f980eabd9304e5a94",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327004399,
+      "seat": 3,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "aa73e7ebc4add1b92fe6f3b58d8faa6f168c0af36a26b819bb833fb3e6e63053",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327004399,
+      "seat": 3,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "0222a73730a6d55ed9cbd49fc83c5445e6666f76d4bb3adeb55a4ce5cd6b4fc1",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327004399,
+      "seat": 3,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "31515b39b96a1d43c2653c4c8a29d52839758409358b11c3c1fcaa4f53a0d7fb",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327004399,
+      "seat": 3,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "a6124aad8ee91d48878494f410b901edc6fe71c23e1cee6ea874d9eeb5662c34",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 324598286,
+      "seat": 1,
+      "replica": 0,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "ce694f62c3eacfb1b80b655d73ce87b2d661ede6064f3442344ab19d66b76fc5",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 324598286,
+      "seat": 1,
+      "replica": 1,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "75ab251f44b62862c0924b12175b9cd41f9cb1081d72115c703f5e1fb7c2b2ec",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 324598286,
+      "seat": 1,
+      "replica": 2,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "e28dbf045688cb513ef62d181b647572ff46beaab45c6b9a40869da72a08a02b",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 324598286,
+      "seat": 1,
+      "replica": 3,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "9wan"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "20a3337b9c251e09f3b1173521ab59bec627b414e29e3411c57f08a72c3f51e7",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327873387,
+      "seat": 1,
+      "replica": 0,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "b7c7f9acacf3c3e9a7c88faceb4130000f57d7256e06fb142dff21671572d469",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327873387,
+      "seat": 1,
+      "replica": 1,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "926d399d79c546cc933f38c9feceb80105fe8d537ddb9d2fbf64ca9ff842b1d5",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327873387,
+      "seat": 1,
+      "replica": 2,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 2,
+      "new_net": 2,
+      "wall": "77bb535a07c25808ba721a93ec96297fbd8cca9f38dc35f654a3d81099b16a73",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 327873387,
+      "seat": 1,
+      "replica": 3,
+      "lane": "tiao",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1tiao"
+        ]
+      ],
+      "old_net": 6,
+      "new_net": 6,
+      "wall": "45df912a7b002d713c4e0552c12e2cd90fc8001ed220cce6747cd21b1a3e7a22",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325270522,
+      "seat": 2,
+      "replica": 0,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "ca72820f14c933addda7af105f392fc0d951a3f7d2f285be7b8db259f5d90650",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325270522,
+      "seat": 2,
+      "replica": 1,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "f742de2f8b2741b5c031148f399f23fbf8b68d1e49247124b2a36616895af5a4",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325270522,
+      "seat": 2,
+      "replica": 2,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "3c884bec6e9374a44131c0a9ad13a5fa95eea88aa3bcab3ee2ac9a249a5c201e",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    },
+    {
+      "kind": "peng",
+      "seed": 325270522,
+      "seat": 2,
+      "replica": 3,
+      "lane": "wan",
+      "old": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "new": [
+        [
+          "peng",
+          "4tong"
+        ],
+        [
+          "discard",
+          "1wan"
+        ]
+      ],
+      "old_net": 1,
+      "new_net": 1,
+      "wall": "85e5d446dd2b0fa196e8d680d85fd3475e27daaa1f5930eff7fbd71dda0a5d0c",
+      "aux_tile": "4tong",
+      "new_peng_lane_followup": true,
+      "old_peng_lane_followup": true
+    }
+  ]
+}

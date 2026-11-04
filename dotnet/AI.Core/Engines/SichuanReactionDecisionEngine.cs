@@ -30,12 +30,16 @@ public sealed class SichuanReactionDecisionEngine
         bool mandatoryGang = false,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        if(!canHu&&SichuanIndependentSuitComparison.Enabled(state))
+            return SichuanIndependentSuitComparison.Reaction(state,()=>DecideReaction(state,reactionTileType,
+                canHu,canPeng,canGang,sourceSeat,reactionType,forceLightweight,mandatoryGang,roundBrain));
         using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = SichuanPolicyExecutionScope.EnterDecision();
         using var developmentComparison=SichuanReadyDevelopmentEvaluator.EnterReactionComparison(state,
             canPeng&&!canHu&&(!canGang||SichuanReadyDevelopmentEvaluator.CompletionExtension(state)));
         if (canHu)
         {
+			using var existingHuAuthority=SichuanPhasedSingleLanePolicy.ExistingHuAuthority();
 			var comparison = _unified.CompareDiscardHuWithPass(state, reactionTileType, sourceSeat, reactionType, canPeng, roundBrain, canGang);
 			var selected = comparison.Candidates.First(candidate => candidate.Action.ActionType == comparison.SelectedAction);
 			var actionScores = comparison.Candidates.Where(candidate => candidate.IsAdmissible).ToDictionary(candidate => candidate.Action.ActionType.ToString().ToLowerInvariant(),

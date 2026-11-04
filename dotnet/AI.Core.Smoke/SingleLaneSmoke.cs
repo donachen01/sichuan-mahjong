@@ -62,9 +62,46 @@ internal static class SingleLaneSmoke
         mixedMeld.MeldViews[0].Add(new SichuanMeldView(SichuanMeldType.Peng, 11, 1, 4));
         Check(Evaluate(mixedMeld, evaluator).Count == 0, "mixed exposed suit cannot earn flush reward", failures);
         Check(values.Values.All(v => double.IsFinite(v.Value) && v.ModeledCompletion is >= 0 and <= 1), "invalid modeled value", failures);
+        CheckPhasedPolicy(failures);
         Console.WriteLine($"SINGLE_LANE_CHECKS elapsed_ms={watch.ElapsedMilliseconds}; failures={failures.Count}");
         foreach (var failure in failures) Console.Error.WriteLine(failure);
         return failures.Count == 0 ? 0 : 1;
+    }
+
+    private static void CheckPhasedPolicy(List<string> failures)
+    {
+        var state = Make([0, 0, 2, 4, 5, 6, 8, 9, 12, 13, 14, 16, 16, 17]);
+        var phase = SichuanPhasedSingleLanePolicy.Describe(state);
+        Check(phase.Early && phase.AuxiliaryLooseDiscards.SequenceEqual([9, 17]),
+            "early loose auxiliary candidates must exclude the formed 456 sequence and the pair", failures);
+        var lane = new SichuanCandidateDetail { TileType = 8, Shanten = 1, LiveUkeire = 8 };
+        var loose = new SichuanCandidateDetail { TileType = 9, Shanten = 1, LiveUkeire = 6 };
+        var formed = new SichuanCandidateDetail { TileType = 13, Shanten = 1, LiveUkeire = 9 };
+        Check(new SichuanDiscardArbiter([lane, loose, formed], 8).Resolve(phase: phase) == 9,
+            "early preference should retain the lane and the auxiliary sequence", failures);
+        Check(new SichuanDiscardArbiter([lane, formed], 8).Resolve(phase: phase) == 8,
+            "early preference should allow lane discard when only auxiliary structure is available", failures);
+
+        SichuanDecisionCandidate Ready(int discard, int wait, double mass, double win, double draw) =>
+            new(new SichuanAction(SichuanActionType.Discard, discard), 1, 1, 0, 0, 0, 0, 0, 0, [])
+            {
+                ReadyPrice = new([new(wait, 0, 1, 2, mass)], mass, 0, 1, 2),
+                ModeledOwnWinProbability = win, ModeledSelfDrawProbability = draw
+            };
+        var auxiliaryWait = Ready(8, 9, 3, .30, .30);
+        var independentWait = Ready(9, 8, 1, .30, .10);
+        Check(SichuanPhasedSingleLanePolicy.PreferReadyWait(0, auxiliaryWait, [independentWait]) == independentWait,
+            "narrower independent wait should win on modeled opponent supply at equal value", failures);
+        Check(SichuanPhasedSingleLanePolicy.PreferReadyWait(0, auxiliaryWait, [Ready(9, 8, 0, .30, .10)]) is null,
+            "dead lane wait must not get the preference", failures);
+
+        var peng = Make([0, 0, 0, 1, 2, 3, 4, 5, 7, 7, 8, 12, 12], safeExit: false);
+        peng.Visible18[12] = 1;
+        peng.Remaining18[12] = 1;
+        peng.Phase = 6;
+        var result = new SichuanAiFacade().DecideReaction(peng, 12, false, true, false, 1);
+        Check(result.Action.ActionType == SichuanActionType.Peng && result.PlannedDiscardTile is >= 0 and < 9,
+            "valuable last auxiliary pair must be able to Peng and discard from the independent suit", failures);
     }
 
     private static IReadOnlyDictionary<int, SichuanSingleLaneValue> Evaluate(SichuanStateView state, SichuanSingleLaneEvaluator evaluator)

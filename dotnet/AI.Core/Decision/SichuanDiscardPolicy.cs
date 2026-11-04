@@ -31,7 +31,7 @@ public static class SichuanDiscardPolicy
         if(source is not null) brain=ForkPlan(source,state,brain);
         using var plan=SichuanPolicyExecutionScope.UseOwnPlan(brain);
         if(searchLeaf) LeafDepth.Value++;
-        try { return new SichuanDecisionEngine().DecideDiscard(state, false, brain); }
+        try { return SichuanIndependentSuitComparison.Discard(state,()=>new SichuanDecisionEngine().DecideDiscard(state, false, brain)); }
         finally { if(searchLeaf) LeafDepth.Value--; }
     }
 }

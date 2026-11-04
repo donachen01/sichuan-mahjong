@@ -21,6 +21,9 @@ public sealed class SichuanSelfActionDecisionEngine
         IReadOnlyList<int>? mandatoryGangTileTypes = null,
         SichuanRoundBrainSnapshot? roundBrain = null)
     {
+        if(!canSelfHu&&SichuanIndependentSuitComparison.Enabled(state))
+            return SichuanIndependentSuitComparison.Turn(state,()=>DecideSelfAction(state,canSelfHu,
+                anGangTileTypes,addGangTileTypes,addGangQiangGangCounts,mandatoryGangTileTypes,roundBrain));
         using var searchBudget = SichuanSearchBudget.Enter(state);
         using var decisionScope = Decision.SichuanPolicyExecutionScope.EnterDecision();
         SichuanSearchBudget.AllowRootDiscardSearch(state, anGangTileTypes.Count == 0 && addGangTileTypes.Count == 0);
@@ -29,6 +32,7 @@ public sealed class SichuanSelfActionDecisionEngine
 
         if (canSelfHu)
         {
+			using var existingHuAuthority=SichuanPhasedSingleLanePolicy.ExistingHuAuthority();
 			var confirmation = _unified.ConfirmSelfDrawHu(state);
 			var huCandidate = confirmation.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Hu);
 			var passCandidate = confirmation.Candidates.First(candidate => candidate.Action.ActionType == SichuanActionType.Pass);

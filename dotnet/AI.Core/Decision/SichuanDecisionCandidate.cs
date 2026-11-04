@@ -26,4 +26,7 @@ public sealed record SichuanDecisionCandidate(
     // Transient paired simulation evidence; never exported as UI payload.
     internal Search.SichuanDevelopmentTrajectoryModel.Estimate? DevelopmentEvidence { get; init; }
     internal bool NeedsMoreDevelopmentSamples { get; init; }
+    public double? DevelopmentPlanWinProbability { get; init; }
+    public double? DevelopmentPlanReadyProbability { get; init; }
+    public string ValueModel { get; init; } = "existing_shared_action_value";
 }

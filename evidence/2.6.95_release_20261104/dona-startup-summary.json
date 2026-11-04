@@ -1,0 +1,17 @@
+{
+  "device": "dona iPhone 15",
+  "processes": [
+    {
+      "pid": 13925,
+      "executable": "SichuanMahjongIOS"
+    }
+  ],
+  "apps": [
+    {
+      "bundleIdentifier": "com.chendong.sichuanmahjong.iosdev",
+      "bundleVersion": "2.6.95",
+      "name": "四川麻将新版",
+      "version": "2.6.95"
+    }
+  ]
+}

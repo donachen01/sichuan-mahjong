@@ -241,13 +241,22 @@ public sealed class SichuanUnifiedDecisionEngine
         if(development.Values.Count==candidates.Count)
         {
             var prior=candidates;
+            int referenceTile=SichuanIndependentSuitComparison.ReferenceDiscard(state);
+            bool independentComparison=referenceTile>=0&&prior.Any(c=>c.Action.TileType==referenceTile)
+                &&SichuanIndependentSuitObjective.Suit(state)>=0;
+            var pricedDevelopment=development.Values.ToDictionary(p=>p.Key,p=>independentComparison&&p.Key!=referenceTile
+                ?p.Value.IndependentAlternative??p.Value:p.Value);
             int players=Math.Max(2,Enumerable.Range(0,4).Count(x=>state.ActiveSeats[x]&&!state.HasHu[x]));
             candidates=candidates.Select(c=>
             {
-                var v=development.Values[c.Action.TileType];var chance=v.Estimate.Chance;
+                var v=pricedDevelopment[c.Action.TileType];var chance=v.Estimate.Chance;
                 var utility=_multiPlayer.Evaluate(SichuanLearningClosurePolicy.OwnCash(state,chance.ExpectedOwnWinGain,0,chance.ExpectedChaJiaoValue,
                     c.DealInLoss,chance.ExpectedOpponentLoss,0,0,.18,players,.78));
                 return c with{ExpectedNetScore=utility.NetUtility,WinGain=chance.ExpectedOwnWinGain,
+                    IsAdmissible=!independentComparison||c.Action.TileType==referenceTile||v.IndependentSuitGoal,
+                    DevelopmentPlanWinProbability=chance.OwnWinProbability,
+                    DevelopmentPlanReadyProbability=v.Estimate.ReadyProbability,
+                    ValueModel="bounded_plan_not_full_policy_win_rate",
                     GangGain=0,ChaJiaoValue=chance.ExpectedChaJiaoValue,OpponentFutureLoss=chance.ExpectedOpponentLoss,
                     RouteContinuationValue=0,UncertaintyPenalty=.18,
                     ModeledOwnWinProbability=c.ReadyPrice is null?null:chance.OwnWinProbability,
@@ -256,13 +265,24 @@ public sealed class SichuanUnifiedDecisionEngine
                         SichuanReadyDevelopmentEvaluator.CompletionExtension(state)?"PUBLIC_COMMON_READY_ENDPOINT_VALUE":"SEVEN_PAIRS_COMMON_READY_ENDPOINT_VALUE",
                         $"SEVEN_PAIRS_DEVELOPMENT_N{development.Samples}_ENDPOINTS{development.Endpoints}_MS{development.Ms:F1}",
                         $"SEVEN_PAIRS_ENDPOINT_{v.Endpoint}_PLANS{v.Plans}_WIN{chance.OwnWinProbability:F4}_READY{v.Estimate.ReadyProbability:F4}_PENG{v.Estimate.PengProbability:F4}_SE{v.StandardError:F4}",
-                        "SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS"}.Concat(c.ReasonCodes).ToArray()};
+                        "SEVEN_PAIRS_SHARED_WIN_PRICE_DELAY_LOSS_NO_ROUTE_OR_DISTANCE_BONUS"}
+                        .Concat(SichuanIndependentSuitObjective.Suit(state)>=0?new[]{
+                            "INDEPENDENT_SUIT_SHARED_MIXED_DEVELOPMENT",
+                            v.IndependentSuitGoal?"INDEPENDENT_SUIT_GOAL_PLAN":"INDEPENDENT_SUIT_CASH_OR_ALTERNATIVE_PLAN"}:Array.Empty<string>())
+                        .Concat(c.ReasonCodes).ToArray()};
             }).ToList();
-            var previous=prior.OrderByDescending(c=>c.ExpectedNetScore).ThenBy(c=>c.Action.TileType).First();
-            var proposed=candidates.OrderByDescending(c=>c.ExpectedNetScore).ThenBy(c=>c.Action.TileType).First();
-            if(previous.Action.TileType!=proposed.Action.TileType)
+            var previous=prior.FirstOrDefault(c=>c.Action.TileType==referenceTile)
+                ??prior.OrderByDescending(c=>c.ExpectedNetScore).ThenBy(c=>c.Action.TileType).First();
+            var proposed=candidates.Where(c=>c.IsAdmissible).OrderByDescending(c=>c.ExpectedNetScore)
+                .ThenByDescending(c=>pricedDevelopment[c.Action.TileType].IndependentSuitGoal)
+                .ThenBy(c=>c.Action.TileType).First();
+            if(independentComparison&&!pricedDevelopment[proposed.Action.TileType].IndependentSuitGoal)
+                candidates=candidates.Select(c=>c with{ReasonCodes=c.ReasonCodes.Concat(new[]{
+                    "INDEPENDENT_SUIT_ALTERNATIVE_MODEL_NOT_AUTHORIZED_TO_REPLACE_COMPLETE_REFERENCE"})
+                    .Concat(c.Action.TileType==referenceTile?new[]{"SEVEN_PAIRS_DEVELOPMENT_PRESERVE_INCUMBENT"}:Array.Empty<string>()).ToArray()}).ToList();
+            else if(previous.Action.TileType!=proposed.Action.TileType)
             {
-                var a=development.Values[proposed.Action.TileType].Estimate;var b=development.Values[previous.Action.TileType].Estimate;
+                var a=pricedDevelopment[proposed.Action.TileType].Estimate;var b=pricedDevelopment[previous.Action.TileType].Estimate;
                 var reference=candidates.Single(c=>c.Action.TileType==previous.Action.TileType);
                 static double PairedError(double[] x,double[] y)
                 {var d=x.Zip(y,(a,b)=>a-b).ToArray();double m=d.Average();return Math.Sqrt(d.Sum(v=>(v-m)*(v-m))/(d.Length*(d.Length-1)));}
@@ -274,6 +294,13 @@ public sealed class SichuanUnifiedDecisionEngine
                 var aa=SichuanMultiPlayerUtilityEngine.NumericalCenteredSeries(Input(proposed),a.Gains,a.Losses,a.ChaValues);
                 var bb=SichuanMultiPlayerUtilityEngine.NumericalCenteredSeries(Input(reference),b.Gains,b.Losses,b.ChaValues);
                 double error=PairedError(aa,bb);
+                if(independentComparison&&pricedDevelopment[proposed.Action.TileType].IndependentSuitGoal
+                    &&proposed.ExpectedNetScore-reference.ExpectedNetScore>2*error)
+                {
+                    SichuanIndependentSuitComparison.ConfirmDiscard(state,proposed.Action.TileType);
+                    candidates=candidates.Select(c=>c.Action.TileType!=proposed.Action.TileType?c:c with{
+                        ReasonCodes=c.ReasonCodes.Append($"INDEPENDENT_SUIT_PAIRED_GAIN_{proposed.ExpectedNetScore-reference.ExpectedNetScore:F5}_SE_{error:F5}_CONFIRMED_True").ToArray()}).ToList();
+                }
                 if(proposed.ExpectedNetScore-reference.ExpectedNetScore<=2*error)
                     candidates=candidates.Select(c=>c with{ReasonCodes=c.ReasonCodes.Concat(new[]{
                         $"SEVEN_PAIRS_DEVELOPMENT_NUMERICAL_CHANGE_NOT_CONFIRMED_SE{error:F4}"})
@@ -299,7 +326,8 @@ public sealed class SichuanUnifiedDecisionEngine
                 }).ToList();
         }
 		var ordered = candidates
-            .OrderByDescending(candidate => candidate.ExpectedNetScore).ThenBy(candidate => candidate.Action.TileType).ToArray();
+            .OrderByDescending(candidate=>candidate.IsAdmissible)
+            .ThenByDescending(candidate => candidate.ExpectedNetScore).ThenBy(candidate => candidate.Action.TileType).ToArray();
 		var selected = ordered.FirstOrDefault();
 		return selected is null
 			? new SichuanDecisionExplanation(SichuanActionType.Pass, "没有合法弃牌", new[] { "NO_LEGAL_DISCARD" }, Array.Empty<SichuanDecisionCandidate>())
@@ -447,17 +475,26 @@ public sealed class SichuanUnifiedDecisionEngine
             double[] Series(SichuanDecisionCandidate c,SichuanDevelopmentTrajectoryModel.Estimate e)=>
                 SichuanMultiPlayerUtilityEngine.NumericalCenteredSeries(SichuanLearningClosurePolicy.OwnCash(state,c.WinGain,0,c.ChaJiaoValue,
                     c.DealInLoss,c.OpponentFutureLoss,0,0,.18,players,.78),e.Gains,e.Losses,e.ChaValues);
-            var p=Series(passCandidate,pe);
+            var reference=candidates.FirstOrDefault(c=>c.Action.ActionType==SichuanIndependentSuitComparison.ReferenceReaction(state))
+                ??passCandidate;
+            var referenceEvidence=reference.DevelopmentEvidence;
+            var p=referenceEvidence is not null?Series(reference,referenceEvidence):Array.Empty<double>();
             candidates=candidates.Select(c=>
             {
-                if(c.Action.ActionType!=SichuanActionType.Peng||c.DevelopmentEvidence is not {} e)return c;
+                if(c.Action.ActionType==reference.Action.ActionType)return c;
+                if(SichuanIndependentSuitComparison.ReferenceReaction(state) is null&&c.Action.ActionType!=SichuanActionType.Peng)return c;
+                if(c.DevelopmentEvidence is not {} e||p.Length<2)
+                    return SichuanIndependentSuitComparison.ReferenceReaction(state) is null?c:c with{
+                        IsAdmissible=false,ReasonCodes=c.ReasonCodes.Append("INDEPENDENT_SUIT_UNPAIRED_RETAIN_COMPLETE_REFERENCE").ToArray()};
                 var x=Series(c,e);if(x.Length!=p.Length||x.Length<2)throw new InvalidOperationException("unpaired_claim_evidence");
                 var d=x.Zip(p,(a,b)=>a-b).ToArray();double mean=d.Average();
                 double se=Math.Sqrt(d.Sum(v=>(v-mean)*(v-mean))/(d.Length*(d.Length-1)));
-                double difference=c.ExpectedNetScore-passCandidate.ExpectedNetScore;
+                double difference=c.ExpectedNetScore-reference.ExpectedNetScore;
                 bool confirmed=difference>2*se;
-                return c with{IsAdmissible=difference<=0||confirmed,NeedsMoreDevelopmentSamples=Math.Abs(difference)<=2*se,ReasonCodes=c.ReasonCodes.Append(
-                    $"PUBLIC_CLAIM_PAIRED_MEAN_{c.ExpectedNetScore-passCandidate.ExpectedNetScore:F5}_SE_{se:F5}_CONFIRMED_{confirmed}").ToArray()};
+                return c with{IsAdmissible=SichuanIndependentSuitComparison.ReferenceReaction(state) is null?difference<=0||confirmed:confirmed,
+                    NeedsMoreDevelopmentSamples=Math.Abs(difference)<=2*se,ReasonCodes=c.ReasonCodes.Append(
+                    $"PUBLIC_CLAIM_PAIRED_MEAN_{difference:F5}_SE_{se:F5}_CONFIRMED_{confirmed}")
+                    .Append($"PUBLIC_CLAIM_COMPLETE_REFERENCE_{reference.Action.ActionType}").ToArray()};
             }).ToList();
         }
 		var ordered = candidates.OrderByDescending(c=>c.IsAdmissible).ThenByDescending(candidate => candidate.ExpectedNetScore)
